@@ -29,7 +29,7 @@ function Navbar() {
         <div className=''>
             <ul className='flex items-center gap-8 font-semibold bg-[#F6F8FA] rounded-[100px] border-[1px] border-[lightGray]'>
                 {
-                    navItems.map((nav)=>(
+                    navItems.filter(n=>!["FAQ","Privacy policy"].includes(n.name)).map((nav)=>(
                         <li key={nav.name} className='py-[8px] px-2'>
                             <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active" : "")}>
                                 {nav.name}

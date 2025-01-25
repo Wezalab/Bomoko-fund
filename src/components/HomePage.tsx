@@ -7,8 +7,11 @@ import popularProjectImage1 from '../assets/popularProjectImg1.png'
 import popularProjectImage2 from '../assets/popularProjectProfile2.png'
 import popularProjectImage3 from '../assets/popularProjectProfile3.png'
 import popularProjectProfileImg from '../assets/popularProjectProfile1.png'
-
-
+import { userTestimonials } from "@/constants/dummydata";
+import TestimonialCard from "./TestimonialCard";
+import testimonialBg from '../assets/testimonialBg.png'
+import testimonialProfile5 from '../assets/testimonialPic5.png'
+import testimonialProfile6 from '../assets/testimonialPic6.png'
 
 
 
@@ -76,9 +79,9 @@ function HomePage() {
             </Button>
           </div>
 
-          <div className="relative grid grid-cols-3 gap-10 py-10 h-[750px] w-full">
+          <div className="relative grid grid-cols-8  py-10 h-[750px] w-full">
             <PopularProjectCard 
-              className="absolute -bottom-36 left-16"
+              className="absolute -bottom-36 left-0 col-span-2"
               image={popularProjectImage1}
               title="Goma disaster recovery"
               desc="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque"
@@ -87,8 +90,9 @@ function HomePage() {
               limit={12000}
               profile={popularProjectProfileImg}
             />
+            <div className="col-span-1"></div>
             <PopularProjectCard 
-              className="absolute -bottom-16"
+              className="absolute -bottom-16 col-span-2"
               image={popularProjectImage2}
               title="Support 230 Children to get school fees"
               desc="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque"
@@ -97,8 +101,9 @@ function HomePage() {
               limit={12000}
               profile={popularProjectProfileImg}
             />
+            <div className="col-span-1"></div>
             <PopularProjectCard 
-              className="absolute -top-16"
+              className="absolute -top-16 col-span-2"
               image={popularProjectImage3}
               title="Help Kamana John get back to life"
               desc="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque"
@@ -134,7 +139,64 @@ function HomePage() {
                 from choosing a style to saving or sharing the final artwork
               </span>
             </div>
-            
+          </div>
+          <div className="h-[600px] w-full mt-8 relative grid grid-cols-1 gap-y-8">
+            <img
+              src={testimonialBg}
+              className="w-full h-full absolute inset-10"
+              alt="testimonial-bg"
+            />
+            {
+              userTestimonials.map((testimonial)=>(
+                <TestimonialCard 
+                  className={
+                    testimonial.id ==="1"?'absolute left-[2%]':
+                    testimonial.id ==="2"?"absolute left-[15%]":
+                    testimonial.id ==="3"?'absolute left-[25%]':
+                    testimonial.id ==="4"?'absolute left-[35%]':
+                    ''
+                  }
+                  key={testimonial.id}
+                  img={testimonial.img}
+                  name={testimonial.name}
+                  description={testimonial.description}
+                />
+              ))
+            }
+            <div className="absolute top-10 right-[10%] grid grid-cols-1">
+              <img
+                src={testimonialProfile5}
+                className="w-[120px] h-[120xp] rounded-[15px]"
+                alt="testimonial-profile5"
+              />
+              <img
+                src={testimonialProfile6}
+                className="w-[120px] left-[92%] absolute -bottom-[96%] h-[120xp] rounded-[15px]"
+                alt="testimonial-profile6"
+              />
+            </div>
+            <div className="w-[323px] absolute rounded-3xl -bottom-5 left-0 h-[200px] py-3 px-5 bg-darkBlue">
+              <span className="text-white text-[32px] font-semibold">
+                Be part of the 
+                change!
+              </span>
+              <div className="absolute bottom-2 w-[108px] h-[80px] rounded-xl p-3 left-2 bg-lightGray flex flex-col space-y-1">
+                <span className="text-white font-[400]">4 Steps</span>
+                <span className="text-white text-[9px]">
+                  to get funds for your project
+                </span>
+              </div>
+              <div className="bg-white absolute rounded-tl-xl rounded-br-xl p-1 flex items-center bottom-0 right-0">
+                <div className="p-2 w-16 h-16 rounded-full bg-lightBlue flex items-center justify-center">
+                  <MdOutlineArrowOutward size={20} color="white" />
+                </div>
+                <Button
+                  className="w-[130px] h-[56px] rounded-[100px] bg-lightBlue text-white"
+                > 
+                  Try it Now
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
         {/* end of users testimonials */}
