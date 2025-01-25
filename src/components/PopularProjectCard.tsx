@@ -27,7 +27,7 @@ function PopularProjectCard({
    
     const percentage = Math.min((amount / limit) * 100, 100);
   return (
-    <div className={'w-[400px] h-[550px] relative rounded-md'+className}>
+    <div className={'w-full h-[550px] relative rounded-md'+className}>
         <img 
             className="w-full h-full object-cover rounded-2xl"
             src={image}
@@ -45,7 +45,9 @@ function PopularProjectCard({
                 <span className="text-xs font-semibold">{type}</span>
             </div>
             <div className="flex flex-col space-y-4 absolute bottom-5 left-2 text-white">
-                <span className="text-[24px] font-semibold">{title}</span>
+                <div className="w-[280px]">
+                    <span className="text-[24px] font-semibold">{title}</span>
+                </div>     
                 <span className="text-sm">{desc}</span>
                 <div className="mt-5 w-[98%]">
                     <div className="flex items-center justify-between">
