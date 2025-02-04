@@ -1,0 +1,162 @@
+import { useAppSelector } from "@/redux/hooks"
+import { initialState, selectProject, setProject } from "@/redux/slices/projectSlice"
+import { Button } from "./ui/button"
+import projectVideo from '../assets/project-video.jpg'
+import projectImage2 from '../assets/02.jpg'
+import projectProfile from '../assets/project-profile.png'
+import { files } from "@/constants/dummydata"
+import FileAttachment from "./FileAttachment"
+import ProgressBar from "./ProgressBar"
+import { FaGift,FaShareAlt } from "react-icons/fa"
+import { useNavigate } from "react-router-dom"
+import { useState } from "react"
+import Donate from "./Donate"
+
+function SingleProject() {
+    const [donate,setDonate]=useState(false)
+    const project=useAppSelector(selectProject)
+    const navigate=useNavigate()
+    //console.log("selected project:",project)
+  return (
+    <div className="relative">
+        {
+            donate &&
+            <div className="w-[500px] fixed top-[10%] z-10 left-[40%]">
+                <Donate onClose={()=>setDonate(false)} />
+            </div>
+        }
+        <div className={donate ?"blur-sm grid grid-cols-4 gap-x-10 pr-5" :"grid grid-cols-4  gap-x-10 pr-5"}>
+            
+            <div className="col-span-3">
+                <div className="w-full h-[500px] relative">
+                    <img 
+                        src={project.image}
+                        className="w-full h-full object-cover"
+                        alt={project.title}
+                    />
+                    <Button
+                        onClick={()=>{
+                            setProject(initialState.project)
+                            navigate('/projects')
+                        }}
+                        className="text-black h-12 text-xl w-28 top-[5%] left-[2%] rounded-[100px] absolute z-10 bg-white hover:bg-lightGreen"
+                    >
+                        Back
+                    </Button>
+                    <div className="flex flex-col space-y-5 absolute bottom-[10%] z-10 left-[5%]">
+                        <div className="bg-[#D6FFE7] py-1 px-4 rounded-2xl max-w-fit">
+                            <span className="">{project.title}</span>
+                        </div>
+                        
+                        
+                        <span className="text-[24px] font-semibold text-white">{project.desc}</span>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2  w-[80%] ml-auto gap-5 my-12">
+                    <img
+                        src={projectVideo}
+                        className="w-full h-full object-fill rounded-lg"
+                        alt="project-video"
+                    />
+                    <img 
+                        src={projectImage2}
+                        className="w-full h-full object-fill rounded-lg"
+                        alt="project-image"
+                    />
+                </div>
+                <div className="grid grid-cols-4 w-[80%] ml-auto gap-x-8 my-5">
+                    <div className="col-span-1 max-h-fit bg-gray-200 p-5 rounded-xl">
+                        <div className="flex space-x-5">
+                            <img 
+                                className="w-[64px] h-[64px] rounded-full"
+                                src={projectProfile}
+                                alt="project-profile"
+                            />
+                            <div className="flex flex-col space-y-2">
+                                <span>Created By</span>
+                                <span className="font-semibold text-[20px]">Kamana John</span>
+                            </div>
+                        </div>
+                        <div className="my-5 flex flex-col space-y-2">
+                            <span className="text-lightGray">Created on</span>
+                            <span className="text-lightGray font-semibold text-[20px]">22 Septembre 2024</span>
+                        </div>
+                        <div className="my-5 flex flex-col space-y-2">
+                            <span className="text-lightGray">Created on</span>
+                            <span className="text-lightGray font-semibold text-[20px]">22 Septembre 2024</span>
+                        </div>
+                    </div>
+                    <div className="col-span-3 mx-auto flex text-justify flex-col items-center space-y-5">
+                        <p className="font-semibold text-[20px] text-lightGray">
+                            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. 
+                            Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. 
+                            Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, 
+                            aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede
+                        </p>
+                        <p className="font-semibold text-[20px] text-lightGray">
+                            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. 
+                            Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. 
+                            Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, 
+                            aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede
+                        </p>
+                        <p className="font-semibold text-[20px] text-lightGray">
+                            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. 
+                            Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. 
+                            Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, 
+                            aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede
+                        </p>
+                        <p className="font-semibold text-[20px] text-lightGray">
+                            Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. 
+                            Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. 
+                            Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, 
+                            aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede
+                        </p>
+                    </div>
+                </div>
+                <div className="w-[80%] ml-auto my-10">
+                    <span className="text-[24px] font-bold ">Project attachments</span>
+                    <div className="grid grid-cols-2 gap-5 mt-5">
+                        {
+                            files.map((file,index)=>(
+                                <FileAttachment key={index} file={file} />
+                            ))
+                        }
+                    </div>
+                </div>
+            </div>
+            <div className="col-span-1 h-[320px] shadow-md p-5 bg-white rounded-2xl">
+                <div className="mt-5 w-[98%] mb-5">
+                    <div className="flex items-center justify-between mb-2">
+                        <span className="text-xl capitalize">{project.amount}$ raised</span>
+                        <span className="text-xl">{Math.round(Math.min((project.amount / project.limit) * 100, 100))}%</span>
+                    </div>
+                    <div className="w-full">
+                        <ProgressBar 
+                            value={project.amount}
+                            max={project.limit}
+                        />
+                    </div>
+                </div>
+                <span className="text-xl text-black">29 days to go</span>
+                <div className="w-3/4 mx-auto mt-5 flex flex-col space-y-4">
+                    <Button
+                        onClick={()=>setDonate(true)}
+                        className="bg-darkBlue flex items-center space-x-5 font-semibold text-2xl text-white h-14 w-full  rounded-[100px]"
+                    >
+                        <FaGift  />
+                        Donate
+                    </Button>
+                    <Button
+                        className="bg-white text-black flex items-center space-x-5 text-2xl  font-semibold h-14 w-full  rounded-[100px]"
+                    >
+                        <FaShareAlt  size={56}/>
+                        Share
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </div>
+  )
+}
+
+export default SingleProject

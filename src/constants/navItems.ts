@@ -14,13 +14,5 @@ export const navItems=[
     {
         name:"contact us",
         link:"/contact-us"
-    },
-    {
-        name:"FAQ",
-        link:"/faq"
-    },
-    {
-        name:"Privacy policy",
-        link:"/privacy-policy"
     }
 ]
