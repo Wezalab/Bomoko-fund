@@ -14,8 +14,9 @@ import {
   } from "@/components/ui/navigation-menu"
 
 
-function Navbar() {
+function Navbar({signIn,signUp,setSignUp,setSignIn}:{signIn:boolean,signUp:boolean,setSignIn:any,setSignUp:any}) {
     const [user]=useState('')
+    
   return (
     <nav className='py-[16px] sticky top-0 z-30 px-[80px] flex items-center justify-between bg-white shadow-sm'>
         <div className='flex items-center space-x-[8px]'>
@@ -29,7 +30,7 @@ function Navbar() {
         <div className=''>
             <ul className='flex items-center gap-8 font-semibold bg-[#F6F8FA] rounded-[100px] border-[1px] border-[lightGray]'>
                 {
-                    navItems.filter(n=>!["FAQ","Privacy policy"].includes(n.name)).map((nav)=>(
+                    navItems.map((nav)=>(
                         <li key={nav.name} className='py-[8px] px-2'>
                             <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active" : "")}>
                                 {nav.name}
@@ -58,12 +59,16 @@ function Navbar() {
             !user &&
             <div className='flex items-center gap-5'>
                 <Button
-                    className="py-[8px] bg-white h-[48px] w-[95px] border-[1px] border-darkBlue text-darkBlue rounded-[100px] hover:bg-lightBlue hover:border-none hover:text-white"
+                    disabled={signIn}
+                    onClick={()=>setSignIn(true)}
+                    className={signIn ?"py-[8px] bg-white cursor-not-allowed h-[48px] w-[95px] border-[1px] border-darkBlue text-darkBlue rounded-[100px] hover:bg-lightBlue hover:border-none hover:text-white" :"py-[8px] bg-white h-[48px] w-[95px] border-[1px] border-darkBlue text-darkBlue rounded-[100px] hover:bg-lightBlue hover:border-none hover:text-white"}
                 >
                     Log In
                 </Button>
                 <Button
-                    className='text-white h-[48px] w-[95px] font-semibold bg-darkBlue py-[8px] rounded-[100px]'
+                    disabled={signUp}
+                    onClick={()=>setSignUp(true)}
+                    className={signUp ?'text-white h-[48px] cursor-not-allowed w-[95px] font-semibold bg-darkBlue py-[8px] rounded-[100px]':'text-white h-[48px] w-[95px] font-semibold bg-darkBlue py-[8px] rounded-[100px]'}
                 >
                     Sign Up
                 </Button>

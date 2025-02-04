@@ -15,7 +15,7 @@ export default {
   			lightGray: '#666D80',
   			white: '#FFFFFF',
   			yellow: '#FFF93F',
-  			red: '#D84C10',
+  			LightRed: '#D84C10',
   			grayColor: '#ECEFF3',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

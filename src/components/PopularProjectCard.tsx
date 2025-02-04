@@ -10,8 +10,9 @@ interface PopularProjectCardProps{
    profile?:string
    type?:string 
    limit:number 
-   className:string
+   className?:string
    amount:number
+   onClick?:any
 }
 
 function PopularProjectCard({
@@ -22,14 +23,15 @@ function PopularProjectCard({
     type,
     limit,
     className,
-    amount
+    amount,
+    onClick
 }:PopularProjectCardProps) {
    
-    const percentage = Math.min((amount / limit) * 100, 100);
+    const percentage = Math.round(Math.min((amount / limit) * 100, 100));
   return (
-    <div className={'w-full h-[550px] relative rounded-md'+className}>
+    <div className={'w-full h-[550px] relative cursor-pointer hover:opacity-50 rounded-md'+className}>
         <img 
-            className="w-full h-full object-cover rounded-2xl"
+            className="w-full h-full object-cover rounded-2xl brightness-75"
             src={image}
             alt="project-bg"
         />
@@ -41,10 +43,10 @@ function PopularProjectCard({
                     alt="popularProject-profile"
                 />
             </div>
-            <div className="w-[57px] h-[24px] rounded-md absolute right-5 top-6 bg-yellow text-black text-center">
+            <div className="py-1 px-3 rounded-md absolute right-5 top-6 bg-yellow text-black text-center">
                 <span className="text-xs font-semibold">{type}</span>
             </div>
-            <div className="flex flex-col space-y-4 absolute bottom-5 left-2 text-white">
+            <div className="flex w-full flex-col space-y-4 absolute bottom-5 left-2 text-white">
                 <div className="w-[280px]">
                     <span className="text-[24px] font-semibold">{title}</span>
                 </div>     
@@ -54,20 +56,23 @@ function PopularProjectCard({
                         <span>{amount}$</span>
                         <span>{percentage}%</span>
                     </div>
-                    <ProgressBar 
-                        value={amount}
-                        max={limit}
-                    />
+                    <div className="w-full">
+                        <ProgressBar 
+                            value={amount}
+                            max={limit}
+                        />
+                    </div>
                 </div>
                 <div className="flex items-center space-x-10">
                     <Button
-                        className="flex items-center justify-between bg-lightBlue hover:bg-blue-200 text-white rounded-[100px] w-[150px] h-[48px]"
+                        className="flex items-center justify-between bg-lightBlue hover:bg-blue-700 text-white rounded-[100px] w-[150px] h-[48px]"
                     >
                         Donate 
                         <FaGift color="white" size={28} />
                     </Button>
                     <Button
-                        className="flex items-center justify-between bg-transparent text-white border-2 border-white rounded-[100px] w-[150px] h-[48px]"
+                        onClick={onClick}
+                        className="flex items-center justify-between bg-transparent hover:bg-black text-white border-2 border-white rounded-[100px] w-[150px] h-[48px]"
                     >
                         View more
                         <MdOutlineArrowOutward size={24} color="white" />

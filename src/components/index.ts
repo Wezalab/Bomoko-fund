@@ -6,9 +6,12 @@ import WorkPage from "./WorkPage";
 import ContactPage from "./ContactPage";
 import PopularProjectCard from "./PopularProjectCard";
 import ProgressBar from "./ProgressBar";
-
-
-
+import ViewProjectChecker from "./ViewProjectchecker";
+import SingleProject from "./SingleProject";
+import FileAttachment from "./FileAttachment";
+import SignIn from "./SignIn";
+import SignUp from "./SignUp";
+import FaqPage from "./FaqPage";
 
 export {
     HomePage,
@@ -18,5 +21,11 @@ export {
     WorkPage,
     ContactPage,
     PopularProjectCard,
-    ProgressBar
+    ProgressBar,
+    ViewProjectChecker,
+    SingleProject,
+    FileAttachment,
+    SignIn,
+    SignUp,
+    FaqPage
 }
