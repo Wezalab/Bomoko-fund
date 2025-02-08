@@ -7,9 +7,13 @@ export declare interface IProject{
     amount:number 
     limit:number 
     profile:string
+    projectEndDate: any;
+    notifications?: any[] |  undefined;
+    projectAttachement?: ProjectAttachment[] | undefined;
 }
 
 export type ProjectAttachment = {
+    name:string
     type: "image" | "pdf" | "video";
     url: string;
   };

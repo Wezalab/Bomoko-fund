@@ -1,4 +1,4 @@
-import { IProject } from "@/types";
+import { IProject, Project } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
@@ -11,7 +11,11 @@ export const initialState={
         type:"",
         amount:0,
         limit:0,
-        profile:''
+        profile:'',
+        projectEndDate:"",
+        notifications:[],
+        projectAttachement:[]
+
     } satisfies IProject
 }
 
@@ -20,6 +24,7 @@ export const projectSlice=createSlice({
     initialState,
     reducers:{
         setProject:(state,action:PayloadAction<IProject>)=>{
+            //@ts-ignore
             state.project=action.payload
         }
     }

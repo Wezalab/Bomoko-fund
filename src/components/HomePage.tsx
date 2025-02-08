@@ -12,10 +12,12 @@ import TestimonialCard from "./TestimonialCard";
 import testimonialBg from '../assets/testimonialBg.png'
 import testimonialProfile5 from '../assets/testimonialPic5.png'
 import testimonialProfile6 from '../assets/testimonialPic6.png'
+import { useNavigate } from "react-router-dom";
 
 
 
 function HomePage() {
+  const  navigate=useNavigate()
   return (
     <section className="bg-gray-100 px-10 py-10">
         <div className="grid grid-cols-2 gap-x-8 py-16">
@@ -71,7 +73,8 @@ function HomePage() {
                 These initiatives are making a meaningful impact and improving the quality of life for countless individuals.
               </span>
             </div>
-            <Button
+            <Button 
+              onClick={()=>navigate("/projects")}
               className="w-[150px] h-[48px] flex items-center gap-5 rounded-[100px] bg-darkBlue text-white"
             >
               View all

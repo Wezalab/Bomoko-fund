@@ -3,6 +3,7 @@ import { combineReducers } from 'redux';
 import storage from 'redux-persist/lib/storage'
 import { persistReducer, persistStore } from 'redux-persist';
 import projectReducer from './slices/projectSlice'
+import userReducer from './slices/userSlice'
 
 // import { encryptTransform } from 'redux-persist-transform-encrypt';
 // import { thunk } from 'redux-thunk';
@@ -24,7 +25,8 @@ const persistConfig = {
 
 // Combine your reducers
 const reducers = combineReducers({
-    projectReducer
+    projectReducer,
+    userReducer
 });
 
 // Create a persisted reducer

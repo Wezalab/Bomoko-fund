@@ -656,18 +656,18 @@ export const users: User[] = [
       {
         id: "proj-001",
         title: "E-commerce Website",
-        image: "https://example.com/projects/ecommerce.jpg",
+        image: popularProjectImage1,
         desc: "An online marketplace for various products.",
         type: "Web Development",
         amount: 5000,
         limit: 10000,
-        profile: "https://example.com/profiles/user1.jpg",
+        profile: popularProjectProfileImg,
         projectEndDate: "2025-12-31",
         notifications: ["Project milestone reached", "New contributor added"],
         projectAttachement: [
-          { type: "image", url: "https://example.com/projects/ecommerce-preview.jpg" },
-          { type: "pdf", url: "https://example.com/projects/ecommerce-doc.pdf" },
-          { type: "video", url: "https://example.com/projects/ecommerce-demo.mp4" }
+          { name:"File title1",type: "image", url: "https://example.com/projects/ecommerce-preview.jpg" },
+          { name:"File title2",type: "pdf", url: "https://example.com/projects/ecommerce-doc.pdf" },
+          { name:"File title3",type: "video", url: "https://example.com/projects/ecommerce-demo.mp4" }
         ]
       }
     ],
@@ -684,18 +684,18 @@ export const users: User[] = [
       {
         id: "proj-002",
         title: "AI Chatbot",
-        image: "https://example.com/projects/chatbot.jpg",
+        image: popularProjectImage3,
         desc: "A chatbot powered by AI for customer support.",
         type: "AI/ML Development",
         amount: 10000,
         limit: 20000,
-        profile: "https://example.com/profiles/user2.jpg",
+        profile: popularProjectProfileImg,
         projectEndDate: "2026-06-15",
         notifications: ["Beta version released", "New feedback received"],
         projectAttachement: [
-          { type: "image", url: "https://example.com/projects/chatbot-ui.jpg" },
-          { type: "pdf", url: "https://example.com/projects/chatbot-specs.pdf" },
-          { type: "video", url: "https://example.com/projects/chatbot-demo.mp4" }
+          { name:"IMAGE",type: "image", url: "https://example.com/projects/chatbot-ui.jpg" },
+          { name:"PDF",type: "pdf", url: "https://example.com/projects/chatbot-specs.pdf" },
+          { name:"VIDEO",type: "video", url: "https://example.com/projects/chatbot-demo.mp4" }
         ]
       }
     ],
@@ -736,3 +736,30 @@ export const users: User[] = [
   }
 ];
 
+export const faqs = [
+  {
+    id: "1",
+    title: "How does the fundraising platform work?",
+    desc: "Our platform allows individuals and organizations to create fundraising campaigns, collect donations securely, and withdraw funds to their accounts."
+  },
+  {
+    id: "2",
+    title: "What payment methods are accepted?",
+    desc: "We accept payments via credit/debit cards, PayPal, mobile money, and bank transfers, ensuring a smooth donation process for supporters."
+  },
+  {
+    id: "3",
+    title: "Is there a fee for using the platform?",
+    desc: "Yes, we charge a small transaction fee to cover processing and operational costs. The exact percentage varies depending on the payment method."
+  },
+  {
+    id: "4",
+    title: "How long does it take to receive funds?",
+    desc: "Funds are processed within 3-5 business days after a withdrawal request is made. Bank processing times may vary."
+  },
+  {
+    id: "5",
+    title: "Is my donation secure?",
+    desc: "Yes, we use industry-standard encryption and security protocols to ensure that all donations and personal information are protected."
+  }
+];
