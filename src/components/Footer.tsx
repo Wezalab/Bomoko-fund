@@ -5,13 +5,7 @@ import { MdLocationOn,MdEmail,MdOutlinePhoneIphone, MdOutlineArrowOutward } from
 import { FaInstagramSquare,FaLinkedin,FaTwitterSquare,FaFacebookSquare,FaYoutube } from "react-icons/fa";
 import { navItems } from '@/constants/navItems';
 import { NavLink, useLocation } from 'react-router-dom';
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuList,
-  NavigationMenuTrigger
-} from "@/components/ui/navigation-menu"
+
 import appLogo from '../assets/footerImg.png'
 
 
