@@ -17,8 +17,9 @@ import {
 import FilterModal from './FilterModal';
 import ViewProjectChecker from './ViewProjectchecker';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setProject } from '@/redux/slices/projectSlice';
+import { selectUser } from '@/redux/slices/userSlice';
 
 
 
@@ -35,10 +36,15 @@ function ProjectPage() {
     regions:[],
     creatorGenre:""
   })
+  const user=useAppSelector(selectUser)
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const currentData = projects?.slice(
+  const currentData = user.email ? user.projects?.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    ):
+    projects?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -51,16 +57,18 @@ function ProjectPage() {
     setCurrentPage(page);
   };
 
+  //console.log("selected project",selectedProject)
+  //console.log("current data:",currentData)
   return (
     <div className=''>
         {
-          viewProjectSecurity &&
+          (viewProjectSecurity && !user.email) &&
           <div className='fixed bg-white rounded-xl top-[20%] z-10 left-[35%] w-[30%]'>
             <ViewProjectChecker 
               onClose={()=>setViewProjectSecurity(false)} 
               next={()=>{
                 setViewProjectSecurity(false)
-                navigate(`/projects/${selectedProject?.id}`)
+                navigate(`/projects/${selectedProject.id}`)
               }}
             />
           </div> 
@@ -68,7 +76,7 @@ function ProjectPage() {
         }
         {
           openFilter && 
-          <div className='fixed bg-white rounded-xl top-[20%] z-10 left-[35%] w-[30%]'>
+          <div className='fixed bg-white rounded-xl top-[12%] z-10 left-[35%] w-[30%]'>
             <FilterModal onClose={()=>setOpenFilter(false)} />
           </div>
         }
@@ -128,12 +136,18 @@ function ProjectPage() {
             {/* project session */}
           <div className='mt-24 mb-10 px-[5%] grid grid-cols-3 gap-x-8 gap-y-5'>
               {
-                currentData.slice(0,9).map((project)=>(
+                currentData.length > 0 &&  currentData.slice(0,9).map((project:any)=>(
                   <PopularProjectCard 
                     onClick={()=>{
                       setSelectedProject(project)
+                      //@ts-ignore
                       dispatch(setProject(project))
-                      setViewProjectSecurity(true)
+                      if(selectedProject.id){
+                        user.email && navigate(`/projects/${selectedProject.id}`)
+                      }
+                      
+                      !user.email && setViewProjectSecurity(true)
+                      
                     }}
                     key={project.id}
                     image={project.image}
@@ -149,77 +163,83 @@ function ProjectPage() {
               }
           </div>
           {/* Pagination */}
-          <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
-              <Button
-                disabled={currentPage === 1}
-                onClick={()=>{
-                  handleClick(currentPage-1)
-                  window.scrollTo(0,0)
-                }}
-                className=' bg-transparent text-black hover:bg-lightBlue hover:text-white'
-              >
-                <IoChevronBackSharp />
-              </Button>
+          {/* //TODO: Only display user projects when a user is logged in  */}
+          {
+            !user.email && (
+              <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
+                  <Button
+                    disabled={currentPage === 1}
+                    onClick={()=>{
+                      handleClick(currentPage-1)
+                      window.scrollTo(0,0)
+                    }}
+                    className=' bg-transparent text-black hover:bg-lightBlue hover:text-white'
+                  >
+                    <IoChevronBackSharp />
+                  </Button>
 
-              <div className='flex items-center space-x-4'>
-                {
-                  Array.from({length:Math.ceil(projects.length / itemsPerPage)},(_,i)=>(
-                    <span 
-                      key={i} 
+                  <div className='flex items-center space-x-4'>
+                    {
+                      Array.from({length:Math.ceil(projects.length / itemsPerPage)},(_,i)=>(
+                        <span 
+                          key={i} 
+                          onClick={()=>{
+                            handleClick(i+1)
+                            window.scrollTo(0,0)
+                          }} 
+                          className={i+1 === currentPage ?'text-lightBlue cursor-pointer font-bold underline':'cursor-pointer'}
+                        >
+                          {i+1}
+                        </span>
+                      ))
+                    }
+                  </div>
+                  <div className='flex items-center space-x-2'>
+                    <Button
+                      disabled={currentPage === Math.ceil(projects.length / itemsPerPage)}
                       onClick={()=>{
-                        handleClick(i+1)
+                        handleClick(currentPage+1)
                         window.scrollTo(0,0)
-                      }} 
-                      className={i+1 === currentPage ?'text-lightBlue cursor-pointer font-bold underline':'cursor-pointer'}
+                      }}
+                      className=' bg-transparent text-black hover:bg-lightBlue hover:text-white'
                     >
-                      {i+1}
-                    </span>
-                  ))
-                }
+                      <IoChevronForward />
+                    </Button>
+                    <NavigationMenu>
+                      <NavigationMenuList>
+                          <NavigationMenuItem>
+                              <NavigationMenuTrigger className='font-bold'>{itemsPerPage}/page</NavigationMenuTrigger>
+                              <NavigationMenuContent >
+                                  <ul className="grid w-[100px] gap-3 p-4">
+                                      <li 
+                                        onClick={()=>{
+                                          setItemsPerPage(9)
+                                          window.scrollTo(0,0)
+                                          }} 
+                                        className='hover:text-lightBlue cursor-pointer'
+                                      >
+                                        9
+                                      </li>
+                                      <li 
+                                        onClick={()=>{
+                                          setItemsPerPage(12)
+                                          window.scrollTo(0,0)
+                                        }} 
+                                        className='hover:text-lightBlue cursor-pointer'
+                                      >
+                                        12
+                                      </li>
+                                  </ul>
+                              </NavigationMenuContent>
+                          </NavigationMenuItem>
+                      </NavigationMenuList>
+                  </NavigationMenu>
+                  </div>
+                  
               </div>
-              <div className='flex items-center space-x-2'>
-                <Button
-                  disabled={currentPage === Math.ceil(projects.length / itemsPerPage)}
-                  onClick={()=>{
-                    handleClick(currentPage+1)
-                    window.scrollTo(0,0)
-                  }}
-                  className=' bg-transparent text-black hover:bg-lightBlue hover:text-white'
-                >
-                  <IoChevronForward />
-                </Button>
-                <NavigationMenu>
-                  <NavigationMenuList>
-                      <NavigationMenuItem>
-                          <NavigationMenuTrigger className='font-bold'>{itemsPerPage}/page</NavigationMenuTrigger>
-                          <NavigationMenuContent >
-                              <ul className="grid w-[100px] gap-3 p-4">
-                                  <li 
-                                    onClick={()=>{
-                                      setItemsPerPage(9)
-                                      window.scrollTo(0,0)
-                                      }} 
-                                    className='hover:text-lightBlue cursor-pointer'
-                                  >
-                                    9
-                                  </li>
-                                  <li 
-                                    onClick={()=>{
-                                      setItemsPerPage(12)
-                                      window.scrollTo(0,0)
-                                    }} 
-                                    className='hover:text-lightBlue cursor-pointer'
-                                  >
-                                    12
-                                  </li>
-                              </ul>
-                          </NavigationMenuContent>
-                      </NavigationMenuItem>
-                  </NavigationMenuList>
-              </NavigationMenu>
-              </div>
-              
-          </div>
+            )
+          }
+          
           </>
         }
         {

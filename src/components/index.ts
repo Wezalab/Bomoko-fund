@@ -12,6 +12,11 @@ import FileAttachment from "./FileAttachment";
 import SignIn from "./SignIn";
 import SignUp from "./SignUp";
 import FaqPage from "./FaqPage";
+import ResetPassword from "./ResetPassword";
+import PrivacyPolicy from "./PrivacyPolicy";
+import Cashout from "./Cashout";
+import EditProject from "./EditProject";
+import MediaUpload from "./MediaUpload";
 
 export {
     HomePage,
@@ -27,5 +32,10 @@ export {
     FileAttachment,
     SignIn,
     SignUp,
-    FaqPage
+    FaqPage,
+    ResetPassword,
+    PrivacyPolicy,
+    Cashout,
+    EditProject,
+    MediaUpload
 }

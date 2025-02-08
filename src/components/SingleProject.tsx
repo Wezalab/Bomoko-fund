@@ -8,15 +8,25 @@ import { files } from "@/constants/dummydata"
 import FileAttachment from "./FileAttachment"
 import ProgressBar from "./ProgressBar"
 import { FaGift,FaShareAlt } from "react-icons/fa"
+import { CiEdit } from "react-icons/ci";
 import { useNavigate } from "react-router-dom"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Donate from "./Donate"
+import { selectUser } from "@/redux/slices/userSlice"
+import Cashout from "./Cashout"
 
 function SingleProject() {
     const [donate,setDonate]=useState(false)
+    const [cashout,setCashout]=useState(false)
     const project=useAppSelector(selectProject)
     const navigate=useNavigate()
-    //console.log("selected project:",project)
+    const user=useAppSelector(selectUser)
+
+    useEffect(()=>{
+        window.scrollTo(0,0)
+    },[])
+    
+    //console.log("project selected",project)
   return (
     <div className="relative">
         {
@@ -25,7 +35,13 @@ function SingleProject() {
                 <Donate onClose={()=>setDonate(false)} />
             </div>
         }
-        <div className={donate ?"blur-sm grid grid-cols-4 gap-x-10 pr-5" :"grid grid-cols-4  gap-x-10 pr-5"}>
+        {
+            cashout &&
+            <div className="w-[500px] fixed top-[10%] z-10 left-[40%]">
+                <Cashout onClose={()=>setCashout(false)} />
+            </div>
+        }
+        <div className={(donate || cashout) ?"blur-sm grid grid-cols-4 gap-x-10 pr-5" :"grid grid-cols-4  gap-x-10 pr-5"}>
             
             <div className="col-span-3">
                 <div className="w-full h-[500px] relative">
@@ -47,8 +63,6 @@ function SingleProject() {
                         <div className="bg-[#D6FFE7] py-1 px-4 rounded-2xl max-w-fit">
                             <span className="">{project.title}</span>
                         </div>
-                        
-                        
                         <span className="text-[24px] font-semibold text-white">{project.desc}</span>
                     </div>
                 </div>
@@ -117,43 +131,104 @@ function SingleProject() {
                     <span className="text-[24px] font-bold ">Project attachments</span>
                     <div className="grid grid-cols-2 gap-5 mt-5">
                         {
-                            files.map((file,index)=>(
+                            !user.email && files.map((file,index)=>(
+                                <FileAttachment key={index} file={file} />
+                            ))
+                        }
+                        {
+                           user.email && project?.projectAttachement?.map((file,index)=>(
                                 <FileAttachment key={index} file={file} />
                             ))
                         }
                     </div>
                 </div>
             </div>
-            <div className="col-span-1 h-[320px] shadow-md p-5 bg-white rounded-2xl">
-                <div className="mt-5 w-[98%] mb-5">
-                    <div className="flex items-center justify-between mb-2">
-                        <span className="text-xl capitalize">{project.amount}$ raised</span>
-                        <span className="text-xl">{Math.round(Math.min((project.amount / project.limit) * 100, 100))}%</span>
+            {
+                !user.email && (
+                    <div className="col-span-1 max-h-fit shadow-md p-5 bg-white rounded-2xl">
+                        <div className="mt-5 w-[98%] mb-5">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xl capitalize">{project.amount}$ raised</span>
+                                <span className="text-xl">{Math.round(Math.min((project.amount / project.limit) * 100, 100))}%</span>
+                            </div>
+                            <div className="w-full">
+                                <ProgressBar 
+                                    value={project.amount}
+                                    max={project.limit}
+                                />
+                            </div>
+                        </div>
+                        <span className="text-xl text-black">29 days to go</span>
+                        <div className="w-3/4 mx-auto mt-5 flex flex-col space-y-4">
+                            <Button
+                                onClick={()=>setDonate(true)}
+                                className="bg-darkBlue flex items-center space-x-5 font-semibold text-2xl text-white h-14 w-full  rounded-[100px]"
+                            >
+                                <FaGift  />
+                                Donate
+                            </Button>
+                            <Button
+                                className="bg-white text-black flex items-center space-x-5 text-2xl  font-semibold h-14 w-full  rounded-[100px]"
+                            >
+                                <FaShareAlt  size={56}/>
+                                Share
+                            </Button>
+                        </div>
                     </div>
-                    <div className="w-full">
-                        <ProgressBar 
-                            value={project.amount}
-                            max={project.limit}
-                        />
+                )
+            }
+            {
+                user.email && (
+                    <div className="col-span-1 max-h-fit shadow-md p-5 bg-white rounded-2xl">
+                        <div className="mt-5 w-[98%] mb-5">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xl capitalize">{project.amount}$ raised</span>
+                                <span className="text-xl">{Math.round(Math.min((project.amount / project.limit) * 100, 100))}%</span>
+                            </div>
+                            <div className="w-full">
+                                <ProgressBar 
+                                    value={project.amount}
+                                    max={project.limit}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex flex-col space-y-2 mb-5">
+                            <div className="flex items-center space-x-1">
+                                <span>Cashed Out:</span>
+                                <span className="text-lightGray font-semibold">1000 $</span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                                <span>Available Balance:</span>
+                                <span className="text-lightBlue font-semibold">{project.amount - 1000}$</span>
+                            </div>
+                        </div>
+                        <span className="text-xl text-black">29 days to go</span>
+                        <div className="w-3/4 mx-auto mt-5 flex flex-col space-y-4">
+                            <Button
+                                onClick={()=>setCashout(true)}
+                                className="bg-darkBlue hover:text-white flex items-center space-x-5 font-semibold text-2xl text-white h-14 w-full  rounded-[100px]"
+                            >
+                                <FaGift  />
+                                Cashout
+                            </Button>
+                            <Button
+                                onClick={()=>navigate(`/projects/${project.id}/edit`)}
+                                className="bg-white hover:text-white text-black flex items-center space-x-5 text-2xl  font-semibold h-14 w-full  rounded-[100px]"
+                            >
+                                <CiEdit  size={56}/>
+                                Edit
+                            </Button>
+                            <Button
+                                className="bg-white hover:text-white text-black flex items-center space-x-5 text-2xl  font-semibold h-14 w-full  rounded-[100px]"
+                            >
+                                <FaShareAlt  size={56}/>
+                                Share
+                            </Button>
+                        </div>
                     </div>
-                </div>
-                <span className="text-xl text-black">29 days to go</span>
-                <div className="w-3/4 mx-auto mt-5 flex flex-col space-y-4">
-                    <Button
-                        onClick={()=>setDonate(true)}
-                        className="bg-darkBlue flex items-center space-x-5 font-semibold text-2xl text-white h-14 w-full  rounded-[100px]"
-                    >
-                        <FaGift  />
-                        Donate
-                    </Button>
-                    <Button
-                        className="bg-white text-black flex items-center space-x-5 text-2xl  font-semibold h-14 w-full  rounded-[100px]"
-                    >
-                        <FaShareAlt  size={56}/>
-                        Share
-                    </Button>
-                </div>
-            </div>
+                )
+            }
+            
         </div>
     </div>
   )

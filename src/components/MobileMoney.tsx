@@ -124,7 +124,7 @@ function MobileMoney({
               <div className="relative">
                 <MdOutlinePhone className="absolute top-2 left-3" size={18} />
                 <Input 
-                  {...register("names")}
+                  {...register("phone")}
                   className="py-4rounded-xl indent-8 text-black lg:text-md"
                   placeholder="Phone Number"
                 />

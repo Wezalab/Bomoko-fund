@@ -112,18 +112,7 @@ function Footer() {
                       </li>
                   ))
               }
-              <li  className='py-[8px] px-2 text-lightGray'>
-                  <a href="" className={  "flex items-center space-x-2"}>
-                      FAQ
-                      <MdOutlineArrowOutward size={20} color="" />
-                  </a>
-              </li>
-              <li  className='py-[8px] px-2 text-lightGray'>
-                  <a href="" className={  "flex items-center space-x-2"}>
-                      Pivacy Policy
-                      <MdOutlineArrowOutward size={20} color="" />
-                  </a>
-              </li>
+              
           </ul>
       </div>
       <div className='rounded-l-xl absolute bottom-0 left-10 w-[270px] h-[130px] p-3'>
