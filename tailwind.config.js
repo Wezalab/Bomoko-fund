@@ -7,6 +7,14 @@ export default {
   ],
   theme: {
   	extend: {
+		screens: {
+			'xs': '375px',  // Small phones (iPhone SE)
+			'sm': '640px',  // Phones
+			'md': '768px',  // Tablets (iPads)
+			'lg': '1024px', // Small laptops
+			'xl': '1280px', // Desktops
+			'2xl': '1536px' // Large screens
+		},
   		colors: {
   			lightGreen: '#D6FFE7',
   			lightBlue: '#3AB6FF',

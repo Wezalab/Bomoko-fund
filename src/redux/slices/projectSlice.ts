@@ -2,7 +2,7 @@ import { IProject, Project } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
-export const initialState={
+export const ProjectInitialState={
     project:{
         id:"",
         title:"",
@@ -21,7 +21,7 @@ export const initialState={
 
 export const projectSlice=createSlice({
     name:"project",
-    initialState,
+    initialState:ProjectInitialState,
     reducers:{
         setProject:(state,action:PayloadAction<IProject>)=>{
             //@ts-ignore

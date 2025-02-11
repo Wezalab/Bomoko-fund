@@ -38,14 +38,14 @@ function EditProject() {
 
     //console.log("edit project page",project)
   return (
-    <div className="grid grid-cols-2 gap-x-10 p-10">
-        <div className="w-3/4 mx-auto">
+    <div className="grid grid-cols-1 gap-y-5 lg:grid-cols-2 gap-x-10 p-5 md:p-10">
+        <div className="w-[98%] md:w-3/4 mx-auto">
           <div className="flex items-center space-x-10 ">
             <Button
                 onClick={()=>{
                     navigate(`/projects/${project.id}`)
                 }}
-                className="text-black flex items-center space-x-2 hover:text-white h-9 text-xl max-w-fit px-3 rounded-[100px]  bg-gray-300 hover:bg-lightBlue"
+                className="text-black flex items-center space-x-2 hover:text-white h-6 md:h-9 text-sm md:text-xl max-w-fit px-2 md:px-3 rounded-[100px]  bg-gray-300 hover:bg-lightBlue"
             >
                 <IoChevronBack size={20} />
                 Back
