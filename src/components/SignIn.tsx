@@ -17,8 +17,10 @@ import toast from "react-hot-toast";
 
 interface signInProps{
     onClose:any,
-    resetPassword:boolean,
+    resetPassword:boolean
     setResetPassword:any
+    setSignUp:any 
+    signUp:boolean
 }
 
 interface FormData{
@@ -31,7 +33,9 @@ interface FormData{
 function SignIn({
     onClose,
     resetPassword,
-    setResetPassword
+    setResetPassword,
+    setSignUp,
+    signUp
 }:signInProps) {
     const [signWithPhone,setSignWithPhone]=useState(false)
     const [signWithGoogle,setSignWithGoogle]=useState(false)
@@ -82,7 +86,7 @@ function SignIn({
                             <span className="text-lightGray">Sign in for a better experience</span>
                         }
                     </div>
-                    <div className="my-5 flex flex-col space-y-5">
+                    <div className="my-5 flex flex-col md:justify-center space-y-5">
                         <div onClick={()=>setSignWithPhone(true)} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
                             <IoCall className="" />
                             <span className="font-semibold">Sign in with a phone number</span>
@@ -98,7 +102,10 @@ function SignIn({
                     </div>
                     <div className="flex items-center justify-center space-x-2">
                         <span>Don’t have an account?</span>
-                        <span className="text-lightBlue font-semibold cursor-pointer hover:underline">Sign up</span>
+                        <span onClick={()=>{
+                            onClose()
+                            setSignUp(true)
+                        }} className="text-lightBlue font-semibold cursor-pointer hover:underline">Sign up</span>
                     </div>
                 </div>
             )

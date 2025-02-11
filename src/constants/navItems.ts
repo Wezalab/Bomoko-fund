@@ -22,5 +22,9 @@ export const navItems=[
     {
         name:"Privacy policy",
         link:"/privacy-policy"
+    },
+    {
+        name:"Profile",
+        link:"/profile"
     }
 ]
