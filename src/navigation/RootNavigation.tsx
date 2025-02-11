@@ -4,6 +4,7 @@ import SingleProjectLayout from '@/pages/SingleProjectLayout'
 import FaqLayout from '@/pages/FaqLayout'
 import PrivacyPolicyLayout from '@/pages/PrivacyPolicyLayout'
 import EditProjectLayout from '@/pages/EditProjectLayout'
+import ProfileLayout from '@/pages/ProfileLayout'
 
 function RootNavigation() {
 
@@ -18,6 +19,7 @@ function RootNavigation() {
             <Route path="/projects/:id/edit" element={<EditProjectLayout />}/>
             <Route path="/faq" element={<FaqLayout />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyLayout />} />
+            <Route path="/profile" element={<ProfileLayout />} />
         </Routes>
     </Router>
   )

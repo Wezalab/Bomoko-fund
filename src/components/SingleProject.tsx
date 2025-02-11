@@ -31,17 +31,17 @@ function SingleProject() {
     <div className="relative">
         {
             donate &&
-            <div className="w-[500px] fixed top-[10%] z-10 left-[40%]">
+            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] fixed md:top-[20%] lg:top-[10%] z-10 lg:left-[40%]">
                 <Donate onClose={()=>setDonate(false)} />
             </div>
         }
         {
             cashout &&
-            <div className="w-[500px] fixed top-[10%] z-10 left-[40%]">
+            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] fixed md:top-[20%] lg:top-[10%] z-10 lg:left-[40%]">
                 <Cashout onClose={()=>setCashout(false)} />
             </div>
         }
-        <div className={(donate || cashout) ?"blur-sm grid grid-cols-4 gap-x-10 pr-5" :"grid grid-cols-4  gap-x-10 pr-5"}>
+        <div className={(donate || cashout) ?"blur-sm grid md:my-5 md:grid-cols-1 lg:grid-cols-4 gap-x-10 lg:pr-5" :"grid md:my-5 grid-cols-1 lg:grid-cols-4  gap-x-10 lg:pr-5"}>
             
             <div className="col-span-3">
                 <div className="w-full h-[500px] relative">
@@ -66,7 +66,7 @@ function SingleProject() {
                         <span className="text-[24px] font-semibold text-white">{project.desc}</span>
                     </div>
                 </div>
-                <div className="grid grid-cols-2  w-[80%] ml-auto gap-5 my-12">
+                <div className="grid grid-cols-2 w-[96%] mx-auto md:w-[80%] md:ml-auto gap-5 my-12">
                     <img
                         src={projectVideo}
                         className="w-full h-full object-fill rounded-lg"
@@ -78,8 +78,8 @@ function SingleProject() {
                         alt="project-image"
                     />
                 </div>
-                <div className="grid grid-cols-4 w-[80%] ml-auto gap-x-8 my-5">
-                    <div className="col-span-1 max-h-fit bg-gray-200 p-5 rounded-xl">
+                <div className="grid grid-cols-1 lg:grid-cols-4 w-[96%] mx-auto md:w-[80%] md:ml-auto md:gap-x-8 my-5">
+                    <div className="lg:col-span-1 md:mb-2 max-h-fit bg-gray-200 p-5 rounded-xl">
                         <div className="flex space-x-5">
                             <img 
                                 className="w-[64px] h-[64px] rounded-full"
@@ -88,38 +88,38 @@ function SingleProject() {
                             />
                             <div className="flex flex-col space-y-2">
                                 <span>Created By</span>
-                                <span className="font-semibold text-[20px]">Kamana John</span>
+                                <span className="font-semibold text-[18px] md:text-[20px]">Kamana John</span>
                             </div>
                         </div>
                         <div className="my-5 flex flex-col space-y-2">
                             <span className="text-lightGray">Created on</span>
-                            <span className="text-lightGray font-semibold text-[20px]">22 Septembre 2024</span>
+                            <span className="text-lightGray font-semibold text-[18px] md:text-[20px]">22 Septembre 2024</span>
                         </div>
                         <div className="my-5 flex flex-col space-y-2">
                             <span className="text-lightGray">Created on</span>
-                            <span className="text-lightGray font-semibold text-[20px]">22 Septembre 2024</span>
+                            <span className="text-lightGray font-semibold text-[18px] md:text-[20px]">22 Septembre 2024</span>
                         </div>
                     </div>
-                    <div className="col-span-3 mx-auto flex text-justify flex-col items-center space-y-5">
-                        <p className="font-semibold text-[20px] text-lightGray">
+                    <div className="w-[90%] lg:col-span-3 mx-auto flex text-justify flex-col items-center space-y-5">
+                        <p className="font-semibold text-[18px] md:text-[20px] text-lightGray">
                             Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. 
                             Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. 
                             Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, 
                             aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede
                         </p>
-                        <p className="font-semibold text-[20px] text-lightGray">
+                        <p className="font-semibold text-[18px] md:text-[20px] text-lightGray">
                             Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. 
                             Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. 
                             Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, 
                             aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede
                         </p>
-                        <p className="font-semibold text-[20px] text-lightGray">
+                        <p className="font-semibold text-[18px] md:text-[20px] text-lightGray">
                             Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. 
                             Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. 
                             Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, 
                             aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede
                         </p>
-                        <p className="font-semibold text-[20px] text-lightGray">
+                        <p className="font-semibold text-[18px] md:text-[20px] text-lightGray">
                             Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. 
                             Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. 
                             Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, 
@@ -127,16 +127,23 @@ function SingleProject() {
                         </p>
                     </div>
                 </div>
-                <div className="w-[80%] ml-auto my-10">
+                <div className="w-[80%] mx-auto md:ml-auto my-10">
                     <span className="text-[24px] font-bold ">Project attachments</span>
-                    <div className="grid grid-cols-2 gap-5 mt-5">
+                    <div className="grid md:grid-cols-2 md:gap-5 mt-5">
+                        {
+                            (!project.projectAttachement || project?.projectAttachement?.length === 0) && (
+                                <div className="flex justify-center items-center">
+                                    <span className="text-nowrap">No attachment Available</span>
+                                </div>
+                            )
+                        }
                         {
                             !user.email && files.map((file,index)=>(
                                 <FileAttachment key={index} file={file} />
                             ))
                         }
                         {
-                           user.email && project?.projectAttachement?.map((file,index)=>(
+                           user.email && project?.projectAttachement?.map((file:any,index:any)=>(
                                 <FileAttachment key={index} file={file} />
                             ))
                         }
@@ -145,7 +152,7 @@ function SingleProject() {
             </div>
             {
                 !user.email && (
-                    <div className="col-span-1 max-h-fit shadow-md p-5 bg-white rounded-2xl">
+                    <div className="w-full ml-[15%] mb-5 py-2 md:w-[90%] mx-auto md:ml-auto lg:col-span-1 max-h-fit shadow-md lg:p-5 bg-white rounded-2xl">
                         <div className="mt-5 w-[98%] mb-5">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-xl capitalize">{project.amount}$ raised</span>
@@ -162,13 +169,13 @@ function SingleProject() {
                         <div className="w-3/4 mx-auto mt-5 flex flex-col space-y-4">
                             <Button
                                 onClick={()=>setDonate(true)}
-                                className="bg-darkBlue flex items-center space-x-5 font-semibold text-2xl text-white h-14 w-full  rounded-[100px]"
+                                className="bg-darkBlue flex items-center space-x-5 font-semibold text-md md:text-2xl text-white h-14 w-full  rounded-[100px]"
                             >
                                 <FaGift  />
                                 Donate
                             </Button>
                             <Button
-                                className="bg-white text-black flex items-center space-x-5 text-2xl  font-semibold h-14 w-full  rounded-[100px]"
+                                className="bg-white text-black flex items-center space-x-5 text-md md:text-2xl  font-semibold h-14 w-full  rounded-[100px]"
                             >
                                 <FaShareAlt  size={56}/>
                                 Share
@@ -179,7 +186,7 @@ function SingleProject() {
             }
             {
                 user.email && (
-                    <div className="col-span-1 max-h-fit shadow-md p-5 bg-white rounded-2xl">
+                    <div className="w-full ml-[15%] mb-5 py-2 md:w-[90%] mx-auto md:ml-auto lg:col-span-1 max-h-fit shadow-md lg:p-5 bg-white rounded-2xl">
                         <div className="mt-5 w-[98%] mb-5">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-xl capitalize">{project.amount}$ raised</span>
@@ -206,20 +213,20 @@ function SingleProject() {
                         <div className="w-3/4 mx-auto mt-5 flex flex-col space-y-4">
                             <Button
                                 onClick={()=>setCashout(true)}
-                                className="bg-darkBlue hover:text-white flex items-center space-x-5 font-semibold text-2xl text-white h-14 w-full  rounded-[100px]"
+                                className="bg-darkBlue hover:text-white flex items-center space-x-5 font-semibold text-md md:text-2xl text-white h-14 w-full  rounded-[100px]"
                             >
                                 <FaGift  />
                                 Cashout
                             </Button>
                             <Button
                                 onClick={()=>navigate(`/projects/${project.id}/edit`)}
-                                className="bg-white hover:text-white text-black flex items-center space-x-5 text-2xl  font-semibold h-14 w-full  rounded-[100px]"
+                                className="bg-white hover:text-white text-black flex items-center space-x-5 text-md md:text-2xl  font-semibold h-14 w-full  rounded-[100px]"
                             >
                                 <CiEdit  size={56}/>
                                 Edit
                             </Button>
                             <Button
-                                className="bg-white hover:text-white text-black flex items-center space-x-5 text-2xl  font-semibold h-14 w-full  rounded-[100px]"
+                                className="bg-white hover:text-white text-black flex items-center space-x-5 text-md md:text-2xl  font-semibold h-14 w-full  rounded-[100px]"
                             >
                                 <FaShareAlt  size={56}/>
                                 Share

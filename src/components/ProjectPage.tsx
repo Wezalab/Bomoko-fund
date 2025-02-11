@@ -6,7 +6,7 @@ import { CiSearch } from "react-icons/ci";
 import { Input } from './ui/input';
 import { projects } from '@/constants/dummydata';
 import PopularProjectCard from './PopularProjectCard';
-import { IoChevronBackSharp, IoChevronForward } from "react-icons/io5";
+import { IoChevronBackSharp, IoChevronForward, IoLocation } from "react-icons/io5";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setProject } from '@/redux/slices/projectSlice';
 import { selectUser } from '@/redux/slices/userSlice';
+import { MdMenu } from 'react-icons/md';
 
 
 
@@ -63,7 +64,7 @@ function ProjectPage() {
     <div className=''>
         {
           (viewProjectSecurity && !user.email) &&
-          <div className='fixed bg-white rounded-xl top-[20%] z-10 left-[35%] w-[30%]'>
+          <div className='fixed bg-white rounded-xl top-[20%] z-10 md:left-[10%] md:w-[80%] lg:left-[35%] lg:w-[30%]'>
             <ViewProjectChecker 
               onClose={()=>setViewProjectSecurity(false)} 
               next={()=>{
@@ -76,19 +77,36 @@ function ProjectPage() {
         }
         {
           openFilter && 
-          <div className='fixed bg-white rounded-xl top-[12%] z-10 left-[35%] w-[30%]'>
+          <div className='absolute bg-white rounded-xl w-[96%] left-[2%] top-10 z-50 md:top-[12%] md:z-10 md:left-[10%] lg:left-[35%] md:w-[80%] lg:w-[30%]'>
             <FilterModal onClose={()=>setOpenFilter(false)} />
           </div>
         }
         <div className={(openFilter || viewProjectSecurity) ? 'relative blur-md':"relative"}>
-          <div className="w-full h-[235px] relative">
+          <div className="w-full h-[20vh] relative">
               <img 
                 src={projectBg}
                 className='w-full h-full object-cover'
                 alt="project-bg"
               />
-              <div className='w-[90%] shadow-md h-[100px] rounded-lg flex justify-between items-center p-10 bg-white absolute -bottom-10 left-[5%]'>
-                <div className='flex  space-x-5'>
+              {/* small devices filter and search */}
+              <div className='flex md:hidden flex-col  mt-5 px-5'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center space-x-2'>
+                    <MdMenu color='blue' size={18} />
+                    <IoLocation size={16}/>
+                  </div>
+                  <GiSettingsKnobs onClick={()=>setOpenFilter(true)} className='' size={18} />
+                </div>
+                <div className='w-full relative mt-2'>
+                  <CiSearch className='absolute top-2 left-2' />
+                  <Input 
+                    placeholder='Search Project'
+                    className='h-8 border-none rounded-xl text-sm bg-gray-200 indent-8'
+                  />
+                </div>
+              </div>
+              <div className='w-[90%] hidden shadow-md h-[100px] rounded-lg md:flex justify-between items-center p-10 bg-white absolute -bottom-10 left-[5%]'>
+                <div className='flex md:w-[30%] space-x-5'>
                   <div onClick={()=>setViewMode('grid')} className={viewMode === 'grid'?'flex flex-col cursor-not-allowed space-y-2':'flex cursor-pointer'}>
                     <span className={viewMode ==='grid'?"text-black font-semibold":"text-lightGray font-semibold"}>Grid view</span>
                     {
@@ -106,15 +124,16 @@ function ProjectPage() {
                     
                   </div>
                 </div>
-                <div className='flex items-center space-x-8'>
+                
+                <div className='flex  items-center md:space-x-4 lg:space-x-8'>
                     <Button
                       onClick={()=>setOpenFilter(true)}
-                      className='bg-grayColor w-[150px] h-[50px] text-black rounded-[100px] hover:text-white hover:bg-lightBlue flex items-center space-x-5'
+                      className='bg-grayColor md:w-[100px] lg:w-[150px] md:h-[35px] lg:h-[50px] text-black rounded-[100px] hover:text-white hover:bg-lightBlue flex items-center space-x-5'
                     >
                       <GiSettingsKnobs className='' size={24} />
                       Filter
                     </Button>
-                    <div className='w-[430px] bg-grayColor rounded-[100px] flex items-center space-x-5 px-2 h-[50px]'>
+                    <div className='w-[430px] hidden md:hidden bg-grayColor rounded-[100px] lg:flex items-center space-x-5 px-2 h-[50px]'>
                       <div className='relative w-[300px]'>
                         <Input 
                           className='w-full py-4 indent-10 rounded-[100px]'
@@ -128,13 +147,18 @@ function ProjectPage() {
                         Search
                       </Button>
                     </div>
+                    <Button
+                      className='md:w-[80px] lg:hidden md:h-[35px] lg:w-[100px] lg:h-[42px] rounded-[100px] bg-lightBlue text-white hover:bg-blue-200'
+                    >
+                      Search
+                    </Button>
                 </div>
               </div>
           </div>
           { viewMode ==='grid' &&
           <>
             {/* project session */}
-          <div className='mt-24 mb-10 px-[5%] grid grid-cols-3 gap-x-8 gap-y-5'>
+          <div className='mt-24 mb-10 px-[5%] md:grid-cols-2 grid lg:grid-cols-3 gap-x-8 gap-y-5'>
               {
                 currentData.length > 0 &&  currentData.slice(0,9).map((project:any)=>(
                   <PopularProjectCard 

@@ -12,12 +12,12 @@ import appLogo from '../assets/footerImg.png'
 function Footer() {
   const location=useLocation()
   return (
-    <div className='bg-darkBlue pt-10 relative'>
-      <div className=' grid grid-cols-6 gap-x-10 p-5 text-white'>
-          <div className="col-span-3">
-            <span className="text-white font-semibold text-[26px] ml-10">Scan to get our App</span>
-            <div className="flex">
-              <div className="flex items-center space-x-5 mt-10 pr-3 border-r-2  border-white">
+    <div className='bg-darkBlue pt-1 md:pt-4 lg:pt-10 relative'>
+      <div className=' grid md:grid-cols-1 lg:grid-cols-6 gap-x-10 p-5 text-white'>
+          <div className="lg:col-span-3">
+            <span className="text-white font-semibold text-[26px] ml-5 md:ml-1 lg:ml-10">Scan to get our App</span>
+            <div className="flex md:flex-row flex-col">
+              <div className="flex md:flex-row flex-col space-y-2 items-center space-x-5 mt-10 pr-3 border-r-2  border-white">
                 <div className="w-full  rounded-[14px] h-[150px]">
                   <img 
                     className="w-full h-full object-contain"
@@ -56,8 +56,8 @@ function Footer() {
               </div>
             </div>
           </div>
-          <div className='col-span-1'></div>
-          <div className='col-span-2'>
+          <div className='hidden lg:flex flex-col justify-end lg:col-span-1'></div>
+          <div className='ml-5 md:ml-0 lg:col-span-2'>
             <div className=''>
               <span className="text-white font-semibold text-[26px]">Contact Info</span>
             </div>
@@ -81,7 +81,7 @@ function Footer() {
                 </a>
               </div>
             </div>
-            <div className='mt-5 flex items-center space-x-5'>
+            <div className='mt-5 flex justify-center md:justify-start items-center space-x-5'>
               <div className='flex items-center justify-center w-[36px] h-[36px] rounded-full bg-blue-300/20 cursor-pointer'>
                 <FaLinkedin size={18} color='lightBlue' />
               </div>
@@ -100,12 +100,12 @@ function Footer() {
             </div>
           </div>
       </div>
-      <div className='w-full mt-10 pr-10'>
-          <ul className='flex items-center justify-end gap-8 font-semibold '>
+      <div className='hidden md:block w-full mt-10 pr-10'>
+          <ul className='flex items-center justify-end gap-3 lg:gap-8 font-semibold '>
               {
-                  navItems.map((nav)=>(
+                  navItems.filter((n)=>!["Profile"].includes(n.name)).map((nav)=>(
                       <li key={nav.name} className='py-[8px] px-2 text-lightGray'>
-                          <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active" : "flex items-center space-x-2")}>
+                          <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active px-4 rounded-[100px] py-1" : "flex items-center space-x-2")}>
                               {nav.name}
                               <MdOutlineArrowOutward size={20} color={location.pathname ===nav.link ?"white":"gray" } />
                           </NavLink>
@@ -115,7 +115,7 @@ function Footer() {
               
           </ul>
       </div>
-      <div className='rounded-l-xl absolute bottom-0 left-10 w-[270px] h-[130px] p-3'>
+      <div className='hidden lg:block rounded-l-xl absolute bottom-0 left-10 w-[270px] h-[130px] p-3'>
           <img 
             src={appLogo}
             className=''

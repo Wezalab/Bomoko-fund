@@ -10,7 +10,18 @@ import { FaHashtag, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { CiLock } from "react-icons/ci"
 
 
-function SignUp({onClose}:{onClose:any}) {
+interface signUpProps{
+  onClose:any 
+  setSignIn:any 
+  signIn:boolean
+}
+
+
+function SignUp({
+  onClose,
+  signIn,
+  setSignIn
+}:signUpProps) {
   const [signWithPhone,setSignWithPhone]=useState(false)
       const [signWithGoogle,setSignWithGoogle]=useState(false)
       const [signWithEmail,setSignWithEmail]=useState(false)
@@ -55,7 +66,10 @@ function SignUp({onClose}:{onClose:any}) {
                     </div>
                     <div className="flex items-center justify-center space-x-2">
                         <span>Have an account? </span>
-                        <span onClick={onClose} className="text-lightBlue font-semibold cursor-pointer hover:underline">Sign in</span>
+                        <span onClick={()=>{
+                          onClose()
+                          setSignIn(true)
+                        }} className="text-lightBlue font-semibold cursor-pointer hover:underline">Sign in</span>
                     </div>
                 </div>
             )
@@ -122,7 +136,10 @@ function SignUp({onClose}:{onClose:any}) {
                     </div>
                     <div className="flex items-center justify-center space-x-2">
                         <span>Have an account? </span>
-                        <span onClick={onClose} className="text-lightBlue font-semibold cursor-pointer hover:underline">Sign in</span>
+                        <span onClick={()=>{
+                          onClose()
+                          setSignIn(true)
+                        }} className="text-lightBlue font-semibold cursor-pointer hover:underline">Sign in</span>
                     </div>
                   </div>
                 )
@@ -158,7 +175,7 @@ function SignUp({onClose}:{onClose:any}) {
                     
                     <div className="flex items-center justify-center space-x-2 mt-5">
                         <span>Have not got the code?</span>
-                        <span onClick={onClose} className="text-lightBlue font-semibold cursor-pointer hover:underline">Resend code</span>
+                        <span className="text-lightBlue font-semibold cursor-pointer hover:underline">Resend code</span>
                     </div>
                   </div>
                 )

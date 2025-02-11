@@ -12,7 +12,7 @@ function FilterModal({onClose}:{onClose:any}) {
     authorGender:""
   })
   return (
-    <div className="bg-white relative rounded-2xl w-full shadow-md py-10 px-5">
+    <div className="bg-white relative rounded-2xl w-full shadow-md py-10 md:px-5">
         <div className="px-5">
           <MdCancel onClick={onClose} className="absolute top-10 right-10 cursor-pointer" size={24} />
           <div className="mt-10 flex items-center justify-center">
@@ -20,7 +20,7 @@ function FilterModal({onClose}:{onClose:any}) {
           </div>
           <div className="my-5">
               <span className="font-semibold text-xl">Project Category</span>
-              <div className="mt-5 flex space-x-5">
+              <div className="mt-5 flex space-x-5 w-full overflow-x-auto no-scrollbar">
                   {
                     filterData.category.map(category=>(
                       <Button

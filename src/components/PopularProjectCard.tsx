@@ -46,33 +46,33 @@ function PopularProjectCard({
             <div className="py-1 px-3 rounded-md absolute right-5 top-6 bg-yellow text-black text-center">
                 <span className="text-xs font-semibold">{type}</span>
             </div>
-            <div className="flex w-full flex-col space-y-4 absolute bottom-5 left-2 text-white">
+            <div className="flex w-full flex-col space-y-4 absolute bottom-5 md:left-0 lg:left-2 text-white">
                 <div className="w-[280px]">
-                    <span className="text-[24px] font-semibold">{title}</span>
+                    <span className="text-[18px] md:text-[24px] font-semibold">{title}</span>
                 </div>     
-                <span className="text-sm">{desc}</span>
+                <span className="text-xs md:text-sm">{desc}</span>
                 <div className="mt-5 w-[98%]">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center w-[98%] justify-between">
                         <span>{amount}$</span>
                         <span>{percentage}%</span>
                     </div>
-                    <div className="w-full">
+                    <div className="w-[98%]">
                         <ProgressBar 
                             value={amount}
                             max={limit}
                         />
                     </div>
                 </div>
-                <div className="flex items-center space-x-10">
+                <div className="flex items-center mx-3 justify-between">
                     <Button
-                        className="flex items-center justify-between bg-lightBlue hover:bg-blue-700 text-white rounded-[100px] w-[150px] h-[48px]"
+                        className="flex items-center justify-between bg-lightBlue hover:bg-blue-700 text-white rounded-[100px] max-w-fit h-[48px]"
                     >
                         Donate 
                         <FaGift color="white" size={28} />
                     </Button>
                     <Button
                         onClick={onClick}
-                        className="flex items-center justify-between bg-transparent hover:bg-black text-white border-2 border-white rounded-[100px] w-[150px] h-[48px]"
+                        className="flex items-center justify-between bg-transparent hover:bg-black text-white border-2 border-white rounded-[100px] max-w-fit h-[48px]"
                     >
                         View more
                         <MdOutlineArrowOutward size={24} color="white" />
