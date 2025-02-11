@@ -13,7 +13,7 @@ function Layout({children}:{children:React.ReactNode}) {
     <div className='relative'>
       {
         resetPassword && (
-          <div className='fixed w-[30%] top-[25%] left-[35%] z-10'>
+          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[30%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
             <ResetPassword 
               onClose={()=>setResetPassword(false)} 
               signIn={()=>{
@@ -27,20 +27,24 @@ function Layout({children}:{children:React.ReactNode}) {
       }
       {
         signIn && (
-          <div className='fixed w-[30%] top-[25%] left-[35%] z-10'>
+          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[30%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
             <SignIn 
               resetPassword={resetPassword}
               setResetPassword={setResetPassword}
               onClose={()=>setSignIn(false)}
+              setSignUp={setSignUp}
+              signUp={signUp}
             />
           </div>
         )
       }
       {
         signUp && (
-          <div className='fixed w-[30%] top-[25%] left-[35%] z-10'>
+          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[30%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
             <SignUp 
               onClose={()=>setSignUp(false)}
+              signIn={signIn}
+              setSignIn={setSignIn}
             />
           </div>
         )
