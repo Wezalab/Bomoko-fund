@@ -1,0 +1,102 @@
+import splitApi from "./api";
+
+export const userService=splitApi.injectEndpoints({
+    endpoints:builder=>({
+        registerOtp:builder.mutation({
+            query(data){
+                return{
+                    url:'/auth/register-otp',
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
+        verifyOtp:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/verify-otp",
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
+        finalizeRegistration:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/finalize-register-otp",
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
+        register:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/register",
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
+        editProfile:builder.mutation({
+            query({userId,data}){
+                return{
+                    url:`/auth/me/${userId}/edit`,
+                    method:"PUT",
+                    body:data
+                }
+            }
+        }),
+        changePassword:builder.mutation({
+            query({userId,data}){
+                return{
+                    url:`/auth/me/${userId}/change-password`,
+                    method:"PUT",
+                    body:data
+                }
+            }
+        }),
+        login:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/login",
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
+        resetPasswordRequest:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/reset-password-request",
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
+        resetPassword:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/reset-password",
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
+        getProfile:builder.mutation({
+            query(userId){
+                return{
+                    url:`/auth/me/${userId}`,
+                    
+                }
+            }
+        }),
+    })
+})
+
+
+export const {
+    useRegisterOtpMutation,
+    useVerifyOtpMutation,
+    useFinalizeRegistrationMutation
+}=userService
