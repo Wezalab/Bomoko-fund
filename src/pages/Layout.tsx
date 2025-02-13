@@ -40,7 +40,7 @@ function Layout({children}:{children:React.ReactNode}) {
       }
       {
         signUp && (
-          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[30%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
+          <div className='absolute w-[90%] top-[5%] left-[4%] md:w-3/4 lg:w-[30%]  md:top-[5%] lg:top-[15%] md:left-[10%] lg:left-[35%] z-10'>
             <SignUp 
               onClose={()=>setSignUp(false)}
               signIn={signIn}

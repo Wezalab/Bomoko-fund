@@ -10,7 +10,8 @@ export const initialState={
         password:"",
         projects:[],
         cryptoWallet:[]
-    } satisfies User
+    } satisfies User,
+    token:""
     
 }
 
@@ -20,12 +21,16 @@ export const userSlice=createSlice({
     reducers:{
         setUser:(state,action)=>{
             state.user=action.payload
+        },
+        setToken:(state,action)=>{
+            state.token=action.payload
         }
     }
 })
 
-export const {setUser}=userSlice.actions
+export const {setUser,setToken}=userSlice.actions
 
 export const selectUser=(state:RootState)=>state.userReducer.user
+export const selectToken=(state:RootState)=>state.userReducer.token
 
 export default userSlice.reducer

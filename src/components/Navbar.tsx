@@ -11,7 +11,7 @@ import { GoPerson } from "react-icons/go";
 import { IoMdLogOut } from "react-icons/io";
 import { RxCross2 } from "react-icons/rx"
 import logo from '../assets/logoDark.webp'
-
+import lightLogo from '../assets/logoLight.webp'
 
 import {
     NavigationMenu,
@@ -142,18 +142,19 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps
         <nav className='hidden md:py-5  lg:py-[16px] sticky top-0 z-30 md:px-5 lg:px-[80px] md:flex items-center justify-between bg-white shadow-sm'>
             <div className='flex items-center md:space-x-2 lg:space-x-[8px]'>
                 <img 
-                    src={appLogo}
-                    className='md:h-[28px] md:w-[28px] lg:w-[36px] lg:h-[36px]'
+                    onClick={()=>navigate("/")}
+                    src={lightLogo}
+                    className='md:h-[70px] md:w-[150px] cursor-pointer lg:w-[250px] lg:h-[100px]'
                     alt='app-image'
                 />
-                <h1 className='font-semibold md:hidden lg:inline capitalize md:text-[16px] text-nowrap lg:text-[24px] text-lightBlue'>bomoko fund</h1>
+                {/* <h1 className='font-semibold md:hidden lg:inline capitalize md:text-[16px] text-nowrap lg:text-[24px] text-lightBlue'>bomoko fund</h1> */}
             </div>
             <div className=''>
                 <ul className='flex items-center space-x-2 lg:gap-x-8 font-semibold bg-[#F6F8FA] rounded-[100px] border-[1px] border-[lightGray]'>
                     {
                         navItems.filter(n=>!["FAQ","Privacy policy","Profile"].includes(n.name)).map((nav)=>(
                             <li key={nav.name} className='lg:py-[8px] p-2'>
-                                <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active rounded-[100px] py-2 px-4" : "")}>
+                                <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active text-nowrap rounded-[100px] py-2 px-4" : "text-nowrap")}>
                                     {nav.name}
                                 </NavLink>
                             </li>

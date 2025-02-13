@@ -4,6 +4,7 @@ import storage from 'redux-persist/lib/storage'
 import { persistReducer, persistStore } from 'redux-persist';
 import projectReducer from './slices/projectSlice'
 import userReducer from './slices/userSlice'
+import splitApi from './services/api';
 
 // import { encryptTransform } from 'redux-persist-transform-encrypt';
 // import { thunk } from 'redux-thunk';
@@ -26,7 +27,8 @@ const persistConfig = {
 // Combine your reducers
 const reducers = combineReducers({
     projectReducer,
-    userReducer
+    userReducer,
+    [splitApi.reducerPath]:splitApi.reducer
 });
 
 // Create a persisted reducer
@@ -39,7 +41,7 @@ export const store = configureStore({
     getDefaultMiddleware({
       immutableCheck:false,
       serializableCheck: false,
-    }).concat(),
+    }).concat(splitApi.middleware),
   
 })
 
