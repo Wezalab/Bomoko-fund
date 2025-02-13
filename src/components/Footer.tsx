@@ -6,7 +6,7 @@ import { FaInstagramSquare,FaLinkedin,FaTwitterSquare,FaFacebookSquare,FaYoutube
 import { navItems } from '@/constants/navItems';
 import { NavLink, useLocation } from 'react-router-dom';
 
-import appLogo from '../assets/footerImg.png'
+import appLogo from '../assets/logoDark.webp'
 
 
 function Footer() {
@@ -17,7 +17,7 @@ function Footer() {
           <div className="lg:col-span-3">
             <span className="text-white font-semibold text-[26px] ml-5 md:ml-1 lg:ml-10">Scan to get our App</span>
             <div className="flex md:flex-row flex-col">
-              <div className="flex md:flex-row flex-col space-y-2 items-center space-x-5 mt-10 pr-3 border-r-2  border-white">
+              <div className="flex md:flex-row flex-col space-y-2 items-center space-x-5 mt-6 pr-3 border-r-2  border-white">
                 <div className="w-full  rounded-[14px] h-[150px]">
                   <img 
                     className="w-full h-full object-contain"
@@ -115,7 +115,7 @@ function Footer() {
               
           </ul>
       </div>
-      <div className='hidden lg:block rounded-l-xl absolute bottom-0 left-10 w-[270px] h-[130px] p-3'>
+      <div className='hidden lg:block rounded-l-xl absolute bottom-6 left-4 w-[270px] h-[130px] p-3'>
           <img 
             src={appLogo}
             className=''

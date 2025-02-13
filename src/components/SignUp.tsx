@@ -1,14 +1,25 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { FcGoogle } from "react-icons/fc"
 import { IoMdArrowRoundBack, IoMdMail } from "react-icons/io"
 import { IoCall } from "react-icons/io5"
-import { MdCancel, MdOutlinePhone } from "react-icons/md"
+import { MdCancel, MdMail, MdOutlinePhone, MdPin } from "react-icons/md"
 import { Button } from "./ui/button"
 import { useForm } from "react-hook-form"
 import { Input } from "./ui/input"
 import { FaHashtag, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { CiLock } from "react-icons/ci"
-
+import { useRegisterOtpMutation } from "@/redux/services/userServices"
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { BsPerson } from "react-icons/bs"
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuList,
+  NavigationMenuTrigger
+} from "@/components/ui/navigation-menu"
+import { PinIcon } from "lucide-react"
 
 interface signUpProps{
   onClose:any 
@@ -16,6 +27,35 @@ interface signUpProps{
   signIn:boolean
 }
 
+const stepOneSchema=z.object({
+  phone: z
+    .string()
+    .regex(/^\+\d+$/, "Phone number must start with '+' and contain only numbers")
+    .transform((val) => val.replace(/\s+/g, ""))
+    
+})
+
+const stepTwoSchema=z.object({
+  phone: z
+    .string()
+    .regex(/^\+\d+$/, "Phone number must start with '+' and contain only numbers")
+    .transform((val) => val.replace(/\s+/g, "")),
+    
+  code:z.string().min(4,"verification code must contain at least 4 numbers")
+})
+
+const stepThreeSchema=z.object({
+  names:z.string().min(3,"names must contain at least 3 letters"),
+  email: z.string().email("Invalid email format"),
+  location:z.string().min(3,"location must be at least 3 characters"),
+  gender:z.string().min(2,"gender must be at least 2 characters"),
+  password:z.string().min(6,"password must be at least 6 characters length")
+})
+
+
+type StepOneData = z.infer<typeof stepOneSchema>;
+type StepTwoData = z.infer<typeof stepTwoSchema>;
+type StepThreeData =z.infer<typeof stepThreeSchema>
 
 function SignUp({
   onClose,
@@ -30,12 +70,60 @@ function SignUp({
       const [verifyPhone,setVerifyPhone]=useState(false)
       const [phonePassword,setPhonePassword]=useState(false)
       const [showPassword,setShowPassword]=useState(false)
+      const [selectedGender,setSelectedGender]=useState("")
+
+      const [submittedData, setSubmittedData] = useState<Partial<StepOneData & StepTwoData>>({});
+
       const {
         register,
         handleSubmit,
         formState:{errors}
       }=useForm()
 
+      const {
+        register:registerStepOneWithPhone,
+        handleSubmit:handleSubmitStepOneWithPhone,
+        formState:{errors:errorsStepOneWithPhone}
+      }=useForm<StepOneData>({ resolver: zodResolver(stepOneSchema) })
+
+      const {
+        register:registerStepTwoWithPhone,
+        handleSubmit:handleSubmitStepTwoWithPhone,
+        formState:{errors:errorsStepTwoWithPhone}
+      }=useForm<StepTwoData>({ resolver: zodResolver(stepTwoSchema) })
+
+      const {
+        register:registerStepThree,
+        handleSubmit:handleSubmitStepThree,
+        formState:{errors:errorsStepThree}
+      }=useForm<StepThreeData>({ resolver: zodResolver(stepThreeSchema) })
+
+      const [
+        registerOtp,
+        {
+            data:registerOtpData,
+            error:registerOtpError,
+            isLoading:registerOtpIsLoading,
+            isSuccess:registerOtpIsSuccess,
+            isError:registerOtpIsError
+        }
+    ]=useRegisterOtpMutation()
+
+
+    useEffect(()=>{
+      if(registerOtpIsSuccess && registerOtpData){
+
+      }
+      if(registerOtpIsError){
+          console.log("register otp error",registerOtpError)
+      }
+
+  },[registerOtpIsSuccess,registerOtpIsError])
+
+
+  const phoneSubmit=(data:StepOneData)=>{
+    console.log("phone submitted",data)
+  }
 
   return (
     <div className="px-5 pb-8 pt-5 bg-white shadow-md rounded-2xl">
@@ -104,7 +192,7 @@ function SignUp({
               </div>
 
               {
-                !verifyEmail && !newPassword && (
+                !verifyEmail || !newPassword && (
                   <div
                     className=""
                   >
@@ -259,7 +347,7 @@ function SignUp({
                     <span className="text-white font-semibold">2</span>
                   </div>
                   <div className="border-t-2 border-dashed mx-1 border-gray-500 w-5"></div>
-                  <div className={phonePassword ? "w-8 h-8 rounded-full bg-lightBlue flex items-center justify-center":"w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center"}>
+                  <div className={newPassword ? "w-8 h-8 rounded-full bg-lightBlue flex items-center justify-center":"w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center"}>
                     <span className="text-white font-semibold">3</span>
                   </div>
                 </div>
@@ -273,27 +361,29 @@ function SignUp({
                     <div className="my-5">
                       <span className="text-lightGray">Provide your phone number to sign up</span>
                     </div>
-                    <form className="">
+                    <form className="" onSubmit={handleSubmitStepOneWithPhone(phoneSubmit)}>
                       <div className="flex flex-col space-y-1 my-5">
                           <label className="font-semibold">Phone Number</label>
                           <div className="relative">
                               <MdOutlinePhone className="absolute top-4 left-3" size={18} />
                               <Input 
-                              {...register("phone")}
-                              className="h-12 rounded-xl indent-8 text-black lg:text-md"
-                              placeholder="Phone Number"
+                                {...registerStepOneWithPhone("phone")}
+                                className="h-12 rounded-xl indent-8 text-black lg:text-md"
+                                placeholder="Phone Number"
                               />
+                              {errorsStepOneWithPhone.phone && <p className="text-red-600 text-xs mt-2">{errorsStepOneWithPhone.phone?.message}</p>}
                           </div>
                       </div>
                       <Button
+                        type="submit"
                         className="text-white w-full h-12 rounded-[100px] bg-darkBlue"
                       >
                         Continue
                       </Button>
                     </form>
                     <div className="flex space-x-2 items-center justify-center my-5">
-                      <span className="text-lightGray">By creating an account, you agree to our</span>
-                      <span className="text-lightBlue font-semibold">Privacy Policy</span>
+                      <span className="text-lightGray text-xs md:text-sm">By creating an account, you agree to our</span>
+                      <span className="text-lightBlue text-xs md:text-sm text-nowrap font-semibold">Privacy Policy</span>
                     </div>
                     <div className="flex items-center justify-center space-x-2">
                         <span>Have an account? </span>
@@ -339,14 +429,54 @@ function SignUp({
                 )
               }
               {
-                newPassword && (
+                newPassword  && (
                   <div
                     className=""
                   >
                     <div className="my-5">
-                      <span className="text-lightGray">Set the password for your account</span>
+                      <span className="text-lightGray">Finalize Registration</span>
                     </div>
                     <form className="">
+                      <div className="relative my-5">
+                          <BsPerson className="absolute top-4 left-3" size={18} />
+                          <Input 
+                              type="text"
+                              {...register("names")}
+                              className="h-12 rounded-xl indent-8 text-black lg:text-md"
+                              placeholder="Names"
+                          />
+                      </div>
+                      <div className="relative my-5">
+                          <MdMail className="absolute top-4 left-3" size={18} />
+                          <Input 
+                              type="text"
+                              {...register("email")}
+                              className="h-12 rounded-xl indent-8 text-black lg:text-md"
+                              placeholder="Email"
+                          />
+                      </div>
+                      <div className="relative my-5">
+                          <PinIcon className="absolute top-4 left-3" size={18} />
+                          <Input 
+                              type="text"
+                              {...register("location")}
+                              className="h-12 rounded-xl indent-8 text-black lg:text-md"
+                              placeholder="Location"
+                          />
+                      </div>
+                      <NavigationMenu>
+                            <NavigationMenuList>
+                                <NavigationMenuItem>
+                                    <NavigationMenuTrigger className='font-bold capitalize'>{selectedGender  || 'Gender'}</NavigationMenuTrigger>
+                                    <NavigationMenuContent>
+                                        <ul className="grid w-[100px] gap-3 p-4">
+                                            <li onClick={()=>setSelectedGender('male')} className='hover:text-lightBlue cursor-pointer'>Male</li>
+                                            <li onClick={()=>setSelectedGender('female')} className='hover:text-lightBlue cursor-pointer'>Female</li>
+                                        </ul>
+                                    </NavigationMenuContent>
+                                </NavigationMenuItem>
+                            </NavigationMenuList>
+                        </NavigationMenu>
                       <div className="flex flex-col space-y-1 my-5">
                           <label className="font-semibold">Password</label>
                           <div className="relative">
