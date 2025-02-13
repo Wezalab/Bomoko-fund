@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/redux/hooks"
-import { initialState, selectProject, setProject } from "@/redux/slices/projectSlice"
+import {  ProjectInitialState, selectProject, setProject } from "@/redux/slices/projectSlice"
 import { Button } from "./ui/button"
 import projectVideo from '../assets/project-video.jpg'
 import projectImage2 from '../assets/02.jpg'
@@ -52,7 +52,7 @@ function SingleProject() {
                     />
                     <Button
                         onClick={()=>{
-                            setProject(initialState.project)
+                            setProject(ProjectInitialState.project)
                             navigate('/projects')
                         }}
                         className="text-black h-12 text-xl w-28 top-[5%] left-[2%] rounded-[100px] absolute z-10 bg-white hover:bg-lightGreen"

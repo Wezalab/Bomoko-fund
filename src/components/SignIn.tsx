@@ -2,7 +2,7 @@ import { MdCancel, MdOutlinePhone } from "react-icons/md"
 import { IoCall } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
 import { IoMdMail } from "react-icons/io";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { Input } from "./ui/input";
 import { useForm } from "react-hook-form";
@@ -13,7 +13,8 @@ import { users } from "@/constants/dummydata";
 import { useAppDispatch } from "@/redux/hooks";
 import { setUser } from "@/redux/slices/userSlice";
 import toast from "react-hot-toast";
-
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod"
 
 interface signInProps{
     onClose:any,
@@ -30,6 +31,14 @@ interface FormData{
     rememberMe?:boolean
 }
 
+const formSchema=z.object({
+    phone: z.string()
+    .regex(/^\+\d+$/, "Phone number must start with '+' and contain only numbers"),
+    otp:z.string().min(4,"must contains at least 4 numbers")
+})
+
+//type FormData = z.infer<typeof formSchema>
+
 function SignIn({
     onClose,
     resetPassword,
@@ -44,12 +53,19 @@ function SignIn({
     const dispatch=useAppDispatch()
 
 
+    
+
+
+
+
     const {
         register,
         handleSubmit,
         reset,
         formState:{errors}
-    }=useForm<FormData>()
+    }=useForm<FormData>({
+        resolver: zodResolver(formSchema), // Use Zod for validation
+      });
     
     const onsubmit=(data:FormData)=>{
         if(data.phone || data.email){
@@ -68,6 +84,9 @@ function SignIn({
         console.log("user not found")
         reset()
     }
+
+    
+
   return (
     <div className="px-5 pb-8 pt-5 bg-white shadow-md rounded-2xl">
         <MdCancel size={28} onClick={onClose} className="absolute top-6 right-5 cursor-pointer" />
