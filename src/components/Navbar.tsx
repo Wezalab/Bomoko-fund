@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { navItems } from '../constants/navItems'
 import { NavLink, useNavigate } from 'react-router-dom'
-import appLogo from  '../assets/appNameIcon.png'
 import { Button } from './ui/button'
 import profileImage  from '../assets/profileImage.png'
 import { GoChevronDown } from "react-icons/go";
@@ -29,7 +28,7 @@ DropdownMenuSeparator,
 DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
-import { initialState, selectUser, setUser } from '@/redux/slices/userSlice'
+import { initialState, selectUser, setToken, setUser } from '@/redux/slices/userSlice'
 import { IoMdMenu } from "react-icons/io";
 import { ProjectInitialState, setProject } from '@/redux/slices/projectSlice'
 
@@ -53,6 +52,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps
 
     const handleLogout=()=>{
         dispatch(setUser(initialState.user))
+        dispatch(setToken(initialState.token))
         dispatch(setProject(ProjectInitialState.project))
         //window.location.reload() reload the entire page
     }
@@ -116,7 +116,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps
                 </div>
                 <div className='mt-5 flex flex-col px-5 text-white space-y-2'>
                     {
-                        navItems.filter(n=>!["Privacy policy"].includes(n.name)).map((nav)=>(
+                        navItems.filter(n=>user.email ? !["Privacy policy"].includes(n.name):!["Privacy policy","Profile"].includes(n.name)).map((nav)=>(
                             <span key={nav.name} className='p-2'>
                                 <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active  w-full py-2 px-4" : "px-4")}>
                                     {nav.name}

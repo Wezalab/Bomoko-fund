@@ -38,10 +38,13 @@ export type ProjectAttachment = {
   };
   
   export type User = {
-    profile: string;
+    profile?: string;
     email: string;
+    name?:string
+    isGoogleUser?:boolean 
+    location?:string
     phone_number: string;
-    password: string;
-    projects: Project[];
-    cryptoWallet: CryptoWallet[];
+    password?: string;
+    projects?: Project[];
+    cryptoWallet?: CryptoWallet[];
   };
