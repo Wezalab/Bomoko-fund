@@ -91,12 +91,19 @@ export const userService=splitApi.injectEndpoints({
                 }
             }
         }),
-    })
+    }),
+    overrideExisting:true
 })
 
 
 export const {
     useRegisterOtpMutation,
     useVerifyOtpMutation,
-    useFinalizeRegistrationMutation
+    useFinalizeRegistrationMutation,
+    useChangePasswordMutation,
+    useEditProfileMutation,
+    useLoginMutation,
+    useResetPasswordMutation,
+    useResetPasswordRequestMutation,
+    useGetProfileMutation
 }=userService

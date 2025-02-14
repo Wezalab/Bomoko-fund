@@ -160,7 +160,7 @@ function ProjectPage() {
             {/* project session */}
           <div className='mt-24 mb-10 px-[5%] md:grid-cols-2 grid lg:grid-cols-3 gap-x-8 gap-y-5'>
               {
-                currentData.length > 0 &&  currentData.slice(0,9).map((project:any)=>(
+                currentData?.length > 0 &&  currentData?.slice(0,9).map((project:any)=>(
                   <PopularProjectCard 
                     onClick={()=>{
                       setSelectedProject(project)
@@ -185,6 +185,13 @@ function ProjectPage() {
                   />
                 ))
               }
+              {
+                !currentData && (
+                  <div className='flex items-center justify-center text-center w-full'>
+                    <span className='text-lightGray font-bold text-xl'>No Personal Projects</span>
+                  </div>
+                )
+              }
           </div>
           {/* Pagination */}
           {/* //TODO: Only display user projects when a user is logged in  */}
@@ -204,7 +211,7 @@ function ProjectPage() {
 
                   <div className='flex items-center space-x-4'>
                     {
-                      Array.from({length:Math.ceil(projects.length / itemsPerPage)},(_,i)=>(
+                      Array.from({length:Math.ceil(projects?.length / itemsPerPage)},(_,i)=>(
                         <span 
                           key={i} 
                           onClick={()=>{
@@ -220,7 +227,7 @@ function ProjectPage() {
                   </div>
                   <div className='flex items-center space-x-2'>
                     <Button
-                      disabled={currentPage === Math.ceil(projects.length / itemsPerPage)}
+                      disabled={currentPage === Math.ceil(projects?.length / itemsPerPage)}
                       onClick={()=>{
                         handleClick(currentPage+1)
                         window.scrollTo(0,0)
