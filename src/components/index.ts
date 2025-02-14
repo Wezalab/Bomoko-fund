@@ -17,6 +17,7 @@ import PrivacyPolicy from "./PrivacyPolicy";
 import Cashout from "./Cashout";
 import EditProject from "./EditProject";
 import MediaUpload from "./MediaUpload";
+import LoadingComponent from "./LoadingComponent";
 
 export {
     HomePage,
@@ -37,5 +38,6 @@ export {
     PrivacyPolicy,
     Cashout,
     EditProject,
-    MediaUpload
+    MediaUpload,
+    LoadingComponent
 }

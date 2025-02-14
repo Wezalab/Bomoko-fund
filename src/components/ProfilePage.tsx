@@ -3,18 +3,16 @@ import { Button } from './ui/button'
 import { SlCloudUpload } from "react-icons/sl";
 import { FaTrashCan } from "react-icons/fa6";
 import { Input } from './ui/input';
-import { useForm } from 'react-hook-form';
 import { Textarea } from './ui/textarea';
+import { useAppSelector } from '@/redux/hooks';
+import { selectUser } from '@/redux/slices/userSlice';
 
 
 function ProfilePage() {
 
-    const  {
-        register,
-        handleSubmit,
-        reset,
-        formState:{errors}
-    }=useForm()
+    
+
+    const user=useAppSelector(selectUser)
 
   return (
     <div className="bg-gray-200 h-[90vh] md:h-[70vh] p-2 md:pt-10">
@@ -41,14 +39,14 @@ function ProfilePage() {
                 <div className='flex flex-col space-y-1'>
                     <label>Names</label>
                     <Input 
-                        placeholder='Kanana john'
+                        placeholder={user.name || "Kamana John"}
                         className='h-10 border-[1px] border-black rounded-[100px]'
                     />
                 </div>
                 <div className='flex flex-col space-y-1'>
                     <label>Location</label>
                     <Input 
-                        placeholder='Goma, North kivu'
+                        placeholder={user.location || "Goma"}
                         className='h-10 border-[1px] border-black rounded-[100px]'
                     />
                 </div>
@@ -98,14 +96,14 @@ function ProfilePage() {
                     <div className=''>
                         <label>Names</label>
                         <Input 
-                            placeholder='Kanana john'
+                            placeholder={user.name || "Kamana John"}
                             className='h-10 rounded-[100px]'
                         />
                     </div>
                     <div className=''>
                         <label>Location</label>
                         <Input 
-                            placeholder='North-Kivu, Masisi'
+                            placeholder={user.location || "Goma"}
                             className='h-10 rounded-[100px]'
                         />
                     </div>

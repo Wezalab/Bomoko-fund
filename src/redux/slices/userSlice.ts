@@ -9,9 +9,17 @@ export const initialState={
         phone_number:"",
         password:"",
         projects:[],
-        cryptoWallet:[]
+        cryptoWallet:[],
+        name:'',
+        location:"",
+        isGoogleUser:false
     } satisfies User,
-    token:""
+    token:"",
+    signUpData:{
+        phone:"",
+        otp:"",
+        email:""
+    }
     
 }
 
@@ -24,13 +32,17 @@ export const userSlice=createSlice({
         },
         setToken:(state,action)=>{
             state.token=action.payload
+        },
+        setSignUpData:(state,action)=>{
+            state.signUpData=action.payload
         }
     }
 })
 
-export const {setUser,setToken}=userSlice.actions
+export const {setUser,setToken,setSignUpData}=userSlice.actions
 
 export const selectUser=(state:RootState)=>state.userReducer.user
 export const selectToken=(state:RootState)=>state.userReducer.token
+export const selectSignUpData=(state:RootState)=>state.userReducer.signUpData
 
 export default userSlice.reducer
