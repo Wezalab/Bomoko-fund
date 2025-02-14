@@ -11,10 +11,12 @@ import { FaRegEye,FaRegEyeSlash } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { users } from "@/constants/dummydata";
 import { useAppDispatch } from "@/redux/hooks";
-import { setUser } from "@/redux/slices/userSlice";
+import { setToken, setUser } from "@/redux/slices/userSlice";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useLoginMutation } from "@/redux/services/userServices";
+import LoadingComponent from "./LoadingComponent";
 
 interface signInProps{
     onClose:any,
@@ -31,12 +33,21 @@ interface FormData{
     rememberMe?:boolean
 }
 
+interface FormDataEmail{
+    email:string 
+    password:string
+}
+
 const formSchema=z.object({
     phone: z.string()
     .regex(/^\+\d+$/, "Phone number must start with '+' and contain only numbers"),
     otp:z.string().min(4,"must contains at least 4 numbers")
 })
 
+const formSchemaWithEmail=z.object({
+    email:z.string().email("Invalid email address"),
+    password:z.string().min(6,"password must be at least 6 characters long")
+})
 //type FormData = z.infer<typeof formSchema>
 
 function SignIn({
@@ -51,12 +62,16 @@ function SignIn({
     const [signWithEmail,setSignWithEmail]=useState(false)
     const [showPassword,setShowPassword]=useState(false)
     const dispatch=useAppDispatch()
-
-
-    
-
-
-
+    const [
+        Login,
+        {
+            data:loginData,
+            error:loginError,
+            isSuccess:loginIsSuccess,
+            isLoading:loginIsLoading,
+            isError:loginIsError
+        }
+    ]=useLoginMutation()
 
     const {
         register,
@@ -66,6 +81,15 @@ function SignIn({
     }=useForm<FormData>({
         resolver: zodResolver(formSchema), // Use Zod for validation
       });
+
+    const {
+    register:registerWithEmail,
+    handleSubmit:handleSubmitwithEmail,
+    reset:resetWithEmail,
+    formState:{errors:errorsWithEmail}
+}=useForm<FormDataEmail>({
+    resolver: zodResolver(formSchemaWithEmail), // Use Zod for validation
+    });
     
     const onsubmit=(data:FormData)=>{
         if(data.phone || data.email){
@@ -85,7 +109,32 @@ function SignIn({
         reset()
     }
 
-    
+    useEffect(()=>{
+        if(loginIsSuccess && loginData){
+            toast.success(loginData?.message)
+            dispatch(setToken(loginData?.token))
+            dispatch(setUser({
+                email:loginData?.userDetails?.email,
+                phone_number:loginData?.userDetails?.phone,
+                name:loginData?.userDetails?.name,
+                location:loginData?.userDetails?.location
+            }))
+            onClose()
+            resetWithEmail()
+            //console.log("login success",loginData)
+        }
+        if(loginIsError){
+            console.log("cannot login",loginError)
+            toast.error("cannot login")
+        }
+    },[loginIsError,loginIsSuccess])
+
+    const onSumbmitWithEmail=(data:FormDataEmail)=>{
+        Login({
+            email:data.email,
+            password:data.password
+        })
+    }
 
   return (
     <div className="px-5 pb-8 pt-5 bg-white shadow-md rounded-2xl">
@@ -208,14 +257,14 @@ function SignIn({
             signWithEmail && (
                 <div className="mb-5 mt-14">
                     <span className="font-bold text-[20px]">Sign in</span>
-                    <form onSubmit={handleSubmit(onsubmit)}>
+                    <form onSubmit={handleSubmitwithEmail(onSumbmitWithEmail)}>
                         <div className="flex flex-col space-y-1 my-5">
                             <label className="font-semibold">Email</label>
                             <div className="relative">
                                 <IoMdMail className="absolute top-4 left-3" size={18} />
                                 <Input 
                                     type="email"
-                                    {...register("email",{
+                                    {...registerWithEmail("email",{
                                         required:"Email is Required",
                                         pattern:{
                                             value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -226,7 +275,7 @@ function SignIn({
                                     placeholder="Email"
                                 />
                             </div>
-                            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+                            {errorsWithEmail.email && <p className="text-red-500 text-sm">{errorsWithEmail.email?.message}</p>}
                         </div>
                         <div className="flex flex-col space-y-1 my-5">
                             <label className="font-semibold">Password</label>
@@ -239,7 +288,7 @@ function SignIn({
                                 }
                                 <Input 
                                     type={showPassword? "text":"password"}
-                                    {...register("password",{
+                                    {...registerWithEmail("password",{
                                         required:"Password is required",
                                         minLength:{
                                             value:6,
@@ -250,16 +299,17 @@ function SignIn({
                                     placeholder="Password"
                                 />
                             </div>
-                            {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+                            {errorsWithEmail.password && <p className="text-red-500 text-sm">{errorsWithEmail.password.message}</p>}
 
                         </div>
                         
 
                         <Button
+                            disabled={loginIsLoading}
                             type="submit"
                             className="bg-darkBlue h-14 text-white hover:bg-lightBlue rounded-[100px] w-full mt-10"
                         >
-                            Continue
+                            {loginIsLoading ? <LoadingComponent /> :"Continue"}
                         </Button>
                         <div className="flex items-center justify-between my-5">
                             <div className="flex items-center space-x-2">

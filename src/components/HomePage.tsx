@@ -120,7 +120,7 @@ function HomePage() {
             />
             <div className="md:hidden lg:col-span-1"></div>
             <PopularProjectCard 
-              className="absolute lg:block md:hidden -top-16 col-span-2"
+              className="absolute lg:grid md:hidden lg:left-[50%] lg:-top-16 col-span-2"
               image={popularProjectImage3}
               title="Help Kamana John get back to life"
               desc="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque"
@@ -130,7 +130,7 @@ function HomePage() {
               profile={popularProjectProfileImg}
             />
 
-            <div className="flex items-center space-x-5 absolute bottom-5 md:right-2 lg:right-44">
+            <div className="flex items-center space-x-5 absolute bottom-5 md:right-2 lg:right-0">
               <div className="flex items-center space-x-2">
                 <div className="h-2 w-6 rounded-3xl bg-lightBlue"></div>
                 <div className="w-2 h-2 rounded-full bg-lightGray"></div>

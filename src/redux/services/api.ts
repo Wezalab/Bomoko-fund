@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 
 const baseQuery=fetchBaseQuery({
-    baseUrl:`${process.env.VITE_BOMOKO_SERVER}`,
+    baseUrl:`https://bomoko-fund-api.onrender.com/api`,
     prepareHeaders:(headers,{getState})=>{
         const token=(getState() as RootState ).userReducer.token
         if(token){
