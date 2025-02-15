@@ -18,6 +18,7 @@ import Cashout from "./Cashout";
 import EditProject from "./EditProject";
 import MediaUpload from "./MediaUpload";
 import LoadingComponent from "./LoadingComponent";
+import MapComponent from "./MapComponent";
 
 export {
     HomePage,
@@ -39,5 +40,6 @@ export {
     Cashout,
     EditProject,
     MediaUpload,
-    LoadingComponent
+    LoadingComponent,
+    MapComponent
 }
