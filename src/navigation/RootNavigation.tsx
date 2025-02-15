@@ -5,6 +5,7 @@ import FaqLayout from '@/pages/FaqLayout'
 import PrivacyPolicyLayout from '@/pages/PrivacyPolicyLayout'
 import EditProjectLayout from '@/pages/EditProjectLayout'
 import ProfileLayout from '@/pages/ProfileLayout'
+import CreateProjectLayout from '@/pages/CreateProjectLayout'
 
 function RootNavigation() {
 
@@ -17,6 +18,7 @@ function RootNavigation() {
             <Route path='/contact-us' element={<ContactLayout />} />
             <Route path="/projects/:id" element={<SingleProjectLayout />}/>
             <Route path="/projects/:id/edit" element={<EditProjectLayout />}/>
+            <Route path="/projects/create" element={<CreateProjectLayout />} />
             <Route path="/faq" element={<FaqLayout />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyLayout />} />
             <Route path="/profile" element={<ProfileLayout />} />
