@@ -21,10 +21,13 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { setProject } from '@/redux/slices/projectSlice';
 import { selectUser } from '@/redux/slices/userSlice';
 import { MdMenu } from 'react-icons/md';
+import MapComponent from './MapComponent';
+import { PlusCircle } from 'lucide-react';
 
 
 
 function ProjectPage() {
+  const [latlng, setLatLng] = useState<[number, number] | null>([-4.4419, 15.2663]);
   const [viewMode,setViewMode]=useState<'grid'|'map'>('grid')
   const [itemsPerPage,setItemsPerPage]=useState(9)
   const [openFilter,setOpenFilter]=useState(false)
@@ -126,6 +129,18 @@ function ProjectPage() {
                 </div>
                 
                 <div className='flex  items-center md:space-x-4 lg:space-x-8'>
+                    {
+                      user.email && (
+                        <Button
+                          onClick={()=>navigate('/projects/create')}
+                          className='flex items-center space-x-3 md:h-[35px] lg:h-[50px] bg-lightBlue hover:bg-blue-300 text-white rounded-[100px] max-w-fit'
+                        >
+                          <PlusCircle />
+                          Create
+                        </Button>
+                      )
+                    }
+                    
                     <Button
                       onClick={()=>setOpenFilter(true)}
                       className='bg-grayColor md:w-[100px] lg:w-[150px] md:h-[35px] lg:h-[50px] text-black rounded-[100px] hover:text-white hover:bg-lightBlue flex items-center space-x-5'
@@ -185,14 +200,17 @@ function ProjectPage() {
                   />
                 ))
               }
+              
+          </div>
               {
                 !currentData && (
-                  <div className='flex items-center justify-center text-center w-full'>
+                  <div className='flex items-center justify-center text-center w-full mb-10'>
                     <span className='text-lightGray font-bold text-xl'>No Personal Projects</span>
                   </div>
                 )
               }
-          </div>
+
+
           {/* Pagination */}
           {/* //TODO: Only display user projects when a user is logged in  */}
           {
@@ -275,8 +293,8 @@ function ProjectPage() {
         }
         {
           viewMode ==='map' &&
-          <div className='mt-24 p-[5%]'>
-            {/* <DRCProvinces /> */}
+          <div className='mt-10 p-[5%]'>
+            <MapComponent />
           </div>
         }
         </div>

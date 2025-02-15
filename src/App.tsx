@@ -1,3 +1,4 @@
+
 import { Provider } from "react-redux"
 import RootNavigation from "./navigation/RootNavigation"
 import {Toaster} from 'react-hot-toast'
