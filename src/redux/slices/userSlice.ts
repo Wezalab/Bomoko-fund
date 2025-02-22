@@ -4,6 +4,7 @@ import { RootState } from "../store";
 
 export const initialState={
     user:{
+        _id:"",
         profile:"",
         email:"",
         phone_number:"",
