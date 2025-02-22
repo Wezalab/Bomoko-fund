@@ -1,0 +1,62 @@
+import splitApi from "./api";
+
+export const projectService=splitApi.injectEndpoints({
+    endpoints:builder=>({
+        getAllProjects:builder.query({
+            query:()=>'/projects'
+        }),
+        getProject:builder.mutation({
+            query(id){
+                return{
+                    url:`/projects/${id}`
+                }
+            }
+        }),
+        createProject:builder.mutation({
+            query(data){
+                return{
+                    url:"/projects",
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
+        getProjectCategories:builder.query({
+            query:()=>"/project-categories"
+        }),
+        getProjectCategory:builder.query({
+            query:(id)=>`/project-categories/${id}`
+        }),
+        getProjectTypes:builder.query({
+            query:()=>"/project-types"
+        }),
+        getProvinces:builder.query({
+            query:()=>"/provinces"
+        }),
+        getTerritories:builder.query({
+            query:()=>"/territories"
+        }),
+        donate:builder.mutation({
+            query(data){
+                return{
+                    url:'/donations',
+                    method:"POST",
+                    body:data
+                }
+            }
+        })
+    }),
+    overrideExisting:true
+})
+
+export const {
+    useGetAllProjectsQuery,
+    useGetProjectMutation,
+    useCreateProjectMutation,
+    useGetProjectCategoriesQuery,
+    useGetProjectCategoryQuery,
+    useGetProjectTypesQuery,
+    useGetProvincesQuery,
+    useGetTerritoriesQuery,
+    useDonateMutation
+}=projectService

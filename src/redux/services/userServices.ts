@@ -11,6 +11,15 @@ export const userService=splitApi.injectEndpoints({
                 }
             }
         }),
+        registerEmail:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/register",
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
         verifyOtp:builder.mutation({
             query(data){
                 return{
@@ -23,7 +32,7 @@ export const userService=splitApi.injectEndpoints({
         finalizeRegistration:builder.mutation({
             query(data){
                 return{
-                    url:"/auth/finalize-register-otp",
+                    url:"/auth/finalize-register",
                     method:"POST",
                     body:data
                 }
@@ -65,6 +74,15 @@ export const userService=splitApi.injectEndpoints({
                 }
             }
         }),
+        loginPhone:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/login-phone",
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
         resetPasswordRequest:builder.mutation({
             query(data){
                 return{
@@ -91,6 +109,7 @@ export const userService=splitApi.injectEndpoints({
                 }
             }
         }),
+        
     }),
     overrideExisting:true
 })
@@ -105,5 +124,8 @@ export const {
     useLoginMutation,
     useResetPasswordMutation,
     useResetPasswordRequestMutation,
-    useGetProfileMutation
+    useGetProfileMutation,
+    useRegisterEmailMutation,
+    useLoginPhoneMutation,
+    useRegisterMutation
 }=userService

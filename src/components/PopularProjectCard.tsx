@@ -2,6 +2,7 @@ import { FaGift } from "react-icons/fa";
 import ProgressBar from "./ProgressBar"
 import { Button } from "./ui/button"
 import { MdOutlineArrowOutward } from "react-icons/md";
+import profileImg from '../assets/project-author.png'
 
 interface PopularProjectCardProps{
    image:string 
@@ -27,18 +28,18 @@ function PopularProjectCard({
     onClick
 }:PopularProjectCardProps) {
    
-    const percentage = Math.round(Math.min((amount / limit) * 100, 100));
+    const percentage = Math.round(Math.min((amount || 0 / limit) * 100, 100));
   return (
     <div className={'w-full h-[550px] relative cursor-pointer hover:opacity-50 rounded-md'+className}>
         <img 
-            className="w-full h-full object-cover rounded-2xl brightness-75"
+            className="w-full h-full object-cover rounded-2xl blur-[3px] opacity-90 brightness-90"
             src={image}
             alt="project-bg"
         />
         <div className="">
             <div className="w-12 bg-yellow absolute top-5 z-10 left-5 border-white rounded-full border-4 h-12 flex items-center justify-center">
                 <img 
-                    src={profile}
+                    src={profileImg}
                     className="w-full h-full  object-cover"
                     alt="popularProject-profile"
                 />
@@ -48,15 +49,15 @@ function PopularProjectCard({
             </div>
             <div className="flex w-full flex-col space-y-4 absolute bottom-5 md:left-0 lg:left-2 text-white">
                 <div className="w-[280px]">
-                    <span className="text-[18px] md:text-[24px] font-semibold">{title}</span>
+                    <span className="text-[18px] md:text-[24px] font-bold">{title}</span>
                 </div>     
-                <span className="text-xs md:text-sm">{desc}</span>
+                <span className="text-xs md:text-sm font-semibold">{desc}</span>
                 <div className="mt-5 w-[98%]">
-                    <div className="flex items-center w-[98%] justify-between">
+                    <div className="flex items-center w-[98%] ml-2 justify-between">
                         <span>{amount}$</span>
                         <span>{percentage}%</span>
                     </div>
-                    <div className="w-[98%]">
+                    <div className="w-[98%] ml-2">
                         <ProgressBar 
                             value={amount}
                             max={limit}

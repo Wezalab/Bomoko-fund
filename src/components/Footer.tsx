@@ -6,7 +6,7 @@ import { FaInstagramSquare,FaLinkedin,FaTwitterSquare,FaFacebookSquare,FaYoutube
 import { navItems } from '@/constants/navItems';
 import { NavLink, useLocation } from 'react-router-dom';
 
-import appLogo from '../assets/logoDark.webp'
+import appLogo from '../assets/icons/7.png'
 
 
 function Footer() {

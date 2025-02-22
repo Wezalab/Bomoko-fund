@@ -15,7 +15,7 @@ import { setToken, setUser } from "@/redux/slices/userSlice";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useLoginMutation } from "@/redux/services/userServices";
+import { useLoginMutation, useLoginPhoneMutation } from "@/redux/services/userServices";
 import LoadingComponent from "./LoadingComponent";
 
 interface signInProps{
@@ -26,22 +26,22 @@ interface signInProps{
     signUp:boolean
 }
 
-interface FormData{
-    email?:string
-    phone?:string
+interface FormDataPhone{
+    phone:string
     password:string 
-    rememberMe?:boolean
+    rememberMe:boolean
 }
 
 interface FormDataEmail{
     email:string 
     password:string
+    rememberMe:boolean
 }
 
-const formSchema=z.object({
+const formSchemaWithPhone=z.object({
     phone: z.string()
     .regex(/^\+\d+$/, "Phone number must start with '+' and contain only numbers"),
-    otp:z.string().min(4,"must contains at least 4 numbers")
+    password:z.string().min(6,"password must contains at least 6 characters")
 })
 
 const formSchemaWithEmail=z.object({
@@ -73,17 +73,30 @@ function SignIn({
         }
     ]=useLoginMutation()
 
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState:{errors}
-    }=useForm<FormData>({
-        resolver: zodResolver(formSchema), // Use Zod for validation
-      });
+    const [
+        LoginWithPhone,
+        {
+            data:loginWithPhoneData,
+            error:loginWithPhoneError,
+            isSuccess:loginWithPhoneIsSuccess,
+            isError:loginWithPhoneIsError,
+            isLoading:loginWithPhoneIsLoading
+        }
+    ]=useLoginPhoneMutation()
 
     const {
-    register:registerWithEmail,
+        register:loginWithPhone,
+        handleSubmit:handleSubmitWithPhone,
+        reset:resetWithPhone,
+        formState:{errors:errorsWithPhone}
+    }=useForm<FormDataPhone>({
+        resolver: zodResolver(formSchemaWithPhone), // Use Zod for validation
+      });
+
+
+    
+    const {
+    register:loginWithEmail,
     handleSubmit:handleSubmitwithEmail,
     reset:resetWithEmail,
     formState:{errors:errorsWithEmail}
@@ -91,29 +104,21 @@ function SignIn({
     resolver: zodResolver(formSchemaWithEmail), // Use Zod for validation
     });
     
-    const onsubmit=(data:FormData)=>{
-        if(data.phone || data.email){
-            let loggedUser=users.find(d=>d.phone_number===data.phone || d.email ===data.email)
-            if(loggedUser && loggedUser.password ===data.password){
-                // console.log("logged user",loggedUser)
-                dispatch(setUser(loggedUser))
-                onClose()
-                toast.success("user Logged In successfully!")
-                reset()
-            }
-            console.log("Wrong credentials")
-            reset({password:''})
-            return
-        }
-        console.log("user not found")
-        reset()
+    const onsubmit=(data:FormDataPhone)=>{
+        //console.log("on submit hitted")
+        LoginWithPhone({
+            phone:data.phone,
+            password:data.password
+        })
     }
 
     useEffect(()=>{
         if(loginIsSuccess && loginData){
+            //console.log("login data:",loginData)
             toast.success(loginData?.message)
             dispatch(setToken(loginData?.token))
             dispatch(setUser({
+                _id:loginData?.userDetails?._id,
                 email:loginData?.userDetails?.email,
                 phone_number:loginData?.userDetails?.phone,
                 name:loginData?.userDetails?.name,
@@ -125,11 +130,34 @@ function SignIn({
         }
         if(loginIsError){
             console.log("cannot login",loginError)
-            toast.error("cannot login")
+            //@ts-ignore
+            toast.error(loginError?.data?.message)
         }
     },[loginIsError,loginIsSuccess])
 
+    useEffect(()=>{
+        if(loginWithPhoneData && loginWithPhoneIsSuccess){
+            // console.log("login with phone Data:",loginWithPhoneData)
+            toast.success(loginWithPhoneData?.message)
+            dispatch(setToken(loginWithPhoneData?.token))
+            dispatch(setUser({
+                _id:loginWithPhoneData.userDetails._id,
+                email:loginWithPhoneData?.userDetails?.email,
+                phone_number:loginWithPhoneData?.userDetails?.phone,
+                name:loginWithPhoneData?.userDetails?.name,
+                location:loginWithPhoneData?.userDetails?.location
+            }))
+            onClose()
+            resetWithPhone()
+        }
+        if(loginWithPhoneIsError){
+            console.log("error while login with phone number")
+        }
+
+    },[loginWithPhoneIsSuccess,loginWithPhoneIsError])
+
     const onSumbmitWithEmail=(data:FormDataEmail)=>{
+        console.log("login with email data:",data)
         Login({
             email:data.email,
             password:data.password
@@ -182,13 +210,13 @@ function SignIn({
             signWithPhone && (
                 <div className="mb-5 mt-14">
                     <span className="font-bold text-[20px]">Sign in</span>
-                    <form onSubmit={handleSubmit(onsubmit)}>
+                    <form onSubmit={handleSubmitWithPhone(onsubmit)}>
                         <div className="flex flex-col space-y-1 my-5">
                             <label className="font-semibold">Phone Number</label>
                             <div className="relative">
                                 <MdOutlinePhone className="absolute top-4 left-3" size={18} />
                                 <Input 
-                                {...register("phone",{
+                                {...loginWithPhone("phone",{
                                     required:"Phone Number is required",
                                     pattern:{
                                         value: /^\+\d{1,3}[- ]?\d{3}[- ]?\d{4}$/,
@@ -199,7 +227,7 @@ function SignIn({
                                 placeholder="Phone Number"
                                 />
                             </div>
-                            {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
+                            {errorsWithPhone.phone && <p className="text-red-500 text-sm">{errorsWithPhone.phone?.message}</p>}
                         </div>
                         <div className="flex flex-col space-y-1 my-5">
                             <label className="font-semibold">Password</label>
@@ -212,7 +240,7 @@ function SignIn({
                                 }
                                 <Input 
                                     type={showPassword? "text":"password"}
-                                    {...register("password",{
+                                    {...loginWithPhone("password",{
                                         required:"Password is required",
                                         minLength:{
                                             value:6,
@@ -223,21 +251,21 @@ function SignIn({
                                     placeholder="Password"
                                 />
                             </div>
-                            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+                            {errorsWithPhone.password && <p className="text-red-500 text-sm">{errorsWithPhone.password.message}</p>}
                         </div>
-                        
-
+                        {  loginWithPhoneError?.data?.message &&  <p className="text-red-500 text-sm">{loginWithPhoneError?.data?.message}</p>}
                         <Button
+                            disabled={loginWithPhoneIsLoading}
                             type="submit"
                             className="bg-darkBlue h-14 text-white hover:bg-lightBlue rounded-[100px] w-full mt-10"
                         >
-                            Continue
+                            {loginWithPhoneIsLoading ? <LoadingComponent /> :"Continue"}
                         </Button>
                         <div className="flex items-center justify-between my-5">
                             <div className="flex items-center space-x-2">
                                 <Input 
                                     type="checkbox"
-                                    {...register("rememberMe")}
+                                    {...loginWithPhone("rememberMe")}
                                     className="w-4 h-4 bg-lightBlue"
                                 />
                                 <span>Remember Me</span>
@@ -264,7 +292,7 @@ function SignIn({
                                 <IoMdMail className="absolute top-4 left-3" size={18} />
                                 <Input 
                                     type="email"
-                                    {...registerWithEmail("email",{
+                                    {...loginWithEmail("email",{
                                         required:"Email is Required",
                                         pattern:{
                                             value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -288,7 +316,7 @@ function SignIn({
                                 }
                                 <Input 
                                     type={showPassword? "text":"password"}
-                                    {...registerWithEmail("password",{
+                                    {...loginWithEmail("password",{
                                         required:"Password is required",
                                         minLength:{
                                             value:6,
@@ -302,7 +330,7 @@ function SignIn({
                             {errorsWithEmail.password && <p className="text-red-500 text-sm">{errorsWithEmail.password.message}</p>}
 
                         </div>
-                        
+                        {loginError?.data?.message && <p className="text-red-500 text-sm">{loginError?.data?.message}</p>}
 
                         <Button
                             disabled={loginIsLoading}
@@ -315,7 +343,7 @@ function SignIn({
                             <div className="flex items-center space-x-2">
                                 <Input 
                                     type="checkbox"
-                                    {...register("rememberMe")}
+                                    {...loginWithEmail("rememberMe")}
                                     className="w-4 h-4 bg-lightBlue"
                                 />
                                 <span>Remember Me</span>
