@@ -54,12 +54,12 @@ function PopularProjectCard({
                 <span className="text-xs md:text-sm font-semibold">{desc}</span>
                 <div className="mt-5 w-[98%]">
                     <div className="flex items-center w-[98%] ml-2 justify-between">
-                        <span>{amount}$</span>
+                        <span>{amount || 0}$</span>
                         <span>{percentage}%</span>
                     </div>
                     <div className="w-[98%] ml-2">
                         <ProgressBar 
-                            value={amount}
+                            value={amount || 0}
                             max={limit}
                         />
                     </div>

@@ -11,24 +11,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppSelector } from '@/redux/hooks';
 import { selectUser } from '@/redux/slices/userSlice';
 import { useEffect, useState } from 'react';
-import { useEditProfileMutation, useGetProfileMutation } from '@/redux/services/userServices';
+import { useEditProfileMutation} from '@/redux/services/userServices';
 import toast from 'react-hot-toast';
 import LoadingComponent from './LoadingComponent';
 
 
 const formSchema=z.object({
-    avatar:z
-    .instanceof(FileList)
-    .refine((files) => files.length > 0, "Image is required")
-    .refine(
-      (files) => files.length === 1 && files[0].size <= 2 * 1024 * 1024, 
-      "File size must be less than 2MB"
-    )
-    .refine(
-      (files) =>
-        ["image/png", "image/jpeg", "image/jpg"].includes(files[0]?.type),
-      "Only PNG, JPG, and JPEG are allowed"
-    ),
+    avatar: z
+        .instanceof(FileList)
+        .nullable()
+        .optional(),
     gender:z.string().optional(),
     location:z.string().optional(),
     bio:z.string().optional()
@@ -45,6 +37,7 @@ function ProfilePage() {
         handleSubmit,
         setValue,
         watch,
+        reset,
         formState: { errors },
       } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -61,23 +54,15 @@ function ProfilePage() {
         }
       ]=useEditProfileMutation()
 
-      const [
-        GetProfile,
-        {
-            data:getProfileData,
-            error:getProfileError,
-            isSuccess:getProfileIsSuccess,
-            isError:getProfileIsError,
-            isLoading:getProfileIsLoading
-        }
-      ]=useGetProfileMutation()
+      
 
       const onsubmit = (data: FormValues) => {
-        console.log("save button pressed")
-        const file = data.avatar[0]; // Get the selected file
+        //console.log("save button pressed")
+        const file = data.avatar?.[0]; // Get the selected file
         //console.log("Uploading file:", file);
     
         // Example: Create FormData to send the image
+
         const formData = new FormData();
         file && formData.append("avatar", file);
         data.gender && formData.append("gender",data.gender)
@@ -88,14 +73,14 @@ function ProfilePage() {
             userId:user._id,
             data:formData
         })
-        // Send `formData` to your backend
+        
       };
 
       useEffect(()=>{
         if(editProfileIsSuccess && editProfileData){
             console.log("profile edited successfully",editProfileData)
             toast.success("profile edited successfully!")
-            GetProfile(user._id)
+            reset()
         }
         if(editProfileIsError){
             console.log("error while editing profile",editProfileError)
@@ -103,17 +88,14 @@ function ProfilePage() {
         }
       },[editProfileIsSuccess,editProfileIsError])
 
+      
+
+      //track errors
       useEffect(()=>{
-        if(getProfileIsSuccess && getProfileData){
-            console.log("getting profile data:",getProfileData)
-        }
-        if(getProfileIsError){
-            console.log("error while getting profile",getProfileError)
-        }
-      },[getProfileIsError,getProfileIsSuccess])
+        console.log("errors",errors)
+      },[errors])
 
-
-      console.log("user details",user)
+      //console.log("user details",user)
   return (
     <div className="bg-gray-200 h-[90vh] md:h-[70vh] p-2 md:pt-10">
         <form onSubmit={handleSubmit(onsubmit)} className='md:hidden'>
@@ -146,11 +128,15 @@ function ProfilePage() {
                             placeholder='Upload new picture'  
                             accept="image/*" 
                             type="file" 
+                            {...register("avatar")}
                             className='border-none text-white' 
                             onChange={(e) => {
                                 const file = e.target.files?.[0];
-                                if (file) setPreview(URL.createObjectURL(file));
-                              }}
+                                if (file) {
+                                    setPreview(URL.createObjectURL(file));
+                                    setValue("avatar",  e.target.files); // Update the form state
+                                }
+                            }}
                         />
                     </div>
                 </div>
@@ -231,14 +217,22 @@ function ProfilePage() {
                             placeholder='Upload new picture'  
                             accept="image/*" 
                             type="file" 
+                            {...register("avatar")}
                             className='border-none text-white' 
                             onChange={(e) => {
                                 const file = e.target.files?.[0];
-                                if (file) setPreview(URL.createObjectURL(file));
-                              }}
+                                if (file) {
+                                    setPreview(URL.createObjectURL(file));
+                                    setValue("avatar",  e.target.files); // Update the form state
+                                }
+                            }}
                         />
                     </div>
                     <Button
+                        onClick={() => {
+                            setPreview(null);
+                            setValue("avatar", undefined); // Reset form file state
+                        }}
                         className='flex items-center space-x-2 px-5 border-[1px] hover:bg-gray-100 border-black text-black rounded-[100px] bg-white'
                     >
                         <FaTrashCan color='black' />

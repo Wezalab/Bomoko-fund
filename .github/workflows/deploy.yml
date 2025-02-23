@@ -1,4 +1,4 @@
-name: CI/CD - Deploy bomoko-fund App to Vercel
+name: CI/CD Deploy bomokoFund App to Vercel
 
 on:
   push:
