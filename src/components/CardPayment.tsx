@@ -87,9 +87,9 @@ function CardPayment({
                   }
                 }}
                 className={
-                  mobileMoney && donateOption.name ==='mobileMoney'? "text-lightBlue cursor-not-allowed font-semibold":
-                  card && donateOption.name ==='card' ?"text-lightBlue cursor-not-allowed font-semibold":
-                  crypto && donateOption.name ==='crypto' ?"text-lightBlue cursor-not-allowed font-semibold":"cursor-pointer"
+                  mobileMoney && donateOption.name ==='mobileMoney'? "text-lightBlue text-sm md:text-md cursor-not-allowed font-semibold":
+                  card && donateOption.name ==='card' ?"text-lightBlue text-sm md:text-md cursor-not-allowed font-semibold":
+                  crypto && donateOption.name ==='crypto' ?"text-lightBlue text-sm md:text-md cursor-not-allowed font-semibold":"cursor-pointer text-sm md:text-md"
                 }
               >
                 {
@@ -100,7 +100,7 @@ function CardPayment({
               </span>
               {
                 (mobileMoney && donateOption.name ==='mobileMoney' || card && donateOption.name ==='card' || crypto && donateOption.name ==='crypto' ) &&
-                <div className="w-[40px] h-1 bg-lightBlue"></div>
+                <div className="text-sm md:w-[40px] h-1 bg-lightBlue"></div>
               }
             </div>
           ))
@@ -108,7 +108,7 @@ function CardPayment({
       </div>
       
       <div className="flex w-2/4 m-5 items-center justify-between">
-        <Label htmlFor="airplane-mode" className="text-[18px]">Donate anonymously</Label>
+        <Label htmlFor="airplane-mode" className="text-sm md:text-[18px]">Donate anonymously</Label>
         <Switch onCheckedChange={(checked)=>setAnonymously(checked)} id="airplane-mode"  />
       </div>
 
@@ -136,7 +136,7 @@ function CardPayment({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-5">
+        <div className="grid md:grid-cols-2 gap-x-5">
           <div className="flex flex-col space-y-1 my-5">
             <label className="font-semibold">Expire Date</label>
             <Popover>
@@ -144,7 +144,7 @@ function CardPayment({
                     <Button
                     variant={"outline"}
                     className={cn(
-                        "w-[190px] py-4 justify-start text-left font-normal",
+                        "w-full md:w-[190px] py-4 justify-start text-left font-normal",
                         !date && "text-muted-foreground"
                     )}
                     >
@@ -168,18 +168,18 @@ function CardPayment({
             <div className="relative">
               <Input 
                 {...register("cvv")}
-                className="py-4 rounded-xl w-[190px] indent-2 text-black lg:text-md"
+                className="py-4 rounded-xl w-full md:w-[190px] indent-2 text-black lg:text-md"
                 placeholder="CVV"
               />
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-5">
+        <div className="grid md:grid-cols-2 gap-x-5">
           <div className="flex flex-col space-y-1 my-5">
             <label className="font-semibold">Currency</label>
             <Select>
-              <SelectTrigger className="w-[180px] py-4 border border-gray-200 mt-1">
+              <SelectTrigger className="w-full md:w-[180px] py-4 border border-gray-200 mt-1">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
               <SelectContent>
@@ -197,7 +197,7 @@ function CardPayment({
             <div className="relative">
               <Input 
                 {...register("amount")}
-                className="py-4 rounded-xl w-[190px] indent-2 text-black lg:text-md"
+                className="py-4 rounded-xl w-full md:w-[190px] indent-2 text-black lg:text-md"
                 placeholder="Amount"
               />
             </div>
@@ -205,7 +205,7 @@ function CardPayment({
         </div>
         <div className="flex items-center space-x-5 px-5 rounded-xl py-3 mt-5 border-[2px] border-lightBlue shadow-sm shadow-lightBlue">
             <FaCircleExclamation size={24} className="text-lightBlue" />
-            <span className="text-darkBlue">Donation complete after payment processing</span>
+            <span className="text-darkBlue md:text-md text-sm">Donation complete after payment processing</span>
         </div>
 
         <Button

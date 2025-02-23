@@ -1,16 +1,23 @@
 import { MdCancel, MdOutlinePhone } from 'react-icons/md'
 import { Button } from './ui/button'
 import { IoMdArrowRoundBack } from 'react-icons/io'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Input } from './ui/input'
 import { useForm } from 'react-hook-form'
 import { FaHashtag, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { CiLock } from 'react-icons/ci'
+import { useResetPasswordMutation } from '@/redux/services/userServices'
+import {z} from 'zod'
+
+
+const stepOneSchemaEmail=z.object({
+  email: z.string().email("Invalid email format")   
+})
+
+
 
 function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
-    const [newPasswordReset,setNewPasswordReset]=useState(false)
-    const [verifyPhoneReset,setVerifyPhoneReset]=useState(false)
-    const [phonePasswordReset,setPhonePasswordReset]=useState(false)
+    const [steps,setSteps]=useState(1)
     const [showPassword,setShowPassword]=useState(false)
     const {
         register,
@@ -18,6 +25,26 @@ function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
         formState:{errors}
     }=useForm()
 
+    const [
+      ResetPasswordRequest,
+      {
+        data:requestResetPasswordData,
+        error:requestResetPasswordError,
+        isLoading:requestResetPasswordIsLoading,
+        isSuccess:requestResetPasswordIsSuccess,
+        isError:requestResetPasswordIsError
+      }
+    ]=useResetPasswordMutation()
+
+
+    useEffect(()=>{
+      if(requestResetPasswordData && requestResetPasswordIsSuccess){
+        console.log("requestResetPassword data:",requestResetPasswordData)
+      }
+      if(requestResetPasswordIsError){
+        console.log("error while requesting reset password",requestResetPasswordError)
+      }
+    },[requestResetPasswordIsError,requestResetPasswordIsSuccess])
 
   return (
     <div className="px-5 pb-8 pt-5 bg-white shadow-md rounded-2xl">
@@ -26,9 +53,9 @@ function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
               <div className="mt-5">
                 <span className="text-[24px] font-bold text-darkBlue ">
                     {
-                        (!verifyPhoneReset && !phonePasswordReset) ? "Reset password":
-                        verifyPhoneReset ? "Verify your account":
-                        phonePasswordReset ? "Set your new password":""
+                        steps===1 ? "Reset password":
+                        steps ===2 ? "Verify your account":
+                        steps===3 ? "Set your new password":""
                     }
                 </span>
               </div>
@@ -45,18 +72,18 @@ function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
                     <span className="text-white font-semibold">1</span>
                   </div>
                   <div className="border-t-2 border-dashed mx-1 border-gray-500 w-5"></div>
-                  <div className={verifyPhoneReset ? "w-8 h-8 rounded-full bg-lightBlue flex items-center justify-center":"w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center"}>
+                  <div className={steps >=2 ? "w-8 h-8 rounded-full bg-lightBlue flex items-center justify-center":"w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center"}>
                     <span className="text-white font-semibold">2</span>
                   </div>
                   <div className="border-t-2 border-dashed mx-1 border-gray-500 w-5"></div>
-                  <div className={phonePasswordReset ? "w-8 h-8 rounded-full bg-lightBlue flex items-center justify-center":"w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center"}>
+                  <div className={steps===3 ? "w-8 h-8 rounded-full bg-lightBlue flex items-center justify-center":"w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center"}>
                     <span className="text-white font-semibold">3</span>
                   </div>
                 </div>
               </div>
 
               {
-                !verifyPhoneReset && !phonePasswordReset && (
+                steps ===1 && (
                   <div
                     className=""
                   >
@@ -93,7 +120,7 @@ function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
                 )
               }
               {
-                verifyPhoneReset && (
+                steps===2 && (
                   <div
                     className=""
                   >
@@ -129,7 +156,7 @@ function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
                 )
               }
               {
-                newPasswordReset && (
+                steps===3 && (
                   <div
                     className=""
                   >

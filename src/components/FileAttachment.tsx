@@ -12,7 +12,7 @@ interface FileAttachmentProps {
 const FileAttachment: React.FC<FileAttachmentProps> = ({ file }) => {
   // Determine icon based on file type
   const getFileIcon = (type: string) => {
-    if (type.startsWith("image")) return <ImageIcon className="w-6 h-6 text-blue-500" />;
+    if (type?.startsWith("image")) return <ImageIcon className="w-6 h-6 text-blue-500" />;
     return <FileText className="w-6 h-6 text-gray-500" />;
   };
 

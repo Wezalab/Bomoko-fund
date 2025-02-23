@@ -28,6 +28,17 @@ function EditProject() {
     const [upload,setUpload]=useState(true)
     const [embededLink,setEmbededLink]=useState(false)
     const [unsplash,setUnsplash]=useState(false)
+    const [uploadedMedias, setUploadedMdias] = useState<File[]>([]);
+    const [uploadedAttachments, setUploadedAttachments] = useState<File[]>([]);
+
+
+    const handleMediasChange = (files: File[]) => {
+      setUploadedMdias(files);
+    };
+
+    const handleAttachmentsChange = (files: File[]) => {
+      setUploadedAttachments(files);
+    };
 
     const {
       register,
@@ -43,7 +54,7 @@ function EditProject() {
           <div className="flex items-center space-x-10 ">
             <Button
                 onClick={()=>{
-                    navigate(`/projects/${project.id}`)
+                    navigate(`/projects/${project._id}`)
                 }}
                 className="text-black flex items-center space-x-2 hover:text-white h-6 md:h-9 text-sm md:text-xl max-w-fit px-2 md:px-3 rounded-[100px]  bg-gray-300 hover:bg-lightBlue"
             >
@@ -204,30 +215,39 @@ function EditProject() {
             </Button>
           </form>
         </div>
-        <div className="w-3/4 mx-auto">
-          <span className="text-black font-semibold text-2xl">Project media</span>
-          <div className="mt-5 flex space-x-4">
-            <div onClick={()=>{
-                
-            }} className={upload ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
-                <span className={upload ?"text-lightBlue font-semibold":"text-black"}>Upload</span>
-                {upload &&<div className="w-[30px] h-1 bg-lightBlue"></div>}
-            </div>
-            <div onClick={()=>{
-                
-            }} className={embededLink ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
-                <span className={embededLink ?"text-lightBlue font-semibold":"text-black"}>Embeded Link</span>
-                {embededLink && <div className="w-[30px] h-1 bg-lightBlue"></div>}
-            </div>
-            <div onClick={()=>{
-                
-              }} className={unsplash ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
-                  <span className={unsplash ?"text-lightBlue font-semibold":"text-black"}>Unplash</span>
-                  {unsplash && <div className="w-[30px] h-1 bg-lightBlue"></div>}
+        <div className="">
+          <div className="w-3/4 mx-auto">
+            <span className="text-black font-semibold text-2xl">Project media</span>
+            <div className="mt-5 flex space-x-4">
+              <div onClick={()=>{
+                  
+              }} className={upload ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
+                  <span className={upload ?"text-lightBlue font-semibold":"text-black"}>Upload</span>
+                  {upload &&<div className="w-[30px] h-1 bg-lightBlue"></div>}
               </div>
+              <div onClick={()=>{
+                  
+              }} className={embededLink ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
+                  <span className={embededLink ?"text-lightBlue font-semibold":"text-black"}>Embeded Link</span>
+                  {embededLink && <div className="w-[30px] h-1 bg-lightBlue"></div>}
+              </div>
+              <div onClick={()=>{
+                  
+                }} className={unsplash ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
+                    <span className={unsplash ?"text-lightBlue font-semibold":"text-black"}>Unplash</span>
+                    {unsplash && <div className="w-[30px] h-1 bg-lightBlue"></div>}
+                </div>
+            </div>
+            <div className="mt-8">
+                <MediaUpload onFilesChange={handleMediasChange} />
+            </div>
           </div>
-          <div className="mt-8">
-              <MediaUpload />
+          <div className="w-3/4 mx-auto mt-5">
+            <span className="text-black font-semibold text-2xl">Project Attachments</span>
+            
+            <div className="mt-8">
+                <MediaUpload onFilesChange={handleAttachmentsChange} />
+            </div>
           </div>
         </div>
     </div>
