@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import projectBg from '../assets/projectBg.png'
 import { Button } from './ui/button'
 import { GiSettingsKnobs } from "react-icons/gi";
@@ -18,11 +18,12 @@ import FilterModal from './FilterModal';
 import ViewProjectChecker from './ViewProjectchecker';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { setProject } from '@/redux/slices/projectSlice';
+import { selectProjects, setProject, setProjects } from '@/redux/slices/projectSlice';
 import { selectUser } from '@/redux/slices/userSlice';
 import { MdMenu } from 'react-icons/md';
 import MapComponent from './MapComponent';
 import { PlusCircle } from 'lucide-react';
+import { useGetAllProjectsQuery } from '@/redux/services/projectServices';
 
 
 
@@ -41,14 +42,16 @@ function ProjectPage() {
     creatorGenre:""
   })
   const user=useAppSelector(selectUser)
+  const allProjects=useAppSelector(selectProjects)
+
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const currentData = user.email ? user.projects?.slice(
+  const currentData = (user?.email || user?.phone_number) ? user?.projects?.slice(
       (currentPage - 1) * itemsPerPage,
       currentPage * itemsPerPage
     ):
-    projects?.slice(
+    allProjects?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -56,23 +59,41 @@ function ProjectPage() {
   const navigate=useNavigate()
   const dispatch=useAppDispatch()
 
+  const {
+    data:AllProjects,
+    isSuccess:AllProjectsIsSuccess,
+    isLoading:AllProjectsIsLoading,
+    isError:AllProjectsIsError,
+    error:AllProjectsError
+  }=useGetAllProjectsQuery(undefined)
 
   const handleClick = (page:any) => {
     setCurrentPage(page);
   };
 
+  useEffect(()=>{
+    if(AllProjectsIsSuccess && AllProjects){
+      console.log("all projects",AllProjects)
+      dispatch(setProjects(AllProjects))
+    }
+    if(AllProjectsIsError){
+      console.log("Error while getting all projects",AllProjectsError)
+    }
+  },[AllProjectsIsSuccess,AllProjectsIsError])
+
   //console.log("selected project",selectedProject)
   //console.log("current data:",currentData)
+  //console.log("all projects data",currentData)
   return (
     <div className=''>
         {
-          (viewProjectSecurity && !user.email) &&
+          (viewProjectSecurity && (!user.email && !user.phone_number)) &&
           <div className='fixed bg-white rounded-xl top-[20%] z-10 md:left-[10%] md:w-[80%] lg:left-[35%] lg:w-[30%]'>
             <ViewProjectChecker 
               onClose={()=>setViewProjectSecurity(false)} 
               next={()=>{
                 setViewProjectSecurity(false)
-                navigate(`/projects/${selectedProject.id}`)
+                navigate(`/projects/${selectedProject._id}`)
               }}
             />
           </div> 
@@ -119,7 +140,7 @@ function ProjectPage() {
                     
                   </div>
                   <div onClick={()=>setViewMode('map')} className={viewMode === 'map'?'flex cursor-not-allowed flex-col space-y-2':'flex  cursor-pointer'}>
-                    <span className={viewMode ==='map'?"text-black font-semibold":"text-lightGray font-semibold"}>Grid view</span>
+                    <span className={viewMode ==='map'?"text-black font-semibold":"text-lightGray font-semibold"}>Map view</span>
                     {
                       viewMode ==='map' &&
                       <div className='w-[30px] h-1 bg-black'></div>
@@ -130,7 +151,7 @@ function ProjectPage() {
                 
                 <div className='flex  items-center md:space-x-4 lg:space-x-8'>
                     {
-                      user.email && (
+                      (user.email || user.phone_number) && (
                         <Button
                           onClick={()=>navigate('/projects/create')}
                           className='flex items-center space-x-3 md:h-[35px] lg:h-[50px] bg-lightBlue hover:bg-blue-300 text-white rounded-[100px] max-w-fit'
@@ -174,6 +195,7 @@ function ProjectPage() {
           <>
             {/* project session */}
           <div className='mt-24 mb-10 px-[5%] md:grid-cols-2 grid lg:grid-cols-3 gap-x-8 gap-y-5'>
+              
               {
                 currentData?.length > 0 &&  currentData?.slice(0,9).map((project:any)=>(
                   <PopularProjectCard 
@@ -181,21 +203,20 @@ function ProjectPage() {
                       setSelectedProject(project)
                       //@ts-ignore
                       dispatch(setProject(project))
-                      if(selectedProject.id){
-                        user.email && navigate(`/projects/${selectedProject.id}`)
+                      if(project?._id){
+                        (user?.email || user?.phone_number) && navigate(`/projects/${project._id}`)
                       }
                       
-                      !user.email && setViewProjectSecurity(true)
+                      (!user.email&& !user.phone_number) && setViewProjectSecurity(true)
                       
                     }}
-                    key={project.id}
-                    image={project.image}
-                    title={project.title}
-                    desc={project.desc}
-                    type={project.type}
-                    amount={project.amount}
-                    limit={project.limit}
-                    profile={project.profile}
+                    key={project?._id}
+                    image={project?.medias[0]}
+                    title={project?.name}
+                    desc={project?.description}
+                    type={project?.type.name}
+                    amount={project?.actualBalance}
+                    limit={project?.targetAmount}
 
                   />
                 ))
@@ -209,12 +230,18 @@ function ProjectPage() {
                   </div>
                 )
               }
-
+              {
+                AllProjectsIsLoading && (
+                  <div className='flex items-center justify-center text-center w-full mb-10'>
+                    <span className='text-blue-600 font-bold text-xl'>Getting all Projects</span>
+                  </div>
+                )
+              }
 
           {/* Pagination */}
           {/* //TODO: Only display user projects when a user is logged in  */}
           {
-            !user.email && (
+            (!user.email && !user.phone_number) && (
               <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
                   <Button
                     disabled={currentPage === 1}
@@ -229,7 +256,7 @@ function ProjectPage() {
 
                   <div className='flex items-center space-x-4'>
                     {
-                      Array.from({length:Math.ceil(projects?.length / itemsPerPage)},(_,i)=>(
+                      Array.from({length:Math.ceil(allProjects?.length / itemsPerPage)},(_,i)=>(
                         <span 
                           key={i} 
                           onClick={()=>{
@@ -245,7 +272,7 @@ function ProjectPage() {
                   </div>
                   <div className='flex items-center space-x-2'>
                     <Button
-                      disabled={currentPage === Math.ceil(projects?.length / itemsPerPage)}
+                      disabled={currentPage === Math.ceil(allProjects?.length / itemsPerPage)}
                       onClick={()=>{
                         handleClick(currentPage+1)
                         window.scrollTo(0,0)

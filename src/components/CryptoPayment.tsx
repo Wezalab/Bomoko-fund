@@ -47,7 +47,7 @@ function CryptoPayment({
     })
 
   return (
-    <div className="relative bg-white w-full p-5 rounded-2xl">
+    <div className="relative w-full bg-white p-5 rounded-2xl">
       <MdCancel size={28} onClick={onClose} className="absolute top-10 right-5 cursor-pointer" />
       <div className="mt-10 mx-5">
         <span className="font-bold text-[20px]">Donate</span>
@@ -75,9 +75,9 @@ function CryptoPayment({
                   }
                 }}
                 className={
-                  mobileMoney && donateOption.name ==='mobileMoney'? "text-lightBlue cursor-not-allowed font-semibold":
-                  card && donateOption.name ==='card' ?"text-lightBlue cursor-not-allowed font-semibold":
-                  crypto && donateOption.name ==='crypto' ?"text-lightBlue cursor-not-allowed font-semibold":"cursor-pointer"
+                  mobileMoney && donateOption.name ==='mobileMoney'? "text-lightBlue text-sm md:text-md cursor-not-allowed font-semibold":
+                  card && donateOption.name ==='card' ?"text-lightBlue text-sm md:text-md cursor-not-allowed font-semibold":
+                  crypto && donateOption.name ==='crypto' ?"text-lightBlue cursor-not-allowed font-semibold":"cursor-pointer text-sm md:text-md"
                 }
               >
                 {
@@ -96,7 +96,7 @@ function CryptoPayment({
       </div>
       
       <div className="flex w-2/4 m-5 items-center justify-between">
-        <Label htmlFor="airplane-mode" className="text-[18px]">Donate anonymously</Label>
+        <Label htmlFor="airplane-mode" className="text-sm md:text-[18px]">Donate anonymously</Label>
         <Switch onCheckedChange={(checked)=>setAnonymously(checked)} id="airplane-mode" />
       </div>
 
@@ -117,7 +117,7 @@ function CryptoPayment({
           )
         }
         
-        <div className="bg-[#EDF4FF] rounded-lg flex items-center justify-between p-6 my-5">
+        <div className="bg-[#EDF4FF] w-full  rounded-lg flex items-center justify-between p-6 my-5">
             {
                 cryptoData.map((c:any,index:number)=>(
                     <div key={index} className="flex flex-col space-y-2 items-center">
@@ -137,26 +137,26 @@ function CryptoPayment({
         </div>
         <div className="">
             <span className="font-semibold">Amount</span>
-            <div className="flex items-center space-x-5 mt-2">
-                <div className="flex flex-col space-y-1">
-                    <div className="relative">
+            <div className="flex flex-col md:flex-row items-center md:space-x-5 mt-2">
+                <div className="flex w-full flex-col space-y-1">
+                    <div className="relative w-full">
                       <Input 
                           {...register("crypto")}
-                          className="py-4 rounded-xl w-[180px] indent-2 text-black lg:text-md"
+                          className="py-4 rounded-xl w-full md:w-[180px] indent-2 text-black lg:text-md"
                           placeholder="Crypto"
                       />
                       <span className="absolute top-2 right-2 text-[14px]">.{selectedCrypto}</span>
                     </div>
                 </div>
-                <div className="">
+                <div className="hidden md:block">
                   <FaExchangeAlt color="gray" size={24} />
                 </div>
                 
-                <div className="">
-                    <div className="relative">
+                <div className="w-full">
+                    <div className="relative mt-4 md:mt-0">
                       <Input 
                           {...register("amount")}
-                          className="py-4 rounded-xl w-[180px] indent-2 text-black lg:text-md"
+                          className="py-4 rounded-xl w-full md:w-[180px] indent-2 text-black lg:text-md"
                           placeholder="USD"
                       />
                       <span className="absolute top-2 right-2 text-[14px]">$</span>
@@ -166,7 +166,7 @@ function CryptoPayment({
         </div>
         <div className="flex items-center space-x-5 px-5 rounded-xl py-3 mt-5 border-[2px] border-lightBlue shadow-sm shadow-lightBlue">
             <FaCircleExclamation size={24} className="text-lightBlue" />
-            <span className="text-darkBlue">Donation complete after payment processing</span>
+            <span className="text-darkBlue text-xs md:text-md">Donation complete after payment processing</span>
         </div>
         <Button
             type="submit"

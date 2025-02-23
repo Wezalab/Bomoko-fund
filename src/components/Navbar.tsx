@@ -9,8 +9,9 @@ import { CiGrid41,CiLock } from "react-icons/ci";
 import { GoPerson } from "react-icons/go";
 import { IoMdLogOut } from "react-icons/io";
 import { RxCross2 } from "react-icons/rx"
-import logo from '../assets/logoDark.webp'
-import lightLogo from '../assets/logoLight.webp'
+import logo from '../assets/icons/7.png'
+import lightLogo from '../assets/icons/5.png'
+
 
 import {
     NavigationMenu,
@@ -41,9 +42,10 @@ interface navbarProps{
     signUp:boolean
     setSignIn:any
     setSignUp:any
+    setChangePassword:any
 }
 
-function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps) {
+function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn,setChangePassword}:navbarProps) {
     const user=useAppSelector(selectUser)
     const [sideBar,setSideBar]=useState(false)
     const [selectedLang,setSelectedLang]=useState("English")
@@ -65,7 +67,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps
             <IoMdMenu onClick={()=>setSideBar(true)} size={28} />
             <div className='flex items-center space-x-1'>
                 {
-                    user.email && (
+                    (user.email || user.phone_number) && (
                         <div className='w-6 h-6'>
                             <img 
                                 src={profileImage}
@@ -76,7 +78,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps
                     )
                 }
                 {
-                    !user.email && (
+                    (!user.email && !user.phone_number) && (
                         <Button
                             onClick={()=>setSignIn(true)}
                             className='max-w-fit text-sm px-3 py-2 text-white bg-darkBlue rounded-md'
@@ -125,7 +127,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps
                         ))
                     }
                     {
-                        user.email && (
+                        (user.email || user.phone_number) && (
                             <span
                                 onClick={()=>{
                                     handleLogout()
@@ -178,7 +180,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps
                 </ul>
             </div>
             {
-                !user.email &&
+                (!user.email  && !user.phone_number) &&
                 <div className='flex md:flex-col lg:flex-row items-center md:gap-2 lg:gap-5'>
                     
                     <Button
@@ -198,7 +200,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps
                 </div>
             }
             {
-                user.email && 
+                (user.email || user.phone_number) && 
                 <div className=''>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -225,7 +227,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps
                                     alt='profile-image'
                                 />
                                 <div className='flex flex-col'>
-                                    <span className='text-black font-semibold text-sm'>{user.email.split("@")[0]}</span>
+                                    <span className='text-black font-semibold text-sm'>{user.email?.split("@")[0]}</span>
                                     <span className='text-lightGray text-sm'>{user.email}</span>
                                 </div>
                             </div>
@@ -250,7 +252,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn}:navbarProps
                                     </div>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className='p-3'>
-                                    <div onClick={()=>setResetPassword(true)} className='flex items-center space-x-2 cursor-pointer'>
+                                    <div onClick={()=>setChangePassword(true)} className='flex items-center space-x-2 cursor-pointer'>
                                         <CiLock size={18} />
                                         <span className='text-sm'>Change Password</span>
                                     </div>

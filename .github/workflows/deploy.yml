@@ -1,4 +1,4 @@
-name: CI/CD - Deploy bomoko-fund App to Vercel
+name: bomoko-fund app 
 
 on:
   push:
@@ -35,5 +35,5 @@ jobs:
 
       - name: Deploy to Vercel (Preview)
         if: github.event_name == 'pull_request'
-        run: npx vercel --token ${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel --yes --token ${{ secrets.VERCEL_TOKEN }}
 

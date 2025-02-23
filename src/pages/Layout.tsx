@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { Footer, Navbar, ResetPassword, SignIn, SignUp } from '../components'
+import ChangePassword from '@/components/ChangePassword'
 
 
 function Layout({children}:{children:React.ReactNode}) {
     const [signIn,setSignIn]=useState(false)
     const [signUp,setSignUp]=useState(false)
     const [resetPassword,setResetPassword]=useState(false)
+    const [changePassword,setChangePassword]=useState(false)
   return (
     <div className='relative'>
       {
@@ -18,6 +20,16 @@ function Layout({children}:{children:React.ReactNode}) {
                 setSignUp(false)
                 setSignIn(true)
               }}
+            />
+          </div>
+        )
+      }
+      {
+        changePassword && (
+          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[30%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
+            <ChangePassword 
+              onClose={()=>setChangePassword(false)} 
+              
             />
           </div>
         )
@@ -46,13 +58,14 @@ function Layout({children}:{children:React.ReactNode}) {
           </div>
         )
       }
-      <div className={(signIn || signUp || resetPassword )?'blur-sm':""}>
+      <div className={(signIn || signUp || resetPassword || changePassword )?'blur-sm':""}>
         <Navbar 
             setSignUp={setSignUp}
             setSignIn={setSignIn}
             signIn={signIn}
             signUp={signUp}
             setResetPassword={setResetPassword}
+            setChangePassword={setChangePassword}
           />
           <div className=''>
             {children}

@@ -2,8 +2,8 @@ import { MdCancel } from "react-icons/md"
 import { Label } from "./ui/label"
 import { Switch } from "./ui/switch"
 import { donateOptions } from "@/constants/dummydata"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useEffect, useState } from "react"
+import { FormStateSubjectRef, useForm } from "react-hook-form"
 import * as z from 'zod'
 import { Input } from "./ui/input"
 import { FiUser } from "react-icons/fi";
@@ -20,10 +20,17 @@ import {
 } from "@/components/ui/select"
 import { FaCircleExclamation } from "react-icons/fa6"
 import { Button } from "./ui/button"
+import { useDonateMutation } from "@/redux/services/projectServices"
+import { useAppSelector } from "@/redux/hooks"
+import { selectUser } from "@/redux/slices/userSlice"
+import { zodResolver } from "@hookform/resolvers/zod"
+import LoadingComponent from "./LoadingComponent"
+import toast from "react-hot-toast"
 
 
 
 interface mobileMoneyProps{
+  projectId:string
   onClose:any 
   setMobileMoney:any 
   mobileMoney:boolean
@@ -33,8 +40,24 @@ interface mobileMoneyProps{
   setCrypto:any
 }
 
+const formSchema=z.object({
+  donator:z.string().optional(),
+  phone:z.string().optional(),
+  amount:z.string().transform(val => {
+    const parsed = parseFloat(val);
+    if (isNaN(parsed)) {
+      throw new Error('Invalid number');
+    }
+    return parsed;
+  }),
+  currency:z.string(),
+  channel:z.string().optional()
+})
+
+type FormValues=z.infer<typeof formSchema>
 
 function MobileMoney({
+  projectId,
   onClose,
   setMobileMoney,
   mobileMoney,
@@ -44,11 +67,57 @@ function MobileMoney({
   setCrypto
 }:mobileMoneyProps) {
   const [anonymously,setAnonymously]=useState(false)
+  const user=useAppSelector(selectUser)
+
   const {
       register,
       handleSubmit,
+      setValue,
+      reset,
       formState:{errors}
-  }=useForm()
+  }=useForm<FormValues>({
+    resolver:zodResolver(formSchema)
+  })
+
+  const [
+    Donate,
+    {
+      data:donateData,
+      error:donateError,
+      isLoading:donateIsLoading,
+      isSuccess:donateIsSuccess,
+      isError:donateIsError
+    }
+  ]=useDonateMutation()
+
+  useEffect(()=>{
+    if(donateData && donateIsSuccess){
+      //console.log("donated successfully",donateData)
+      toast.success("donation successfully done!")
+      reset()
+      onClose()
+    }
+    if(donateIsError){
+      console.log("error while donating using mobile money")
+    }
+  },[donateIsSuccess,donateIsError])
+
+  const onsubmit=(data:FormValues)=>{
+    Donate({
+      donator:data.donator,
+      phone:data.phone,
+      amount:data.amount,
+      type: "PRE-ORDER",
+      currency:data.currency,
+      channel:"MOBILE MONEY",
+      projectId:projectId,
+      userId:user._id
+    })
+  }
+
+  useEffect(()=>{
+    console.log("errors",errors)
+  },[errors])
 
   // console.log("anonymous::",anonymously)
   return (
@@ -80,9 +149,9 @@ function MobileMoney({
                   }
                 }}
                 className={
-                  mobileMoney && donateOption.name ==='mobileMoney'? "text-lightBlue cursor-not-allowed font-semibold":
-                  card && donateOption.name ==='card' ?"text-lightBlue cursor-not-allowed font-semibold":
-                  crypto && donateOption.name ==='crypto' ?"text-lightBlue cursor-not-allowed font-semibold":"cursor-pointer"
+                  mobileMoney && donateOption.name ==='mobileMoney'? "text-lightBlue md:text-md text-sm cursor-not-allowed font-semibold":
+                  card && donateOption.name ==='card' ?"text-lightBlue md:text-md text-sm cursor-not-allowed font-semibold":
+                  crypto && donateOption.name ==='crypto' ?"text-lightBlue md:text-md text-sm cursor-not-allowed font-semibold":"cursor-pointer md:text-md text-sm"
                 }
               >
                 {
@@ -101,17 +170,17 @@ function MobileMoney({
       </div>
       
       <div className="flex w-2/4 m-5 items-center justify-between">
-        <Label htmlFor="airplane-mode" className="text-[18px]">Donate anonymously</Label>
+        <Label htmlFor="airplane-mode" className="text-sm md:text-[18px]">Donate anonymously</Label>
         <Switch onCheckedChange={(checked)=>setAnonymously(checked)} id="airplane-mode" />
       </div>
 
-      <form className="m-5">
+      <form onSubmit={handleSubmit(onsubmit)} className="m-5">
         <div className="flex flex-col space-y-1">
           <label className="font-semibold">Full Names</label>
           <div className="relative">
             <FiUser className="absolute top-2 left-3" size={18} />
             <Input 
-              {...register("names")}
+              {...register("donator")}
               className="py-4 rounded-xl indent-8 text-black lg:text-md"
               placeholder="Full Names"
             />
@@ -133,11 +202,11 @@ function MobileMoney({
           )
         }
         
-        <div className="grid grid-cols-2 gap-x-5">
-          <div className="flex flex-col space-y-1 my-5">
+        <div className="grid md:grid-cols-2 gap-x-5">
+          <div className="flex w-full flex-col space-y-1 my-5">
             <label className="font-semibold">Currency</label>
-            <Select>
-              <SelectTrigger className="w-[180px] py-4 border border-gray-200 mt-1">
+            <Select onValueChange={(value)=>setValue("currency",value)}>
+              <SelectTrigger className="w-full md:w-[180px] py-4 border border-gray-200 mt-1">
                 <SelectValue placeholder="Select currency" />
               </SelectTrigger>
               <SelectContent>
@@ -150,12 +219,12 @@ function MobileMoney({
             </Select>
           </div>
 
-          <div className="flex flex-col space-y-1 my-5">
+          <div className="flex w-full flex-col space-y-1 my-5">
             <label className="font-semibold">Amount</label>
             <div className="relative">
               <Input 
                 {...register("amount")}
-                className="py-4 rounded-xl w-[190px] indent-2 text-black lg:text-md"
+                className="py-4 rounded-xl w-full md:w-[190px] indent-2 text-black lg:text-md"
                 placeholder="Amount"
               />
             </div>
@@ -164,14 +233,16 @@ function MobileMoney({
 
         <div className="flex items-center space-x-5 px-5 rounded-xl py-3 mt-5 border-[2px] border-lightBlue shadow-sm shadow-lightBlue">
           <FaCircleExclamation size={24} className="text-lightBlue" />
-          <span className="text-darkBlue">Donation complete after payment processing</span>
+          <span className="text-darkBlue md:text-md text-xs">Donation complete after payment processing</span>
         </div>
 
         <Button
+            disabled={donateIsLoading}
             type="submit"
             className="bg-darkBlue h-14 text-white hover:bg-lightBlue rounded-[100px] w-full mt-10"
         >
-            Donate
+          {donateIsLoading ? <LoadingComponent /> :"Donate"}
+          
         </Button>
 
       </form>

@@ -3,7 +3,7 @@ import MobileMoney from "./MobileMoney"
 import CardPayment from "./CardPayment"
 import CryptoPayment from "./CryptoPayment"
 
-function Donate({onClose}:{onClose:any}) {
+function Donate({onClose,projectId}:{onClose:any,projectId:string}) {
     const [mobileMoney,setMobileMoney]=useState(true)
     const [card,setCard]=useState(false)
     const [crypto,setCrypto]=useState(false)
@@ -15,6 +15,7 @@ function Donate({onClose}:{onClose:any}) {
       {
         mobileMoney && (
           <MobileMoney 
+            projectId={projectId}
             onClose={onClose}
             setMobileMoney={setMobileMoney}
             mobileMoney={mobileMoney}
