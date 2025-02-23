@@ -149,15 +149,28 @@ function CreateProject() {
       formData.append("currency", data.currency);
       formData.append("targetAmount", data.targetAmount?.toString());
       formData.append("projectOwner", user._id);
+      
 
+      //! only works for single file upload
       uploadedMedias.forEach((file) => {
-        formData.append("medias[]", file);
+        formData.append("medias", file);
       });
     
       uploadedAttachments.forEach((file) => {
-        formData.append("attachments[]", file);
+        formData.append("attachments", file);
       });
       
+
+      // adjust for array upload files
+      // uploadedMedias.forEach((file, index) => {
+      //   formData.append(`medias[${index}]`, file);
+      // });
+      
+      // uploadedAttachments.forEach((file, index) => {
+      //   formData.append(`attachments[${index}]`, file);
+      // });
+
+
       try {
         const response = await CreateProject(formData).unwrap();
         toast.success("Project created successfully!");
