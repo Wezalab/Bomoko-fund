@@ -352,6 +352,7 @@ function SignUp({
                                   className="h-12 rounded-xl indent-8 text-black lg:text-md"
                                   placeholder="Email"
                               />
+                              
                           </div>
                       </div>
                       <Button

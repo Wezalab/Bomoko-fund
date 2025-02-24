@@ -32,7 +32,7 @@ function PopularProjectCard({
   return (
     <div className={'w-full h-[550px] relative cursor-pointer hover:opacity-50 rounded-md'+className}>
         <img 
-            className="w-full h-full object-cover rounded-2xl blur-[3px] opacity-90 brightness-90"
+            className="w-full h-full object-cover rounded-2xl blur-0 opacity-90 brightness-90"
             src={image}
             alt="project-bg"
         />
@@ -47,12 +47,12 @@ function PopularProjectCard({
             <div className="py-1 px-3 rounded-md absolute right-5 top-6 bg-yellow text-black text-center">
                 <span className="text-xs font-semibold">{type}</span>
             </div>
-            <div className="flex w-full flex-col space-y-4 absolute bottom-5 md:left-0 lg:left-2 text-white">
+            <div className="flex w-full flex-col space-y-4 absolute bottom-[2%] md:left-0 lg:left-2 text-white">
                 <div className="w-[280px]">
                     <span className="text-[18px] md:text-[24px] font-bold">{title}</span>
                 </div>     
                 <span className="text-xs md:text-sm font-semibold">{desc}</span>
-                <div className="mt-5 w-[98%]">
+                <div className="mt-5 w-[96%] mr-[2%]">
                     <div className="flex items-center w-[98%] ml-2 justify-between">
                         <span>{amount || 0}$</span>
                         <span>{percentage}%</span>
