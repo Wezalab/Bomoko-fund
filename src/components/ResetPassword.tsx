@@ -6,24 +6,46 @@ import { Input } from './ui/input'
 import { useForm } from 'react-hook-form'
 import { FaHashtag, FaRegEye, FaRegEyeSlash } from 'react-icons/fa'
 import { CiLock } from 'react-icons/ci'
-import { useResetPasswordMutation } from '@/redux/services/userServices'
+import { useResetPasswordMutation, useResetPasswordRequestMutation } from '@/redux/services/userServices'
 import {z} from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import LoadingComponent from './LoadingComponent'
+import toast from 'react-hot-toast'
+
 
 
 const stepOneSchemaEmail=z.object({
   email: z.string().email("Invalid email format")   
 })
 
+const stepTwoSchema=z.object({
+  token:z.string(),
+  password:z.string().min(6,"the password must contain at least 6 characters")
+})
+
+type StepOneData=z.infer<typeof stepOneSchemaEmail>
+type StepTwoData=z.infer<typeof stepTwoSchema>
 
 
 function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
     const [steps,setSteps]=useState(1)
     const [showPassword,setShowPassword]=useState(false)
     const {
-        register,
-        handleSubmit,
-        formState:{errors}
-    }=useForm()
+        register:registerStepOne,
+        handleSubmit:handleSubmitStepOne,
+        formState:{errors:errorsStepOne}
+    }=useForm<StepOneData>({
+      resolver:zodResolver(stepOneSchemaEmail)
+    })
+
+
+    const {
+      register:registerStepTwo,
+      handleSubmit:handleSubmitStepTwo,
+      formState:{errors:errorsStepTwo}
+  }=useForm<StepTwoData>({
+    resolver:zodResolver(stepTwoSchema)
+  })
 
     const [
       ResetPasswordRequest,
@@ -34,17 +56,33 @@ function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
         isSuccess:requestResetPasswordIsSuccess,
         isError:requestResetPasswordIsError
       }
-    ]=useResetPasswordMutation()
+    ]=useResetPasswordRequestMutation()
 
 
     useEffect(()=>{
       if(requestResetPasswordData && requestResetPasswordIsSuccess){
+        toast.success("An email with token has been sent to you")
+        setSteps(2)
         console.log("requestResetPassword data:",requestResetPasswordData)
       }
       if(requestResetPasswordIsError){
         console.log("error while requesting reset password",requestResetPasswordError)
       }
     },[requestResetPasswordIsError,requestResetPasswordIsSuccess])
+
+    const onsubmitEmail=(data:StepOneData)=>{
+      ResetPasswordRequest({
+        email:data.email
+      })
+    }
+
+    useEffect(()=>{
+      console.log("error while sending emailzod:",errorsStepOne)
+    },[errorsStepOne])
+
+    useEffect(()=>{
+      console.log("error while sending emailzod:",errorsStepTwo)
+    },[errorsStepTwo])
 
   return (
     <div className="px-5 pb-8 pt-5 bg-white shadow-md rounded-2xl">
@@ -90,22 +128,25 @@ function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
                     <div className="my-5">
                       <span className="text-lightGray">Provide your phone number or email</span>
                     </div>
-                    <form className="">
+                    <form onSubmit={handleSubmitStepOne(onsubmitEmail)} className="">
                       <div className="flex flex-col space-y-1 my-5">
                           <label className="font-semibold">Phone number or email</label>
                           <div className="relative">
                               <MdOutlinePhone className="absolute top-4 left-3" size={18} />
                               <Input 
-                              {...register("phone")}
-                              className="h-12 rounded-xl indent-8 text-black lg:text-md"
-                              placeholder="Phone number or email"
+                                {...registerStepOne("email")}
+                                className="h-12 rounded-xl indent-8 text-black lg:text-md"
+                                placeholder="Phone number or email"
                               />
+                              {errorsStepOne.email && <p className="text-red-600 text-xs mt-2">{errorsStepOne.email?.message}</p>}
                           </div>
                       </div>
                       <Button
+                        type="submit"
+                        disabled={requestResetPasswordIsLoading}
                         className="text-white w-full h-12 rounded-[100px] bg-darkBlue"
                       >
-                        Continue
+                        {requestResetPasswordIsLoading ? <LoadingComponent /> :"Continue"}
                       </Button>
                     </form>
                     <div className="flex space-x-2 items-center justify-center my-5">
@@ -135,7 +176,7 @@ function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
                               <FaHashtag className="absolute top-4 left-3" size={18} />
                               <Input 
                                   type="text"
-                                  {...register("code")}
+                                  
                                   className="h-12 rounded-xl indent-8 text-black lg:text-md"
                                   placeholder="Verification code"
                               />
@@ -175,7 +216,7 @@ function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
                               }
                               <Input 
                                   type={showPassword? "text":"password"}
-                                  {...register("password")}
+                                  
                                   className="h-12 rounded-xl indent-8 text-black lg:text-md"
                                   placeholder="Your Password"
                               />
@@ -192,7 +233,7 @@ function ResetPassword({onClose,signIn}:{onClose:any,signIn:any}) {
                               }
                               <Input 
                                   type={showPassword? "text":"password"}
-                                  {...register("cpassword")}
+                                  
                                   className="h-12 rounded-xl indent-8 text-black lg:text-md"
                                   placeholder="Confirm Password"
                               />

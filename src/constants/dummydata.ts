@@ -13,8 +13,9 @@ import BCH from '../assets/bch.png'
 import BNB from '../assets/bnb.png'
 import WAVES from '../assets/waves.png'
 import ETH2 from '../assets/eth2.png'
-import { User } from '@/types'
-
+import Img1 from '../assets/06.png'
+import Img2 from '../assets/notification2.png'
+import Img3 from '../assets/targetSupportImg.png'
 
 
 
@@ -646,7 +647,7 @@ export const cryptoData=[
   },
 ]
 
-export const users: User[] = [
+export const users = [
   {
     profile: "https://example.com/profiles/user1.jpg",
     email: "user1@example.com",
@@ -763,3 +764,26 @@ export const faqs = [
     desc: "Yes, we use industry-standard encryption and security protocols to ensure that all donations and personal information are protected."
   }
 ];
+
+
+export const notifications=[
+  {
+    image:Img1,
+    description:"Kamana John has donate $500 to support 230 children...",
+    time:"12:05",
+    read:false
+  },
+  {
+    image:Img2,
+    description:"Roger has donate $100 to support 230 children...",
+    time:"04:05",
+    read:true
+  },
+  {
+    image:Img3,
+    description:"Target for  support 230 children get school fee is reached... ",
+    time:"sept 27 ,2024",
+    read:true
+  },
+
+]

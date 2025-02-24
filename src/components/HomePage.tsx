@@ -120,7 +120,7 @@ function HomePage() {
             />
             <div className="md:hidden lg:col-span-1"></div>
             <PopularProjectCard 
-              className="absolute lg:grid md:hidden lg:left-[50%] lg:-top-16 col-span-2"
+              className="absolute lg:block md:hidden lg:left-[50%] -top-[10%] col-span-2"
               image={popularProjectImage3}
               title="Help Kamana John get back to life"
               desc="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque"

@@ -153,7 +153,7 @@ function SingleProject() {
                             )
                         }
                         {
-                            project.attachments?.map((file:any,index)=>(
+                            project.attachments?.map((file:any,index:number)=>(
                                 <a key={file?._id} href={file} className="py-3 px-5 flex items-center justify-between bg-white border-[1px] rounded-md border-black ">
                                     <span>Download File {index+1}</span>
                                     <Download className="w-5 h-5" />
