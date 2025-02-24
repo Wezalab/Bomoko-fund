@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Footer, Navbar, ResetPassword, SignIn, SignUp } from '../components'
 import ChangePassword from '@/components/ChangePassword'
+import NotificationModal from '@/components/NotificationModal'
 
 
 function Layout({children}:{children:React.ReactNode}) {
@@ -8,11 +9,12 @@ function Layout({children}:{children:React.ReactNode}) {
     const [signUp,setSignUp]=useState(false)
     const [resetPassword,setResetPassword]=useState(false)
     const [changePassword,setChangePassword]=useState(false)
+    const [notification,setNotification]=useState(false)
   return (
     <div className='relative'>
       {
         resetPassword && (
-          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[30%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
+          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[40%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
             <ResetPassword 
               onClose={()=>setResetPassword(false)} 
               signIn={()=>{
@@ -26,10 +28,19 @@ function Layout({children}:{children:React.ReactNode}) {
       }
       {
         changePassword && (
-          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[30%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
+          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[40%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
             <ChangePassword 
               onClose={()=>setChangePassword(false)} 
               
+            />
+          </div>
+        )
+      }
+      {
+        notification && (
+          <div className='fixed w-[90%] top-[5%] left-[4%] md:w-[50%] lg:w-[25%]  md:top-[3%] lg:top-[5%] md:left-[48%] lg:left-[72%] z-10'>
+            <NotificationModal
+              onClose={()=>setNotification(false)}
             />
           </div>
         )
@@ -58,8 +69,9 @@ function Layout({children}:{children:React.ReactNode}) {
           </div>
         )
       }
-      <div className={(signIn || signUp || resetPassword || changePassword )?'blur-sm':""}>
+      <div className={(signIn || signUp || resetPassword || changePassword || notification )?'blur-sm':""}>
         <Navbar 
+            setNotification={setNotification}
             setSignUp={setSignUp}
             setSignIn={setSignIn}
             signIn={signIn}

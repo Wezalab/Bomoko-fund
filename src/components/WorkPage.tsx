@@ -27,7 +27,7 @@ function WorkPage() {
           <div className='flex items-center col-span-4 space-x-2'>
             <div className='flex flex-col space-y-1'>
               <span className='font-semibold'>Provide your project information</span>
-              <span className='text-xs text-lightGray'>
+              <span className='text-md text-lightGray'>
                 Gather key project details such as the project name, category, type, target donation amount, 
                 and other relevant information. This will help define the scope and goals of your project, 
                 ensuring potential donors understand the purpose and objectives.
@@ -42,7 +42,7 @@ function WorkPage() {
           <div className='flex items-center col-span-4 space-x-2'>
             <div className='flex flex-col space-y-1'>
               <span className='font-semibold'>Submit your project</span>
-              <span className='text-xs text-lightGray'>
+              <span className='text-md text-lightGray'>
                 After entering your project details, including the name, category, type, and target amount, submit it for review. 
                 Our team will carefully assess the information to ensure it meets our guidelines. 
                 Once approved, your project will be ready to start receiving donations.
@@ -57,7 +57,7 @@ function WorkPage() {
           <div className='flex items-center col-span-4 space-x-2'>
             <div className='flex flex-col space-y-1'>
               <span className='font-semibold'>Project approval</span>
-              <span className='text-xs text-lightGray'>
+              <span className='text-md text-lightGray'>
                 After our team approves your project, it will be made public, allowing you to start receiving donations.
               </span>
             </div>
@@ -70,7 +70,7 @@ function WorkPage() {
           <div className='flex items-center col-span-4 space-x-2'>
             <div className='flex flex-col space-y-1'>
               <span className='font-semibold'>Receive your donations</span>
-              <span className='text-xs text-lightGray'>
+              <span className='text-md text-lightGray'>
                 You can receive donations through mobile money, credit/debit cards, or even cryptocurrency. This offers flexibility for contributors to choose their preferred method.
               </span>
             </div>
@@ -83,7 +83,7 @@ function WorkPage() {
           <div className='flex items-center col-span-4 space-x-2'>
             <div className='flex flex-col space-y-1'>
               <span className='font-semibold'>Cash-out your donations</span>
-              <span className='text-xs text-lightGray'>
+              <span className='text-md text-lightGray'>
                 You can easily cash out your donations whenever you need to, providing you with convenient access to your funds. Our streamlined process ensures that withdrawing your donations is quick and hassle-free.
               </span>
             </div>
@@ -103,7 +103,7 @@ function WorkPage() {
             <div className='text-end'>
               <span className='md:text-[24px] lg:text-[32px] font-semibold'>Submit your project</span>
             </div>
-            <span className='text-lightGray text-xs lg:text-[18px] font-semibold text-end'>
+            <span className='text-lightGray text-md lg:text-[18px]  text-end'>
               After entering your project details, including the name, category, type, and target amount, submit it for review. 
               Our team will carefully assess the information to ensure it meets our guidelines. Once approved, 
               your project will be ready to start receiving donations.
@@ -119,7 +119,7 @@ function WorkPage() {
             <div className='text-end'>
               <span className='md:text-[24px] lg:text-[32px] font-semibold'>Receive your donations</span>
             </div>
-            <span className='text-lightGray text-xs lg:text-[18px] font-semibold text-end'>
+            <span className='text-lightGray text-md lg:text-[18px]  text-end'>
               You can receive donations through mobile money, credit/debit cards, 
               or even cryptocurrency. This offers flexibility for contributors to choose their preferred method.
             </span>
@@ -164,7 +164,7 @@ function WorkPage() {
             <div className='text-start'>
               <span className='text-[24px] lg:text-[32px] font-semibold'>Provide your project information</span>
             </div>
-            <span className='text-lightGray text-xs lg:text-[18px] font-semibold text-start'>
+            <span className='text-lightGray text-md lg:text-[18px]  text-start'>
               Gather key project details such as the project name, category, type, target donation amount, and other relevant information. 
               This will help define the scope and goals of your project, ensuring potential donors understand the purpose and objectives.
             </span>
@@ -179,7 +179,7 @@ function WorkPage() {
             <div className='text-start'>
               <span className='md:text-[24px] lg:text-[32px] font-semibold'>Project approval</span>
             </div>
-            <span className='text-lightGray text-xs lg:text-[18px] font-semibold text-start'>
+            <span className='text-lightGray text-md lg:text-[18px]  text-start'>
               After our team approves your project, it will be made public, allowing you to start receiving donations.
             </span>
           </div>
@@ -193,7 +193,7 @@ function WorkPage() {
             <div className='text-start'>
               <span className='md:text-[24px] lg:text-[32px] font-semibold'>Cash-out your donations</span>
             </div>
-            <span className='text-lightGray text-xs lg:text-[18px] font-semibold text-start'>
+            <span className='text-lightGray text-md lg:text-[18px]  text-start'>
               You can easily cash out your donations whenever you need to, providing you with convenient access to your funds. 
               Our streamlined process ensures that withdrawing your donations is quick and hassle-free.
             </span>

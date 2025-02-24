@@ -51,7 +51,7 @@ function ProjectPage() {
       (currentPage - 1) * itemsPerPage,
       currentPage * itemsPerPage
     ):
-    allProjects?.slice(
+    allProjects.filter(item=>item.medias.length > 0)?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
