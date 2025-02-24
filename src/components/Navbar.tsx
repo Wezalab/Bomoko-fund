@@ -20,6 +20,7 @@ import {
     NavigationMenuList,
     NavigationMenuTrigger
   } from "@/components/ui/navigation-menu"
+
 import {
 DropdownMenu,
 DropdownMenuContent,
@@ -42,10 +43,11 @@ interface navbarProps{
     signUp:boolean
     setSignIn:any
     setSignUp:any
-    setChangePassword:any
+    setChangePassword:any 
+    setNotification:any
 }
 
-function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn,setChangePassword}:navbarProps) {
+function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSignIn,setChangePassword}:navbarProps) {
     const user=useAppSelector(selectUser)
     const [sideBar,setSideBar]=useState(false)
     const [selectedLang,setSelectedLang]=useState("English")
@@ -142,11 +144,11 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn,setChangePas
             </aside>
         </nav>
         <nav className='hidden md:py-5  lg:py-[16px] sticky top-0 z-30 md:px-5 lg:px-[80px] md:flex items-center justify-between bg-white shadow-sm'>
-            <div className='flex items-center md:space-x-2 lg:space-x-[8px]'>
+            <div className='flex -mt-6 items-center md:space-x-2 lg:space-x-[8px]'>
                 <img 
                     onClick={()=>navigate("/")}
                     src={lightLogo}
-                    className='md:h-[70px] md:w-[150px] cursor-pointer lg:w-[250px] lg:h-[100px]'
+                    className='md:h-[70px] md:w-[150px] cursor-pointer lg:w-[250px] lg:h-[140px]'
                     alt='app-image'
                 />
                 {/* <h1 className='font-semibold md:hidden lg:inline capitalize md:text-[16px] text-nowrap lg:text-[24px] text-lightBlue'>bomoko fund</h1> */}
@@ -234,7 +236,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setSignIn,setChangePas
                             <DropdownMenuSeparator/>
                             <DropdownMenuGroup>
                                 <DropdownMenuItem className='p-3'>
-                                    <div className='flex items-center space-x-2 cursor-pointer'>
+                                    <div onClick={()=>setNotification(true)} className='flex items-center space-x-2 cursor-pointer'>
                                         <FiBell size={18} />
                                         <span className='text-sm'>Notifications</span>
                                     </div>
