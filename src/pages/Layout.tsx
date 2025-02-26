@@ -16,6 +16,7 @@ function Layout({children}:{children:React.ReactNode}) {
         resetPassword && (
           <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[40%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
             <ResetPassword 
+              setSignIn={setSignIn}
               onClose={()=>setResetPassword(false)} 
               signIn={()=>{
                 setResetPassword(false)
@@ -80,6 +81,7 @@ function Layout({children}:{children:React.ReactNode}) {
             setChangePassword={setChangePassword}
           />
           <div className=''>
+            
             {children}
           </div>
           <Footer />

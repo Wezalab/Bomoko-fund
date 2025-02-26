@@ -13,7 +13,9 @@ interface PopularProjectCardProps{
    limit:number 
    className?:string
    amount:number
-   onClick?:any
+   onClick?:any,
+   action?:any
+   actionName:string
 }
 
 function PopularProjectCard({
@@ -25,7 +27,9 @@ function PopularProjectCard({
     limit,
     className,
     amount,
-    onClick
+    onClick,
+    action,
+    actionName
 }:PopularProjectCardProps) {
    
     const percentage = Math.round(Math.min((amount || 0 / limit) * 100, 100));
@@ -66,9 +70,10 @@ function PopularProjectCard({
                 </div>
                 <div className="flex items-center mx-3 justify-between">
                     <Button
+                        onClick={action}
                         className="flex items-center justify-between bg-lightBlue hover:bg-blue-700 text-white rounded-[100px] max-w-fit h-[48px]"
                     >
-                        Donate 
+                        {actionName} 
                         <FaGift color="white" size={28} />
                     </Button>
                     <Button

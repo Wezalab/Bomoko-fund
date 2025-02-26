@@ -285,7 +285,7 @@ function SignUp({
                             <IoCall className="" />
                             <span className="font-semibold">Sign up with a phone number</span>
                         </div>
-                        <div className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
+                        <div onClick={handleGoogleAuth} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
                             <FcGoogle className="" />
                             <span className="font-semibold">Sign up with Google</span>
                         </div>

@@ -55,6 +55,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
     const dispatch=useAppDispatch()
 
     const handleLogout=()=>{
+        navigate('/')
         dispatch(setUser(initialState.user))
         dispatch(setToken(initialState.token))
         dispatch(setProject(ProjectInitialState.project))

@@ -18,22 +18,28 @@ import FilterModal from './FilterModal';
 import ViewProjectChecker from './ViewProjectchecker';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { selectProjects, setProject, setProjects } from '@/redux/slices/projectSlice';
+import { selectProject, selectProjects, setProject, setProjects } from '@/redux/slices/projectSlice';
 import { selectUser } from '@/redux/slices/userSlice';
 import { MdMenu } from 'react-icons/md';
 import MapComponent from './MapComponent';
 import { PlusCircle } from 'lucide-react';
-import { useGetAllProjectsQuery } from '@/redux/services/projectServices';
+import { useGetAllProjectsQuery, useUsersProjectsQuery } from '@/redux/services/projectServices';
+import SignIn from './SignIn';
+import Donate from './Donate';
+import Cashout from './Cashout';
 
 
 
 function ProjectPage() {
   const [latlng, setLatLng] = useState<[number, number] | null>([-4.4419, 15.2663]);
-  const [viewMode,setViewMode]=useState<'grid'|'map'>('grid')
+  const [viewMode,setViewMode]=useState<'grid'|'map'|'other'>('grid')
   const [itemsPerPage,setItemsPerPage]=useState(9)
   const [openFilter,setOpenFilter]=useState(false)
   const [viewProjectSecurity,setViewProjectSecurity]=useState(false)
   const [selectedProject,setSelectedProject]=useState<any>(null)
+  const [donate,setDonate]=useState(false)
+  const [cashout,setCashout]=useState(false)
+  const [login,setLogin]=useState(false)
   const [filter,setFilter]=useState({
     category:[],
     date:"",
@@ -47,11 +53,21 @@ function ProjectPage() {
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  const currentData = (user?.email || user?.phone_number) ? user?.projects?.slice(
-      (currentPage - 1) * itemsPerPage,
-      currentPage * itemsPerPage
-    ):
-    allProjects.filter(item=>item.medias.length > 0)?.slice(
+  const {
+    data:userProjectsData,
+    error:userProjectError,
+    isSuccess:userProjectIsSuccess,
+    isError:userProjectIsError,
+    isLoading:userProjectIsLoading
+  }=useUsersProjectsQuery(user._id)
+
+
+  const currentData = allProjects?.filter((item:any)=>item.medias.length > 0)?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const currentDataPersonal = (user.email || user.phone_number) && userProjectsData?.filter((item:any)=>item.medias.length > 0)?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -67,6 +83,8 @@ function ProjectPage() {
     error:AllProjectsError
   }=useGetAllProjectsQuery(undefined)
 
+  
+
   const handleClick = (page:any) => {
     setCurrentPage(page);
   };
@@ -81,11 +99,39 @@ function ProjectPage() {
     }
   },[AllProjectsIsSuccess,AllProjectsIsError])
 
+  useEffect(()=>{
+    if(userProjectIsSuccess && userProjectsData){
+      console.log("user projects data:",userProjectsData)
+    }
+    if(userProjectIsError){
+      console.log("error while getting user projects",userProjectError)
+    }
+  },[userProjectIsError,userProjectIsSuccess])
+
   //console.log("selected project",selectedProject)
   //console.log("current data:",currentData)
   //console.log("all projects data",currentData)
   return (
-    <div className=''>
+    <div className='relative'>
+        {
+            login && 
+            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] absolute md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
+                <SignIn onClose={()=>setLogin(false)} />
+            </div>
+        }
+        {
+            donate &&
+            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] absolute md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
+                <Donate projectId={selectedProject?._id} onClose={()=>setDonate(false)} />
+            </div>
+        }
+        {
+            cashout &&
+            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] absolute md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
+                <Cashout projectId={selectedProject._id} onClose={()=>setCashout(false)} />
+                
+            </div>
+        }
         {
           (viewProjectSecurity && (!user.email && !user.phone_number)) &&
           <div className='fixed bg-white rounded-xl top-[20%] z-10 md:left-[10%] md:w-[80%] lg:left-[35%] lg:w-[30%]'>
@@ -129,18 +175,26 @@ function ProjectPage() {
                   />
                 </div>
               </div>
-              <div className='w-[90%] hidden shadow-md h-[100px] rounded-lg md:flex justify-between items-center p-10 bg-white absolute -bottom-10 left-[5%]'>
-                <div className='flex md:w-[30%] space-x-5'>
+              <div className='w-[95%] lg:w-[90%] hidden shadow-md h-[100px] rounded-lg md:flex justify-between items-center p-10 bg-white absolute -bottom-10 left-[2%] lg:left-[5%]'>
+                <div className='flex md:w-[40%] space-x-5'>
                   <div onClick={()=>setViewMode('grid')} className={viewMode === 'grid'?'flex flex-col cursor-not-allowed space-y-2':'flex cursor-pointer'}>
-                    <span className={viewMode ==='grid'?"text-black font-semibold":"text-lightGray font-semibold"}>Grid view</span>
+                    <span className={viewMode ==='grid'?"text-black md:text-sm text-nowrap lg:text-md font-semibold":"text-lightGray md:text-sm lg:text-md text-nowrap"}>Personal projects</span>
                     {
                       viewMode ==='grid' &&
                       <div className='w-[30px] h-1 bg-black'></div>
                     }
                     
                   </div>
+                  <div onClick={()=>setViewMode('other')} className={viewMode === 'other'?'flex flex-col cursor-not-allowed space-y-2':'flex cursor-pointer'}>
+                    <span className={viewMode ==='other'?"text-black md:text-sm lg:text-md text-nowrap font-semibold":"text-lightGray lg:text-md md:text-sm text-nowrap "}>Projects</span>
+                    {
+                      viewMode ==='other' &&
+                      <div className='w-[30px] h-1 bg-black'></div>
+                    }
+                    
+                  </div>
                   <div onClick={()=>setViewMode('map')} className={viewMode === 'map'?'flex cursor-not-allowed flex-col space-y-2':'flex  cursor-pointer'}>
-                    <span className={viewMode ==='map'?"text-black font-semibold":"text-lightGray font-semibold"}>Map view</span>
+                    <span className={viewMode ==='map'?"text-black font-semibold md:text-sm lg:text-md text-nowrap":"text-lightGray md:text-sm text-nowrap lg:text-md"}>Map view</span>
                     {
                       viewMode ==='map' &&
                       <div className='w-[30px] h-1 bg-black'></div>
@@ -197,20 +251,166 @@ function ProjectPage() {
           <div className='mt-24 mb-10 px-[5%] md:grid-cols-2 grid lg:grid-cols-3 gap-x-8 gap-y-5'>
               
               {
-                currentData?.length > 0 &&  currentData?.slice(0,9).map((project:any)=>(
+                currentDataPersonal?.length > 0 &&  currentDataPersonal?.slice(0,9).map((project:any)=>(
                   <PopularProjectCard 
                     onClick={()=>{
                       setSelectedProject(project)
                       //@ts-ignore
                       dispatch(setProject(project))
                       if(project?._id){
-                        (user?.email || user?.phone_number) && navigate(`/projects/${project._id}`)
+                        navigate(`/projects/${project._id}`)
                       }
                       
-                      (!user.email&& !user.phone_number) && setViewProjectSecurity(true)
+                      //(!user.email&& !user.phone_number) && setViewProjectSecurity(true)
                       
                     }}
+                    action={()=>{
+                      setSelectedProject(project)
+                      //@ts-ignore
+                      dispatch(setProject(project))
+                      setCashout(true)
+                    }}
+                    actionName='Cashout'
                     key={project?._id}
+                    image={project?.medias[0]}
+                    title={project?.name}
+                    desc={project?.description}
+                    type={project?.type.name}
+                    amount={project?.actualBalance}
+                    limit={project?.targetAmount}
+
+                  />
+                ))
+              }
+              
+          </div>
+              {
+                !currentDataPersonal && (
+                  <div className='flex items-center justify-center text-center w-full mb-10'>
+                    <span className='text-lightGray font-bold text-xl'>No Personal Projects</span>
+                  </div>
+                )
+              }
+              
+              {
+                userProjectIsLoading && (
+                  <div className='flex items-center justify-center text-center w-full mb-10'>
+                    <span className='text-blue-600 font-bold text-xl'>Getting all user's Projects...</span>
+                  </div>
+                )
+              }
+
+          {/* Pagination */}
+          {/* //TODO: Only display user projects when a user is logged in  */}
+          {
+            (user.email || user.phone_number) && (
+              <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
+                  <Button
+                    disabled={currentPage === 1}
+                    onClick={()=>{
+                      handleClick(currentPage-1)
+                      window.scrollTo(0,0)
+                    }}
+                    className=' bg-transparent text-black hover:bg-lightBlue hover:text-white'
+                  >
+                    <IoChevronBackSharp />
+                  </Button>
+
+                  <div className='flex items-center space-x-4'>
+                    {
+                      Array.from({length:Math.ceil(userProjectsData?.length / itemsPerPage)},(_,i)=>(
+                        <span 
+                          key={i} 
+                          onClick={()=>{
+                            handleClick(i+1)
+                            window.scrollTo(0,0)
+                          }} 
+                          className={i+1 === currentPage ?'text-lightBlue cursor-pointer font-bold underline':'cursor-pointer'}
+                        >
+                          {i+1}
+                        </span>
+                      ))
+                    }
+                  </div>
+                  <div className='flex items-center space-x-2'>
+                    <Button
+                      disabled={currentPage === Math.ceil(userProjectsData?.length / itemsPerPage)}
+                      onClick={()=>{
+                        handleClick(currentPage+1)
+                        window.scrollTo(0,0)
+                      }}
+                      className=' bg-transparent text-black hover:bg-lightBlue hover:text-white'
+                    >
+                      <IoChevronForward />
+                    </Button>
+                    <NavigationMenu className='z-0'>
+                      <NavigationMenuList>
+                          <NavigationMenuItem>
+                              <NavigationMenuTrigger className='font-bold'>{itemsPerPage}/page</NavigationMenuTrigger>
+                              <NavigationMenuContent >
+                                  <ul className="grid w-[100px] gap-3 p-4">
+                                      <li 
+                                        onClick={()=>{
+                                          setItemsPerPage(9)
+                                          window.scrollTo(0,0)
+                                          }} 
+                                        className='hover:text-lightBlue cursor-pointer'
+                                      >
+                                        9
+                                      </li>
+                                      <li 
+                                        onClick={()=>{
+                                          setItemsPerPage(12)
+                                          window.scrollTo(0,0)
+                                        }} 
+                                        className='hover:text-lightBlue cursor-pointer'
+                                      >
+                                        12
+                                      </li>
+                                  </ul>
+                              </NavigationMenuContent>
+                          </NavigationMenuItem>
+                      </NavigationMenuList>
+                  </NavigationMenu>
+                  </div>
+                  
+              </div>
+            )
+          }
+          
+          </>
+        }
+        { viewMode ==='other' &&
+          <>
+            {/* project session */}
+          <div className='mt-24 mb-10 px-[5%] md:grid-cols-2 grid lg:grid-cols-3 gap-x-8 gap-y-5'>
+              
+              {
+                currentData?.length > 0 &&  currentData?.slice(0,9).map((project:any,index)=>(
+                  <PopularProjectCard 
+                    key={project._id}
+                    onClick={()=>{
+                      setSelectedProject(project)
+                      //@ts-ignore
+                      dispatch(setProject(project))
+                      if(project?._id){
+                        navigate(`/projects/${project._id}`)
+                      }
+                      
+                      //(!user.email&& !user.phone_number) && setViewProjectSecurity(true)
+                      
+                    }}
+                    actionName='Donate'
+                    action={()=>{
+                      setSelectedProject(project)
+                      //@ts-ignore
+                      dispatch(setProject(project))
+                      if((user.email || user.phone_number && !userProjectsData?.map((item:any)=>item._id).includes(project._id))){
+                        setDonate(true)
+                        return
+                    }
+                    setLogin(true)
+                    }}
                     image={project?.medias[0]}
                     title={project?.name}
                     desc={project?.description}
@@ -226,17 +426,18 @@ function ProjectPage() {
               {
                 !currentData && (
                   <div className='flex items-center justify-center text-center w-full mb-10'>
-                    <span className='text-lightGray font-bold text-xl'>No Personal Projects</span>
+                    <span className='text-lightGray font-bold text-xl'>No Projects Available</span>
                   </div>
                 )
               }
               {
                 AllProjectsIsLoading && (
                   <div className='flex items-center justify-center text-center w-full mb-10'>
-                    <span className='text-blue-600 font-bold text-xl'>Getting all Projects</span>
+                    <span className='text-blue-600 font-bold text-xl'>Getting all Projects...</span>
                   </div>
                 )
               }
+              
 
           {/* Pagination */}
           {/* //TODO: Only display user projects when a user is logged in  */}

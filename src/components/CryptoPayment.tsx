@@ -9,6 +9,17 @@ import { useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa";
 import { FaCircleExclamation } from "react-icons/fa6"
 import { Button } from "./ui/button"
+import { z } from "zod"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 
 interface cryptoPaymentProps{
@@ -22,6 +33,24 @@ interface cryptoPaymentProps{
 }
 
 
+const formSchema=z.object({
+  donator:z.string().optional(),
+  crypto:z.string().optional(),
+  cryptoUserName:z.string().optional(),
+  type:z.string(),
+  amount:z.string().transform(val => {
+    const parsed = parseFloat(val);
+    if (isNaN(parsed)) {
+      throw new Error('Invalid number');
+    }
+    return parsed;
+  }),
+  currency:z.string(),
+  channel:z.string().optional()
+})
+
+type FormValues=z.infer<typeof formSchema>
+
 function CryptoPayment({
   onClose,
   setMobileMoney,
@@ -33,10 +62,14 @@ function CryptoPayment({
 }:cryptoPaymentProps) {
 
     const {
-        register,
-        handleSubmit,
-        formState:{errors}
-    }=useForm()
+          register,
+          handleSubmit,
+          setValue,
+          reset,
+          formState:{errors}
+      }=useForm<FormValues>({
+        resolver:zodResolver(formSchema)
+      })
     const [anonymously,setAnonymously]=useState(false)
     const [selectedCrypto,setSelectedCrypto]=useState("BTC")
     const [donate,setDonate]=useState(false)
@@ -108,7 +141,7 @@ function CryptoPayment({
               <div className="relative">
                 <FiUser className="absolute top-2 left-3" size={18} />
                 <Input 
-                  {...register("names")}
+                  {...register("donator")}
                   className="py-4 rounded-xl indent-8 text-black lg:text-md"
                   placeholder="Full Names"
                 />

@@ -77,6 +77,7 @@ export type ProjectAttachment = {
     profile?: string;
     email: string;
     name?:string
+    bio?:string
     isGoogleUser?:boolean 
     location?:string
     phone_number: string;
