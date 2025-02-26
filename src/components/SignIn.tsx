@@ -9,7 +9,6 @@ import { useForm } from "react-hook-form";
 import { CiLock } from "react-icons/ci";
 import { FaRegEye,FaRegEyeSlash } from "react-icons/fa";
 import { Button } from "./ui/button";
-import { users } from "@/constants/dummydata";
 import { useAppDispatch } from "@/redux/hooks";
 import { setToken, setUser } from "@/redux/slices/userSlice";
 import toast from "react-hot-toast";
@@ -17,13 +16,14 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useLoginMutation, useLoginPhoneMutation } from "@/redux/services/userServices";
 import LoadingComponent from "./LoadingComponent";
+import { apiUrl } from "@/lib/env";
 
 interface signInProps{
-    onClose:any,
-    resetPassword:boolean
-    setResetPassword:any
-    setSignUp:any 
-    signUp:boolean
+    onClose?:any,
+    resetPassword?:boolean
+    setResetPassword?:any
+    setSignUp?:any 
+    signUp?:boolean
 }
 
 interface FormDataPhone{
@@ -122,6 +122,7 @@ function SignIn({
                 email:loginData?.userDetails?.email,
                 phone_number:loginData?.userDetails?.phone,
                 name:loginData?.userDetails?.name,
+                bio:loginData?.userDetails?.bio,
                 location:loginData?.userDetails?.location
             }))
             onClose()
@@ -145,6 +146,7 @@ function SignIn({
                 email:loginWithPhoneData?.userDetails?.email,
                 phone_number:loginWithPhoneData?.userDetails?.phone,
                 name:loginWithPhoneData?.userDetails?.name,
+                bio:loginWithPhoneData?.userDetails?.bio,
                 location:loginWithPhoneData?.userDetails?.location
             }))
             onClose()
@@ -162,6 +164,10 @@ function SignIn({
             email:data.email,
             password:data.password
         })
+    }
+
+    const handleGoogleAuth=()=>{
+        window.open(apiUrl+"/auth/google","_self")
     }
 
   return (
@@ -187,7 +193,7 @@ function SignIn({
                             <IoCall className="" />
                             <span className="font-semibold">Sign in with a phone number</span>
                         </div>
-                        <div className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
+                        <div onClick={handleGoogleAuth} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
                             <FcGoogle className="" />
                             <span className="font-semibold">Sign in with Google</span>
                         </div>

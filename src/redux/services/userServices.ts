@@ -108,8 +108,7 @@ export const userService=splitApi.injectEndpoints({
                     
                 }
             }
-        }),
-        
+        })
     }),
     overrideExisting:true
 })

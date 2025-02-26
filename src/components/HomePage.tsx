@@ -21,12 +21,83 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import { useGetAllProjectsQuery, useUsersProjectsQuery } from "@/redux/services/projectServices";
+import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { selectUser } from "@/redux/slices/userSlice";
+import SignIn from "./SignIn";
+import Donate from "./Donate";
+import Cashout from "./Cashout";
+import { setProject } from "@/redux/slices/projectSlice";
 
 
 function HomePage() {
   const  navigate=useNavigate()
+  const user=useAppSelector(selectUser)
+  const [selectedProject,setSelectedProject]=useState<any>(null)
+  const [login,setLogin]=useState(false)
+  const [donate,setDonate]=useState(false)
+  const [cashout,setCashout]=useState(false)
+
+  const dispatch=useAppDispatch()
+
+  const {
+      data:userProjectsData,
+      error:userProjectError,
+      isSuccess:userProjectIsSuccess,
+      isError:userProjectIsError,
+      isLoading:userProjectIsLoading
+    }=useUsersProjectsQuery(user._id)
+
+
+  const {
+      data:AllProjects,
+      isSuccess:AllProjectsIsSuccess,
+      isLoading:AllProjectsIsLoading,
+      isError:AllProjectsIsError,
+      error:AllProjectsError
+    }=useGetAllProjectsQuery(undefined)
+
+    useEffect(()=>{
+        if(AllProjectsIsSuccess && AllProjects){
+          console.log("all projects",AllProjects)
+          // dispatch(setProjects(AllProjects))
+        }
+        if(AllProjectsIsError){
+          console.log("Error while getting all projects",AllProjectsError)
+        }
+      },[AllProjectsIsSuccess,AllProjectsIsError])
+
+      useEffect(()=>{
+        if(userProjectIsSuccess && userProjectsData){
+          console.log("user projects data:",userProjectsData)
+        }
+        if(userProjectIsError){
+          console.log("error while getting user projects",userProjectError)
+        }
+      },[userProjectIsError,userProjectIsSuccess])
+
   return (
-    <section className="bg-gray-100 p-3 md:p-5 lg:p-10">
+    <section className="bg-gray-100 p-3 md:p-5 lg:p-10 relative">
+        {
+            login && 
+            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] absolute md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
+                <SignIn onClose={()=>setLogin(false)} />
+            </div>
+        }
+        {
+            donate &&
+            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] absolute md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
+                <Donate projectId={selectedProject?._id} onClose={()=>setDonate(false)} />
+            </div>
+        }
+        {
+            cashout &&
+            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] fixed md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
+                <Cashout projectId={selectedProject._id} onClose={()=>setCashout(false)} />
+                
+            </div>
+        }
         <div className="flex flex-col space-y-3 md:grid md:grid-cols-2 md:gap-x-8 md:py-16">
           <div className="">
             <div className="bg-gray-200 mt-5 md:mt-0  max-w-fit rounded-[100px] px-2">
@@ -99,34 +170,71 @@ function HomePage() {
           <div className="relative hidden md:grid md:grid-cols-7 lg:grid-cols-8  py-10 h-[750px] w-full">
             <PopularProjectCard 
               className="absolute -bottom-36 left-0 md:col-span-3 lg:col-span-2"
-              image={popularProjectImage1}
-              title="Goma disaster recovery"
-              desc="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque"
-              type="Charity"
-              amount={6000}
-              limit={12000}
+              onClick={()=>{
+                setSelectedProject(AllProjects?.[0])
+                //@ts-ignore
+                dispatch(setProject(AllProjects?.[0]))
+                if(AllProjects?.[0]?._id){
+                  navigate(`/projects/${AllProjects?.[0]?._id}`)
+                }
+              }}
+              actionName="Donate"
+              action={()=>{
+
+              }}
+              image={AllProjects?.[0]?.medias[0]}
+              title={AllProjects?.[0]?.name}
+              desc={AllProjects?.[0]?.desctiption}
+              type={AllProjects?.[0]?.type.name}
+              amount={AllProjects?.[0]?.actualBalance || 0}
+              limit={AllProjects?.[0]?.targetAmount}
               profile={popularProjectProfileImg}
             />
             <div className="col-span-1"></div>
+            
             <PopularProjectCard 
               className="absolute -bottom-16 md:col-span-3 lg:col-span-2"
-              image={popularProjectImage2}
-              title="Support 230 Children to get school fees"
-              desc="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque"
-              type="Charity"
-              amount={6000}
-              limit={12000}
+              onClick={()=>{
+                setSelectedProject(AllProjects?.[1])
+                //@ts-ignore
+                dispatch(setProject(AllProjects?.[1]))
+                if(AllProjects?.[1]?._id){
+                  navigate(`/projects/${AllProjects?.[1]?._id}`)
+                }
+              }}
+              actionName="Donate"
+              action={()=>{
+
+              }}
+              image={AllProjects?.[1]?.medias[0]}
+              title={AllProjects?.[1]?.name}
+              desc={AllProjects?.[1]?.desctiption}
+              type={AllProjects?.[1]?.type.name}
+              amount={AllProjects?.[1]?.actualBalance || 0}
+              limit={AllProjects?.[1]?.targetAmount}
               profile={popularProjectProfileImg}
             />
             <div className="md:hidden lg:col-span-1"></div>
             <PopularProjectCard 
               className="absolute lg:block md:hidden lg:left-[50%] -top-[10%] col-span-2"
-              image={popularProjectImage3}
-              title="Help Kamana John get back to life"
-              desc="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque"
-              type="Charity"
-              amount={6000}
-              limit={12000}
+              onClick={()=>{
+                setSelectedProject(AllProjects?.[2])
+                //@ts-ignore
+                dispatch(setProject(AllProjects?.[2]))
+                if(AllProjects?.[2]?._id){
+                  navigate(`/projects/${AllProjects?.[2]?._id}`)
+                }
+              }}
+              actionName="Donate"
+              action={()=>{
+
+              }}
+              image={AllProjects?.[2]?.medias[0]}
+              title={AllProjects?.[2]?.name}
+              desc={AllProjects?.[2]?.desctiption}
+              type={AllProjects?.[2]?.type.name}
+              amount={AllProjects?.[2]?.actualBalance || 0}
+              limit={AllProjects?.[2]?.targetAmount}
               profile={popularProjectProfileImg}
             />
 
@@ -137,6 +245,7 @@ function HomePage() {
                 <div className="w-2 h-2 rounded-full bg-lightGray"></div>
               </div>
               <Button
+                onClick={()=>navigate("/projects")}
                 className="flex items-center space-x-5 text-black w-[110px] h-[50px] rounded-[100px] border-2 border-black bg-transparent"
               >
                 Next
@@ -151,20 +260,42 @@ function HomePage() {
         <div className="block md:hidden">
           <Carousel className="mx-auto max-w-[90%]">
             <CarouselContent className="">
-              {Array.from({ length: projects.slice(0,5).length }).map((_, index) => (
+              {Array.from({ length: AllProjects?.slice(0,3).length }).map((_, index) => (
                 <CarouselItem key={index}>
                   <div className="p-1">
                     <Card>
                       <CardContent className="flex aspect-square items-center justify-center w-full m-0 p-0">
                         <PopularProjectCard
                           className="w-full"
-                          image={projects[index].image}
-                          title={projects[index].title}
-                          desc={projects[index].desc}
-                          type={projects[index].type}
-                          amount={projects[index].amount}
-                          limit={projects[index].limit}
-                          profile={projects[index].profile}
+                          onClick={()=>{
+                            setSelectedProject(AllProjects?.[index])
+                            //@ts-ignore
+                            dispatch(setProject(AllProjects?.[index]))
+                            if(AllProjects?.[index]?._id){
+                              navigate(`/projects/${AllProjects?.[index]._id}`)
+                            }
+                            
+                            //(!user.email&& !user.phone_number) && setViewProjectSecurity(true)
+                            
+                          }}
+                          actionName='Donate'
+                          action={()=>{
+                            setSelectedProject(AllProjects?.[index])
+                            //@ts-ignore
+                            dispatch(setProject(AllProjects?.[index]))
+                            if((user.email || user.phone_number && !userProjectsData?.map((item:any)=>item._id).includes(AllProjects?.[index]?._id))){
+                              setDonate(true)
+                              return
+                          }
+                          setLogin(true)
+                          }}
+                          image={AllProjects[index].medias[0]}
+                          title={AllProjects[index].name}
+                          desc={AllProjects[index].desccription}
+                          type={AllProjects[index].type.name}
+                          amount={AllProjects[index].actualBalance || 0}
+                          limit={AllProjects[index].targetAmount}
+                          
                         />
                       </CardContent>
                     </Card>
