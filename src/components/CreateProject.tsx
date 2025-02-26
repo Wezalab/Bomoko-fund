@@ -534,14 +534,14 @@ function CreateProject() {
                 </div>
             </div>
             <div className="mt-8">
-                <MediaUpload isDisabled={next} onFilesChange={handleMediasChange} />
+                <MediaUpload accept="image/*" isDisabled={next} onFilesChange={handleMediasChange} />
             </div>
           </div>
           <div className="w-3/4 mx-auto mt-5">
             <span className="text-black font-semibold text-2xl">Project Attachments</span>
             
             <div className="mt-8">
-                <MediaUpload isDisabled={next} onFilesChange={handleAttachmentsChange} />
+                <MediaUpload accept="application/pdf" isDisabled={next} onFilesChange={handleAttachmentsChange} />
             </div>
           </div>
 

@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select"
 import { FaCircleExclamation } from "react-icons/fa6"
 import { Button } from "./ui/button"
-import { useDonateMutation } from "@/redux/services/projectServices"
+import { useDonateMutation, useFindProjectMutation, useGetProjectQuery } from "@/redux/services/projectServices"
 import { useAppSelector } from "@/redux/hooks"
 import { selectUser } from "@/redux/slices/userSlice"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -43,6 +43,7 @@ interface mobileMoneyProps{
 const formSchema=z.object({
   donator:z.string().optional(),
   phone:z.string().optional(),
+  type:z.string(),
   amount:z.string().transform(val => {
     const parsed = parseFloat(val);
     if (isNaN(parsed)) {
@@ -90,15 +91,26 @@ function MobileMoney({
     }
   ]=useDonateMutation()
 
+  const 
+    {
+      data:projectData,
+      isLoading:projectIsLoading,
+      isError:projectIsError,
+      isSuccess:projectIsSuccess,
+      error:projectError
+    }=useGetProjectQuery(projectId)
+  
+
   useEffect(()=>{
     if(donateData && donateIsSuccess){
       //console.log("donated successfully",donateData)
+      window.scrollTo(0,0)
       toast.success("donation successfully done!")
       reset()
       onClose()
     }
     if(donateIsError){
-      console.log("error while donating using mobile money")
+      console.log("error while donating using mobile money",donateError)
     }
   },[donateIsSuccess,donateIsError])
 
@@ -107,13 +119,23 @@ function MobileMoney({
       donator:data.donator,
       phone:data.phone,
       amount:data.amount,
-      type: "PRE-ORDER",
+      type: data.type,
       currency:data.currency,
       channel:"MOBILE MONEY",
       projectId:projectId,
       userId:user._id
     })
+    // FindProject(projectId)
   }
+
+  useEffect(()=>{
+    if(projectIsSuccess && projectData){
+      console.log("got project data",projectData)
+    }
+    if(projectIsError){
+      console.log("error while getting a project",projectError)
+    }
+  },[projectIsError,projectIsSuccess])
 
   useEffect(()=>{
     console.log("errors",errors)
@@ -201,6 +223,22 @@ function MobileMoney({
             </div>
           )
         }
+        <div className="flex flex-col space-y-1 my-5">
+            <label className="font-semibold">Type</label>
+            <Select onValueChange={(value)=>setValue("type",value)}>
+              <SelectTrigger className="w-full  py-4 border border-gray-200 mt-1">
+                <SelectValue placeholder="Select currency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Type</SelectLabel>
+                  <SelectItem value="DONATION">DONATION</SelectItem>
+                  <SelectItem value="PRE-ORDER">PRE_ORDER</SelectItem>
+                  <SelectItem value="LOAN">LOAN</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+        </div>
         
         <div className="grid md:grid-cols-2 gap-x-5">
           <div className="flex w-full flex-col space-y-1 my-5">

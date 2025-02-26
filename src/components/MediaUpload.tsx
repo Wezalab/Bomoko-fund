@@ -6,9 +6,10 @@ import { X, Plus, Trash2, FileText } from "lucide-react";
 interface MediaUploadProps {
   onFilesChange: (files: File[]) => void;
   isDisabled?:boolean
+  accept:string
 }
 
-const MediaUpload: React.FC<MediaUploadProps> = ({ onFilesChange,isDisabled }) => {
+const MediaUpload: React.FC<MediaUploadProps> = ({ onFilesChange,isDisabled,accept }) => {
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +36,7 @@ const MediaUpload: React.FC<MediaUploadProps> = ({ onFilesChange,isDisabled }) =
         <input
           disabled={isDisabled}
           type="file"
-          accept="image/*,video/*,application/pdf"
+          accept={accept}
           multiple
           onChange={handleFileChange}
           className="hidden"
