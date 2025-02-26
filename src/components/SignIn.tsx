@@ -167,7 +167,7 @@ function SignIn({
     }
 
     const handleGoogleAuth=()=>{
-        window.open(apiUrl+"/auth/google","_self")
+        window.open(apiUrl+"/auth/google")
     }
 
   return (
