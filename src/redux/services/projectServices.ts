@@ -5,12 +5,18 @@ export const projectService=splitApi.injectEndpoints({
         getAllProjects:builder.query({
             query:()=>'/projects'
         }),
-        getProject:builder.mutation({
+        getProject:builder.query({
+            query:(id)=>`/projects/${id}`
+        }),
+        findProject:builder.mutation({
             query(id){
                 return{
                     url:`/projects/${id}`
                 }
             }
+        }),
+        usersProjects:builder.query({
+            query:(id)=>`/projects/user-projects/${id}`
         }),
         createProject:builder.mutation({
             query(data){
@@ -44,6 +50,15 @@ export const projectService=splitApi.injectEndpoints({
                     body:data
                 }
             }
+        }),
+        cashout:builder.mutation({
+            query(data){
+                return{
+                    url:"/cashouts",
+                    method:"POST",
+                    body:data
+                }
+            }
         })
     }),
     overrideExisting:true
@@ -51,12 +66,15 @@ export const projectService=splitApi.injectEndpoints({
 
 export const {
     useGetAllProjectsQuery,
-    useGetProjectMutation,
+    useGetProjectQuery,
     useCreateProjectMutation,
     useGetProjectCategoriesQuery,
     useGetProjectCategoryQuery,
     useGetProjectTypesQuery,
     useGetProvincesQuery,
     useGetTerritoriesQuery,
-    useDonateMutation
+    useDonateMutation,
+    useUsersProjectsQuery,
+    useFindProjectMutation,
+    useCashoutMutation
 }=projectService

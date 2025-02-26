@@ -29,6 +29,7 @@ function Donate({onClose,projectId}:{onClose:any,projectId:string}) {
       {
         card && (
           <CardPayment 
+            projectId={projectId}
             onClose={onClose}
             setMobileMoney={setMobileMoney}
             mobileMoney={mobileMoney}

@@ -7,6 +7,7 @@ export const initialState={
         _id:"",
         profile:"",
         email:"",
+        bio:"",
         phone_number:"",
         password:"",
         projects:[],

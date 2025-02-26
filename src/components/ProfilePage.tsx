@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAppSelector } from '@/redux/hooks';
-import { selectUser } from '@/redux/slices/userSlice';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { selectUser, setUser } from '@/redux/slices/userSlice';
 import { useEffect, useState } from 'react';
 import { useEditProfileMutation} from '@/redux/services/userServices';
 import toast from 'react-hot-toast';
@@ -31,7 +31,8 @@ type FormValues = z.infer<typeof formSchema>;
 function ProfilePage() {
     const user=useAppSelector(selectUser)
     const [preview, setPreview] = useState<string | null>(null);
-
+    const dispatch=useAppDispatch()
+    const [edit,setEdit]=useState(false)
     const {
         register,
         handleSubmit,
@@ -79,7 +80,13 @@ function ProfilePage() {
       useEffect(()=>{
         if(editProfileIsSuccess && editProfileData){
             console.log("profile edited successfully",editProfileData)
+            dispatch(setUser({
+                gender:editProfileData.updatedUser?.gender,
+                location:editProfileData.updatedUser?.location,
+                bio:editProfileData.updatedUser?.bio
+            }))
             toast.success("profile edited successfully!")
+            setEdit(false)
             reset()
         }
         if(editProfileIsError){
@@ -98,6 +105,7 @@ function ProfilePage() {
       //console.log("user details",user)
   return (
     <div className="bg-gray-200 h-[90vh] md:h-[70vh] p-2 md:pt-10">
+        
         <form onSubmit={handleSubmit(onsubmit)} className='md:hidden'>
             <span className='text-semibold text-xl'>Profile</span>
             <div className='flex items-center space-x-5'>
@@ -125,6 +133,7 @@ function ProfilePage() {
                     >
                         <SlCloudUpload color='white' />
                         <Input 
+                            disabled={!edit}
                             placeholder='Upload new picture'  
                             accept="image/*" 
                             type="file" 
@@ -141,49 +150,90 @@ function ProfilePage() {
                     </div>
                 </div>
             </div>
-            <div className='mt-5 w-[90%]'>
-            <div className="flex flex-col space-y-1 my-5">
-                <div className=''>
-                    <label className="font-semibold">Gender</label>
-                    <Select onValueChange={(value) => setValue("gender", value as "M"| "F")}>
-                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                        <SelectValue placeholder="Select project category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                        <SelectGroup>
-                            <SelectLabel>Gender</SelectLabel>
-                            <SelectItem value="M">Male</SelectItem>
-                            <SelectItem value="F">Female</SelectItem>
-                        </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </div>
-                  
-                </div>
-                <div className='flex flex-col space-y-1'>
-                    <label>Location</label>
-                    <Input 
-                        {...register("location")}
-                        placeholder="Goma"
-                        className='h-10 border-[1px] border-black rounded-[100px]'
-                    />
-                </div>
-                <div className='mt-5'>
-                    <label>Bio</label>
-                    <Textarea 
-                        {...register("bio")}
-                        placeholder='Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, '
-                        className='border-[1px] border-black'
-                        rows={5}
-                    />
-                </div>
-                <Button
-                    type="submit"
-                    className='bg-darkBlue px-5 text-white rounded-[100px] w-full mt-5 h-10'
-                >
-                    {editProfileIsLoading ? <LoadingComponent /> :"Save changes"}
-                </Button>
-            </div>
+            {
+                edit && (
+                    <div className='mt-5 w-[90%]'>
+                        <div className="flex flex-col space-y-1 my-5">
+                            <div className=''>
+                                <label className="font-semibold">Gender</label>
+                                <Select onValueChange={(value) => setValue("gender", value as "M"| "F")}>
+                                    <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                                    <SelectValue placeholder="Select project category" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Gender</SelectLabel>
+                                        <SelectItem value="M">Male</SelectItem>
+                                        <SelectItem value="F">Female</SelectItem>
+                                    </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            
+                        </div>
+                        <div className='flex flex-col space-y-1'>
+                            <label>Location</label>
+                            <Input 
+                                {...register("location")}
+                                placeholder="Goma"
+                                className='h-10 border-[1px] border-black rounded-[100px]'
+                            />
+                        </div>
+                        <div className='mt-5'>
+                            <label>Bio</label>
+                            <Textarea 
+                                {...register("bio")}
+                                placeholder='Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, '
+                                className='border-[1px] border-black'
+                                rows={5}
+                            />
+                        </div>
+                        <Button
+                            type="submit"
+                            className='bg-darkBlue px-5 text-white rounded-[100px] w-full mt-5 h-10'
+                        >
+                            {editProfileIsLoading ? <LoadingComponent /> :"Save changes"}
+                        </Button>
+                    </div>
+                )
+            }
+            {
+                !edit && (
+                    <div className='mt-5'>
+                        <div className='flex items-center mb-4 space-x-2'>
+                            <span className='font-bold'>Email:</span>
+                            <span className='font-thin'>{user?.email}</span>
+                        </div>
+                        {
+                            user?.phone_number &&
+                            <div className='flex items-center mb-4 space-x-2'>
+                                <span className='font-bold'>Phone:</span>
+                                <span className='font-thin'>{user?.phone_number}</span>
+                            </div>
+                        }
+                        <div className='flex items-center mb-4 space-x-2'>
+                            <span className='font-bold'>Location:</span>
+                            <span className='font-thin'>{user?.location}</span>
+                        </div>
+                        {
+                            user?.bio && (
+                                <div className='flex items-center mb-4 space-x-2'>
+                                    <span className='font-bold'>Bio:</span>
+                                    <span className='font-thin'>{user?.bio}</span>
+                                </div>
+                            )
+                        }
+                        <Button
+                            onClick={()=>setEdit(true)}
+                            className='max-w-fit px-10 mt-5 bg-lightBlue py-2 rounded-[100px]'
+                        >
+                            Edit
+                        </Button>
+                        
+                    </div>
+                )
+            }
+            
         </form>
         {/* Small devices and large devices */}
         <form onSubmit={handleSubmit(onsubmit)} className="hidden md:block w-3/4 lg:w-2/4 rounded-md px-5 py-10 mx-auto bg-white">
@@ -214,6 +264,7 @@ function ProfilePage() {
                     >
                         <SlCloudUpload color='white' />
                         <Input 
+                            disabled={!edit}
                             placeholder='Upload new picture'  
                             accept="image/*" 
                             type="file" 
@@ -229,68 +280,110 @@ function ProfilePage() {
                         />
                     </div>
                     <Button
+                        disabled={!edit}
                         onClick={() => {
                             setPreview(null);
                             setValue("avatar", undefined); // Reset form file state
                         }}
-                        className='flex items-center space-x-2 px-5 border-[1px] hover:bg-gray-100 border-black text-black rounded-[100px] bg-white'
+                        className='hidden md:flex items-center space-x-2 px-5 border-[1px] hover:bg-gray-100 border-black text-black rounded-[100px] bg-white'
                     >
                         <FaTrashCan color='black' />
                         Delete Picture
                     </Button>
                 </div>
             </div>
-            <div className='my-5'>
-                <div className='grid grid-cols-2 gap-x-5'>
-                    <div className=''>
-                        <label className="font-semibold">Gender</label>
-                        <Select onValueChange={(value) => setValue("gender", value as "M"| "F")}>
-                            <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                            <SelectValue placeholder="Select Gender" />
-                            </SelectTrigger>
-                            <SelectContent>
-                            <SelectGroup>
-                                <SelectLabel>Gender</SelectLabel>
-                                <SelectItem value="M">Male</SelectItem>
-                                <SelectItem value="F">Female</SelectItem>
-                            </SelectGroup>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className=''>
-                        <label>Location</label>
-                        <Input 
-                            {...register("location")}
-                            placeholder="Goma"
-                            className='h-10 rounded-[100px]'
-                        />
-                    </div>
-                </div>
-                <div className='mt-5'>
-                    <label>Bio</label>
-                    <Textarea 
-                        {...register("bio")}
-                        placeholder='Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, '
-                        className=''
-                        rows={5}
-                    />
-                </div>
-                <div className='mt-5 flex space-x-5'>
-                    <Button
-                        type="submit"
-                        disabled={editProfileIsLoading}
-                        className='bg-darkBlue px-5 text-white rounded-[100px] h-10'
-                    >
-                        {editProfileIsLoading ? <LoadingComponent />:"Save"}
-                    </Button>
-                    <Button
-                        className='bg-white text-black border-[1px] border-black rounded-[100px] h-10'
-                    >
-                        Cancel
-                    </Button>
+            {
+                edit && (
+                    <div className='my-5'>
+                        <div className='grid grid-cols-2 gap-x-5'>
+                            <div className=''>
+                                <label className="font-semibold">Gender</label>
+                                <Select onValueChange={(value) => setValue("gender", value as "M"| "F")}>
+                                    <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                                    <SelectValue placeholder="Select Gender" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Gender</SelectLabel>
+                                        <SelectItem value="M">Male</SelectItem>
+                                        <SelectItem value="F">Female</SelectItem>
+                                    </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className=''>
+                                <label>Location</label>
+                                <Input 
+                                    {...register("location")}
+                                    placeholder="Goma"
+                                    className='h-10 rounded-[100px]'
+                                />
+                            </div>
+                        </div>
+                        <div className='mt-5'>
+                            <label>Bio</label>
+                            <Textarea 
+                                {...register("bio")}
+                                placeholder='Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, '
+                                className=''
+                                rows={5}
+                            />
+                        </div>
+                        <div className='mt-5 flex space-x-5'>
+                            <Button
+                                type="submit"
+                                disabled={editProfileIsLoading}
+                                className='bg-darkBlue px-5 text-white rounded-[100px] h-10'
+                            >
+                                {editProfileIsLoading ? <LoadingComponent />:"Save"}
+                            </Button>
+                            <Button
+                                onClick={()=>setEdit(false)}
+                                className='bg-white text-black border-[1px] border-black rounded-[100px] h-10'
+                            >
+                                Cancel
+                            </Button>
 
-                </div>
-            </div>
+                        </div>
+                    </div>
+                )
+            }
+            {
+                !edit && (
+                    <div className='mt-5'>
+                        <div className='flex items-center mb-4 space-x-2'>
+                            <span className='font-bold'>Email:</span>
+                            <span className='font-thin'>{user?.email}</span>
+                        </div>
+                        {
+                            user?.phone_number &&
+                            <div className='flex items-center mb-4 space-x-2'>
+                                <span className='font-bold'>Phone:</span>
+                                <span className='font-thin'>{user?.phone_number}</span>
+                            </div>
+                        }
+                        <div className='flex items-center mb-4 space-x-2'>
+                            <span className='font-bold'>Location:</span>
+                            <span className='font-thin'>{user?.location}</span>
+                        </div>
+                        {
+                            user?.bio && (
+                                <div className='flex items-center mb-4 space-x-2'>
+                                    <span className='font-bold'>Bio:</span>
+                                    <span className='font-thin'>{user?.bio}</span>
+                                </div>
+                            )
+                        }
+                        <Button
+                            onClick={()=>setEdit(true)}
+                            className='max-w-fit px-10 mt-5 bg-lightBlue py-2 rounded-[100px]'
+                        >
+                            Edit
+                        </Button>
+                        
+                    </div>
+                )
+            }
         </form>
     </div>
   )

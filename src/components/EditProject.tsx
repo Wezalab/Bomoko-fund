@@ -17,8 +17,9 @@ import {
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { addDays, format } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MediaUpload from "./MediaUpload";
+import { useGetProjectQuery } from "@/redux/services/projectServices";
 
 
 function EditProject() {
@@ -31,6 +32,13 @@ function EditProject() {
     const [uploadedMedias, setUploadedMdias] = useState<File[]>([]);
     const [uploadedAttachments, setUploadedAttachments] = useState<File[]>([]);
 
+    const {
+      data:projectData,
+      isLoading:projectIsLoading,
+      error:projectError,
+      isSuccess:projectIsSuccess,
+      isError:projectIsError
+    }=useGetProjectQuery(project._id)
 
     const handleMediasChange = (files: File[]) => {
       setUploadedMdias(files);
@@ -47,6 +55,16 @@ function EditProject() {
       formState:{errors}
     }=useForm()
 
+
+    useEffect(()=>{
+      if(projectIsSuccess && projectData){
+        console.log("project data:",projectData)
+      }
+      if(projectIsError){
+        console.log("error getting project",projectError)
+      }
+    },[projectIsError,projectIsSuccess])
+
     //console.log("edit project page",project)
   return (
     <div className="grid grid-cols-1 gap-y-5 lg:grid-cols-2 gap-x-10 p-5 md:p-10">
@@ -61,7 +79,7 @@ function EditProject() {
                 <IoChevronBack size={20} />
                 Back
             </Button>
-            <span className="font-bold text-2xl">Edit Project</span>
+            <span className="font-bold text-2xl">Edit Project({project?.name})</span>
           </div>
           <form className="">
             <div className="grid w-full gap-2 mt-10">
@@ -238,15 +256,16 @@ function EditProject() {
                     {unsplash && <div className="w-[30px] h-1 bg-lightBlue"></div>}
                 </div>
             </div>
+
             <div className="mt-8">
-                <MediaUpload onFilesChange={handleMediasChange} />
+                <MediaUpload accept="image/*" onFilesChange={handleMediasChange} />
             </div>
           </div>
           <div className="w-3/4 mx-auto mt-5">
             <span className="text-black font-semibold text-2xl">Project Attachments</span>
             
             <div className="mt-8">
-                <MediaUpload onFilesChange={handleAttachmentsChange} />
+                <MediaUpload accept="application/pdf,application/docx,application/xlsx" onFilesChange={handleAttachmentsChange} />
             </div>
           </div>
         </div>
