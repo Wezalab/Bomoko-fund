@@ -5,8 +5,6 @@ import { Input } from "./ui/input"
 import { FaCircleExclamation } from "react-icons/fa6"
 import { Button } from "./ui/button"
 import { BsBank } from "react-icons/bs";
-import { GoPerson } from "react-icons/go";
-import { FaHashtag } from "react-icons/fa";
 import { useAppSelector } from "@/redux/hooks"
 import { selectUser } from "@/redux/slices/userSlice"
 import { z } from "zod"
@@ -176,6 +174,7 @@ function Cashout({onClose,projectId}:{onClose:any,projectId:string}) {
                                 className="h-12 rounded-xl indent-2 text-black lg:text-md"
                                 placeholder="Reason of cashing out"
                             />
+                            {errors.reason  && <span className="text-red-600 mt-2">{errors.reason?.message}</span>}
                         </div>
                     </div>
                     <div className="flex flex-col space-y-1 my-5">
@@ -217,17 +216,19 @@ function Cashout({onClose,projectId}:{onClose:any,projectId:string}) {
                                 className="h-12 rounded-xl indent-2 text-black lg:text-md"
                                 placeholder="Amount"
                             />
+                            {errors.amount  && <span className="text-red-600 mt-2">{errors.amount?.message}</span>}
                         </div>
                     </div>
                     <div className="flex flex-col space-y-1 my-5">
                         <label className="font-semibold">Recipient phone Number</label>
                         <div className="relative">
-                        <MdOutlinePhone className="absolute top-4 left-3" size={18} />
-                        <Input 
-                            {...register("phone")}
-                            className="h-12 rounded-xl indent-8 text-black lg:text-md"
-                            placeholder="Phone Number"
-                        />
+                            <MdOutlinePhone className="absolute top-4 left-3" size={18} />
+                            <Input 
+                                {...register("phone")}
+                                className="h-12 rounded-xl indent-8 text-black lg:text-md"
+                                placeholder="Phone Number"
+                            />
+                            {errors.phone  && <span className="text-red-600 mt-2">{errors.phone?.message}</span>}
                         </div>
                     </div>
                     <div className="flex items-center space-x-5 px-5 rounded-xl py-3 mt-5 border-[2px] border-lightBlue shadow-sm shadow-lightBlue">
@@ -254,6 +255,7 @@ function Cashout({onClose,projectId}:{onClose:any,projectId:string}) {
                                 className="h-12 rounded-xl indent-2 text-black lg:text-md"
                                 placeholder="Reason of cashing out"
                             />
+                            {errorsBank.reason  && <span className="text-red-600 mt-2">{errorsBank.reason?.message}</span>}
                         </div>
                     </div>
                     <div className="flex flex-col space-y-1 my-5">
@@ -265,60 +267,65 @@ function Cashout({onClose,projectId}:{onClose:any,projectId:string}) {
                                 className="h-12 rounded-xl indent-2 text-black lg:text-md"
                                 placeholder="Amount"
                             />
+                            {errorsBank.amount  && <span className="text-red-600 mt-2">{errorsBank.amount?.message}</span>}
                         </div>
                     </div>
                     <div className="flex w-full flex-col space-y-1 my-5">
                             <label className="font-semibold">Currency</label>
                             <Select onValueChange={(value)=>setValueBank("currency",value)}>
-                            <SelectTrigger className="w-full  py-4 border border-gray-200 mt-1">
-                                <SelectValue placeholder="Select currency" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                <SelectLabel>Currency</SelectLabel>
-                                <SelectItem value="CDF">CDF</SelectItem>
-                                <SelectItem value="USD">USD</SelectItem>
-                                </SelectGroup>
-                            </SelectContent>
+                                <SelectTrigger className="w-full  py-4 border border-gray-200 mt-1">
+                                    <SelectValue placeholder="Select currency" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                    <SelectLabel>Currency</SelectLabel>
+                                    <SelectItem value="CDF">CDF</SelectItem>
+                                    <SelectItem value="USD">USD</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
                             </Select>
+                            {errorsBank.currency  && <span className="text-red-600 mt-2">{errorsBank.currency?.message}</span>}
                         </div>
                     <div className="flex flex-col space-y-1 my-5">
                         <label className="font-semibold">Account Number</label>
                         <div className="relative">
-                        <BsBank className="absolute top-4 left-3" size={18} />
-                        <Input 
-                            {...registerBank("accountNumber")}
-                            className="h-12 rounded-xl indent-8 text-black lg:text-md"
-                            placeholder="Bank Number"
-                        />
+                            <BsBank className="absolute top-4 left-3" size={18} />
+                            <Input 
+                                {...registerBank("accountNumber")}
+                                className="h-12 rounded-xl indent-8 text-black lg:text-md"
+                                placeholder="Bank Number"
+                            />
+                            {errorsBank.accountNumber  && <span className="text-red-600 mt-2">{errorsBank.accountNumber?.message}</span>}
                         </div>
                     </div>
                     <div className="flex flex-col space-y-1 my-5">
                         <label className="font-semibold">Account Name</label>
                         <div className="relative">
-                        <BsBank className="absolute top-4 left-3" size={18} />
-                        <Input 
-                            {...registerBank("accountName")}
-                            className="h-12 rounded-xl indent-8 text-black lg:text-md"
-                            placeholder="Bank Name"
-                        />
+                            <BsBank className="absolute top-4 left-3" size={18} />
+                            <Input 
+                                {...registerBank("accountName")}
+                                className="h-12 rounded-xl indent-8 text-black lg:text-md"
+                                placeholder="Bank Name"
+                            />
+                            {errorsBank.accountName  && <span className="text-red-600 mt-2">{errorsBank.accountName?.message}</span>}
                         </div>
                     </div>
                     <div className="flex flex-col space-y-1 my-5">
                         <label className="font-semibold">Type</label>
                         <Select onValueChange={(value)=>setValue("type",value)}>
-                        <SelectTrigger className="w-full  py-4 border border-gray-200 mt-1">
-                            <SelectValue placeholder="Select currency" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                            <SelectLabel>Type</SelectLabel>
-                            <SelectItem value="DONATION">DONATION</SelectItem>
-                            <SelectItem value="PRE-ORDER">PRE_ORDER</SelectItem>
-                            <SelectItem value="LOAN">LOAN</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
+                            <SelectTrigger className="w-full  py-4 border border-gray-200 mt-1">
+                                <SelectValue placeholder="Select currency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                <SelectLabel>Type</SelectLabel>
+                                <SelectItem value="DONATION">DONATION</SelectItem>
+                                <SelectItem value="PRE-ORDER">PRE_ORDER</SelectItem>
+                                <SelectItem value="LOAN">LOAN</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
                         </Select>
+                        {errorsBank.type  && <span className="text-red-600 mt-2">{errorsBank.type?.message}</span>}
                     </div>
                     
                     <div className="flex items-center space-x-5 px-5 rounded-xl py-3 mt-5 border-[2px] border-lightBlue shadow-sm shadow-lightBlue">

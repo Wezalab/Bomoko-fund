@@ -350,6 +350,7 @@ function CreateProject() {
                 placeholder="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu" 
                 id="project-description" 
               />
+              {errors.description  && <span className="text-red-600 mt-2">{errors.description?.message}</span>}
             </div>
             <div className="grid grid-cols-2 mt-5 gap-x-5">
                 <div className="flex flex-col space-y-1 my-5">
@@ -367,6 +368,7 @@ function CreateProject() {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
+                  
                 </div>
                 <div className="flex flex-col space-y-1 my-5">
                   <label className="font-semibold">Target amount</label>
@@ -376,6 +378,7 @@ function CreateProject() {
                       className="h-10 rounded-xl w-full indent-2 text-black lg:text-md"
                       placeholder="Target amount"
                     />
+                    {errors.targetAmount  && <span className="text-red-600 mt-2">{errors.targetAmount?.message}</span>}
                   </div>
                 </div>
             </div>
