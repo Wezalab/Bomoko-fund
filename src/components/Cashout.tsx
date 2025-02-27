@@ -128,7 +128,7 @@ function Cashout({onClose,projectId}:{onClose:any,projectId:string}) {
         if(cashoutIsSuccess && cashoutData){
             toast.success("cashout request sent")
             onClose()
-            console.log("cashout success",cashoutData)
+            //console.log("cashout success",cashoutData)
             reset()
         }
         if(cashoutIsError){
@@ -138,7 +138,7 @@ function Cashout({onClose,projectId}:{onClose:any,projectId:string}) {
     },[cashoutIsError,cashoutIsSuccess])
 
     useEffect(()=>{
-        console.log("cashout zodError",errors)
+        //console.log("cashout zodError",errors)
     },[errors])
 
   return (

@@ -107,7 +107,7 @@ function ChangePassword({onClose}:{onClose:any}) {
                             className="h-12 rounded-xl indent-8 text-black lg:text-md"
                             placeholder="Old  Password"
                         />
-                        {errors.Opassword && <p className="text-red-500 text-sm">{errors.Opassword.message}</p>}
+                        {errors.Opassword && <p className="text-red-500 text-sm">{errors.Opassword?.message}</p>}
                     </div>
                 </div>
                 <div className="flex flex-col space-y-1 my-5">
@@ -125,7 +125,7 @@ function ChangePassword({onClose}:{onClose:any}) {
                             className="h-12 rounded-xl indent-8 text-black lg:text-md"
                             placeholder="Your Password"
                         />
-                        {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+                        {errors.password && <p className="text-red-500 text-sm">{errors.password?.message}</p>}
                     </div>
                 </div>
                 <div className="flex flex-col space-y-1 my-5">

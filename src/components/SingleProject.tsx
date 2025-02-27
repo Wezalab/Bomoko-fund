@@ -55,7 +55,7 @@ function SingleProject() {
     
     useEffect(()=>{
         if(projectIsSuccess && projectData){
-          console.log("project data:",projectData)
+          //console.log("project data:",projectData)
         }
         if(projectIsError){
           console.log("error getting project",projectError)
@@ -65,7 +65,7 @@ function SingleProject() {
 
       useEffect(()=>{
         if(userProjectIsSuccess && userProjectsData){
-          console.log("user projects data:",userProjectsData)
+          //console.log("user projects data:",userProjectsData)
         }
         if(userProjectIsError){
           console.log("error while getting user projects",userProjectError)
@@ -148,16 +148,16 @@ function SingleProject() {
                         </div>
                         <div className="my-5 flex flex-col space-y-2">
                             <span className="text-lightGray">Created on</span>
-                            <span className="text-lightGray font-semibold text-[18px] md:text-[20px]">{project.startDate?.split("T")[0]}</span>
+                            <span className="text-lightGray font-semibold text-[18px] md:text-[20px]">{project?.startDate?.split("T")[0]}</span>
                         </div>
                         <div className="my-5 flex flex-col space-y-2">
                             <span className="text-lightGray">Created on</span>
-                            <span className="text-lightGray font-semibold text-[18px] md:text-[20px]">{project.endDate?.split("T")[0]}</span>
+                            <span className="text-lightGray font-semibold text-[18px] md:text-[20px]">{project?.endDate?.split("T")[0]}</span>
                         </div>
                     </div>
                     <div className="w-[100%] lg:col-span-3 mx-auto">
                         <p className="font-semibold text-[18px] md:text-[20px] text-lightGray">
-                            {project.description}
+                            {project?.description}
                         </p>
                         
                     </div>
@@ -166,7 +166,7 @@ function SingleProject() {
                     <span className="text-[24px] font-bold ">Project attachments</span>
                     <div className="grid md:grid-cols-2 md:gap-5 mt-5">
                         {
-                            (!project.attachments || project?.attachments?.length === 0) && (
+                            (!project?.attachments || project?.attachments?.length === 0) && (
                                 <div className="flex justify-center items-center">
                                     <span className="text-nowrap">No attachment Available</span>
                                 </div>
@@ -186,12 +186,12 @@ function SingleProject() {
             </div>
             
             {
-                ((!user.email && !user.phone_number) || !userProjectsData?.map((item:any)=>item._id).includes(project._id)) && (
+                ((!user.email && !user.phone_number) || !userProjectsData?.map((item:any)=>item._id).includes(project?._id)) && (
                     <div className="w-full ml-[15%] px-5 mb-5 py-2 md:w-[90%] mx-auto md:ml-auto lg:col-span-1 max-h-fit shadow-md lg:p-5 bg-white rounded-2xl">
                         <div className="mt-5 w-[98%] mb-5">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-xl capitalize">{project.actualBalance || 0}$ raised</span>
-                                <span className="text-xl">{Math.round(Math.min(((project.actualBalance || 0) / project.targetAmount) * 100, 100))}%</span>
+                                <span className="text-xl">{Math.round(Math.min(((project.actualBalance || 0) / project?.targetAmount) * 100, 100))}%</span>
                             </div>
                             <div className="w-full">
                                 <ProgressBar 
@@ -204,7 +204,7 @@ function SingleProject() {
                         <div className="w-3/4 mx-auto mt-5 flex flex-col space-y-4">
                             <Button
                                 onClick={()=>{
-                                    if((user.email || user.phone_number && !userProjectsData?.map((item:any)=>item._id).includes(project._id))){
+                                    if((user?.email || user?.phone_number && !userProjectsData?.map((item:any)=>item._id).includes(project._id))){
                                         setDonate(true)
                                         return
                                     }
@@ -226,7 +226,7 @@ function SingleProject() {
                 )
             }
             {
-                (user.email || user.phone_number) && userProjectsData?.map((item:any)=>item._id).includes(project._id)  && (
+                (user?.email || user?.phone_number) && userProjectsData?.map((item:any)=>item._id).includes(project?._id)  && (
                     <div className="w-full ml-[15%] px-5 mb-5 py-2 md:w-[90%] mx-auto md:ml-auto lg:col-span-1 max-h-fit shadow-md lg:p-5 bg-white rounded-2xl">
                         <div className="mt-5 w-[98%] mb-5">
                             <div className="flex items-center justify-between mb-2">

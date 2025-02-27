@@ -70,7 +70,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
             <IoMdMenu onClick={()=>setSideBar(true)} size={28} />
             <div className='flex items-center space-x-1'>
                 {
-                    (user.email || user.phone_number) && (
+                    (user?.email || user?.phone_number) && (
                         <div className='w-6 h-6'>
                             <img 
                                 src={profileImage}
@@ -130,7 +130,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                         ))
                     }
                     {
-                        (user.email || user.phone_number) && (
+                        (user?.email || user?.phone_number) && (
                             <span
                                 onClick={()=>{
                                     handleLogout()
@@ -183,7 +183,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                 </ul>
             </div>
             {
-                (!user.email  && !user.phone_number) &&
+                (!user?.email  && !user?.phone_number) &&
                 <div className='flex md:flex-col lg:flex-row items-center md:gap-2 lg:gap-5'>
                     
                     <Button
@@ -203,7 +203,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                 </div>
             }
             {
-                (user.email || user.phone_number) && 
+                (user?.email || user?.phone_number) && 
                 <div className=''>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -230,8 +230,8 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                                     alt='profile-image'
                                 />
                                 <div className='flex flex-col'>
-                                    <span className='text-black font-semibold text-sm'>{user.email?.split("@")[0]}</span>
-                                    <span className='text-lightGray text-sm'>{user.email}</span>
+                                    <span className='text-black font-semibold text-sm'>{user?.email?.split("@")[0]}</span>
+                                    <span className='text-lightGray text-sm'>{user?.email}</span>
                                 </div>
                             </div>
                             <DropdownMenuSeparator/>
