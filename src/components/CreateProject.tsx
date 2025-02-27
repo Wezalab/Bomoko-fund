@@ -68,6 +68,7 @@ function CreateProject() {
       register,
       handleSubmit,
       setValue,
+      reset,
       watch,
       formState: { errors },
     } = useForm<FormValues>({
@@ -195,7 +196,8 @@ function CreateProject() {
 
     useEffect(()=>{
       if(createProjectData && createProjectIsSuccess){
-        console.log("created project successfully!",createProjectData)
+        //console.log("created project successfully!",createProjectData)
+        reset()
       }
       if(createProjectIsError){
         console.log("error while creating a project",createProjectError)

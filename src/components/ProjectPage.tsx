@@ -60,7 +60,7 @@ function ProjectPage() {
     currentPage * itemsPerPage
   );
 
-  const currentDataPersonal = (user.email || user.phone_number) && userProjectsData?.filter((item:any)=>item.medias.length > 0)?.slice(
+  const currentDataPersonal = (user?.email || user?.phone_number) && userProjectsData?.filter((item:any)=>item.medias.length > 0)?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -84,7 +84,7 @@ function ProjectPage() {
 
   useEffect(()=>{
     if(AllProjectsIsSuccess && AllProjects){
-      console.log("all projects",AllProjects)
+      //console.log("all projects",AllProjects)
       dispatch(setProjects(AllProjects))
     }
     if(AllProjectsIsError){
@@ -94,7 +94,7 @@ function ProjectPage() {
 
   useEffect(()=>{
     if(userProjectIsSuccess && userProjectsData){
-      console.log("user projects data:",userProjectsData)
+      //console.log("user projects data:",userProjectsData)
     }
     if(userProjectIsError){
       console.log("error while getting user projects",userProjectError)
@@ -121,7 +121,7 @@ function ProjectPage() {
         {
             cashout &&
             <div className="md:w-[80%] md:left-[10%] lg:w-[500px] absolute md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
-                <Cashout projectId={selectedProject._id} onClose={()=>setCashout(false)} />
+                <Cashout projectId={selectedProject?._id} onClose={()=>setCashout(false)} />
                 
             </div>
         }
@@ -132,7 +132,7 @@ function ProjectPage() {
               onClose={()=>setViewProjectSecurity(false)} 
               next={()=>{
                 setViewProjectSecurity(false)
-                navigate(`/projects/${selectedProject._id}`)
+                navigate(`/projects/${selectedProject?._id}`)
               }}
             />
           </div> 
@@ -198,7 +198,7 @@ function ProjectPage() {
                 
                 <div className='flex  items-center md:space-x-4 lg:space-x-8'>
                     {
-                      (user.email || user.phone_number) && (
+                      (user?.email || user?.phone_number) && (
                         <Button
                           onClick={()=>navigate('/projects/create')}
                           className='flex items-center space-x-3 md:h-[35px] lg:h-[50px] bg-lightBlue hover:bg-blue-300 text-white rounded-[100px] max-w-fit'
@@ -278,7 +278,7 @@ function ProjectPage() {
               
           </div>
               {
-                userProjectsData.length === 0 && (
+                userProjectsData?.length === 0 && (
                   <div className='flex items-center justify-center text-center w-full mb-10'>
                     <span className='text-lightGray font-bold text-xl'>No Personal Projects</span>
                   </div>
@@ -296,7 +296,7 @@ function ProjectPage() {
           {/* Pagination */}
           {/* //TODO: Only display user projects when a user is logged in  */}
           {
-            (user.email || user.phone_number) && userProjectsData.length > 0 && (
+            (user?.email || user?.phone_number) && userProjectsData?.length > 0 && (
               <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
                   <Button
                     disabled={currentPage === 1}
@@ -398,7 +398,7 @@ function ProjectPage() {
                       setSelectedProject(project)
                       //@ts-ignore
                       dispatch(setProject(project))
-                      if((user.email || user.phone_number && !userProjectsData?.map((item:any)=>item._id).includes(project._id))){
+                      if((user?.email || user?.phone_number && !userProjectsData?.map((item:any)=>item._id).includes(project._id))){
                         setDonate(true)
                         return
                     }
