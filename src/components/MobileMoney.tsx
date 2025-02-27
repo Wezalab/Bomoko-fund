@@ -130,7 +130,7 @@ function MobileMoney({
 
   useEffect(()=>{
     if(projectIsSuccess && projectData){
-      console.log("got project data",projectData)
+      //console.log("got project data",projectData)
     }
     if(projectIsError){
       console.log("error while getting a project",projectError)
