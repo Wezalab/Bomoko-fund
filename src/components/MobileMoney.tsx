@@ -3,7 +3,7 @@ import { Label } from "./ui/label"
 import { Switch } from "./ui/switch"
 import { donateOptions } from "@/constants/dummydata"
 import { useEffect, useState } from "react"
-import { FormStateSubjectRef, useForm } from "react-hook-form"
+import {  useForm } from "react-hook-form"
 import * as z from 'zod'
 import { Input } from "./ui/input"
 import { FiUser } from "react-icons/fi";
@@ -206,6 +206,7 @@ function MobileMoney({
               className="py-4 rounded-xl indent-8 text-black lg:text-md"
               placeholder="Full Names"
             />
+            {errors.donator  && <span className="text-red-600 mt-2">{errors.donator?.message}</span>}
           </div>
         </div>
         {
@@ -219,6 +220,7 @@ function MobileMoney({
                   className="py-4rounded-xl indent-8 text-black lg:text-md"
                   placeholder="Phone Number"
                 />
+                {errors.phone  && <span className="text-red-600 mt-2">{errors.phone?.message}</span>}
               </div>
             </div>
           )
@@ -265,6 +267,7 @@ function MobileMoney({
                 className="py-4 rounded-xl w-full md:w-[190px] indent-2 text-black lg:text-md"
                 placeholder="Amount"
               />
+              {errors.amount  && <span className="text-red-600 mt-2">{errors.amount?.message}</span>}
             </div>
           </div>
         </div>
