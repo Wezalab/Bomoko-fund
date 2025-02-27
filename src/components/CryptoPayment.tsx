@@ -10,15 +10,7 @@ import { FaExchangeAlt } from "react-icons/fa";
 import { FaCircleExclamation } from "react-icons/fa6"
 import { Button } from "./ui/button"
 import { z } from "zod"
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+
 import { zodResolver } from "@hookform/resolvers/zod"
 
 
@@ -72,12 +64,7 @@ function CryptoPayment({
       })
     const [anonymously,setAnonymously]=useState(false)
     const [selectedCrypto,setSelectedCrypto]=useState("BTC")
-    const [donate,setDonate]=useState(false)
-    const [connectWallet,setConnectWallet]=useState(false)
-    const [wallet,setWallet]=useState({
-      name:"",
-      walletId:""
-    })
+    
 
   return (
     <div className="relative w-full bg-white p-5 rounded-2xl">
@@ -145,6 +132,7 @@ function CryptoPayment({
                   className="py-4 rounded-xl indent-8 text-black lg:text-md"
                   placeholder="Full Names"
                 />
+                {errors.donator  && <span className="text-red-600 mt-2">{errors.donator?.message}</span>}
               </div>
             </div>
           )
@@ -178,6 +166,7 @@ function CryptoPayment({
                           className="py-4 rounded-xl w-full md:w-[180px] indent-2 text-black lg:text-md"
                           placeholder="Crypto"
                       />
+                      {errors.crypto  && <span className="text-red-600 mt-2">{errors.crypto?.message}</span>}
                       <span className="absolute top-2 right-2 text-[14px]">.{selectedCrypto}</span>
                     </div>
                 </div>
@@ -192,6 +181,7 @@ function CryptoPayment({
                           className="py-4 rounded-xl w-full md:w-[180px] indent-2 text-black lg:text-md"
                           placeholder="USD"
                       />
+                      {errors.amount  && <span className="text-red-600 mt-2">{errors.amount?.message}</span>}
                       <span className="absolute top-2 right-2 text-[14px]">$</span>
                     </div>
                 </div>

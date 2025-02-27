@@ -7,8 +7,7 @@ import { FiUser } from "react-icons/fi"
 import { Input } from "./ui/input"
 import { useForm } from "react-hook-form"
 import { GoCreditCard } from "react-icons/go";
-import { format } from "date-fns"
-import { Calendar } from "@/components/ui/calendar"
+
 import {
     Select,
     SelectContent,
@@ -18,14 +17,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-  } from "@/components/ui/popover"
+
 import { Button } from "./ui/button"
-import { Calendar as CalendarIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { FaCircleExclamation } from "react-icons/fa6"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -45,9 +38,6 @@ interface cardPaymentProps{
   crypto:boolean
   setCrypto:any
 }
-
-
-
 
 const formSchema=z.object({
   donator:z.string().optional(),
@@ -193,6 +183,7 @@ function CardPayment({
               className="py-4 rounded-xl indent-8 text-black lg:text-md"
               placeholder="Full Names"
             />
+            {errors.donator  && <span className="text-red-600 mt-2">{errors.donator?.message}</span>}
           </div>
         </div>
         <div className="flex flex-col space-y-1 my-5">
@@ -204,47 +195,11 @@ function CardPayment({
               className="py-4 rounded-xl indent-8 text-black lg:text-md"
               placeholder="Card Number"
             />
+            {errors.cardNumber  && <span className="text-red-600 mt-2">{errors.cardNumber?.message}</span>}
           </div>
         </div>
 
-        {/* <div className="grid md:grid-cols-2 gap-x-5">
-          <div className="flex flex-col space-y-1 my-5">
-            <label className="font-semibold">Expire Date</label>
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button
-                    variant={"outline"}
-                    className={cn(
-                        "w-full md:w-[190px] py-4 justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                    )}
-                    >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "MM/yyyy") : <span>Pick a date</span>}
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                    <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={setDate}
-                        initialFocus
-                    />
-                </PopoverContent>
-                </Popover>
-          </div>
-
-          <div className="flex flex-col space-y-1 my-5">
-            <label className="font-semibold">CVV</label>
-            <div className="relative">
-              <Input 
-                {...register("cvv")}
-                className="py-4 rounded-xl w-full md:w-[190px] indent-2 text-black lg:text-md"
-                placeholder="CVV"
-              />
-            </div>
-          </div>
-        </div> */}
+        
         <div className="flex flex-col space-y-1 my-5">
             <label className="font-semibold">Type</label>
             <Select onValueChange={(value)=>setValue("type",value)}>
@@ -286,6 +241,7 @@ function CardPayment({
                 className="py-4 rounded-xl w-full md:w-[190px] indent-2 text-black lg:text-md"
                 placeholder="Amount"
               />
+              {errors.amount  && <span className="text-red-600 mt-2">{errors.amount?.message}</span>}
             </div>
           </div>
         </div>

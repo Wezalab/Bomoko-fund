@@ -3,11 +3,8 @@ import { MdOutlineArrowOutward } from "react-icons/md";
 import welcomeImage from '../assets/welcomeImage.png'
 import { ChevronRight } from "lucide-react";
 import PopularProjectCard from "./PopularProjectCard";
-import popularProjectImage1 from '../assets/popularProjectImg1.png'
-import popularProjectImage2 from '../assets/popularProjectProfile2.png'
-import popularProjectImage3 from '../assets/popularProjectProfile3.png'
 import popularProjectProfileImg from '../assets/popularProjectProfile1.png'
-import { projects, userTestimonials } from "@/constants/dummydata";
+import { userTestimonials } from "@/constants/dummydata";
 import TestimonialCard from "./TestimonialCard";
 import testimonialBg from '../assets/testimonialBg.png'
 import testimonialProfile5 from '../assets/testimonialPic5.png'
@@ -295,7 +292,6 @@ function HomePage() {
                           type={AllProjects[index].type.name}
                           amount={AllProjects[index].actualBalance || 0}
                           limit={AllProjects[index].targetAmount}
-                          
                         />
                       </CardContent>
                     </Card>

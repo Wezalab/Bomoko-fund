@@ -4,8 +4,6 @@ import workImage3 from '../assets/workImage3.png'
 import workImage4 from '../assets/workImage4.png'
 import workImage5 from '../assets/workImage5.png'
 
-
-
 function WorkPage() {
   return (
     <div className="">

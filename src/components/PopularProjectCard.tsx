@@ -22,7 +22,6 @@ function PopularProjectCard({
     image,
     title,
     desc,
-    profile,
     type,
     limit,
     className,

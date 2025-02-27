@@ -4,7 +4,6 @@ import { Button } from './ui/button'
 import { GiSettingsKnobs } from "react-icons/gi";
 import { CiSearch } from "react-icons/ci";
 import { Input } from './ui/input';
-import { projects } from '@/constants/dummydata';
 import PopularProjectCard from './PopularProjectCard';
 import { IoChevronBackSharp, IoChevronForward, IoLocation } from "react-icons/io5";
 import {
@@ -18,7 +17,7 @@ import FilterModal from './FilterModal';
 import ViewProjectChecker from './ViewProjectchecker';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { selectProject, selectProjects, setProject, setProjects } from '@/redux/slices/projectSlice';
+import {  selectProjects, setProject, setProjects } from '@/redux/slices/projectSlice';
 import { selectUser } from '@/redux/slices/userSlice';
 import { MdMenu } from 'react-icons/md';
 import MapComponent from './MapComponent';
@@ -31,7 +30,7 @@ import Cashout from './Cashout';
 
 
 function ProjectPage() {
-  const [latlng, setLatLng] = useState<[number, number] | null>([-4.4419, 15.2663]);
+  
   const [viewMode,setViewMode]=useState<'grid'|'map'|'other'>('grid')
   const [itemsPerPage,setItemsPerPage]=useState(9)
   const [openFilter,setOpenFilter]=useState(false)
@@ -40,13 +39,7 @@ function ProjectPage() {
   const [donate,setDonate]=useState(false)
   const [cashout,setCashout]=useState(false)
   const [login,setLogin]=useState(false)
-  const [filter,setFilter]=useState({
-    category:[],
-    date:"",
-    status:"",
-    regions:[],
-    creatorGenre:""
-  })
+  
   const user=useAppSelector(selectUser)
   const allProjects=useAppSelector(selectProjects)
 
@@ -285,7 +278,7 @@ function ProjectPage() {
               
           </div>
               {
-                !currentDataPersonal && (
+                userProjectsData.length === 0 && (
                   <div className='flex items-center justify-center text-center w-full mb-10'>
                     <span className='text-lightGray font-bold text-xl'>No Personal Projects</span>
                   </div>
@@ -303,7 +296,7 @@ function ProjectPage() {
           {/* Pagination */}
           {/* //TODO: Only display user projects when a user is logged in  */}
           {
-            (user.email || user.phone_number) && (
+            (user.email || user.phone_number) && userProjectsData.length > 0 && (
               <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
                   <Button
                     disabled={currentPage === 1}
@@ -442,7 +435,7 @@ function ProjectPage() {
           {/* Pagination */}
           {/* //TODO: Only display user projects when a user is logged in  */}
           {
-            (!user.email && !user.phone_number) && (
+            (
               <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
                   <Button
                     disabled={currentPage === 1}
@@ -512,7 +505,6 @@ function ProjectPage() {
                       </NavigationMenuList>
                   </NavigationMenu>
                   </div>
-                  
               </div>
             )
           }
