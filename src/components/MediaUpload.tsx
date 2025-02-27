@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { X, Plus, Trash2, FileText } from "lucide-react";
+import {  Plus, Trash2, FileText } from "lucide-react";
 
 
 interface MediaUploadProps {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { FcGoogle } from "react-icons/fc"
 import { IoMdArrowRoundBack, IoMdMail } from "react-icons/io"
 import { IoCall } from "react-icons/io5"
-import { MdCancel, MdMail, MdOutlinePhone,  } from "react-icons/md"
+import { MdCancel,  MdOutlinePhone,  } from "react-icons/md"
 import { Button } from "./ui/button"
 import { useForm } from "react-hook-form"
 import { Input } from "./ui/input"
@@ -74,7 +74,7 @@ function SignUp({
       const {
         register:registerStepOneWithEmail,
         handleSubmit:handleSubmitStepOneWithEmail,
-        formState:{errors:errosStepOneWithEmail}
+        formState:{errors:errorsStepOneWithEmail}
       }=useForm<StepOneDataEmail>({ resolver:zodResolver(stepOneSchemaEmail)})
 
       const {
@@ -352,6 +352,7 @@ function SignUp({
                                   className="h-12 rounded-xl indent-8 text-black lg:text-md"
                                   placeholder="Email"
                               />
+                              {errorsStepOneWithEmail.email && <span className="text-red-600 mt-2">{errorsStepOneWithEmail.email?.message}</span> }
                               
                           </div>
                       </div>
@@ -396,6 +397,7 @@ function SignUp({
                                   className="h-12 rounded-xl indent-8 text-black lg:text-md"
                                   placeholder="Verification code"
                               />
+                              {errorsStepTwoWithPhone.code && <span className="text-red-600 mt-2">{errorsStepTwoWithPhone.code?.message}</span>}
                           </div>
                       </div>
                       <Button
