@@ -91,7 +91,7 @@ function HomePage() {
         {
             cashout &&
             <div className="md:w-[80%] md:left-[10%] lg:w-[500px] fixed md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
-                <Cashout projectId={selectedProject._id} onClose={()=>setCashout(false)} />
+                <Cashout projectId={selectedProject?._id} onClose={()=>setCashout(false)} />
                 
             </div>
         }
@@ -317,7 +317,7 @@ function HomePage() {
           </div>
           <Carousel className="mx-auto max-w-[90%]">
             <CarouselContent className="">
-              {Array.from({ length: userTestimonials.length }).map((_, index) => (
+              {Array.from({ length: userTestimonials?.length }).map((_, index) => (
                 <CarouselItem key={index}>
                   <div className="p-1">
                     <Card>
@@ -332,10 +332,10 @@ function HomePage() {
                           </div>
                           <div className="flex flex-col my-3">
                             <div className="w-[90%] mx-auto text-center">
-                              <span className="text-sm text-lightGray">{userTestimonials[index].description}</span>
+                              <span className="text-sm text-lightGray">{userTestimonials[index]?.description}</span>
                             </div>
                             <div className="mt-5 text-center">
-                              <span className="font-bold ">{userTestimonials[index].name}</span>
+                              <span className="font-bold ">{userTestimonials[index]?.name}</span>
                             </div>
                           </div>
                        </div>

@@ -109,7 +109,7 @@ function CardPayment({
 
     useEffect(()=>{
       if(donateData && donateIsSuccess){
-        console.log("donated successfully",donateData)
+        //console.log("donated successfully",donateData)
         toast.success("donation successfully done!")
         reset()
         onClose()
@@ -127,7 +127,7 @@ function CardPayment({
       </div>
       <div className="m-5 flex space-x-8">
         {
-          donateOptions.map((donateOption,index)=>(
+          donateOptions?.map((donateOption,index)=>(
             <div key={index} className="flex flex-col">
               <span 
                 onClick={()=>{
@@ -241,7 +241,7 @@ function CardPayment({
                 className="py-4 rounded-xl w-full md:w-[190px] indent-2 text-black lg:text-md"
                 placeholder="Amount"
               />
-              {errors.amount  && <span className="text-red-600 mt-2">{errors.amount?.message}</span>}
+              {errors?.amount  && <span className="text-red-600 mt-2">{errors.amount?.message}</span>}
             </div>
           </div>
         </div>
