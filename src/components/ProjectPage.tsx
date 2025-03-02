@@ -52,7 +52,7 @@ function ProjectPage() {
     isSuccess:userProjectIsSuccess,
     isError:userProjectIsError,
     isLoading:userProjectIsLoading
-  }=useUsersProjectsQuery(user._id)
+  }=useUsersProjectsQuery(user?._id)
 
 
   const currentData = allProjects?.filter((item:any)=>item.medias.length > 0)?.slice(
@@ -85,7 +85,7 @@ function ProjectPage() {
   useEffect(()=>{
     if(AllProjectsIsSuccess && AllProjects){
       //console.log("all projects",AllProjects)
-      dispatch(setProjects(AllProjects))
+      dispatch(setProjects(AllProjects.filter((item:any)=>!["PENDING","REJECTED"].includes(item.status))))
     }
     if(AllProjectsIsError){
       console.log("Error while getting all projects",AllProjectsError)
@@ -284,7 +284,13 @@ function ProjectPage() {
                   </div>
                 )
               }
-              
+              {
+                viewMode ==="grid" && !userProjectsData  && (
+                  <div className='flex items-center justify-center text-center w-full mb-10'>
+                    <span className='text-lightGray font-bold text-xl'>No Personal Projects</span>
+                  </div>
+                )
+              }
               {
                 userProjectIsLoading && (
                   <div className='flex items-center justify-center text-center w-full mb-10'>
