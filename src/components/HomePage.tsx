@@ -352,7 +352,7 @@ function HomePage() {
       </div>
       {/* End of Testimonials on small device */}
       {/* start of users testimonials */}
-      <div className="block md:hidden my-5">
+      <div className="md:block hidden my-5">
       <div className="flex justify-center items-center flex-col mb-3 space-y-2">
         <span className="text-[25px] font-semibold">Testimonials from Our Community</span>
         <div className="w-[90%] mx-auto flex items-center justify-center">
@@ -376,7 +376,7 @@ function HomePage() {
                   testimonial.id === "1" ? 'absolute md:left-[5%] lg:left-[2%]' :
                     testimonial.id === "2" ? "absolute left-[15%]" :
                       testimonial.id === "3" ? 'absolute left-[25%]' :
-                        testimonial.id === "4" ? 'absolute md:left-[30%] lg:left-[35%]' :
+                        testimonial.id === "4" ? 'absolute md:left-[28%] lg:left-[35%]' :
                           ''
                 }
                 key={testimonial.id}
@@ -386,7 +386,7 @@ function HomePage() {
               />
             ))
           }
-          <div className="absolute top-10 right-[10%] grid grid-cols-1">
+          <div className="absolute top-10 right-[10%] hidden lg:grid grid-cols-1">
             <img
               src={testimonialProfile5}
               className="w-[120px] h-[120xp] rounded-[15px]"
