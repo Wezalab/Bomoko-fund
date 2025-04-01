@@ -27,7 +27,7 @@ function SingleProject() {
     
 
     const startDate=project.startDate && DateTime.fromISO(project.startDate)
-    const endDate=project.startDate && DateTime.fromISO(project.endDate)
+    const endDate=project.endDate && DateTime.fromISO(project.endDate)
     //@ts-ignore
     const remainingDays=endDate.diff(startDate,["days"])
 

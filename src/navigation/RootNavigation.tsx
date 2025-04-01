@@ -7,6 +7,7 @@ import EditProjectLayout from '@/pages/EditProjectLayout'
 import ProfileLayout from '@/pages/ProfileLayout'
 import CreateProjectLayout from '@/pages/CreateProjectLayout'
 import NotFound from '@/pages/NotFound'
+import AuthRedirect from '@/components/AuthRedirect'
 
 function RootNavigation() {
 
@@ -23,6 +24,7 @@ function RootNavigation() {
             <Route path="/faq" element={<FaqLayout />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyLayout />} />
             <Route path="/profile" element={<ProfileLayout />} />
+            <Route path="/auth/google/callback" element={<AuthRedirect />} />
             <Route path="/*" element={<NotFound />} />
         </Routes>
     </Router>
