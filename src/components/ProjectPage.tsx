@@ -22,24 +22,42 @@ import { selectUser } from '@/redux/slices/userSlice';
 import { MdMenu } from 'react-icons/md';
 import MapComponent from './MapComponent';
 import { PlusCircle } from 'lucide-react';
-import { useGetAllProjectsQuery, useUsersProjectsQuery } from '@/redux/services/projectServices';
+import { useFilterProjectsMutation, useGetAllProjectsQuery, useUsersProjectsQuery } from '@/redux/services/projectServices';
 import SignIn from './SignIn';
 import Donate from './Donate';
 import Cashout from './Cashout';
 
 
+interface FilterDatasProps{
+  category:string[]
+  date:string 
+  status:string 
+  region:string[]
+  authorGender:string
+}
+
 
 function ProjectPage() {
   
-  const [viewMode,setViewMode]=useState<'grid'|'map'|'other'>('grid')
+  const [viewMode,setViewMode]=useState<'grid'|'map'|'other'>('other')
   const [itemsPerPage,setItemsPerPage]=useState(9)
   const [openFilter,setOpenFilter]=useState(false)
+  const [filterProjects,setFilterProject]=useState(false)
+  const [filterDatas,setFilterDatas]=useState<FilterDatasProps>({
+    category:[],
+    date:"",
+    status:"",
+    region:[],
+    authorGender:""
+  })
   const [viewProjectSecurity,setViewProjectSecurity]=useState(false)
   const [selectedProject,setSelectedProject]=useState<any>(null)
   const [donate,setDonate]=useState(false)
   const [cashout,setCashout]=useState(false)
   const [login,setLogin]=useState(false)
-  
+  const [search,setSearch]=useState("")
+
+
   const user=useAppSelector(selectUser)
   const allProjects=useAppSelector(selectProjects)
 
@@ -54,13 +72,52 @@ function ProjectPage() {
     isLoading:userProjectIsLoading
   }=useUsersProjectsQuery(user?._id)
 
+  const [
+    FilterProjects,
+    {
+      data:filterProjectsData,
+      error:filterProjectsError,
+      isSuccess:filterProjectsIsSuccess,
+      isError:filterProjectsIsError,
+      isLoading:filterProjectIsLoading
+    }
+  ]=useFilterProjectsMutation()
 
-  const currentData = allProjects?.filter((item:any)=>item.medias.length > 0)?.slice(
+
+  useEffect(()=>{
+    if(filterProjectsData && filterProjectsIsSuccess){
+      console.log("filter data success",filterProjectsData)
+    }
+    if(filterProjectsIsError){
+      console.log("filter data is error",filterProjectsError)
+    }
+  },[filterProjectsIsSuccess,filterProjectsIsError])
+
+
+  const applyFilters = async () => {
+    try {
+      const response = await FilterProjects(filterDatas).unwrap();
+      console.log("Filtered projects:", response);
+    } catch (err) {
+      console.error("Error filtering projects:", err);
+    }
+  };
+
+  const currentData =search ? allProjects?.filter((item:any)=>item.name.toLowerCase().startsWith(search.toLocaleLowerCase()))?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  ) :filterProjects ? filterProjectsData?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  ) : allProjects?.filter((item:any)=>item.medias.length > 0)?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  const currentDataPersonal = (user?.email || user?.phone_number) && userProjectsData?.filter((item:any)=>item.medias.length > 0)?.slice(
+  const currentDataPersonal =search ? (user?.email || user?.phone_number) && userProjectsData?.filter((item:any)=>item.name.toLocaleLowerCase().startsWith(search.toLocaleLowerCase()))?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  ):(user?.email || user?.phone_number) && userProjectsData?.filter((item:any)=>item.medias.length > 0)?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -101,9 +158,15 @@ function ProjectPage() {
     }
   },[userProjectIsError,userProjectIsSuccess])
 
+  useEffect(()=>{
+    applyFilters()
+  },[filterProjects])
+
   //console.log("selected project",selectedProject)
   //console.log("current data:",currentData)
   //console.log("all projects data",currentData)
+
+  //console.log("filtered data-->",filterDatas)
   return (
     <div className='relative'>
         {
@@ -121,8 +184,7 @@ function ProjectPage() {
         {
             cashout &&
             <div className="md:w-[80%] md:left-[10%] lg:w-[500px] absolute md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
-                <Cashout projectId={selectedProject?._id} onClose={()=>setCashout(false)} />
-                
+                <Cashout projectId={selectedProject?._id} onClose={()=>setCashout(false)} />                
             </div>
         }
         {
@@ -141,7 +203,11 @@ function ProjectPage() {
         {
           openFilter && 
           <div className='absolute bg-white rounded-xl w-[96%] left-[2%] top-10 z-50 md:top-[12%] md:z-10 md:left-[10%] lg:left-[35%] md:w-[80%] lg:w-[30%]'>
-            <FilterModal onClose={()=>setOpenFilter(false)} />
+            <FilterModal 
+              setFilterProject={()=>setFilterProject(true)} 
+              setFilterData={setFilterDatas} 
+              onClose={()=>setOpenFilter(false)} 
+            />
           </div>
         }
         <div className={(openFilter || viewProjectSecurity) ? 'relative blur-md':"relative"}>
@@ -170,14 +236,6 @@ function ProjectPage() {
               </div>
               <div className='w-[95%] lg:w-[90%] hidden shadow-md h-[100px] rounded-lg md:flex justify-between items-center p-10 bg-white absolute -bottom-10 left-[2%] lg:left-[5%]'>
                 <div className='flex md:w-[40%] space-x-5'>
-                  <div onClick={()=>setViewMode('grid')} className={viewMode === 'grid'?'flex flex-col cursor-not-allowed space-y-2':'flex cursor-pointer'}>
-                    <span className={viewMode ==='grid'?"text-black md:text-sm text-nowrap lg:text-md font-semibold":"text-lightGray md:text-sm lg:text-md text-nowrap"}>Personal projects</span>
-                    {
-                      viewMode ==='grid' &&
-                      <div className='w-[30px] h-1 bg-black'></div>
-                    }
-                    
-                  </div>
                   <div onClick={()=>setViewMode('other')} className={viewMode === 'other'?'flex flex-col cursor-not-allowed space-y-2':'flex cursor-pointer'}>
                     <span className={viewMode ==='other'?"text-black md:text-sm lg:text-md text-nowrap font-semibold":"text-lightGray lg:text-md md:text-sm text-nowrap "}>Projects</span>
                     {
@@ -194,6 +252,19 @@ function ProjectPage() {
                     }
                     
                   </div>
+                  {
+                    (user?.email || user?.phone_number) && (
+                      <div onClick={()=>setViewMode('grid')} className={viewMode === 'grid'?'flex flex-col cursor-not-allowed space-y-2':'flex cursor-pointer'}>
+                        <span className={viewMode ==='grid'?"text-black md:text-sm text-nowrap lg:text-md font-semibold":"text-lightGray md:text-sm lg:text-md text-nowrap"}>Personal projects</span>
+                        {
+                          viewMode ==='grid' &&
+                          <div className='w-[30px] h-1 bg-black'></div>
+                        }
+                        
+                      </div>
+                    )
+                  }
+                  
                 </div>
                 
                 <div className='flex  items-center md:space-x-4 lg:space-x-8'>
@@ -208,27 +279,40 @@ function ProjectPage() {
                         </Button>
                       )
                     }
+                    {
+                      viewMode === "other" && (
+                        <Button
+                          onClick={()=>{
+                            filterProjects && setFilterProject(false)
+                            setOpenFilter(true)
+                          }}
+                          className={filterProjects  ? "md:w-[100px] lg:w-[150px] md:h-[35px] lg:h-[50px] rounded-[100px] text-white bg-lightBlue flex items-center space-x-5" :'bg-grayColor md:w-[100px] lg:w-[150px] md:h-[35px] lg:h-[50px] text-black rounded-[100px] hover:text-white hover:bg-lightBlue flex items-center space-x-5'}
+                        >
+                          <GiSettingsKnobs className='' size={24} />
+                          Filter
+                        </Button>
+                      )
+                    }
                     
-                    <Button
-                      onClick={()=>setOpenFilter(true)}
-                      className='bg-grayColor md:w-[100px] lg:w-[150px] md:h-[35px] lg:h-[50px] text-black rounded-[100px] hover:text-white hover:bg-lightBlue flex items-center space-x-5'
-                    >
-                      <GiSettingsKnobs className='' size={24} />
-                      Filter
-                    </Button>
                     <div className='w-[430px] hidden md:hidden bg-grayColor rounded-[100px] lg:flex items-center space-x-5 px-2 h-[50px]'>
                       <div className='relative w-[300px]'>
                         <Input 
-                          className='w-full py-4 indent-10 rounded-[100px]'
+                          onChange={(e)=>setSearch(e.target.value)}
+                          className='w-full py-4 indent-10 rounded-[100px] outline-none'
                           placeholder='Search'
                         />
                         <CiSearch className='text-lightGray absolute top-2 left-3' size={20} />
                       </div>
-                      <Button
-                        className='w-[100px] h-[42px] rounded-[100px] bg-lightBlue text-white hover:bg-blue-200'
-                      >
-                        Search
-                      </Button>
+                      {
+                        !search && (
+                          <Button
+                            className='w-[100px] h-[42px] rounded-[100px] bg-lightBlue text-white hover:bg-blue-200'
+                          >
+                            Search
+                          </Button>
+                        )
+                      }
+                      
                     </div>
                     <Button
                       className='md:w-[80px] lg:hidden md:h-[35px] lg:w-[100px] lg:h-[42px] rounded-[100px] bg-lightBlue text-white hover:bg-blue-200'
@@ -261,7 +345,13 @@ function ProjectPage() {
                       setSelectedProject(project)
                       //@ts-ignore
                       dispatch(setProject(project))
-                      setCashout(true)
+                      if(project?._id){
+                        navigate(`/projects/${project._id}`)
+                      }
+                      // setSelectedProject(project)
+                      // //@ts-ignore
+                      // dispatch(setProject(project))
+                      // setCashout(true)
                     }}
                     actionName='Cashout'
                     key={project?._id}
@@ -385,7 +475,7 @@ function ProjectPage() {
           <div className='mt-24 mb-10 px-[5%] md:grid-cols-2 grid lg:grid-cols-3 gap-x-8 gap-y-5'>
               
               {
-                currentData?.length > 0 &&  currentData?.slice(0,9).map((project:any,index)=>(
+                currentData?.length > 0 &&  currentData?.slice(0,9).map((project:any,index:number)=>(
                   <PopularProjectCard 
                     key={project._id}
                     onClick={()=>{
@@ -404,10 +494,16 @@ function ProjectPage() {
                       setSelectedProject(project)
                       //@ts-ignore
                       dispatch(setProject(project))
-                      if((user?.email || user?.phone_number && !userProjectsData?.map((item:any)=>item._id).includes(project._id))){
-                        setDonate(true)
-                        return
-                    }
+                      if(project?._id){
+                        navigate(`/projects/${project._id}`)
+                      }
+                      // setSelectedProject(project)
+                      // //@ts-ignore
+                      // dispatch(setProject(project))
+                      // if((user?.email || user?.phone_number && !userProjectsData?.map((item:any)=>item._id).includes(project._id))){
+                      //   setDonate(true)
+                      //   return
+                      // }
                     setLogin(true)
                     }}
                     image={project?.medias[0]}
@@ -441,7 +537,7 @@ function ProjectPage() {
           {/* Pagination */}
           {/* //TODO: Only display user projects when a user is logged in  */}
           {
-            (
+            (currentData?.length > itemsPerPage  || currentDataPersonal?.length > itemsPerPage) && (
               <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
                   <Button
                     disabled={currentPage === 1}

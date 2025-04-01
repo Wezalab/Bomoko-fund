@@ -167,9 +167,8 @@ function SignIn({
     }
 
     const handleGoogleAuth=()=>{
-        window.open(apiUrl+"/auth/google")
-    }
-
+        window.location.href = "http://localhost:7007/api/auth/google";
+    }   
   return (
     <div className="px-5 pb-8 pt-5 bg-white shadow-md rounded-2xl">
         <MdCancel size={28} onClick={onClose} className="absolute top-6 right-5 cursor-pointer" />
@@ -193,10 +192,10 @@ function SignIn({
                             <IoCall className="" />
                             <span className="font-semibold">Sign in with a phone number</span>
                         </div>
-                        <div onClick={handleGoogleAuth} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
+                        <button disabled onClick={handleGoogleAuth} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
                             <FcGoogle className="" />
                             <span className="font-semibold">Sign in with Google</span>
-                        </div>
+                        </button>
                         <div onClick={()=>setSignWithEmail(true)} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
                             <IoMdMail className="" />
                             <span className="font-semibold">Sign in with email</span>
