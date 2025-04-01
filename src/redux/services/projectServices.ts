@@ -15,6 +15,29 @@ export const projectService=splitApi.injectEndpoints({
                 }
             }
         }),
+        filterProjects: builder.mutation({
+            query: (filters) => {
+                const queryParams = new URLSearchParams();
+        
+                // Ensure we only append valid strings or arrays
+                Object.entries(filters).forEach(([key, value]) => {
+                if (value && Array.isArray(value)) {
+                    // For array values (e.g., multiple categories)
+                    value.forEach((v) => {
+                    if (v) queryParams.append(key, v);
+                    });
+                } else if (value && typeof value === 'string') {
+                    // For string values (e.g., status, startDate)
+                    queryParams.append(key, value);
+                }
+                });
+        
+                return {
+                url: `/projects/filter?${queryParams.toString()}`,
+                method: "GET",
+                };
+            },
+        }),
         usersProjects:builder.query({
             query:(id)=>`/projects/user-projects/${id}`
         }),
@@ -76,5 +99,6 @@ export const {
     useDonateMutation,
     useUsersProjectsQuery,
     useFindProjectMutation,
-    useCashoutMutation
+    useCashoutMutation,
+    useFilterProjectsMutation
 }=projectService

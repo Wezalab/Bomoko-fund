@@ -5,13 +5,58 @@ import { Textarea } from "./ui/textarea"
 import { Button } from "./ui/button"
 import callIcon from '../assets/callIcon.png'
 import helpIcon from '../assets/helpIcon.png'
+import { useState } from "react"
+import sendEmail from "@/lib/sendemail"
+import LoadingComponent from "./LoadingComponent"
+import toast from "react-hot-toast"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+const formSchema=z.object({
+  name:z.string().min(3,"Name must contain at least 3 characters"),
+  email:z.string().email("Enter a valid Email address"),
+  message:z.string().min(3,"Message must have at least 3 characters!")
+}).required()
+
+type FormData=z.infer<typeof formSchema>
 
 function ContactPage() {
   const {
     register,
-    handleSubmit,
+    handleSubmit:formSubmission,
     formState:{errors}
-  }=useForm()
+  }=useForm<FormData>({
+    resolver:zodResolver(formSchema)
+  })
+  const [loading,setLoading]=useState(false)
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true)
+    try {
+      await sendEmail(formData.name, formData.email, formData.message);
+      setLoading(false)
+      toast.success("Email sent successfully!");
+      setFormData({
+        name:"",
+        email:"",
+        message:""
+      })
+    } catch {
+      setLoading(false)
+      toast.error("Failed to send email. Please try again.");
+    }
+  };
 
   return (
     <div className="">
@@ -24,14 +69,16 @@ function ContactPage() {
           </span>
         </div>
       </div>
-      <form className="p-5 lg:p-10 w-[95%] md:w-3/4 lg:w-2/4 mx-auto my-5 bg-white shadow-md rounded-md">
+      <form onSubmit={handleSubmit} className="p-5 lg:p-10 w-[95%] md:w-3/4 lg:w-2/4 mx-auto my-5 bg-white shadow-md rounded-md">
         <div className="w-full">
           <div className="grid md:grid-cols-2 gap-5">
             <div className="flex flex-col space-y-1">
               <label className="font-semibold">Full Names</label>
               <div className="relative">
                 <Input 
-                  {...register("names")}
+                  value={formData.name}
+                  name="name"
+                  onChange={handleChange}
                   className="py-4 h-12 rounded-xl indent-2 text-black lg:text-md"
                   placeholder="Full Names"
                 />
@@ -41,7 +88,10 @@ function ContactPage() {
               <label className="font-semibold">Email Address</label>
               <div className="relative">
                 <Input 
-                  {...register("email")}
+                  type="email"
+                  value={formData.email}
+                  name="email"
+                  onChange={handleChange}
                   className="py-4 h-12 rounded-xl indent-2 text-black lg:text-md"
                   placeholder="Email address"
                 />
@@ -50,7 +100,7 @@ function ContactPage() {
           </div>
           <div className="grid w-full gap-2 mt-10">
             <Label htmlFor="message">Type something</Label>
-            <Textarea rows={5} placeholder="Support 230 children to get school fees" id="message" />
+            <Textarea name="message" value={formData.message} onChange={handleChange}  rows={5} placeholder="Support 230 children to get school fees" id="message" />
           </div>
           <div className="my-5">
             <span className="text-lightGray font-semibold">
@@ -59,10 +109,11 @@ function ContactPage() {
             </span>
           </div>
           <Button
+            disabled={loading}
             type="submit"
             className="p-5 max-w-fit rounded-2xl bg-darkBlue text-white"
           >
-            Submit
+            {loading ? <LoadingComponent /> :"Submit"}
           </Button>
         </div>
       </form>
