@@ -82,6 +82,15 @@ export const projectService=splitApi.injectEndpoints({
                     body:data
                 }
             }
+        }),
+        editProject:builder.mutation({
+            query({id,data}){
+                return{
+                    url:`/projects/${id}`,
+                    method:"PUT",
+                    body:data
+                }
+            }
         })
     }),
     overrideExisting:true
@@ -100,5 +109,6 @@ export const {
     useUsersProjectsQuery,
     useFindProjectMutation,
     useCashoutMutation,
-    useFilterProjectsMutation
+    useFilterProjectsMutation,
+    useEditProjectMutation
 }=projectService

@@ -122,7 +122,7 @@ function ResetPassword({onClose,signIn,setSignIn}:{onClose:any,setSignIn:any,sig
       if(requestResetPasswordData && requestResetPasswordIsSuccess){
         toast.success("An email with token has been sent to you")
         setSteps(2)
-        console.log("requestResetPassword data:",requestResetPasswordData)
+        //console.log("requestResetPassword data:",requestResetPasswordData)
       }
       if(requestResetPasswordIsError){
         console.log("error while requesting reset password",requestResetPasswordError)
@@ -173,6 +173,10 @@ function ResetPassword({onClose,signIn,setSignIn}:{onClose:any,setSignIn:any,sig
     useEffect(()=>{
       console.log("error while reseting  password:",errorsStepThree)
     },[errorsStepThree])
+
+    useEffect(()=>{
+      console.error("zod error reset password",errorsStepOne)
+    },[errorsStepOne])
 
   return (
     <div className="px-5 pb-8 pt-5 bg-white shadow-md rounded-2xl">
