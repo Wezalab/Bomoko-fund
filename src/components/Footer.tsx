@@ -5,17 +5,20 @@ import { MdLocationOn, MdEmail, MdOutlinePhoneIphone, MdOutlineArrowOutward } fr
 import { FaInstagramSquare, FaLinkedin, FaTwitterSquare, FaFacebookSquare, FaYoutube } from "react-icons/fa";
 import { navItems } from '@/constants/navItems';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useTranslation } from '@/lib/TranslationContext';
 
 import appLogo from '../assets/icons/7.png'
 
 
 function Footer() {
-  const location = useLocation()
+  const location = useLocation();
+  const { t } = useTranslation();
+  
   return (
     <div className='bg-darkBlue pt-1 md:pt-4 lg:pt-10 relative'>
       <div className=' grid md:grid-cols-1 lg:grid-cols-6 gap-x-10 p-5 text-white'>
         <div className="lg:col-span-3">
-          <span className="text-white font-semibold text-[26px] ml-5 md:ml-1 lg:ml-10">Scan to get our App</span>
+          <span className="text-white font-semibold text-[26px] ml-5 md:ml-1 lg:ml-10">{t("Scan to get our App")}</span>
           <div className="flex md:flex-row flex-col">
             <div className="flex md:flex-row flex-col space-y-2 items-center space-x-5 mt-6 pr-3 border-r-2  border-white">
               <div className="w-full  rounded-[14px] h-[150px]">
@@ -27,15 +30,13 @@ function Footer() {
               </div>
               <div className=''>
                 <span className='text-[18px] font-semibold'>
-                  Download our app to unlock its full potential and enjoy an enhanced experience with Bomoko Fund App,
-                  From personalized features to seamless performance
+                  {t("Download our app to unlock its full potential and enjoy an enhanced experience with Bomoko Fund App, From personalized features to seamless performance")}
                 </span>
               </div>
             </div>
             <div className='px-5  mt-10'>
               <span className='text-white font-semibold text-[18px]'>
-                Available on App Store
-                and Play Store
+                {t("Available on App Store and Play Store")}
               </span>
               <div className='flex items-center space-x-4 mt-10'>
                 <div className='w-[70px] h-[70px]'>
@@ -59,13 +60,13 @@ function Footer() {
         <div className='hidden lg:flex flex-col justify-end lg:col-span-1'></div>
         <div className='ml-5 md:ml-0 lg:col-span-2'>
           <div className=''>
-            <span className="text-white font-semibold text-[26px]">Contact Info</span>
+            <span className="text-white font-semibold text-[26px]">{t("Contact Info")}</span>
           </div>
           <div className='mt-10 flex flex-col '>
             <div className='flex items-center space-x-5 mb-5'>
               <MdLocationOn size={24} className='text-white' />
               <span className="text-white">
-                Kin Plazza, Patrice Lumumba Avenue, Kinshasa, DRC
+                {t("Kin Plazza, Patrice Lumumba Avenue, Kinshasa, DRC")}
               </span>
             </div>
             <div className='flex items-center space-x-5 mb-5'>
@@ -107,7 +108,7 @@ function Footer() {
             navItems.filter((n) => !["Profile"].includes(n.name)).map((nav) => (
               <li key={nav.name} className='py-[8px] px-2 text-lightGray'>
                 <NavLink to={nav.link} className={({ isActive }) => (isActive ? "nav-active px-4 rounded-[100px] py-1" : "flex items-center space-x-2")}>
-                  {nav.name}
+                  {t(nav.name)}
                   <MdOutlineArrowOutward size={20} color={location.pathname === nav.link ? "white" : "gray"} />
                 </NavLink>
               </li>

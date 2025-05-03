@@ -247,7 +247,7 @@ function HomePage() {
                   onClick={() => navigate("/projects")}
                   className="flex items-center space-x-5 text-black w-[110px] h-[50px] rounded-[100px] border-2 border-black bg-transparent"
                 >
-                  Next
+                  {t("Next")}
                   <ChevronRight size={28} color="black" />
                 </Button>
               </div>
@@ -317,11 +317,11 @@ function HomePage() {
       {/* start of Testimonials on small device */}
       <div className="block md:hidden my-5">
         <div className="flex justify-center items-center flex-col mb-3 space-y-2">
-          <span className="text-[25px] font-semibold">Testimonials from Our Community</span>
+          <span className="text-[25px] font-semibold">{t("Testimonials from Our Community")}</span>
           <div className="w-[90%] mx-auto flex items-center justify-center">
             <span className="text-lightGray text-sm text-center">
-              Hear from entrepreneurs and investors who have transformed lives through Bomoko Fund.
-              Discover how our platform empowers businesses and drives meaningful impact.
+              {t("Hear from entrepreneurs and investors who have transformed lives through Bomoko Fund.")}
+              {t("Discover how our platform empowers businesses and drives meaningful impact.")}
             </span>
           </div>
         </div>
@@ -365,11 +365,11 @@ function HomePage() {
       {/* start of users testimonials */}
       <div className="md:block hidden my-5">
       <div className="flex justify-center items-center flex-col mb-3 space-y-2">
-        <span className="text-[25px] font-semibold">Testimonials from Our Community</span>
+        <span className="text-[25px] font-semibold">{t("Testimonials from Our Community")}</span>
         <div className="w-[90%] mx-auto flex items-center justify-center">
           <span className="text-lightGray text-sm text-center">
-            Hear from entrepreneurs and investors who have transformed lives through Bomoko Fund.  
-            Discover how our platform empowers businesses and drives meaningful impact.
+            {t("Hear from entrepreneurs and investors who have transformed lives through Bomoko Fund.")}  
+            {t("Discover how our platform empowers businesses and drives meaningful impact.")}
           </span>
         </div>
       </div>
@@ -411,13 +411,12 @@ function HomePage() {
           </div>
           <div className="md:hidden w-[323px] absolute rounded-3xl -bottom-5 left-0 h-[200px] py-3 px-5 bg-darkBlue">
             <span className="text-white text-[32px] font-semibold">
-              Be part of the
-              change!
+              {t("Be part of the change!")}
             </span>
             <div className="absolute bottom-2 w-[108px] h-[80px] rounded-xl p-3 left-2 bg-lightGray flex flex-col space-y-1">
-              <span className="text-white font-[400]">4 Steps</span>
+              <span className="text-white font-[400]">{t("4 Steps")}</span>
               <span className="text-white text-[9px]">
-                to get funds for your project
+                {t("to get funds for your project")}
               </span>
             </div>
             <div className="bg-white absolute rounded-tl-xl rounded-br-xl p-1 flex items-center bottom-0 right-0">
@@ -427,7 +426,7 @@ function HomePage() {
               <Button
                 className="w-[130px] h-[56px] rounded-[100px] bg-lightBlue text-white"
               >
-                Try it Now
+                {t("Try it Now")}
               </Button>
             </div>
           </div>
