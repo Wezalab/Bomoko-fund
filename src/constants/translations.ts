@@ -57,6 +57,41 @@ export const translations: Translations = {
     "Try it Now": "Try it Now",
     "Next": "Next",
 
+    // How it Works Page
+    "How it Works": "How it Works",
+    "These steps will guide you through setting up your projects all the way to receiving your donations.": "These steps will guide you through setting up your projects all the way to receiving your donations.",
+    "Provide your project information": "Provide your project information",
+    "Gather key project details such as the project name, category, type, target donation amount, and other relevant information. This will help define the scope and goals of your project, ensuring potential donors understand the purpose and objectives.": "Gather key project details such as the project name, category, type, target donation amount, and other relevant information. This will help define the scope and goals of your project, ensuring potential donors understand the purpose and objectives.",
+    "Submit your project": "Submit your project",
+    "After entering your project details, including the name, category, type, and target amount, submit it for review. Our team will carefully assess the information to ensure it meets our guidelines. Once approved, your project will be ready to start receiving donations.": "After entering your project details, including the name, category, type, and target amount, submit it for review. Our team will carefully assess the information to ensure it meets our guidelines. Once approved, your project will be ready to start receiving donations.",
+    "Project approval": "Project approval",
+    "After our team approves your project, it will be made public, allowing you to start receiving donations.": "After our team approves your project, it will be made public, allowing you to start receiving donations.",
+    "Receive your donations": "Receive your donations",
+    "You can receive donations through mobile money, credit/debit cards, or even cryptocurrency. This offers flexibility for contributors to choose their preferred method.": "You can receive donations through mobile money, credit/debit cards, or even cryptocurrency. This offers flexibility for contributors to choose their preferred method.",
+    "Cash-out your donations": "Cash-out your donations",
+    "You can easily cash out your donations whenever you need to, providing you with convenient access to your funds. Our streamlined process ensures that withdrawing your donations is quick and hassle-free.": "You can easily cash out your donations whenever you need to, providing you with convenient access to your funds. Our streamlined process ensures that withdrawing your donations is quick and hassle-free.",
+
+    // Sign In Page
+    "Sign into your account": "Sign into your account",
+    "Sign in for a better experience": "Sign in for a better experience",
+    "Sign in with a phone number": "Sign in with a phone number",
+    "Sign in with Google": "Sign in with Google",
+    "Sign in with email": "Sign in with email",
+    "Don't have an account?": "Don't have an account?",
+    "Sign in": "Sign in",
+    "Phone Number": "Phone Number",
+    "Invalid phone number format. Example: +1 555 123 4567": "Invalid phone number format. Example: +1 555 123 4567",
+    "Phone Number is required": "Phone Number is required",
+    "Password": "Password",
+    "Password is required": "Password is required",
+    "Remember me": "Remember me",
+    "Forgot Password?": "Forgot Password?",
+    "Email": "Email",
+    "Email Address": "Email Address",
+    "Enter your email": "Enter your email",
+    "Email is required": "Email is required",
+    "Invalid email address": "Invalid email address",
+
     // Contact Page
     "Contact us": "Contact us",
     "If you need our help, have questions about how to use the platform or are experiencing technical difficulties, please do not hesitate to contact us.": "If you need our help, have questions about how to use the platform or are experiencing technical difficulties, please do not hesitate to contact us.",
@@ -112,12 +147,9 @@ export const translations: Translations = {
     "Cashout": "Cashout",
     
     // Auth related
-    "Email": "Email",
-    "Password": "Password",
     "Forgot Password?": "Forgot Password?",
     "Reset Password": "Reset Password",
     "Confirm Password": "Confirm Password",
-    "Don't have an account?": "Don't have an account?",
     "Already have an account?": "Already have an account?",
   },
   fr: {
@@ -169,6 +201,41 @@ export const translations: Translations = {
     "to get funds for your project": "pour obtenir des fonds pour votre projet",
     "Try it Now": "Essayez maintenant",
     "Next": "Suivant",
+
+    // How it Works Page
+    "How it Works": "Comment ça marche",
+    "These steps will guide you through setting up your projects all the way to receiving your donations.": "Ces étapes vous guideront à travers la configuration de vos projets jusqu'à la réception de vos dons.",
+    "Provide your project information": "Fournir les informations de votre projet",
+    "Gather key project details such as the project name, category, type, target donation amount, and other relevant information. This will help define the scope and goals of your project, ensuring potential donors understand the purpose and objectives.": "Rassemblez les informations clés du projet comme le nom, la catégorie, le type, le montant cible de don, et autres informations pertinentes. Cela aidera à définir la portée et les objectifs de votre projet, garantissant que les donateurs potentiels comprennent le but et les objectifs.",
+    "Submit your project": "Soumettre votre projet",
+    "After entering your project details, including the name, category, type, and target amount, submit it for review. Our team will carefully assess the information to ensure it meets our guidelines. Once approved, your project will be ready to start receiving donations.": "Après avoir saisi les détails de votre projet, y compris le nom, la catégorie, le type et le montant cible, soumettez-le pour examen. Notre équipe évaluera soigneusement les informations pour s'assurer qu'elles répondent à nos directives. Une fois approuvé, votre projet sera prêt à commencer à recevoir des dons.",
+    "Project approval": "Approbation du projet",
+    "After our team approves your project, it will be made public, allowing you to start receiving donations.": "Après l'approbation de votre projet par notre équipe, il sera rendu public, vous permettant de commencer à recevoir des dons.",
+    "Receive your donations": "Recevoir vos dons",
+    "You can receive donations through mobile money, credit/debit cards, or even cryptocurrency. This offers flexibility for contributors to choose their preferred method.": "Vous pouvez recevoir des dons via mobile money, cartes de crédit/débit, ou même en cryptomonnaie. Cela offre une flexibilité aux contributeurs pour choisir leur méthode préférée.",
+    "Cash-out your donations": "Encaisser vos dons",
+    "You can easily cash out your donations whenever you need to, providing you with convenient access to your funds. Our streamlined process ensures that withdrawing your donations is quick and hassle-free.": "Vous pouvez facilement encaisser vos dons quand vous en avez besoin, vous offrant un accès pratique à vos fonds. Notre processus simplifié garantit que le retrait de vos dons est rapide et sans tracas.",
+
+    // Sign In Page
+    "Sign into your account": "Connectez-vous à votre compte",
+    "Sign in for a better experience": "Connectez-vous pour une meilleure expérience",
+    "Sign in with a phone number": "Se connecter avec un numéro de téléphone",
+    "Sign in with Google": "Se connecter avec Google",
+    "Sign in with email": "Se connecter avec un email",
+    "Don't have an account?": "Vous n'avez pas de compte?",
+    "Sign in": "Se connecter",
+    "Phone Number": "Numéro de téléphone",
+    "Invalid phone number format. Example: +1 555 123 4567": "Format de numéro de téléphone invalide. Exemple: +1 555 123 4567",
+    "Phone Number is required": "Le numéro de téléphone est requis",
+    "Password": "Mot de passe",
+    "Password is required": "Le mot de passe est requis",
+    "Remember me": "Se souvenir de moi",
+    "Forgot Password?": "Mot de passe oublié?",
+    "Email": "Email",
+    "Email Address": "Adresse e-mail",
+    "Enter your email": "Entrez votre email",
+    "Email is required": "L'email est requis",
+    "Invalid email address": "Adresse e-mail invalide",
 
     // Contact Page
     "Contact us": "Contactez-nous",
@@ -225,12 +292,9 @@ export const translations: Translations = {
     "Cashout": "Encaisser",
     
     // Auth related
-    "Email": "Email",
-    "Password": "Mot de passe",
     "Forgot Password?": "Mot de passe oublié?",
     "Reset Password": "Réinitialiser le mot de passe",
     "Confirm Password": "Confirmer le mot de passe",
-    "Don't have an account?": "Vous n'avez pas de compte?",
     "Already have an account?": "Vous avez déjà un compte?",
   }
 } 

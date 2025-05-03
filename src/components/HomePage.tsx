@@ -114,7 +114,7 @@ function HomePage() {
             </span>
           </div>
           <Button
-            className="flex items-center space-x-3 bg-darkBlue w-[120px] h-[40px] md:w-[152px] md:h-[52px] rounded-[100px] mt-3 lg:mt-10 hover:bg-lightBlue"
+            className="flex items-center space-x-3 bg-darkBlue  h-[40px] md:h-[52px] rounded-[100px] mt-3 lg:mt-10 hover:bg-lightBlue"
           >
             {t("Start Now")}
             <MdOutlineArrowOutward size={24} color="white" />
