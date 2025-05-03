@@ -137,9 +137,9 @@ function Cashout({onClose,projectId}:{onClose:any,projectId:string}) {
         }
     },[cashoutIsError,cashoutIsSuccess])
 
-    useEffect(()=>{
-        //console.log("cashout zodError",errors)
-    },[errors])
+    // useEffect(()=>{
+    //     //console.log("cashout zodError",errors)
+    // },[errors])
 
   return (
     <div className="relative bg-white w-full p-5  rounded-2xl">

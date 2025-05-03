@@ -269,6 +269,7 @@ function SignIn({
                         <div className="flex items-center justify-between my-5">
                             <div className="flex items-center space-x-2">
                                 <Input 
+                                    checked
                                     type="checkbox"
                                     {...loginWithPhone("rememberMe")}
                                     className="w-4 h-4 bg-lightBlue"
@@ -347,6 +348,7 @@ function SignIn({
                         <div className="flex items-center justify-between my-5">
                             <div className="flex items-center space-x-2">
                                 <Input 
+                                    checked
                                     type="checkbox"
                                     {...loginWithEmail("rememberMe")}
                                     className="w-4 h-4 bg-lightBlue"
