@@ -24,7 +24,6 @@ export const translations: Translations = {
     // Navigation Items
     "Home": "Home",
     "How it works": "How it works",
-    "Contact us": "Contact us",
     "FAQ": "FAQ",
     "Privacy policy": "Privacy policy",
 
@@ -48,6 +47,44 @@ export const translations: Translations = {
     "View all": "View all",
     "Donate": "Donate",
 
+    // Testimonials Section
+    "Testimonials from Our Community": "Testimonials from Our Community",
+    "Hear from entrepreneurs and investors who have transformed lives through Bomoko Fund.": "Hear from entrepreneurs and investors who have transformed lives through Bomoko Fund.",
+    "Discover how our platform empowers businesses and drives meaningful impact.": "Discover how our platform empowers businesses and drives meaningful impact.",
+    "Be part of the change!": "Be part of the change!",
+    "4 Steps": "4 Steps",
+    "to get funds for your project": "to get funds for your project",
+    "Try it Now": "Try it Now",
+    "Next": "Next",
+
+    // Contact Page
+    "Contact us": "Contact us",
+    "If you need our help, have questions about how to use the platform or are experiencing technical difficulties, please do not hesitate to contact us.": "If you need our help, have questions about how to use the platform or are experiencing technical difficulties, please do not hesitate to contact us.",
+    "Full Names": "Full Names",
+    "Email Address": "Email Address",
+    "Type something": "Type something",
+    "By submitting this form you agree to our terms and conditions and our Privacy Policy which explains how we may collect, use and disclose your personal information including to third parties.": "By submitting this form you agree to our terms and conditions and our Privacy Policy which explains how we may collect, use and disclose your personal information including to third parties.",
+    "Still have questions?": "Still have questions?",
+    "If you cannot find answer to your question in our FAQ, you can always contact us. We wil answer to you shortly!": "If you cannot find answer to your question in our FAQ, you can always contact us. We wil answer to you shortly!",
+    "We are always happy to help.": "We are always happy to help.",
+    "Alternative way to get anwser faster": "Alternative way to get anwser faster",
+    "Support 230 children to get school fees": "Support 230 children to get school fees",
+    "Email sent successfully!": "Email sent successfully!",
+    "Failed to send email. Please try again.": "Failed to send email. Please try again.",
+
+    // NotFound Page
+    "404": "404",
+    "Page Not Found": "Page Not Found",
+    "Sorry, the page you are looking for does not exist or has been moved.": "Sorry, the page you are looking for does not exist or has been moved.",
+    "Go Back to Home": "Go Back to Home",
+
+    // Footer
+    "Scan to get our App": "Scan to get our App",
+    "Download our app to unlock its full potential and enjoy an enhanced experience with Bomoko Fund App, From personalized features to seamless performance": "Download our app to unlock its full potential and enjoy an enhanced experience with Bomoko Fund App, From personalized features to seamless performance",
+    "Available on App Store and Play Store": "Available on App Store and Play Store",
+    "Contact Info": "Contact Info",
+    "Kin Plazza, Patrice Lumumba Avenue, Kinshasa, DRC": "Kin Plazza, Patrice Lumumba Avenue, Kinshasa, DRC",
+
     // Buttons and common actions
     "Submit": "Submit",
     "Cancel": "Cancel",
@@ -56,7 +93,6 @@ export const translations: Translations = {
     "Delete": "Delete",
     "Continue": "Continue",
     "Back": "Back",
-    "Next": "Next",
     "Previous": "Previous",
     "Search": "Search",
     "Filter": "Filter",
@@ -101,7 +137,6 @@ export const translations: Translations = {
     // Navigation Items
     "Home": "Accueil",
     "How it works": "Comment ça marche",
-    "Contact us": "Contactez-nous",
     "FAQ": "FAQ",
     "Privacy policy": "Politique de confidentialité",
 
@@ -125,6 +160,44 @@ export const translations: Translations = {
     "View all": "Voir tout",
     "Donate": "Faire un don",
 
+    // Testimonials Section
+    "Testimonials from Our Community": "Témoignages de notre communauté",
+    "Hear from entrepreneurs and investors who have transformed lives through Bomoko Fund.": "Écoutez les entrepreneurs et investisseurs qui ont transformé des vies grâce à Bomoko Fund.",
+    "Discover how our platform empowers businesses and drives meaningful impact.": "Découvrez comment notre plateforme autonomise les entreprises et génère un impact significatif.",
+    "Be part of the change!": "Participez au changement !",
+    "4 Steps": "4 Étapes",
+    "to get funds for your project": "pour obtenir des fonds pour votre projet",
+    "Try it Now": "Essayez maintenant",
+    "Next": "Suivant",
+
+    // Contact Page
+    "Contact us": "Contactez-nous",
+    "If you need our help, have questions about how to use the platform or are experiencing technical difficulties, please do not hesitate to contact us.": "Si vous avez besoin de notre aide, si vous avez des questions sur l'utilisation de la plateforme ou si vous rencontrez des difficultés techniques, n'hésitez pas à nous contacter.",
+    "Full Names": "Noms complets",
+    "Email Address": "Adresse e-mail",
+    "Type something": "Écrivez quelque chose",
+    "By submitting this form you agree to our terms and conditions and our Privacy Policy which explains how we may collect, use and disclose your personal information including to third parties.": "En soumettant ce formulaire, vous acceptez nos conditions générales et notre politique de confidentialité qui explique comment nous pouvons collecter, utiliser et divulguer vos informations personnelles, y compris à des tiers.",
+    "Still have questions?": "Vous avez encore des questions?",
+    "If you cannot find answer to your question in our FAQ, you can always contact us. We wil answer to you shortly!": "Si vous ne trouvez pas de réponse à votre question dans notre FAQ, vous pouvez toujours nous contacter. Nous vous répondrons rapidement!",
+    "We are always happy to help.": "Nous sommes toujours heureux de vous aider.",
+    "Alternative way to get anwser faster": "Autre moyen d'obtenir une réponse plus rapidement",
+    "Support 230 children to get school fees": "Soutenir 230 enfants pour obtenir des frais de scolarité",
+    "Email sent successfully!": "E-mail envoyé avec succès !",
+    "Failed to send email. Please try again.": "Échec de l'envoi de l'e-mail. Veuillez réessayer.",
+
+    // NotFound Page
+    "404": "404",
+    "Page Not Found": "Page non trouvée",
+    "Sorry, the page you are looking for does not exist or has been moved.": "Désolé, la page que vous recherchez n'existe pas ou a été déplacée.",
+    "Go Back to Home": "Retour à l'accueil",
+
+    // Footer
+    "Scan to get our App": "Scanner pour obtenir notre application",
+    "Download our app to unlock its full potential and enjoy an enhanced experience with Bomoko Fund App, From personalized features to seamless performance": "Téléchargez notre application pour débloquer tout son potentiel et profiter d'une expérience améliorée avec l'application Bomoko Fund, des fonctionnalités personnalisées aux performances fluides",
+    "Available on App Store and Play Store": "Disponible sur l'App Store et Play Store",
+    "Contact Info": "Coordonnées",
+    "Kin Plazza, Patrice Lumumba Avenue, Kinshasa, DRC": "Kin Plazza, Avenue Patrice Lumumba, Kinshasa, RDC",
+
     // Buttons and common actions
     "Submit": "Soumettre",
     "Cancel": "Annuler",
@@ -133,7 +206,6 @@ export const translations: Translations = {
     "Delete": "Supprimer",
     "Continue": "Continuer",
     "Back": "Retour",
-    "Next": "Suivant",
     "Previous": "Précédent",
     "Search": "Rechercher",
     "Filter": "Filtrer",
