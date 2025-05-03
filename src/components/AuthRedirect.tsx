@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { apiUrl } from "@/lib/env";
+import apiClient from "@/lib/axios";
 import { useAppDispatch } from "@/redux/hooks";
 import toast from "react-hot-toast";
 import { error } from "console";
@@ -12,8 +11,8 @@ const AuthRedirect = () => {
   const dispatch=useAppDispatch()
 
   useEffect(() => {
-    axios
-      .get("http://localhost:7007/api/auth/user", { withCredentials: true })
+    apiClient
+      .get("/api/auth/user")
       .then((res) => console.log(res.data))
       .catch((error) => console.log("google auth error",error));
   }, []);
