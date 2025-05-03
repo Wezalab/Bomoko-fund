@@ -17,6 +17,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useLoginMutation, useLoginPhoneMutation } from "@/redux/services/userServices";
 import LoadingComponent from "./LoadingComponent";
 import { apiUrl } from "@/lib/env";
+import { handleRTKQueryError } from "@/redux/errorHandler";
+import { showSnackbar } from "@/lib/snackbar";
 
 interface signInProps{
     onClose?:any,
@@ -130,9 +132,9 @@ function SignIn({
             //console.log("login success",loginData)
         }
         if(loginIsError){
-            console.log("cannot login",loginError)
-            //@ts-ignore
-            toast.error(loginError?.data?.message)
+            console.log("cannot login", loginError)
+            // Use our RTK Query error handler
+            handleRTKQueryError(loginError);
         }
     },[loginIsError,loginIsSuccess])
 
@@ -153,7 +155,9 @@ function SignIn({
             resetWithPhone()
         }
         if(loginWithPhoneIsError){
-            console.log("error while login with phone number")
+            console.log("error while login with phone number", loginWithPhoneError)
+            // Use our RTK Query error handler
+            handleRTKQueryError(loginWithPhoneError);
         }
 
     },[loginWithPhoneIsSuccess,loginWithPhoneIsError])
@@ -202,7 +206,7 @@ function SignIn({
                         </div>
                     </div>
                     <div className="flex items-center justify-center space-x-2">
-                        <span>Don’t have an account?</span>
+                        <span>Don't have an account?</span>
                         <span onClick={()=>{
                             onClose()
                             setSignUp(true)
