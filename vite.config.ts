@@ -15,7 +15,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      "/api/auth": "http://localhost:7007",
+      "/api/auth": "https://46.202.168.1:7008",
     },
   },
 })

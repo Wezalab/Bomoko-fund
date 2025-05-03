@@ -57,7 +57,7 @@ function HomePage() {
 
   useEffect(() => {
     if (AllProjectsIsSuccess && AllProjects) {
-      console.log("all projects", AllProjects)
+      //console.log("all projects", AllProjects)
       // dispatch(setProjects(AllProjects))
     }
     if (AllProjectsIsError) {
@@ -137,171 +137,181 @@ function HomePage() {
       </div>
 
       {/* start of popular projects */}
-      <div className="mt-5 md:mt-0">
-        <div className="flex items-center md:items-start justify-between">
-          <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-x-2 md:w-2/5 lg:w-2/6">
-            <span className="text-darkBlue text-[24px] md:text-[40px] font-semibold">
-              Popular
-              projects
-            </span>
-            <span className="hidden md:inline text-lightGray">
-              At Bomoko Fund, we prioritize high-potential projects that address critical social and economic needs.
-            </span>
-          </div>
-          <Button
-            onClick={() => navigate("/projects")}
-            className="md:w-[150px] w-[120px] h-[38px] md:h-[48px] flex items-center gap-5 rounded-[100px] bg-darkBlue text-white"
-          >
-            View all
-            <ChevronRight />
-          </Button>
+      {
+        AllProjects?.length > 0 &&(
+          <div className="mt-5 md:mt-0">
+            <div className="flex items-center md:items-start justify-between">
+              <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-x-2 md:w-2/5 lg:w-2/6">
+                <span className="text-darkBlue text-[24px] md:text-[40px] font-semibold">
+                  Popular
+                  projects
+                </span>
+                <span className="hidden md:inline text-lightGray">
+                  At Bomoko Fund, we prioritize high-potential projects that address critical social and economic needs.
+                </span>
+              </div>
+              <Button
+                onClick={() => navigate("/projects")}
+                className="md:w-[150px] w-[120px] h-[38px] md:h-[48px] flex items-center gap-5 rounded-[100px] bg-darkBlue text-white"
+              >
+                View all
+                <ChevronRight />
+              </Button>
 
-        </div>
-        <div className="w-[98%] mx-auto my-2 md:hidden">
-          <span className="text-lightGray">
-            At Bomoko Fund, we prioritize high-potential projects that address critical social and economic needs.
-          </span>
-        </div>
-
-        <div className="relative hidden md:grid md:grid-cols-7 lg:grid-cols-8  py-10 h-[750px] w-full">
-          <PopularProjectCard
-            className="absolute -bottom-36 left-0 md:col-span-3 lg:col-span-2"
-            onClick={() => {
-              setSelectedProject(AllProjects?.[0])
-              //@ts-ignore
-              dispatch(setProject(AllProjects?.[0]))
-              if (AllProjects?.[0]?._id) {
-                navigate(`/projects/${AllProjects?.[0]?._id}`)
-              }
-            }}
-            actionName="Donate"
-            action={() => {
-
-            }}
-            image={AllProjects?.[0]?.medias[0]}
-            title={AllProjects?.[0]?.name}
-            desc={AllProjects?.[0]?.desctiption}
-            type={AllProjects?.[0]?.type.name}
-            amount={AllProjects?.[0]?.actualBalance || 0}
-            limit={AllProjects?.[0]?.targetAmount}
-            profile={popularProjectProfileImg}
-          />
-          <div className="col-span-1"></div>
-
-          <PopularProjectCard
-            className="absolute -bottom-16 md:col-span-3 lg:col-span-2"
-            onClick={() => {
-              setSelectedProject(AllProjects?.[1])
-              //@ts-ignore
-              dispatch(setProject(AllProjects?.[1]))
-              if (AllProjects?.[1]?._id) {
-                navigate(`/projects/${AllProjects?.[1]?._id}`)
-              }
-            }}
-            actionName="Donate"
-            action={() => {
-
-            }}
-            image={AllProjects?.[1]?.medias[0]}
-            title={AllProjects?.[1]?.name}
-            desc={AllProjects?.[1]?.desctiption}
-            type={AllProjects?.[1]?.type.name}
-            amount={AllProjects?.[1]?.actualBalance || 0}
-            limit={AllProjects?.[1]?.targetAmount}
-            profile={popularProjectProfileImg}
-          />
-          <div className="md:hidden lg:col-span-1"></div>
-          <PopularProjectCard
-            className="absolute lg:block md:hidden lg:left-[50%] -top-[10%] col-span-2"
-            onClick={() => {
-              setSelectedProject(AllProjects?.[2])
-              //@ts-ignore
-              dispatch(setProject(AllProjects?.[2]))
-              if (AllProjects?.[2]?._id) {
-                navigate(`/projects/${AllProjects?.[2]?._id}`)
-              }
-            }}
-            actionName="Donate"
-            action={() => {
-
-            }}
-            image={AllProjects?.[2]?.medias[0]}
-            title={AllProjects?.[2]?.name}
-            desc={AllProjects?.[2]?.desctiption}
-            type={AllProjects?.[2]?.type.name}
-            amount={AllProjects?.[2]?.actualBalance || 0}
-            limit={AllProjects?.[2]?.targetAmount}
-            profile={popularProjectProfileImg}
-          />
-
-          <div className="flex items-center space-x-5 absolute bottom-5 md:right-2 lg:right-0">
-            <div className="flex items-center space-x-2">
-              <div className="h-2 w-6 rounded-3xl bg-lightBlue"></div>
-              <div className="w-2 h-2 rounded-full bg-lightGray"></div>
-              <div className="w-2 h-2 rounded-full bg-lightGray"></div>
             </div>
-            <Button
-              onClick={() => navigate("/projects")}
-              className="flex items-center space-x-5 text-black w-[110px] h-[50px] rounded-[100px] border-2 border-black bg-transparent"
-            >
-              Next
-              <ChevronRight size={28} color="black" />
-            </Button>
+            <div className="w-[98%] mx-auto my-2 md:hidden">
+              <span className="text-lightGray">
+                At Bomoko Fund, we prioritize high-potential projects that address critical social and economic needs.
+              </span>
+            </div>
+
+            <div className="relative hidden md:grid md:grid-cols-7 lg:grid-cols-8  py-10 h-[750px] w-full">
+              <PopularProjectCard
+                className="absolute -bottom-36 left-0 md:col-span-3 lg:col-span-2"
+                onClick={() => {
+                  setSelectedProject(AllProjects?.[0])
+                  //@ts-ignore
+                  dispatch(setProject(AllProjects?.[0]))
+                  if (AllProjects?.[0]?._id) {
+                    navigate(`/projects/${AllProjects?.[0]?._id}`)
+                  }
+                }}
+                actionName="Donate"
+                action={() => {
+
+                }}
+                image={AllProjects?.[0]?.medias[0]}
+                title={AllProjects?.[0]?.name}
+                desc={AllProjects?.[0]?.desctiption}
+                type={AllProjects?.[0]?.type.name}
+                amount={AllProjects?.[0]?.actualBalance || 0}
+                limit={AllProjects?.[0]?.targetAmount}
+                profile={popularProjectProfileImg}
+              />
+              <div className="col-span-1"></div>
+
+              <PopularProjectCard
+                className="absolute -bottom-16 md:col-span-3 lg:col-span-2"
+                onClick={() => {
+                  setSelectedProject(AllProjects?.[1])
+                  //@ts-ignore
+                  dispatch(setProject(AllProjects?.[1]))
+                  if (AllProjects?.[1]?._id) {
+                    navigate(`/projects/${AllProjects?.[1]?._id}`)
+                  }
+                }}
+                actionName="Donate"
+                action={() => {
+
+                }}
+                image={AllProjects?.[1]?.medias[0]}
+                title={AllProjects?.[1]?.name}
+                desc={AllProjects?.[1]?.desctiption}
+                type={AllProjects?.[1]?.type.name}
+                amount={AllProjects?.[1]?.actualBalance || 0}
+                limit={AllProjects?.[1]?.targetAmount}
+                profile={popularProjectProfileImg}
+              />
+              <div className="md:hidden lg:col-span-1"></div>
+              <PopularProjectCard
+                className="absolute lg:block md:hidden lg:left-[50%] -top-[10%] col-span-2"
+                onClick={() => {
+                  setSelectedProject(AllProjects?.[2])
+                  //@ts-ignore
+                  dispatch(setProject(AllProjects?.[2]))
+                  if (AllProjects?.[2]?._id) {
+                    navigate(`/projects/${AllProjects?.[2]?._id}`)
+                  }
+                }}
+                actionName="Donate"
+                action={() => {
+
+                }}
+                image={AllProjects?.[2]?.medias[0]}
+                title={AllProjects?.[2]?.name}
+                desc={AllProjects?.[2]?.desctiption}
+                type={AllProjects?.[2]?.type.name}
+                amount={AllProjects?.[2]?.actualBalance || 0}
+                limit={AllProjects?.[2]?.targetAmount}
+                profile={popularProjectProfileImg}
+              />
+
+              <div className="flex items-center space-x-5 absolute bottom-5 md:right-2 lg:right-0">
+                <div className="flex items-center space-x-2">
+                  <div className="h-2 w-6 rounded-3xl bg-lightBlue"></div>
+                  <div className="w-2 h-2 rounded-full bg-lightGray"></div>
+                  <div className="w-2 h-2 rounded-full bg-lightGray"></div>
+                </div>
+                <Button
+                  onClick={() => navigate("/projects")}
+                  className="flex items-center space-x-5 text-black w-[110px] h-[50px] rounded-[100px] border-2 border-black bg-transparent"
+                >
+                  Next
+                  <ChevronRight size={28} color="black" />
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        )
+      }
+      
       {/* end of popular projects */}
 
       {/* start of popular project on small devices */}
-      <div className="block md:hidden">
-        <Carousel className="mx-auto max-w-[90%]">
-          <CarouselContent className="">
-            {Array.from({ length: AllProjects?.slice(0, 3).length }).map((_, index) => (
-              <CarouselItem key={index}>
-                <div className="p-1">
-                  <Card>
-                    <CardContent className="flex aspect-square items-center justify-center w-full m-0 p-0">
-                      <PopularProjectCard
-                        className="w-full"
-                        onClick={() => {
-                          setSelectedProject(AllProjects?.[index])
-                          //@ts-ignore
-                          dispatch(setProject(AllProjects?.[index]))
-                          if (AllProjects?.[index]?._id) {
-                            navigate(`/projects/${AllProjects?.[index]._id}`)
-                          }
+      {
+        AllProjects?.length > 0 && (
+          <div className="block md:hidden">
+            <Carousel className="mx-auto max-w-[90%]">
+              <CarouselContent className="">
+                {Array.from({ length: AllProjects?.slice(0, 3).length }).map((_, index) => (
+                  <CarouselItem key={index}>
+                    <div className="p-1">
+                      <Card>
+                        <CardContent className="flex aspect-square items-center justify-center w-full m-0 p-0">
+                          <PopularProjectCard
+                            className="w-full"
+                            onClick={() => {
+                              setSelectedProject(AllProjects?.[index])
+                              //@ts-ignore
+                              dispatch(setProject(AllProjects?.[index]))
+                              if (AllProjects?.[index]?._id) {
+                                navigate(`/projects/${AllProjects?.[index]._id}`)
+                              }
 
-                          //(!user.email&& !user.phone_number) && setViewProjectSecurity(true)
+                              //(!user.email&& !user.phone_number) && setViewProjectSecurity(true)
 
-                        }}
-                        actionName='Donate'
-                        action={() => {
-                          setSelectedProject(AllProjects?.[index])
-                          //@ts-ignore
-                          dispatch(setProject(AllProjects?.[index]))
-                          if ((user.email || user.phone_number && !userProjectsData?.map((item: any) => item._id).includes(AllProjects?.[index]?._id))) {
-                            setDonate(true)
-                            return
-                          }
-                          setLogin(true)
-                        }}
-                        image={AllProjects[index].medias[0]}
-                        title={AllProjects[index].name}
-                        desc={AllProjects[index].desccription}
-                        type={AllProjects[index].type.name}
-                        amount={AllProjects[index].actualBalance || 0}
-                        limit={AllProjects[index].targetAmount}
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="-left-7" />
-          <CarouselNext className="-right-7" />
-        </Carousel>
-      </div>
+                            }}
+                            actionName='Donate'
+                            action={() => {
+                              setSelectedProject(AllProjects?.[index])
+                              //@ts-ignore
+                              dispatch(setProject(AllProjects?.[index]))
+                              if ((user.email || user.phone_number && !userProjectsData?.map((item: any) => item._id).includes(AllProjects?.[index]?._id))) {
+                                setDonate(true)
+                                return
+                              }
+                              setLogin(true)
+                            }}
+                            image={AllProjects[index].medias[0]}
+                            title={AllProjects[index].name}
+                            desc={AllProjects[index].desccription}
+                            type={AllProjects[index].type.name}
+                            amount={AllProjects[index].actualBalance || 0}
+                            limit={AllProjects[index].targetAmount}
+                          />
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="-left-7" />
+              <CarouselNext className="-right-7" />
+            </Carousel>
+          </div>
+        )
+      }
+      
       {/* end of popular project on small devices */}
       {/* start of Testimonials on small device */}
       <div className="block md:hidden my-5">

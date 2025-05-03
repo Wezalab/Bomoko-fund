@@ -120,7 +120,7 @@ function SingleProject() {
                         <span className="text-[24px] font-semibold text-white">{project?.description}</span>
                     </div>
                 </div>
-                <div className="grid grid-cols-2 w-[96%] mx-auto md:w-[80%] md:ml-auto gap-5 my-12">
+                {/* <div className="grid grid-cols-2 w-[96%] mx-auto md:w-[80%] md:ml-auto gap-5 my-12">
                     <img
                         src={projectVideo}
                         className="w-full h-full object-fill rounded-lg"
@@ -132,7 +132,7 @@ function SingleProject() {
                         alt="project-image"
                     />
                     
-                </div>
+                </div> */}
                 <div className="grid grid-cols-1 lg:grid-cols-4 w-[96%] mx-auto md:w-[80%] md:ml-auto md:gap-x-8 my-5">
                     <div className="lg:col-span-1 md:mb-2 max-h-fit bg-gray-200 p-5 rounded-xl">
                         <div className="flex space-x-5">

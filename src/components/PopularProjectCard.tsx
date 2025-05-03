@@ -77,7 +77,7 @@ function PopularProjectCard({
                     </Button>
                     <Button
                         onClick={onClick}
-                        className="flex items-center justify-between bg-transparent hover:bg-black text-white border-2 border-white rounded-[100px] max-w-fit h-[48px]"
+                        className="flex items-center justify-between bg-transparent bg-gray-500 hover:bg-black text-white border-2 border-white rounded-[100px] max-w-fit h-[48px]"
                     >
                         View more
                         <MdOutlineArrowOutward size={24} color="white" />
