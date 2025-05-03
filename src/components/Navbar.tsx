@@ -11,6 +11,7 @@ import { IoMdLogOut } from "react-icons/io";
 import { RxCross2 } from "react-icons/rx"
 import logo from '../assets/icons/7.png'
 import lightLogo from '../assets/icons/5.png'
+import { useTranslation } from '@/lib/TranslationContext'
 
 
 import {
@@ -50,7 +51,7 @@ interface navbarProps{
 function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSignIn,setChangePassword}:navbarProps) {
     const user=useAppSelector(selectUser)
     const [sideBar,setSideBar]=useState(false)
-    const [selectedLang,setSelectedLang]=useState("English")
+    const { t, language, setLanguage } = useTranslation()
     const navigate=useNavigate()
     const dispatch=useAppDispatch()
 
@@ -62,6 +63,9 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
         //window.location.reload() reload the entire page
     }
 
+    const handleLanguageChange = (lang: 'en' | 'fr') => {
+        setLanguage(lang)
+    }
 
     //console.log("user",user)
   return (
@@ -86,18 +90,18 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                             onClick={()=>setSignIn(true)}
                             className='max-w-fit text-sm px-3 py-2 text-white bg-darkBlue rounded-md'
                         >
-                            Login
+                            {t("Login")}
                         </Button>
                     )
                 }
                 <NavigationMenu>
                     <NavigationMenuList>
                         <NavigationMenuItem>
-                            <NavigationMenuTrigger className='font-bold uppercase'>{selectedLang.slice(0,2)}</NavigationMenuTrigger>
+                            <NavigationMenuTrigger className='font-bold uppercase'>{language === 'en' ? 'EN' : 'FR'}</NavigationMenuTrigger>
                             <NavigationMenuContent>
                                 <ul className="grid w-[100px] gap-3 p-4">
-                                    <li onClick={()=>setSelectedLang("English")} className='hover:text-lightBlue cursor-pointer'>En</li>
-                                    <li onClick={()=>setSelectedLang("French")} className='hover:text-lightBlue cursor-pointer'>Fr</li>
+                                    <li onClick={() => handleLanguageChange('en')} className='hover:text-lightBlue cursor-pointer'>En</li>
+                                    <li onClick={() => handleLanguageChange('fr')} className='hover:text-lightBlue cursor-pointer'>Fr</li>
                                 </ul>
                             </NavigationMenuContent>
                         </NavigationMenuItem>
@@ -124,7 +128,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                         navItems.filter(n=>user.email ? !["Privacy policy"].includes(n.name):!["Privacy policy","Profile"].includes(n.name)).map((nav)=>(
                             <span key={nav.name} className='p-2'>
                                 <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active  w-full py-2 px-4" : "px-4")}>
-                                    {nav.name}
+                                    {t(nav.name)}
                                 </NavLink>
                             </span>
                         ))
@@ -137,7 +141,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                                     setSideBar(false)
                                 }} 
                                 className='p-2 text-red-600'>
-                                Logout
+                                {t("Logout")}
                             </span>
                         )
                     }
@@ -160,7 +164,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                         navItems.filter(n=>!["FAQ","Privacy policy","Profile"].includes(n.name)).map((nav)=>(
                             <li key={nav.name} className='lg:py-[8px] p-2'>
                                 <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active text-nowrap rounded-[100px] py-2 px-4" : "text-nowrap")}>
-                                    {nav.name}
+                                    {t(nav.name)}
                                 </NavLink>
                             </li>
                         ))
@@ -169,11 +173,11 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                         <NavigationMenu>
                             <NavigationMenuList>
                                 <NavigationMenuItem>
-                                    <NavigationMenuTrigger className='font-bold'>{selectedLang}</NavigationMenuTrigger>
+                                    <NavigationMenuTrigger className='font-bold'>{language === 'en' ? t("English") : t("French")}</NavigationMenuTrigger>
                                     <NavigationMenuContent>
                                         <ul className="grid w-[100px] gap-3 p-4">
-                                            <li onClick={()=>setSelectedLang("English")} className='hover:text-lightBlue cursor-pointer'>English</li>
-                                            <li onClick={()=>setSelectedLang("French")} className='hover:text-lightBlue cursor-pointer'>French</li>
+                                            <li onClick={() => handleLanguageChange('en')} className='hover:text-lightBlue cursor-pointer'>{t("English")}</li>
+                                            <li onClick={() => handleLanguageChange('fr')} className='hover:text-lightBlue cursor-pointer'>{t("French")}</li>
                                         </ul>
                                     </NavigationMenuContent>
                                 </NavigationMenuItem>
@@ -191,14 +195,14 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                         onClick={()=>setSignIn(true)}
                         className={signIn ?"md:py-[4px] lg:py-[8px] bg-white cursor-not-allowed md:h-[28px] lg:h-[48px] w-[95px] border-[1px] border-darkBlue text-darkBlue rounded-[100px] hover:bg-lightBlue hover:border-none hover:text-white" :"md:py-[4px] lg:py-[8px] bg-white md:h-[36px] lg:h-[48px] w-[95px] border-[1px] border-darkBlue text-darkBlue rounded-[100px] hover:bg-lightBlue hover:border-none hover:text-white"}
                     >
-                        Log In
+                        {t("Log In")}
                     </Button>
                     <Button
                         disabled={signUp}
                         onClick={()=>setSignUp(true)}
                         className={signUp ?'text-white h-[48px] cursor-not-allowed w-[95px] font-semibold bg-darkBlue py-[8px] rounded-[100px]':'text-white h-[36px] lg:h-[48px] w-[95px] font-semibold bg-darkBlue py-[8px] rounded-[100px]'}
                     >
-                        Sign Up
+                        {t("Sign Up")}
                     </Button>
                 </div>
             }
@@ -239,41 +243,38 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                                 <DropdownMenuItem className='p-3'>
                                     <div onClick={()=>setNotification(true)} className='flex items-center space-x-2 cursor-pointer'>
                                         <FiBell size={18} />
-                                        <span className='text-sm'>Notifications</span>
+                                        <span className='text-sm'>{t("Notifications")}</span>
                                     </div>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className='p-3'>
                                     <div onClick={()=>navigate("/projects")} className='flex items-center space-x-2 cursor-pointer'>
                                         <CiGrid41 size={18} />
-                                        <span className='text-sm'>Projects</span>
+                                        <span className='text-sm'>{t("Projects")}</span>
                                     </div>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className='p-3'>
                                     <div onClick={()=>navigate("/profile")} className='flex items-center space-x-2 cursor-pointer'>
                                         <GoPerson size={18} />
-                                        <span className='text-sm'>Profile</span>
+                                        <span className='text-sm'>{t("Profile")}</span>
                                     </div>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className='p-3'>
                                     <div onClick={()=>setChangePassword(true)} className='flex items-center space-x-2 cursor-pointer'>
                                         <CiLock size={18} />
-                                        <span className='text-sm'>Change Password</span>
+                                        <span className='text-sm'>{t("Change Password")}</span>
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className='p-3'>
+                                    <div onClick={handleLogout} className='flex items-center space-x-2 cursor-pointer'>
+                                        <IoMdLogOut size={18} />
+                                        <span className='text-sm text-red-600'>{t("Logout")}</span>
                                     </div>
                                 </DropdownMenuItem>
                             </DropdownMenuGroup>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className='p-3'>
-                                <div onClick={handleLogout} className='flex items-center space-x-2 cursor-pointer'>
-                                    <IoMdLogOut color='red' size={18} />
-                                    <span className='text-sm text-red-600'>Logout</span>
-                                </div>
-                            </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    
                 </div>
             }
-            
         </nav>
     </>
   )
