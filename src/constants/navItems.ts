@@ -8,11 +8,11 @@ export const navItems=[
         link:"/projects"
     },
     {
-        name:"How it Works",
+        name:"How it works",
         link:"/how-it-works"
     },
     {
-        name:"contact us",
+        name:"Contact us",
         link:"/contact-us"
     },
     {

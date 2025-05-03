@@ -3,6 +3,7 @@ import ProgressBar from "./ProgressBar"
 import { Button } from "./ui/button"
 import { MdOutlineArrowOutward } from "react-icons/md";
 import profileImg from '../assets/project-author.png'
+import { useTranslation } from "@/lib/TranslationContext";
 
 interface PopularProjectCardProps{
    image:string 
@@ -30,7 +31,7 @@ function PopularProjectCard({
     action,
     actionName
 }:PopularProjectCardProps) {
-   
+    const { t } = useTranslation();
     const percentage = Math.round(Math.min((amount || 0 / limit) * 100, 100));
   return (
     <div className={'w-full h-[550px] relative cursor-pointer hover:opacity-50 rounded-md'+className}>
@@ -79,7 +80,7 @@ function PopularProjectCard({
                         onClick={onClick}
                         className="flex items-center justify-between bg-transparent bg-gray-500 hover:bg-black text-white border-2 border-white rounded-[100px] max-w-fit h-[48px]"
                     >
-                        View more
+                        {t("View details")}
                         <MdOutlineArrowOutward size={24} color="white" />
                     </Button>
                 </div>

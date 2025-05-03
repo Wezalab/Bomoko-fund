@@ -11,6 +11,7 @@ import testimonialProfile5 from '../assets/testimonialPic5.png'
 import testimonialProfile6 from '../assets/testimonialPic6.png'
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card"
+import { useTranslation } from "@/lib/TranslationContext"
 import {
   Carousel,
   CarouselContent,
@@ -35,6 +36,7 @@ function HomePage() {
   const [login, setLogin] = useState(false)
   const [donate, setDonate] = useState(false)
   const [cashout, setCashout] = useState(false)
+  const { t } = useTranslation()
 
   const dispatch = useAppDispatch()
 
@@ -98,23 +100,23 @@ function HomePage() {
       <div className="flex flex-col space-y-3 md:grid md:grid-cols-2 md:gap-x-8 md:py-16">
         <div className="">
           <div className="bg-gray-200 mt-5 md:mt-0  max-w-fit rounded-[100px] px-2">
-            <span className="text-xs text-nowrap">About Us - Bomoko Fund</span>
+            <span className="text-xs text-nowrap">{t("About Us - Bomoko Fund")}</span>
           </div>
           <div className="flex flex-col mt-2 lg:mt-5 -space-y-1">
-            <span className="text-[30px] md:text-[50px]">Welcome to </span>
-            <span className="text-[35px] md:text-[50px] text-lightBlue">Bomoko Fund</span>
+            <span className="text-[30px] md:text-[50px]">{t("Welcome to")} </span>
+            <span className="text-[35px] md:text-[50px] text-lightBlue">{t("Bomoko Fund")}</span>
           </div>
           <div className="md:w-full lg:w-3/4 mt-5">
             <span className="text-lightGray">
-              Bomoko Fund is a revolutionary <span className="font-bold">crowdfunding platform </span> designed to empower <span className="font-bold">African entrepreneurs and high-potential business projects. </span>
-              We connect <span className="font-bold">visionary business owners</span> with  <span className="font-bold">impact-driven investors and supporters, </span>
-              creating a thriving ecosystem where great ideas receive the funding they deserve.
+              {t("Bomoko Fund is a revolutionary")} <span className="font-bold">{t("crowdfunding platform")} </span> {t("designed to empower")} <span className="font-bold">{t("African entrepreneurs and high-potential business projects.")} </span>
+              {t("We connect")} <span className="font-bold">{t("visionary business owners")}</span> {t("with")}  <span className="font-bold">{t("impact-driven investors and supporters,")} </span>
+              {t("creating a thriving ecosystem where great ideas receive the funding they deserve.")}
             </span>
           </div>
           <Button
             className="flex items-center space-x-3 bg-darkBlue w-[120px] h-[40px] md:w-[152px] md:h-[52px] rounded-[100px] mt-3 lg:mt-10 hover:bg-lightBlue"
           >
-            Start Now
+            {t("Start Now")}
             <MdOutlineArrowOutward size={24} color="white" />
           </Button>
         </div>
@@ -129,7 +131,7 @@ function HomePage() {
 
             <div className="bg-white bg-opacity-90 text-center rounded-lg px-6 py-4 shadow-md">
               <h2 className="text-4xl font-bold text-black">100+</h2>
-              <p className="text-lg text-gray-700">Projects successfully completed</p>
+              <p className="text-lg text-gray-700">{t("Projects successfully completed")}</p>
             </div>
 
           </div>
@@ -143,25 +145,24 @@ function HomePage() {
             <div className="flex items-center md:items-start justify-between">
               <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-x-2 md:w-2/5 lg:w-2/6">
                 <span className="text-darkBlue text-[24px] md:text-[40px] font-semibold">
-                  Popular
-                  projects
+                  {t("Popular projects")}
                 </span>
                 <span className="hidden md:inline text-lightGray">
-                  At Bomoko Fund, we prioritize high-potential projects that address critical social and economic needs.
+                  {t("At Bomoko Fund, we prioritize high-potential projects that address critical social and economic needs.")}
                 </span>
               </div>
               <Button
                 onClick={() => navigate("/projects")}
                 className="md:w-[150px] w-[120px] h-[38px] md:h-[48px] flex items-center gap-5 rounded-[100px] bg-darkBlue text-white"
               >
-                View all
+                {t("View all")}
                 <ChevronRight />
               </Button>
 
             </div>
             <div className="w-[98%] mx-auto my-2 md:hidden">
               <span className="text-lightGray">
-                At Bomoko Fund, we prioritize high-potential projects that address critical social and economic needs.
+                {t("At Bomoko Fund, we prioritize high-potential projects that address critical social and economic needs.")}
               </span>
             </div>
 
@@ -176,7 +177,7 @@ function HomePage() {
                     navigate(`/projects/${AllProjects?.[0]?._id}`)
                   }
                 }}
-                actionName="Donate"
+                actionName={t("Donate")}
                 action={() => {
 
                 }}
@@ -200,7 +201,7 @@ function HomePage() {
                     navigate(`/projects/${AllProjects?.[1]?._id}`)
                   }
                 }}
-                actionName="Donate"
+                actionName={t("Donate")}
                 action={() => {
 
                 }}
@@ -223,7 +224,7 @@ function HomePage() {
                     navigate(`/projects/${AllProjects?.[2]?._id}`)
                   }
                 }}
-                actionName="Donate"
+                actionName={t("Donate")}
                 action={() => {
 
                 }}
@@ -281,7 +282,7 @@ function HomePage() {
                               //(!user.email&& !user.phone_number) && setViewProjectSecurity(true)
 
                             }}
-                            actionName='Donate'
+                            actionName={t("Donate")}
                             action={() => {
                               setSelectedProject(AllProjects?.[index])
                               //@ts-ignore
