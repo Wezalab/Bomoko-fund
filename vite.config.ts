@@ -16,7 +16,17 @@ export default defineConfig({
   server: {
     proxy: {
       "/api/auth": {
-        target: "http://46.202.168.1:7007",
+        target: "https://46.202.168.1:7010",
+        changeOrigin: true,
+        secure: false,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+          "Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
+        }
+      },
+      "/api/projects": {
+        target: "https://46.202.168.1:7010",
         changeOrigin: true,
         secure: false,
         headers: {
