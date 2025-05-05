@@ -96,7 +96,6 @@ export const translations: Translations = {
     "Contact us": "Contact us",
     "If you need our help, have questions about how to use the platform or are experiencing technical difficulties, please do not hesitate to contact us.": "If you need our help, have questions about how to use the platform or are experiencing technical difficulties, please do not hesitate to contact us.",
     "Full Names": "Full Names",
-    "Email Address": "Email Address",
     "Type something": "Type something",
     "By submitting this form you agree to our terms and conditions and our Privacy Policy which explains how we may collect, use and disclose your personal information including to third parties.": "By submitting this form you agree to our terms and conditions and our Privacy Policy which explains how we may collect, use and disclose your personal information including to third parties.",
     "Still have questions?": "Still have questions?",
@@ -147,7 +146,6 @@ export const translations: Translations = {
     "Cashout": "Cashout",
     
     // Auth related
-    "Forgot Password?": "Forgot Password?",
     "Reset Password": "Reset Password",
     "Confirm Password": "Confirm Password",
     "Already have an account?": "Already have an account?",
@@ -241,7 +239,6 @@ export const translations: Translations = {
     "Contact us": "Contactez-nous",
     "If you need our help, have questions about how to use the platform or are experiencing technical difficulties, please do not hesitate to contact us.": "Si vous avez besoin de notre aide, si vous avez des questions sur l'utilisation de la plateforme ou si vous rencontrez des difficultés techniques, n'hésitez pas à nous contacter.",
     "Full Names": "Noms complets",
-    "Email Address": "Adresse e-mail",
     "Type something": "Écrivez quelque chose",
     "By submitting this form you agree to our terms and conditions and our Privacy Policy which explains how we may collect, use and disclose your personal information including to third parties.": "En soumettant ce formulaire, vous acceptez nos conditions générales et notre politique de confidentialité qui explique comment nous pouvons collecter, utiliser et divulguer vos informations personnelles, y compris à des tiers.",
     "Still have questions?": "Vous avez encore des questions?",
@@ -292,7 +289,6 @@ export const translations: Translations = {
     "Cashout": "Encaisser",
     
     // Auth related
-    "Forgot Password?": "Mot de passe oublié?",
     "Reset Password": "Réinitialiser le mot de passe",
     "Confirm Password": "Confirmer le mot de passe",
     "Already have an account?": "Vous avez déjà un compte?",
