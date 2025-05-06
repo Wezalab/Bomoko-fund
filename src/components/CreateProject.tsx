@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/redux/hooks"
-import { selectProject } from "@/redux/slices/projectSlice"
+import { selectProject, setPreviewProject } from "@/redux/slices/projectSlice"
 import { Button } from "./ui/button"
 import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form";
@@ -206,7 +206,11 @@ function CreateProject() {
     useEffect(()=>{
       if(createProjectData && createProjectIsSuccess){
         console.log("created project successfully!",createProjectData)
+
         reset()
+        setPreviewProject(false)
+        navigate("/projects")
+
       }
       if(createProjectIsError){
         console.log("error while creating a project",createProjectError)
