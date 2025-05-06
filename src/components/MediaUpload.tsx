@@ -6,7 +6,8 @@ import {  Plus, Trash2, FileText } from "lucide-react";
 interface MediaUploadProps {
   onFilesChange: (files: File[]) => void;
   isDisabled?:boolean
-  accept:string
+  accept:string 
+  onchange?:()=>void
 }
 
 const MediaUpload: React.FC<MediaUploadProps> = ({ onFilesChange,isDisabled,accept }) => {
@@ -63,7 +64,7 @@ const MediaUpload: React.FC<MediaUploadProps> = ({ onFilesChange,isDisabled,acce
                 {isVideo && <video src={fileURL} controls className="w-full h-40 object-cover" />}
                 {isPDF && (
                   <div className="flex flex-col items-center text-gray-600">
-                    <FileText size={40} />
+                    <FileText  size={40} />
                     <a href={fileURL} download={file.name} target="_blank" rel="noopener noreferrer" className="text-blue-500 mt-2">
                       {file.name}
                     </a>

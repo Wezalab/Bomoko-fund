@@ -19,7 +19,43 @@ export const ProjectInitialState={
         name:"",
         projectOwner:{
             _id:"",
-            gender:""
+            gender:"",
+            name:""
+        },
+        province:{
+            _id:"",
+            name:""
+        },
+        startDate:"",
+        status:"",
+        targetAmount:0,
+        territory:{
+            _id:"",
+            name:""
+        },
+        type:{
+            _id:"",
+            name:""
+        }
+    } satisfies projectProps,
+    previewProject:{
+        _id:"",
+        accessCodestatus:"",
+        actualBalance:0,
+        attachments:[],
+        category:{
+            _id:"",
+            name:""
+        },
+        currency:"",
+        description:"",
+        endDate:"",
+        medias:[],
+        name:"",
+        projectOwner:{
+            _id:"",
+            gender:"",
+            name:""
         },
         province:{
             _id:"",
@@ -85,13 +121,17 @@ export const projectSlice=createSlice({
         },
         setProjects:(state,action)=>{
             state.projects=action.payload
+        },
+        setPreviewProject:(state,action)=>{
+            state.previewProject=action.payload
         }
     }
 })
 
-export const { setProject,setProjects }=projectSlice.actions
+export const { setProject,setProjects,setPreviewProject }=projectSlice.actions
 
 export const selectProject=(state:RootState)=>state.projectReducer.project
 export const selectProjects=(state:RootState)=>state.projectReducer.projects
+export const selectPreviewProject=(state:RootState)=>state.projectReducer.previewProject
 
 export default projectSlice.reducer

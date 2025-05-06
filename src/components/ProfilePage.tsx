@@ -79,12 +79,8 @@ function ProfilePage() {
 
       useEffect(()=>{
         if(editProfileIsSuccess && editProfileData){
-            console.log("profile edited successfully",editProfileData)
-            dispatch(setUser({
-                gender:editProfileData.updatedUser?.gender,
-                location:editProfileData.updatedUser?.location,
-                bio:editProfileData.updatedUser?.bio
-            }))
+            //console.log("profile edited successfully",editProfileData)
+            dispatch(setUser(editProfileData.updatedUser))
             toast.success("profile edited successfully!")
             setEdit(false)
             reset()
@@ -104,7 +100,7 @@ function ProfilePage() {
 
       //console.log("user details",user)
   return (
-    <div className="bg-gray-200 h-[90vh] md:h-[70vh] p-2 md:pt-10">
+    <div className="bg-gray-200 h-[90vh] py-5 p-2 md:pt-10">
         
         <form onSubmit={handleSubmit(onsubmit)} className='md:hidden'>
             <span className='text-semibold text-xl'>Profile</span>
@@ -152,7 +148,7 @@ function ProfilePage() {
             </div>
             {
                 edit && (
-                    <div className='mt-5 w-[90%]'>
+                    <div className='my-5 w-[90%]'>
                         <div className="flex flex-col space-y-1 my-5">
                             <div className=''>
                                 <label className="font-semibold">Gender</label>
@@ -199,7 +195,7 @@ function ProfilePage() {
             }
             {
                 !edit && (
-                    <div className='mt-5'>
+                    <div className='my-5'>
                         <div className='flex items-center mb-4 space-x-2'>
                             <span className='font-bold'>Email:</span>
                             <span className='font-thin'>{user?.email}</span>
@@ -294,7 +290,7 @@ function ProfilePage() {
             </div>
             {
                 edit && (
-                    <div className='my-5'>
+                    <div className='my-10'>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <div className=''>
                                 <label className="font-semibold">Gender</label>
