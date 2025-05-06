@@ -472,7 +472,7 @@ function ProjectPage() {
         { viewMode ==='other' &&
           <>
             {/* project session */}
-          <div className='mt-24 mb-10 px-[5%] md:grid-cols-2 grid lg:grid-cols-3 gap-x-8 gap-y-5'>
+          <div className='mt-24 mb-10 px-[5%] md:grid-cols-2 grid lg:grid-cols-3 gap-4'>
               
               {
                 currentData?.length > 0 &&  currentData?.slice(0,9).map((project:any,index:number)=>(
