@@ -38,7 +38,7 @@ function PreviewProject({data,loading,back,submit}:{data:any,loading:boolean,sub
             <div className="col-span-3">
                 <div className="w-full h-[500px] relative">
                     <img 
-                        src={URL.createObjectURL(data?.medias[0])}
+                        src={data.medias && URL.createObjectURL(data?.medias[0])}
                         className="w-full h-full object-cover"
                         alt={data?.name}
                     />

@@ -263,7 +263,12 @@ function CreateProject() {
     },[errors])
 
 
-    const handleShowPreview=()=>{
+    const handleShowPreview=(e)=>{
+      e.preventDefault()
+      if(errors){
+        toast.error("All fields are required!")
+        return
+      }
       let current=getValues()
       
       setAllValues(current)
@@ -301,6 +306,7 @@ function CreateProject() {
               <div className="grid w-full gap-2 mt-10">
                 <Label htmlFor="project-name">Project Name</Label>
                 <Textarea {...register("name")} rows={2} placeholder="Support 230 children to get school fees" id="project-name" />
+                {errors.name && <p className="text-red-600">{errors.name.message}</p>}
               </div>
               <div className="grid grid-cols-2 mt-5 gap-x-5">
                   <div className="flex flex-col space-y-1 my-5">
@@ -378,6 +384,8 @@ function CreateProject() {
                         </SelectContent>
                       </Select>
                     }
+                    {errors.type && <p className="text-red-600">{errors.type.message}</p>}
+
                   </div>
               </div>
               <div className="grid w-full gap-2 mt-5">
@@ -458,7 +466,7 @@ function CreateProject() {
                         </SelectContent>
                       </Select>
                     }
-                    
+                    {errors.province && <p className="text-red-600">{errors.province.message}</p>}
                   </div>
                   <div className="flex flex-col space-y-1 my-5">
                     <label className="font-semibold">Territory</label>
@@ -497,7 +505,7 @@ function CreateProject() {
                         </SelectContent>
                       </Select>
                     }
-                    
+                    {errors.territory && <p className="text-red-600">{errors.territory.message}</p>}
                   </div>
               </div>
               <div className="flex flex-col space-y-1 my-5">
