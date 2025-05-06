@@ -171,6 +171,7 @@ function SignUp({
     useEffect(()=>{
       if(VerifyOtpData && verifyOtpIsSuccess){
         if(signWithPhone){
+          dispatch(setSignUpData({...signUpData,isVerified:true}))
           setStepsWithPhone(3)
           toast.success("phone number verified")
         }
@@ -263,6 +264,13 @@ function SignUp({
     const handleGoogleAuth=()=>{
       window.open(apiUrl+"/auth/google","_self")
     }
+
+    useEffect(()=>{
+      if(signUpData.phone  && !signUpData.isVerified){
+        setStepsWithPhone(1)
+      }
+      
+    },[])
 
     // console.log("sign up data",selectedGender)
     return (

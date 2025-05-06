@@ -133,28 +133,44 @@ function SingleProject() {
                     />
                     
                 </div> */}
-                <div className="grid grid-cols-1 lg:grid-cols-4 w-[96%] mx-auto md:w-[80%] md:ml-auto md:gap-x-8 my-5">
-                    <div className="lg:col-span-1 md:mb-2 max-h-fit bg-gray-200 p-5 rounded-xl">
-                        <div className="flex space-x-5">
+                <div className="grid grid-cols-1 lg:grid-cols-4 w-[96%] mx-auto md:w-[95%] md:ml-auto md:gap-x-8 my-5">
+                    <div className="lg:col-span-1 md:mb-2 w-full max-w-sm bg-gray-200 p-5 rounded-xl">
+                    <div className="flex space-x-5">
+                        <div className="w-[64px] h-[64px] rounded-full relative overflow-hidden">
+                            {/* Dark overlay */}
+                            <div className="absolute inset-0 bg-black opacity-50  rounded-full" />
+                            
+                            {/* Image below the overlay */}
                             <img 
-                                className="w-[64px] h-[64px] rounded-full"
+                                className="w-full h-full rounded-full object-cover z-0"
                                 src={projectProfile}
                                 alt="project-profile"
                             />
-                            <div className="flex flex-col space-y-2">
-                                <span>Created By</span>
-                                <span className="font-semibold text-[18px] md:text-[20px]">Kamana John</span>
-                            </div>
                         </div>
+
+                        <div className="flex flex-col space-y-2">
+                            <span className="text-sm">Created By</span>
+                            <span className="font-semibold text-[18px] md:text-[20px]">
+                            {project?.projectOwner?.name || "N/A"}
+                            </span>
+                        </div>
+                        </div>
+
+
                         <div className="my-5 flex flex-col space-y-2">
                             <span className="text-lightGray">Created on</span>
-                            <span className="text-lightGray font-semibold text-[18px] md:text-[20px]">{project?.startDate?.split("T")[0]}</span>
+                            <span className="text-lightGray font-semibold text-sm lg:text-[18px]">
+                            {project?.startDate?.split("T")[0]}
+                            </span>
                         </div>
-                        <div className="my-5 flex flex-col space-y-2">
-                            <span className="text-lightGray">Created on</span>
-                            <span className="text-lightGray font-semibold text-[18px] md:text-[20px]">{project?.endDate?.split("T")[0]}</span>
-                        </div>
+
+                    <div className="my-5 flex flex-col space-y-2">
+                        <span className="text-lightGray">Ends on</span>
+                        <span className="text-lightGray font-semibold text-sm lg:text-[18px]">
+                        {project?.endDate?.split("T")[0]}
+                        </span>
                     </div>
+                </div>
                     <div className="w-[100%] lg:col-span-3 mx-auto">
                         <p className="font-semibold text-[18px] md:text-[20px] text-lightGray">
                             {project?.description}
