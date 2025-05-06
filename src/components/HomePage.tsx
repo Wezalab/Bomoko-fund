@@ -168,7 +168,7 @@ function HomePage() {
 
             <div className="relative hidden md:grid md:grid-cols-7 lg:grid-cols-8  py-10 h-[750px] w-full">
               <PopularProjectCard
-                className="absolute -bottom-36 left-0 md:col-span-3 lg:col-span-2"
+                className="absolute w-[100%] -bottom-36 left-0  md:col-span-3 lg:col-span-2"
                 onClick={() => {
                   setSelectedProject(AllProjects?.[0])
                   //@ts-ignore
@@ -192,7 +192,7 @@ function HomePage() {
               <div className="col-span-1"></div>
 
               <PopularProjectCard
-                className="absolute -bottom-16 md:col-span-3 lg:col-span-2"
+                className="absolute w-[108%] -bottom-16 md:col-span-3 lg:col-span-2"
                 onClick={() => {
                   setSelectedProject(AllProjects?.[1])
                   //@ts-ignore
@@ -215,7 +215,7 @@ function HomePage() {
               />
               <div className="md:hidden lg:col-span-1"></div>
               <PopularProjectCard
-                className="absolute lg:block md:hidden lg:left-[50%] -top-[10%] col-span-2"
+                className="absolute w-[108%] lg:block md:hidden lg:left-[50%] 2xl:-top-[15%] -top-[10%] lg:col-span-2"
                 onClick={() => {
                   setSelectedProject(AllProjects?.[2])
                   //@ts-ignore

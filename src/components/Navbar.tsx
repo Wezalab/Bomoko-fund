@@ -148,22 +148,22 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                 </div>
             </aside>
         </nav>
-        <nav className='hidden md:py-5  lg:py-[16px] sticky top-0 z-30 md:px-5 lg:px-[80px] md:flex items-center justify-between bg-white shadow-sm'>
-            <div className='flex -mt-6 items-center md:space-x-2 lg:space-x-[8px]'>
+        <nav className='hidden md:py-5  lg:py-[16px] sticky top-0 z-30 md:px-2 lg:px-[80px] md:flex items-center justify-between bg-white shadow-sm'>
+            <div className='md:hidden lg:flex -mt-6 items-center md:space-x-2 lg:space-x-[8px]'>
                 <img 
                     onClick={()=>navigate("/")}
                     src={lightLogo}
-                    className='md:h-[70px] md:w-[150px] cursor-pointer lg:w-[250px] lg:h-[140px]'
+                    className='md:h-[70px] mt-5 md:w-[150px] cursor-pointer lg:w-[250px] lg:h-[140px]'
                     alt='app-image'
                 />
                 {/* <h1 className='font-semibold md:hidden lg:inline capitalize md:text-[16px] text-nowrap lg:text-[24px] text-lightBlue'>bomoko fund</h1> */}
             </div>
             <div className=''>
-                <ul className='flex items-center space-x-2 lg:gap-x-8 font-semibold bg-[#F6F8FA] rounded-[100px] border-[1px] border-[lightGray]'>
+                <ul className='flex items-center md:space-x-[1px] xl:space-x-2 lg:space-x-4  font-semibold bg-[#F6F8FA] rounded-[100px] border-[1px] border-[lightGray]'>
                     {
                         navItems.filter(n=>!["FAQ","Privacy policy","Profile"].includes(n.name)).map((nav)=>(
-                            <li key={nav.name} className='lg:py-[8px] p-2'>
-                                <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active text-nowrap rounded-[100px] py-2 px-4" : "text-nowrap")}>
+                            <li key={nav.name} className='lg:py-[8px] md:py-[3px] p-2'>
+                                <NavLink to={nav.link} className={({isActive})=>(isActive ? "nav-active text-nowrap rounded-[100px] py-2 px-[2px] lg:px-4" : "text-nowrap")}>
                                     {t(nav.name)}
                                 </NavLink>
                             </li>
@@ -188,7 +188,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
             </div>
             {
                 (!user?.email  && !user?.phone_number) &&
-                <div className='flex md:flex-col lg:flex-row items-center md:gap-2 lg:gap-5'>
+                <div className='flex md:flex-row lg:flex-row items-center md:gap-2 lg:gap-5'>
                     
                     <Button
                         disabled={signIn}

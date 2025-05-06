@@ -20,7 +20,8 @@ export const initialState={
     signUpData:{
         phone:"",
         otp:"",
-        email:""
+        email:"",
+        isVerified:false
     }
     
 }

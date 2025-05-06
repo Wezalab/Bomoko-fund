@@ -49,6 +49,7 @@ export type ProjectAttachment = {
     projectOwner:{
       _id:string 
       gender:string 
+      name:string
     }
     province:{
       _id:string 

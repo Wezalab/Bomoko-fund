@@ -102,11 +102,11 @@ function Footer() {
           </div>
         </div>
       </div>
-      <div className='hidden md:block w-full mt-10 pr-10'>
-        <ul className='flex items-center justify-end gap-3 lg:gap-8 font-semibold '>
+      <div className='hidden md:block w-full z-10 mt-10 pr-10'>
+        <ul className='flex items-center justify-end gap-1 lg:gap-8 font-semibold '>
           {
             navItems.filter((n) => !["Profile"].includes(n.name)).map((nav) => (
-              <li key={nav.name} className='py-[8px] px-2 text-lightGray'>
+              <li key={nav.name} className='py-[8px]  lg:px-2 text-lightGray'>
                 <NavLink to={nav.link} className={({ isActive }) => (isActive ? "nav-active px-4 rounded-[100px] py-1" : "flex items-center space-x-2")}>
                   {t(nav.name)}
                   <MdOutlineArrowOutward size={20} color={location.pathname === nav.link ? "white" : "gray"} />
@@ -117,7 +117,7 @@ function Footer() {
 
         </ul>
       </div>
-      <div className='hidden lg:block rounded-l-xl absolute bottom-6 left-4 w-[270px] h-[130px] p-3'>
+      <div className='hidden xl:block rounded-l-xl absolute bottom-6 left-4 w-[270px] h-[130px] p-3'>
         <img
           src={appLogo}
           className=''
