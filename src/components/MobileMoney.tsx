@@ -26,6 +26,10 @@ import { selectUser } from "@/redux/slices/userSlice"
 import { zodResolver } from "@hookform/resolvers/zod"
 import LoadingComponent from "./LoadingComponent"
 import toast from "react-hot-toast"
+import axios from "axios"
+import { Description } from "@radix-ui/react-dialog"
+import { v4 as uuidv4 } from 'uuid';
+import { Textarea } from "./ui"
 
 
 
@@ -42,17 +46,18 @@ interface mobileMoneyProps{
 
 const formSchema=z.object({
   donator:z.string().optional(),
-  phone:z.string().optional(),
+  phone: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || /^[1-9]\d{8,14}$/.test(val),
+      { message: "Phone number must start with a country code (no plus sign) and contain 9 to 15 digits in total" }
+    ),
   type:z.string(),
-  amount:z.string().transform(val => {
-    const parsed = parseFloat(val);
-    if (isNaN(parsed)) {
-      throw new Error('Invalid number');
-    }
-    return parsed;
-  }),
+  amount:z.string(),
   currency:z.string(),
-  channel:z.string().optional()
+  channel:z.string().optional(),
+  description:z.string().optional()
 })
 
 type FormValues=z.infer<typeof formSchema>
@@ -69,6 +74,9 @@ function MobileMoney({
 }:mobileMoneyProps) {
   const [anonymously,setAnonymously]=useState(false)
   const user=useAppSelector(selectUser)
+
+
+  
 
   const {
       register,
@@ -114,17 +122,39 @@ function MobileMoney({
     }
   },[donateIsSuccess,donateIsError])
 
-  const onsubmit=(data:FormValues)=>{
-    Donate({
-      donator:data.donator,
-      phone:data.phone,
+
+  
+
+
+  const onsubmit=async(data:FormValues)=>{
+    const uuid= uuidv4()
+    const body={
       amount:data.amount,
-      type: data.type,
-      currency:data.currency,
-      channel:"MOBILE MONEY",
-      projectId:projectId,
-      userId:user._id
-    })
+      callbackUrl: "http://localhost",
+      currency: data.currency,
+      description: data.Description,
+      merchant: "ALPHA_NEW",
+      phone: data.phone?.replace("+",""),
+      reference: uuid,
+      "type": "1"
+    }
+
+    try {
+      const res=await axios.post('https://beta-backend.flexpay.cd/api/rest/v1/paymentService',body)
+      console.log("payment feedback",res)
+    } catch (error) {
+      console.log("payment error")
+    }
+    // Donate({
+    //   donator:data.donator,
+    //   phone:data.phone,
+    //   amount:data.amount,
+    //   type: data.type,
+    //   currency:data.currency,
+    //   channel:"MOBILE MONEY",
+    //   projectId:projectId,
+    //   userId:user._id
+    // })
     // FindProject(projectId)
   }
 
@@ -271,7 +301,18 @@ function MobileMoney({
             </div>
           </div>
         </div>
-
+        <div className="flex flex-col space-y-1 my-5">
+          <label className="font-semibold">Description</label>
+          <div className="relative">
+            <Textarea 
+              {...register("description")}
+              className="py-4rounded-xl indent-1 text-black lg:text-md"
+              placeholder="Description"
+              rows={3}
+            />
+            {errors.phone  && <span className="text-red-600 mt-2">{errors.phone?.message}</span>}
+          </div>
+        </div>
         <div className="flex items-center space-x-5 px-5 rounded-xl py-3 mt-5 border-[2px] border-lightBlue shadow-sm shadow-lightBlue">
           <FaCircleExclamation size={24} className="text-lightBlue" />
           <span className="text-darkBlue md:text-md text-xs">Donation complete after payment processing</span>
