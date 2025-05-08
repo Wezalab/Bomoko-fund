@@ -543,7 +543,7 @@ function ProjectPage() {
           {/* Pagination */}
           {/* //TODO: Only display user projects when a user is logged in  */}
           {
-            currentData?.length >= itemsPerPage && (
+            currentData?.length <= itemsPerPage && (
               <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
                   <Button
                     disabled={currentPage === 1}
