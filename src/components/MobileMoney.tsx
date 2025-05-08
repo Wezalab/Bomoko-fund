@@ -98,7 +98,7 @@ function MobileMoney({
       isError:projectIsError,
       isSuccess:projectIsSuccess,
       error:projectError
-    }=useGetProjectQuery(projectId)
+    }=useGetProjectQuery(projectId,{skip: !projectId })
   
 
   useEffect(()=>{
