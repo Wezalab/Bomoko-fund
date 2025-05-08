@@ -70,7 +70,7 @@ function ProjectPage() {
     isSuccess:userProjectIsSuccess,
     isError:userProjectIsError,
     isLoading:userProjectIsLoading
-  }=useUsersProjectsQuery(user?._id)
+  }=useUsersProjectsQuery(user?._id,{skip:!user._id})
 
   const [
     FilterProjects,
@@ -160,7 +160,7 @@ function ProjectPage() {
 
   useEffect(()=>{
     applyFilters()
-  },[filterProjects])
+  },[filterDatas])
 
   //console.log("selected project",selectedProject)
   //console.log("current data:",currentData)
@@ -229,6 +229,7 @@ function ProjectPage() {
                 <div className='w-full relative mt-2'>
                   <CiSearch className='absolute top-2 left-2' />
                   <Input 
+                    onChange={(e)=>setSearch(e.target.value)}
                     placeholder='Search Project'
                     className='h-8 border-none rounded-xl text-sm bg-gray-200 indent-8'
                   />
@@ -283,7 +284,12 @@ function ProjectPage() {
                       viewMode === "other" && (
                         <Button
                           onClick={()=>{
-                            filterProjects && setFilterProject(false)
+                            // filterProjects && setFilterProject(false)
+                            if(filterProjects){
+                              setFilterProject(false)
+                              return
+                            }
+                            setFilterProject(true)
                             setOpenFilter(true)
                           }}
                           className={filterProjects  ? "md:w-[100px] lg:w-[150px] md:h-[35px] lg:h-[50px] rounded-[100px] text-white bg-lightBlue flex items-center space-x-5" :'bg-grayColor md:w-[100px] lg:w-[150px] md:h-[35px] lg:h-[50px] text-black rounded-[100px] hover:text-white hover:bg-lightBlue flex items-center space-x-5'}
@@ -537,7 +543,7 @@ function ProjectPage() {
           {/* Pagination */}
           {/* //TODO: Only display user projects when a user is logged in  */}
           {
-            (currentData?.length > itemsPerPage  || currentDataPersonal?.length > itemsPerPage) && (
+            currentData?.length >= itemsPerPage && (
               <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
                   <Button
                     disabled={currentPage === 1}

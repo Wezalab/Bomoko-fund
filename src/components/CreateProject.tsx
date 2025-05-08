@@ -263,7 +263,7 @@ function CreateProject() {
     },[errors])
 
 
-    const handleShowPreview=(e)=>{
+    const handleShowPreview=(e:any)=>{
       e.preventDefault()
       if(errors){
         toast.error("All fields are required!")
