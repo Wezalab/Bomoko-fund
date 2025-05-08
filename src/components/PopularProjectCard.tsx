@@ -44,10 +44,10 @@ function PopularProjectCard({
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black opacity-55 rounded-2xl" />
         <div className="">
-            <div className="w-12 bg-yellow absolute top-5 z-10 left-5 border-white rounded-full border-4 h-12 flex items-center justify-center">
+            <div className="w-12  absolute top-5 z-10 left-5 border-white rounded-full border-4 h-12 flex items-center justify-center">
                 <img 
                     src={profileImg}
-                    className="w-full h-full  object-cover bg-black opacity-50"
+                    className="w-full h-full brightness-75 object-contain rounded-full bg-black opacity-50"
                     alt="popularProject-profile"
                 />
             </div>
@@ -71,7 +71,7 @@ function PopularProjectCard({
                         />
                     </div>
                 </div>
-                <div className="flex lg:flex-row lg:space-y-0  md:flex-col md:space-y-2 md:w-full items-center w-3/6  md:-ml-5 space-x-2 md:p-2 lg:p-5 mx-auto justify-between">
+                <div className="flex lg:flex-row lg:space-y-0  md:flex-col md:space-y-2 md:w-full items-center mr-[36%] w-3/6  md:-ml-5 space-x-2 md:p-2 lg:p-5 mx-auto justify-between">
                     <Button
                         onClick={action}
                         className="flex items-center justify-between bg-lightBlue hover:bg-blue-700 text-white rounded-[100px] md:w-[100%] lg:max-w-fit h-[10%]"
