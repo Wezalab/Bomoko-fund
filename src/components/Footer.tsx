@@ -7,7 +7,7 @@ import { navItems } from '@/constants/navItems';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useTranslation } from '@/lib/TranslationContext';
 
-import appLogo from '../assets/icons/7.png'
+import appLogo from '../assets/icons/7-removebg.png'
 
 
 function Footer() {
@@ -117,10 +117,10 @@ function Footer() {
 
         </ul>
       </div>
-      <div className='hidden xl:block rounded-l-xl absolute bottom-6 left-4 w-[270px] h-[130px] p-3'>
+      <div className='hidden xl:block rounded-l-xl  absolute -bottom-1 left-4 w-[300px] h-[150px] p-3'>
         <img
           src={appLogo}
-          className=''
+          className='w-full h-full bg-transparent'
           alt="footer-img"
         />
       </div>
