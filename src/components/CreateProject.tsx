@@ -148,57 +148,67 @@ function CreateProject() {
 
 
     const onsubmit=async(data:FormValues)=>{
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("type", data.type);
-      formData.append("category", data.category);
-      formData.append("description", data.description);
-      formData.append("province", data.province);
-      formData.append("territory", data.territory);
-      formData.append("endDate", formattedDate);
-      formData.append("currency", data.currency);
-      formData.append("targetAmount", data.targetAmount?.toString());
-      formData.append("projectOwner", user._id);
-      
-
-      //! only works for single file upload
-      uploadedMedias.forEach((file) => {
-        formData.append("medias", file);
-      });
-    
-      uploadedAttachments.forEach((file) => {
-        formData.append("attachments", file);
-      });
-      
-
-      // adjust for array upload files
-      // uploadedMedias.forEach((file, index) => {
-      //   formData.append(`medias[${index}]`, file);
-      // });
-      
-      // uploadedAttachments.forEach((file, index) => {
-      //   formData.append(`attachments[${index}]`, file);
-      // });
-
-
-      try {
-        const response = await CreateProject(formData).unwrap();
-        toast.success("Project created successfully!");
-        navigate("/projects");
-      } catch (err) {
-        console.error("Error creating project:", err);
-        toast.error("Failed to create project!");
+      if(!preview){
+        let current=getValues()
+        
+        setAllValues(current)
+        setPreview(true)
+        console.log("all values to preview",current)
       }
       
-      // console.log("medias",uploadedMedias)
-      // console.log("attachment",uploadedAttachments)
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-        //  CreateProject((key,value))
+      if(preview){
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("type", data.type);
+        formData.append("category", data.category);
+        formData.append("description", data.description);
+        formData.append("province", data.province);
+        formData.append("territory", data.territory);
+        formData.append("endDate", formattedDate);
+        formData.append("currency", data.currency);
+        formData.append("targetAmount", data.targetAmount?.toString());
+        formData.append("projectOwner", user._id);
+        
+
+        //! only works for single file upload
+        uploadedMedias.forEach((file) => {
+          formData.append("medias", file);
+        });
+      
+        uploadedAttachments.forEach((file) => {
+          formData.append("attachments", file);
+        });
+        
+
+        // adjust for array upload files
+        // uploadedMedias.forEach((file, index) => {
+        //   formData.append(`medias[${index}]`, file);
+        // });
+        
+        // uploadedAttachments.forEach((file, index) => {
+        //   formData.append(`attachments[${index}]`, file);
+        // });
+
+
+        try {
+          const response = await CreateProject(formData).unwrap();
+          toast.success("Project created successfully!");
+          navigate("/projects");
+        } catch (err) {
+          console.error("Error creating project:", err);
+          toast.error("Failed to create project!");
+        }
+        
+        // console.log("medias",uploadedMedias)
+        // console.log("attachment",uploadedAttachments)
+        for (let [key, value] of formData.entries()) {
+          console.log(key, value);
+          //  CreateProject((key,value))
+        }
+
+
       }
-
-      // console.log("date",formattedDate)
-
+      
     }
 
     const [allValues,setAllValues]=useState<FormValues>(()=>getValues())
@@ -265,10 +275,7 @@ function CreateProject() {
 
     const handleShowPreview=(e:any)=>{
       e.preventDefault()
-      if(errors){
-        toast.error("All fields are required!")
-        return
-      }
+      
       let current=getValues()
       
       setAllValues(current)
@@ -651,7 +658,7 @@ function CreateProject() {
             {
               !next && 
               <Button
-                onClick={handleShowPreview}
+                onClick={handleSubmit(onsubmit)}
                 className="h-12 w-[50%] ml-[15%] mt-5 text-white bg-darkBlue rounded-[100px]"
               >
                 Show Preview
