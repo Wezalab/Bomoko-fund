@@ -86,7 +86,7 @@ function PreviewProject({data,loading,back,submit}:{data:any,loading:boolean,sub
                             <div className="flex flex-col space-y-2">
                                 <span className="text-sm">Created By</span>
                                 <span className="font-semibold text-[18px] md:text-[20px]">
-                                {user?.name || "N/A"}
+                                {user?.name || user?.email}
                                 </span>
                             </div>
                         </div>
