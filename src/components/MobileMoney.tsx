@@ -30,6 +30,7 @@ import axios from "axios"
 import { Description } from "@radix-ui/react-dialog"
 import { v4 as uuidv4 } from 'uuid';
 import { Textarea } from "./ui"
+import { payementToken } from "@/lib/env"
 
 
 
@@ -47,12 +48,16 @@ interface mobileMoneyProps{
 const formSchema=z.object({
   donator:z.string().optional(),
   phone: z
-    .string()
-    .optional()
-    .refine(
-      (val) => !val || /^[1-9]\d{8,14}$/.test(val),
-      { message: "Phone number must start with a country code (no plus sign) and contain 9 to 15 digits in total" }
-    ),
+  .string()
+  .transform((val) => val.replace(/\s+/g, '')) // removes all spaces
+  .optional()
+  .refine(
+    (val) => !val || /^[1-9]\d{8,14}$/.test(val),
+    {
+      message:
+        "Phone number must start with a country code (no plus sign) and contain 9 to 15 digits only",
+    }
+  ),
   type:z.string(),
   amount:z.string(),
   currency:z.string(),
@@ -75,7 +80,7 @@ function MobileMoney({
   const [anonymously,setAnonymously]=useState(false)
   const user=useAppSelector(selectUser)
 
-
+  const [loading,setLoading]=useState(false)
   
 
   const {
@@ -127,12 +132,13 @@ function MobileMoney({
 
 
   const onsubmit=async(data:FormValues)=>{
+    setLoading(true)
     const uuid= uuidv4()
     const body={
       amount:data.amount,
       callbackUrl: "http://localhost",
       currency: data.currency,
-      description: data.Description,
+      description: data.description,
       merchant: "ALPHA_NEW",
       phone: data.phone?.replace("+",""),
       reference: uuid,
@@ -140,10 +146,32 @@ function MobileMoney({
     }
 
     try {
-      const res=await axios.post('https://beta-backend.flexpay.cd/api/rest/v1/paymentService',body)
-      console.log("payment feedback",res)
+      
+      const res=await axios.post('https://beta-backend.flexpay.cd/api/rest/v1/paymentService',body,{
+        headers:{
+          "Authorization":`Bearer ${payementToken}`
+        }
+      })
+      //@ts-ignore
+      if(res?.data?.code === "0"){
+        console.log("payment feedback",res)
+        setLoading(false)
+        toast.success(res?.data?.message)
+        reset()
+        onClose()
+        return
+      }
+      toast.success(res?.data?.message)
+      reset()
+      onClose()
+      return
     } catch (error) {
       console.log("payment error")
+      //@ts-ignore
+      toast.error(res?.data?.message || "cannot donate")
+      setLoading(false)
+      reset()
+      onClose()
     }
     // Donate({
     //   donator:data.donator,
@@ -319,11 +347,11 @@ function MobileMoney({
         </div>
 
         <Button
-            disabled={donateIsLoading}
+            disabled={loading}
             type="submit"
             className="bg-darkBlue h-14 text-white hover:bg-lightBlue rounded-[100px] w-full mt-10"
         >
-          {donateIsLoading ? <LoadingComponent /> :"Donate"}
+          {loading ? <LoadingComponent /> :"Donate"}
           
         </Button>
 
