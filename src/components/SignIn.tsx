@@ -133,10 +133,25 @@ function SignIn({
         }
         if(loginIsError){
             console.log("cannot login", loginError)
-            // Use our RTK Query error handler
+            // Check for the specific error message
+            if (
+                typeof loginError === 'object' &&
+                loginError !== null &&
+                'status' in loginError &&
+                loginError.status === 401 &&
+                'data' in loginError &&
+                loginError.data &&
+                typeof loginError.data === 'object' &&
+                'message' in loginError.data &&
+                loginError.data.message === "Invalid credentials - no password set"
+            ) {
+                setResetPassword(true);
+                return;
+            }
+            // Use our RTK Query error handler for other errors
             handleRTKQueryError(loginError);
         }
-    },[loginIsError,loginIsSuccess])
+    },[loginIsError,loginIsSuccess,loginError])
 
     useEffect(()=>{
         if(loginWithPhoneData && loginWithPhoneIsSuccess){
@@ -156,11 +171,26 @@ function SignIn({
         }
         if(loginWithPhoneIsError){
             console.log("error while login with phone number", loginWithPhoneError)
-            // Use our RTK Query error handler
+            // Check for the specific error message
+            if (
+                typeof loginWithPhoneError === 'object' &&
+                loginWithPhoneError !== null &&
+                'status' in loginWithPhoneError &&
+                loginWithPhoneError.status === 401 &&
+                'data' in loginWithPhoneError &&
+                loginWithPhoneError.data &&
+                typeof loginWithPhoneError.data === 'object' &&
+                'message' in loginWithPhoneError.data &&
+                loginWithPhoneError.data.message === "Invalid credentials - no password set"
+            ) {
+                setResetPassword(true);
+                return;
+            }
+            // Use our RTK Query error handler for other errors
             handleRTKQueryError(loginWithPhoneError);
         }
 
-    },[loginWithPhoneIsSuccess,loginWithPhoneIsError])
+    },[loginWithPhoneIsSuccess,loginWithPhoneIsError,loginWithPhoneError])
 
     const onSumbmitWithEmail=(data:FormDataEmail)=>{
         console.log("login with email data:",data)
@@ -262,7 +292,10 @@ function SignIn({
                             </div>
                             {errorsWithPhone.password && <p className="text-red-500 text-sm">{errorsWithPhone.password.message}</p>}
                         </div>
-                        {  loginWithPhoneError?.data?.message &&  <p className="text-red-500 text-sm">{loginWithPhoneError?.data?.message}</p>}
+                        {/* Error message for phone login */}
+                        { typeof loginWithPhoneError === 'object' && loginWithPhoneError !== null && 'data' in loginWithPhoneError && loginWithPhoneError.data && typeof loginWithPhoneError.data === 'object' && 'message' in loginWithPhoneError.data && typeof loginWithPhoneError.data.message === 'string' && (
+                            <p className="text-red-500 text-sm">{loginWithPhoneError.data.message}</p>
+                        )}
                         <Button
                             disabled={loginWithPhoneIsLoading}
                             type="submit"
@@ -340,7 +373,10 @@ function SignIn({
                             {errorsWithEmail.password && <p className="text-red-500 text-sm">{errorsWithEmail.password.message}</p>}
 
                         </div>
-                        {loginError?.data?.message && <p className="text-red-500 text-sm">{loginError?.data?.message}</p>}
+                        {/* Error message for email login */}
+                        { typeof loginError === 'object' && loginError !== null && 'data' in loginError && loginError.data && typeof loginError.data === 'object' && 'message' in loginError.data && typeof loginError.data.message === 'string' && (
+                            <p className="text-red-500 text-sm">{loginError.data.message}</p>
+                        )}
 
                         <Button
                             disabled={loginIsLoading}
