@@ -15,24 +15,46 @@ import { useEditProfileMutation} from '@/redux/services/userServices';
 import toast from 'react-hot-toast';
 import LoadingComponent from './LoadingComponent';
 
+// Maximum file size: 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
-const formSchema=z.object({
+const formSchema = z.object({
     avatar: z
         .instanceof(FileList)
+        .refine(files => !files.length || files[0].size <= MAX_FILE_SIZE, {
+            message: `Max file size is 5MB.`,
+        })
+        .refine(
+            files => !files.length || ACCEPTED_IMAGE_TYPES.includes(files[0].type),
+            {
+                message: "Only .jpg, .jpeg, .png and .webp formats are supported.",
+            }
+        )
         .nullable()
         .optional(),
-    gender:z.string().optional(),
-    location:z.string().optional(),
-    bio:z.string().optional()
+    gender: z.string().optional(),
+    location: z.string().max(100, "Location must be less than 100 characters").optional(),
+    bio: z.string().max(500, "Bio must be less than 500 characters").optional()
 })
 
 type FormValues = z.infer<typeof formSchema>;
 
+// Type for API error response
+interface ApiError {
+    data?: {
+        message?: string;
+        errors?: Record<string, string[]>;
+    };
+    status?: number;
+    message?: string;
+}
+
 function ProfilePage() {
-    const user=useAppSelector(selectUser)
+    const user = useAppSelector(selectUser)
     const [preview, setPreview] = useState<string | null>(null);
-    const dispatch=useAppDispatch()
-    const [edit,setEdit]=useState(false)
+    const dispatch = useAppDispatch()
+    const [edit, setEdit] = useState(false)
     const {
         register,
         handleSubmit,
@@ -42,63 +64,121 @@ function ProfilePage() {
         formState: { errors },
       } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
+        defaultValues: {
+            gender: user?.gender || undefined,
+            location: user?.location || '',
+            bio: user?.bio || ''
+        }
       });
 
       const [
         EditProfile,
         {
-            data:editProfileData,
-            error:editProfileError,
-            isError:editProfileIsError,
-            isSuccess:editProfileIsSuccess,
-            isLoading:editProfileIsLoading
+            data: editProfileData,
+            error: editProfileError,
+            isError: editProfileIsError,
+            isSuccess: editProfileIsSuccess,
+            isLoading: editProfileIsLoading
         }
-      ]=useEditProfileMutation()
+      ] = useEditProfileMutation()
 
-      
+      // Initialize form with user data when edit mode is enabled
+      useEffect(() => {
+        if (edit && user) {
+            setValue("gender", user.gender || undefined);
+            setValue("location", user.location || '');
+            setValue("bio", user.bio || '');
+        }
+      }, [edit, user, setValue]);
 
       const onsubmit = (data: FormValues) => {
-        //console.log("save button pressed")
-        const file = data.avatar?.[0]; // Get the selected file
-        //console.log("Uploading file:", file);
-    
-        // Example: Create FormData to send the image
+        if (!user?._id) {
+            toast.error("User ID not found. Please log in again.");
+            return;
+        }
 
-        const formData = new FormData();
-        file && formData.append("avatar", file);
-        data.gender && formData.append("gender",data.gender)
-        data.location && formData.append("location",data.location)
-        data.bio && formData.append("bio",data.bio)
-    
-        EditProfile({
-            userId:user._id,
-            data:formData
-        })
-        
+        try {
+            const file = data.avatar?.[0]; // Get the selected file
+            const formData = new FormData();
+            
+            // Only append file if it exists
+            if (file) {
+                formData.append("avatar", file);
+            }
+            
+            // Only append fields with values
+            if (data.gender) formData.append("gender", data.gender);
+            if (data.location) formData.append("location", data.location);
+            if (data.bio) formData.append("bio", data.bio);
+            
+            // Call the API
+            EditProfile({
+                userId: user._id,
+                data: formData
+            });
+        } catch (err) {
+            console.error("Error submitting form:", err);
+            toast.error("An unexpected error occurred. Please try again.");
+        }
       };
 
-      useEffect(()=>{
-        if(editProfileIsSuccess && editProfileData){
-            //console.log("profile edited successfully",editProfileData)
-            dispatch(setUser(editProfileData.updatedUser))
-            toast.success("profile edited successfully!")
-            setEdit(false)
-            reset()
+      useEffect(() => {
+        if (editProfileIsSuccess && editProfileData) {
+            dispatch(setUser(editProfileData.updatedUser));
+            toast.success("Profile updated successfully!");
+            setEdit(false);
+            setPreview(null);
+            reset();
         }
-        if(editProfileIsError){
-            console.log("error while editing profile",editProfileError)
-            toast.error("unable to edit profile")
+        
+        if (editProfileIsError && editProfileError) {
+            const error = editProfileError as ApiError;
+            
+            // Handle different types of errors
+            if (error.status === 413) {
+                toast.error("File too large. Please upload a smaller image.");
+            } else if (error.data?.message) {
+                toast.error(error.data.message);
+            } else if (error.message) {
+                toast.error(error.message);
+            } else {
+                toast.error("Failed to update profile. Please try again.");
+            }
+            
+            console.error("Profile update error:", error);
         }
-      },[editProfileIsSuccess,editProfileIsError])
+      }, [editProfileIsSuccess, editProfileIsError, editProfileData, editProfileError, dispatch, reset]);
 
-      
+      // Handle file selection and validation
+      const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        // Validate file size
+        if (file.size > MAX_FILE_SIZE) {
+            toast.error("File is too large. Maximum size is 5MB.");
+            e.target.value = '';
+            return;
+        }
+        
+        // Validate file type
+        if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+            toast.error("Invalid file type. Only JPG, PNG and WebP are supported.");
+            e.target.value = '';
+            return;
+        }
+        
+        setPreview(URL.createObjectURL(file));
+        setValue("avatar", e.target.files);
+      };
 
-      //track errors
-      useEffect(()=>{
-        console.log("errors",errors)
-      },[errors])
+      // Cancel edit mode
+      const handleCancel = () => {
+        setEdit(false);
+        setPreview(null);
+        reset();
+      };
 
-      //console.log("user details",user)
   return (
     <div className="bg-gray-200 h-[90vh] py-5 p-2 md:pt-10">
         
@@ -107,20 +187,25 @@ function ProfilePage() {
             <div className='flex items-center space-x-5'>
                 <div className="w-[100px] h-[100px] rounded-full mt-5">
                     {
-                        !preview && 
-                        <img 
-                            src={Avatar}
-                            className='w-full h-full rounded-full object-cover'
-                            alt="profile-img"
-                        />
-                    }
-                    {
-                        preview && 
-                        <img 
-                            src={preview}
-                            className='w-full h-full rounded-full object-cover'
-                            alt="profile-img"
-                        />
+                        !preview && user?.avatar ? (
+                            <img 
+                                src={user.avatar}
+                                className='w-full h-full rounded-full object-cover'
+                                alt="profile-img"
+                            />
+                        ) : !preview ? (
+                            <img 
+                                src={Avatar}
+                                className='w-full h-full rounded-full object-cover'
+                                alt="profile-img"
+                            />
+                        ) : (
+                            <img 
+                                src={preview}
+                                className='w-full h-full rounded-full object-cover'
+                                alt="profile-img"
+                            />
+                        )
                     }
                 </div>
                 <div className=''>
@@ -131,19 +216,16 @@ function ProfilePage() {
                         <Input 
                             disabled={!edit}
                             placeholder='Upload new picture'  
-                            accept="image/*" 
+                            accept={ACCEPTED_IMAGE_TYPES.join(',')} 
                             type="file" 
                             {...register("avatar")}
                             className='border-none text-white' 
-                            onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                    setPreview(URL.createObjectURL(file));
-                                    setValue("avatar",  e.target.files); // Update the form state
-                                }
-                            }}
+                            onChange={handleFileChange}
                         />
                     </div>
+                    {errors.avatar && (
+                        <p className="text-red-500 text-sm mt-1">{errors.avatar.message as string}</p>
+                    )}
                 </div>
             </div>
             {
@@ -152,9 +234,12 @@ function ProfilePage() {
                         <div className="flex flex-col space-y-1 my-5">
                             <div className=''>
                                 <label className="font-semibold">Gender</label>
-                                <Select onValueChange={(value) => setValue("gender", value as "M"| "F")}>
+                                <Select 
+                                    defaultValue={user?.gender}
+                                    onValueChange={(value) => setValue("gender", value as "M"| "F")}
+                                >
                                     <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                                    <SelectValue placeholder="Select project category" />
+                                    <SelectValue placeholder="Select gender" />
                                     </SelectTrigger>
                                     <SelectContent>
                                     <SelectGroup>
@@ -164,6 +249,9 @@ function ProfilePage() {
                                     </SelectGroup>
                                     </SelectContent>
                                 </Select>
+                                {errors.gender && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.gender.message as string}</p>
+                                )}
                             </div>
                             
                         </div>
@@ -174,6 +262,9 @@ function ProfilePage() {
                                 placeholder="Goma"
                                 className='h-10 border-[1px] border-black rounded-[100px]'
                             />
+                            {errors.location && (
+                                <p className="text-red-500 text-sm mt-1">{errors.location.message as string}</p>
+                            )}
                         </div>
                         <div className='mt-5'>
                             <label>Bio</label>
@@ -183,13 +274,26 @@ function ProfilePage() {
                                 className='border-[1px] border-black'
                                 rows={5}
                             />
+                            {errors.bio && (
+                                <p className="text-red-500 text-sm mt-1">{errors.bio.message as string}</p>
+                            )}
                         </div>
-                        <Button
-                            type="submit"
-                            className='bg-darkBlue px-5 text-white rounded-[100px] w-full mt-5 h-10'
-                        >
-                            {editProfileIsLoading ? <LoadingComponent /> :"Save changes"}
-                        </Button>
+                        <div className="flex space-x-3 mt-5">
+                            <Button
+                                type="submit"
+                                disabled={editProfileIsLoading}
+                                className='bg-darkBlue px-5 text-white rounded-[100px] w-full h-10'
+                            >
+                                {editProfileIsLoading ? <LoadingComponent /> :"Save changes"}
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={handleCancel}
+                                className='bg-white text-black border-[1px] border-black rounded-[100px] w-full h-10'
+                            >
+                                Cancel
+                            </Button>
+                        </div>
                     </div>
                 )
             }
@@ -209,7 +313,7 @@ function ProfilePage() {
                         }
                         <div className='flex items-center mb-4 space-x-2'>
                             <span className='font-bold'>Location:</span>
-                            <span className='font-thin'>{user?.location}</span>
+                            <span className='font-thin'>{user?.location || 'Not specified'}</span>
                         </div>
                         {
                             user?.bio && (
@@ -237,22 +341,26 @@ function ProfilePage() {
             <div className="flex items-center space-x-5">
                 <div className="w-[100px] h-[100px] rounded-full mt-5">
                     {
-                        !preview && 
-                        <img 
-                            src={Avatar}
-                            className='w-full h-full rounded-full object-cover'
-                            alt="profile-img"
-                        />
+                        !preview && user?.avatar ? (
+                            <img 
+                                src={user.avatar}
+                                className='w-full h-full rounded-full object-cover'
+                                alt="profile-img"
+                            />
+                        ) : !preview ? (
+                            <img 
+                                src={Avatar}
+                                className='w-full h-full rounded-full object-cover'
+                                alt="profile-img"
+                            />
+                        ) : (
+                            <img 
+                                src={preview}
+                                className='w-full h-full rounded-full object-cover'
+                                alt="profile-img"
+                            />
+                        )
                     }
-                    {
-                        preview && 
-                        <img 
-                            src={preview}
-                            className='w-full h-full rounded-full object-cover'
-                            alt="profile-img"
-                        />
-                    }
-                    
                 </div>
                 <div className='flex items-center space-x-5'>
                     <div
@@ -262,21 +370,15 @@ function ProfilePage() {
                         <Input 
                             disabled={!edit}
                             placeholder='Upload new picture'  
-                            accept="image/*" 
+                            accept={ACCEPTED_IMAGE_TYPES.join(',')} 
                             type="file" 
                             {...register("avatar")}
                             className='border-none text-white' 
-                            onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                    setPreview(URL.createObjectURL(file));
-                                    setValue("avatar",  e.target.files); // Update the form state
-                                }
-                            }}
+                            onChange={handleFileChange}
                         />
                     </div>
                     <Button
-                        disabled={!edit}
+                        disabled={!edit || !preview}
                         onClick={() => {
                             setPreview(null);
                             setValue("avatar", undefined); // Reset form file state
@@ -288,13 +390,19 @@ function ProfilePage() {
                     </Button>
                 </div>
             </div>
+            {errors.avatar && (
+                <p className="text-red-500 text-sm mt-1 ml-2">{errors.avatar.message as string}</p>
+            )}
             {
                 edit && (
                     <div className='my-10'>
                         <div className='grid grid-cols-2 gap-x-5'>
                             <div className=''>
                                 <label className="font-semibold">Gender</label>
-                                <Select onValueChange={(value) => setValue("gender", value as "M"| "F")}>
+                                <Select 
+                                    defaultValue={user?.gender}
+                                    onValueChange={(value) => setValue("gender", value as "M"| "F")}
+                                >
                                     <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
                                     <SelectValue placeholder="Select Gender" />
                                     </SelectTrigger>
@@ -306,6 +414,9 @@ function ProfilePage() {
                                     </SelectGroup>
                                     </SelectContent>
                                 </Select>
+                                {errors.gender && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.gender.message as string}</p>
+                                )}
                             </div>
                             <div className=''>
                                 <label>Location</label>
@@ -314,6 +425,9 @@ function ProfilePage() {
                                     placeholder="Goma"
                                     className='h-10 rounded-[100px]'
                                 />
+                                {errors.location && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.location.message as string}</p>
+                                )}
                             </div>
                         </div>
                         <div className='mt-5'>
@@ -324,6 +438,9 @@ function ProfilePage() {
                                 className=''
                                 rows={5}
                             />
+                            {errors.bio && (
+                                <p className="text-red-500 text-sm mt-1">{errors.bio.message as string}</p>
+                            )}
                         </div>
                         <div className='mt-5 flex space-x-5'>
                             <Button
@@ -334,7 +451,8 @@ function ProfilePage() {
                                 {editProfileIsLoading ? <LoadingComponent />:"Save"}
                             </Button>
                             <Button
-                                onClick={()=>setEdit(false)}
+                                type="button"
+                                onClick={handleCancel}
                                 className='bg-white text-black border-[1px] border-black rounded-[100px] h-10'
                             >
                                 Cancel
@@ -360,7 +478,7 @@ function ProfilePage() {
                         }
                         <div className='flex items-center mb-4 space-x-2'>
                             <span className='font-bold'>Location:</span>
-                            <span className='font-thin'>{user?.location}</span>
+                            <span className='font-thin'>{user?.location || 'Not specified'}</span>
                         </div>
                         {
                             user?.bio && (
