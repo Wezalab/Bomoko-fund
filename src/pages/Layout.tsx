@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Footer, Navbar, ResetPassword, SignIn, SignUp } from '../components'
 import ChangePassword from '@/components/ChangePassword'
 import NotificationModal from '@/components/NotificationModal'
+import { Sheet, SheetContent, SheetOverlay } from '@/components/ui/sheet'
 
 
 function Layout({children}:{children:React.ReactNode}) {
@@ -12,64 +13,64 @@ function Layout({children}:{children:React.ReactNode}) {
     const [notification,setNotification]=useState(false)
   return (
     <div className='relative'>
-      {
-        resetPassword && (
-          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[40%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
-            <ResetPassword 
-              setSignIn={setSignIn}
-              onClose={()=>setResetPassword(false)} 
-              signIn={()=>{
-                setResetPassword(false)
-                setSignUp(false)
-                setSignIn(true)
-              }}
-            />
-          </div>
-        )
-      }
-      {
-        changePassword && (
-          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[40%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
-            <ChangePassword 
-              onClose={()=>setChangePassword(false)} 
-              
-            />
-          </div>
-        )
-      }
-      {
-        notification && (
-          <div className='fixed w-[90%] top-[5%] left-[4%] md:w-[50%] lg:w-[25%]  md:top-[3%] lg:top-[5%] md:left-[48%] lg:left-[72%] z-10'>
-            <NotificationModal
-              onClose={()=>setNotification(false)}
-            />
-          </div>
-        )
-      }
-      {
-        signIn && (
-          <div className='fixed w-[90%] top-[20%] left-[4%] md:w-3/4 lg:w-[30%]  md:top-[15%] lg:top-[25%] md:left-[10%] lg:left-[35%] z-10'>
-            <SignIn 
-              resetPassword={resetPassword}
-              setResetPassword={setResetPassword}
-              onClose={()=>setSignIn(false)}
-              setSignUp={setSignUp}
-              signUp={signUp}
-            />
-          </div>
-        )
-      }
-      {
-        signUp && (
-          <div className='absolute w-[90%] top-[5%] left-[4%] md:w-3/4 lg:w-[30%]  md:top-[5%] lg:top-[5%] md:left-[10%] lg:left-[35%] z-10'>
-            <SignUp 
-              onClose={()=>setSignUp(false)}
-              signIn={signIn}
-              setSignIn={setSignIn}
-            />
-          </div>
-        )
-      }
+      {/* ResetPassword Modal */}
+      <Sheet open={resetPassword} onOpenChange={setResetPassword}>
+        <SheetOverlay className="bg-black/50" />
+        <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+          <ResetPassword 
+            setSignIn={setSignIn}
+            onClose={()=>setResetPassword(false)} 
+            signIn={()=>{
+              setResetPassword(false)
+              setSignUp(false)
+              setSignIn(true)
+            }}
+          />
+        </SheetContent>
+      </Sheet>
+
+      {/* ChangePassword Modal */}
+      <Sheet open={changePassword} onOpenChange={setChangePassword}>
+        <SheetOverlay className="bg-black/50" />
+        <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+          <ChangePassword onClose={()=>setChangePassword(false)} />
+        </SheetContent>
+      </Sheet>
+
+      {/* Notification Modal */}
+      <Sheet open={notification} onOpenChange={setNotification}>
+        <SheetOverlay className="bg-black/50" />
+        <SheetContent side="top" className="w-[90%] md:w-[50%] lg:w-[25%] h-auto p-0 border-none rounded-b-2xl right-0 left-auto ml-auto">
+          <NotificationModal onClose={()=>setNotification(false)} />
+        </SheetContent>
+      </Sheet>
+
+      {/* SignIn Modal */}
+      <Sheet open={signIn} onOpenChange={setSignIn}>
+        <SheetOverlay className="bg-black/50" />
+        <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[30%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+          <SignIn 
+            resetPassword={resetPassword}
+            setResetPassword={setResetPassword}
+            onClose={()=>setSignIn(false)}
+            setSignUp={setSignUp}
+            signUp={signUp}
+          />
+        </SheetContent>
+      </Sheet>
+
+      {/* SignUp Modal */}
+      <Sheet open={signUp} onOpenChange={setSignUp}>
+        <SheetOverlay className="bg-black/50" />
+        <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[30%] h-auto max-h-[80vh] p-0 border-none rounded-b-2xl mx-auto overflow-y-auto">
+          <SignUp 
+            onClose={()=>setSignUp(false)}
+            signIn={signIn}
+            setSignIn={setSignIn}
+          />
+        </SheetContent>
+      </Sheet>
+
       <div className={(signIn || signUp || resetPassword || changePassword || notification )?'blur-sm':""}>
         <Navbar 
             setNotification={setNotification}

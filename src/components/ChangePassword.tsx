@@ -78,14 +78,11 @@ function ChangePassword({onClose}:{onClose:any}) {
     }
 
   return (
-    <div  className="px-5 pb-8 pt-5 bg-white shadow-md rounded-2xl">
-        <MdCancel size={28} onClick={onClose} className="absolute top-6 right-5 cursor-pointer" />
-        <div className="mt-5">
-            <span className="text-[24px] font-bold text-darkBlue ">
-                Change Password
-            </span>
-        </div>
-        <div
+    <div className="p-6 bg-white shadow-md rounded-2xl">
+      <div className="flex items-center justify-center my-4">
+        <span className="text-xl font-bold">Change Password</span>
+      </div>
+      <div
             className=""
             >
             <div className="my-5">

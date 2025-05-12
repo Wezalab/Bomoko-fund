@@ -4,19 +4,16 @@ import { notifications } from "@/constants/dummydata"
 
 function NotificationModal({onClose}:{onClose:any}) {
   return (
-    <div className="pt-10 px-5 shadow-md py-5 relative bg-white rounded-lg">
-        <div className="absolute top-2 right-5">
-            <MdCancel onClick={onClose} size={24} color="black" />
-        </div>
-        <div className="flex items-center justify-between mt-5">
-            <span className="text-2xl font-bold">Notifications</span>
+    <div className="p-6 bg-white rounded-lg">
+        <div className="flex items-center justify-between">
+            <span className="text-xl font-bold">Notifications</span>
             <Button
                 className="text-white bg-lightBlue rounded-[100px] h-10 px-5 max-w-fit"
             >
                 Clear All
             </Button>
         </div>
-        <div className="mt-10 flex-col space-y-5 h-[500px]">
+        <div className="mt-6 flex-col space-y-5 h-[500px] overflow-y-auto">
             {
                 notifications.map((item, index)=>(
                     <div key={index} className="flex w-full justify-between">
