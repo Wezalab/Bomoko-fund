@@ -19,6 +19,24 @@ import LoadingComponent from './LoadingComponent';
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
+// Extended User type to match backend model
+interface ExtendedUser {
+  _id: string;
+  name?: string;
+  gender?: "M" | "F" | "OTHER";
+  avatar?: string;
+  bio?: string;
+  location?: string;
+  email: string;
+  phone_number?: string;
+  phone?: string;
+  type?: "INDIVIDUAL" | "ENTREPRISE" | "DONATOR" | "ENTREPRENEUR";
+  isGoogleUser?: boolean;
+  profile?: string;
+  projects?: any[];
+  cryptoWallet?: any[];
+}
+
 const formSchema = z.object({
     avatar: z
         .instanceof(FileList)
@@ -33,9 +51,11 @@ const formSchema = z.object({
         )
         .nullable()
         .optional(),
-    gender: z.string().optional(),
+    gender: z.enum(["M", "F", "OTHER"]).optional(),
     location: z.string().max(100, "Location must be less than 100 characters").optional(),
-    bio: z.string().max(500, "Bio must be less than 500 characters").optional()
+    bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
+    name: z.string().max(100, "Name must be less than 100 characters").optional(),
+    type: z.enum(["INDIVIDUAL", "ENTREPRISE", "DONATOR", "ENTREPRENEUR"]).optional()
 })
 
 type FormValues = z.infer<typeof formSchema>;
@@ -51,7 +71,7 @@ interface ApiError {
 }
 
 function ProfilePage() {
-    const user = useAppSelector(selectUser)
+    const user = useAppSelector(selectUser) as unknown as ExtendedUser;
     const [preview, setPreview] = useState<string | null>(null);
     const dispatch = useAppDispatch()
     const [edit, setEdit] = useState(false)
@@ -65,9 +85,11 @@ function ProfilePage() {
       } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            gender: user?.gender || undefined,
+            gender: user?.gender,
             location: user?.location || '',
-            bio: user?.bio || ''
+            bio: user?.bio || '',
+            name: user?.name || '',
+            type: user?.type
         }
       });
 
@@ -85,9 +107,11 @@ function ProfilePage() {
       // Initialize form with user data when edit mode is enabled
       useEffect(() => {
         if (edit && user) {
-            setValue("gender", user.gender || undefined);
+            setValue("gender", user.gender);
             setValue("location", user.location || '');
             setValue("bio", user.bio || '');
+            setValue("name", user.name || '');
+            setValue("type", user.type);
         }
       }, [edit, user, setValue]);
 
@@ -110,6 +134,8 @@ function ProfilePage() {
             if (data.gender) formData.append("gender", data.gender);
             if (data.location) formData.append("location", data.location);
             if (data.bio) formData.append("bio", data.bio);
+            if (data.name) formData.append("name", data.name);
+            if (data.type) formData.append("type", data.type);
             
             // Call the API
             EditProfile({
@@ -180,9 +206,9 @@ function ProfilePage() {
       };
 
   return (
-    <div className="bg-gray-200 h-[90vh] py-5 p-2 md:pt-10">
+    <div className="bg-gray-200 min-h-[90vh] py-5 p-2 md:pt-10 pb-20 overflow-y-auto">
         
-        <form onSubmit={handleSubmit(onsubmit)} className='md:hidden'>
+        <form onSubmit={handleSubmit(onsubmit)} className='md:hidden mb-16'>
             <span className='text-semibold text-xl'>Profile</span>
             <div className='flex items-center space-x-5'>
                 <div className="w-[100px] h-[100px] rounded-full mt-5">
@@ -231,12 +257,24 @@ function ProfilePage() {
             {
                 edit && (
                     <div className='my-5 w-[90%]'>
+                        <div className='flex flex-col space-y-1 mb-3'>
+                            <label className="font-semibold">Name</label>
+                            <Input 
+                                {...register("name")}
+                                placeholder="Your name"
+                                className='h-10 border-[1px] border-black rounded-[100px]'
+                            />
+                            {errors.name && (
+                                <p className="text-red-500 text-sm mt-1">{errors.name.message as string}</p>
+                            )}
+                        </div>
+                        
                         <div className="flex flex-col space-y-1 my-5">
                             <div className=''>
                                 <label className="font-semibold">Gender</label>
                                 <Select 
                                     defaultValue={user?.gender}
-                                    onValueChange={(value) => setValue("gender", value as "M"| "F")}
+                                    onValueChange={(value) => setValue("gender", value as "M"| "F" | "OTHER")}
                                 >
                                     <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
                                     <SelectValue placeholder="Select gender" />
@@ -246,6 +284,7 @@ function ProfilePage() {
                                         <SelectLabel>Gender</SelectLabel>
                                         <SelectItem value="M">Male</SelectItem>
                                         <SelectItem value="F">Female</SelectItem>
+                                        <SelectItem value="OTHER">Other</SelectItem>
                                     </SelectGroup>
                                     </SelectContent>
                                 </Select>
@@ -253,8 +292,34 @@ function ProfilePage() {
                                     <p className="text-red-500 text-sm mt-1">{errors.gender.message as string}</p>
                                 )}
                             </div>
-                            
                         </div>
+                        
+                        <div className="flex flex-col space-y-1 my-5">
+                            <div className=''>
+                                <label className="font-semibold">Account Type</label>
+                                <Select 
+                                    defaultValue={user?.type}
+                                    onValueChange={(value) => setValue("type", value as "INDIVIDUAL" | "ENTREPRISE" | "DONATOR" | "ENTREPRENEUR")}
+                                >
+                                    <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                                    <SelectValue placeholder="Select account type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Account Type</SelectLabel>
+                                        <SelectItem value="INDIVIDUAL">Individual</SelectItem>
+                                        <SelectItem value="ENTREPRISE">Enterprise</SelectItem>
+                                        <SelectItem value="DONATOR">Donator</SelectItem>
+                                        <SelectItem value="ENTREPRENEUR">Entrepreneur</SelectItem>
+                                    </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                                {errors.type && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.type.message as string}</p>
+                                )}
+                            </div>
+                        </div>
+                        
                         <div className='flex flex-col space-y-1'>
                             <label>Location</label>
                             <Input 
@@ -270,7 +335,7 @@ function ProfilePage() {
                             <label>Bio</label>
                             <Textarea 
                                 {...register("bio")}
-                                placeholder='Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, '
+                                placeholder='Tell us about yourself...'
                                 className='border-[1px] border-black'
                                 rows={5}
                             />
@@ -300,17 +365,37 @@ function ProfilePage() {
             {
                 !edit && (
                     <div className='my-5'>
+                        {user?.name && (
+                            <div className='flex items-center mb-4 space-x-2'>
+                                <span className='font-bold'>Name:</span>
+                                <span className='font-thin'>{user.name}</span>
+                            </div>
+                        )}
                         <div className='flex items-center mb-4 space-x-2'>
                             <span className='font-bold'>Email:</span>
                             <span className='font-thin'>{user?.email}</span>
                         </div>
                         {
-                            user?.phone_number &&
+                            (user?.phone_number || user?.phone) &&
                             <div className='flex items-center mb-4 space-x-2'>
                                 <span className='font-bold'>Phone:</span>
-                                <span className='font-thin'>{user?.phone_number}</span>
+                                <span className='font-thin'>{user?.phone_number || user?.phone}</span>
                             </div>
                         }
+                        {user?.gender && (
+                            <div className='flex items-center mb-4 space-x-2'>
+                                <span className='font-bold'>Gender:</span>
+                                <span className='font-thin'>
+                                    {user.gender === 'M' ? 'Male' : user.gender === 'F' ? 'Female' : 'Other'}
+                                </span>
+                            </div>
+                        )}
+                        {user?.type && (
+                            <div className='flex items-center mb-4 space-x-2'>
+                                <span className='font-bold'>Account Type:</span>
+                                <span className='font-thin'>{user.type}</span>
+                            </div>
+                        )}
                         <div className='flex items-center mb-4 space-x-2'>
                             <span className='font-bold'>Location:</span>
                             <span className='font-thin'>{user?.location || 'Not specified'}</span>
@@ -336,7 +421,7 @@ function ProfilePage() {
             
         </form>
         {/* Small devices and large devices */}
-        <form onSubmit={handleSubmit(onsubmit)} className="hidden md:block w-3/4 lg:w-2/4 rounded-md px-5 py-10 mx-auto bg-white">
+        <form onSubmit={handleSubmit(onsubmit)} className="hidden md:block w-3/4 lg:w-2/4 rounded-md px-5 py-10 mx-auto bg-white mb-16">
             <span className="font-bold text-xl ml-2">Profile</span>
             <div className="flex items-center space-x-5">
                 <div className="w-[100px] h-[100px] rounded-full mt-5">
@@ -396,12 +481,26 @@ function ProfilePage() {
             {
                 edit && (
                     <div className='my-10'>
+                        <div className='grid grid-cols-1 gap-y-5 mb-5'>
+                            <div>
+                                <label className="font-semibold">Name</label>
+                                <Input 
+                                    {...register("name")}
+                                    placeholder="Your name"
+                                    className='h-10 rounded-[100px] mt-1'
+                                />
+                                {errors.name && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.name.message as string}</p>
+                                )}
+                            </div>
+                        </div>
+                        
                         <div className='grid grid-cols-2 gap-x-5'>
                             <div className=''>
                                 <label className="font-semibold">Gender</label>
                                 <Select 
                                     defaultValue={user?.gender}
-                                    onValueChange={(value) => setValue("gender", value as "M"| "F")}
+                                    onValueChange={(value) => setValue("gender", value as "M"| "F" | "OTHER")}
                                 >
                                     <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
                                     <SelectValue placeholder="Select Gender" />
@@ -411,6 +510,7 @@ function ProfilePage() {
                                         <SelectLabel>Gender</SelectLabel>
                                         <SelectItem value="M">Male</SelectItem>
                                         <SelectItem value="F">Female</SelectItem>
+                                        <SelectItem value="OTHER">Other</SelectItem>
                                     </SelectGroup>
                                     </SelectContent>
                                 </Select>
@@ -430,11 +530,36 @@ function ProfilePage() {
                                 )}
                             </div>
                         </div>
+                        
+                        <div className='mt-5'>
+                            <label className="font-semibold">Account Type</label>
+                            <Select 
+                                defaultValue={user?.type}
+                                onValueChange={(value) => setValue("type", value as "INDIVIDUAL" | "ENTREPRISE" | "DONATOR" | "ENTREPRENEUR")}
+                            >
+                                <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                                <SelectValue placeholder="Select account type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Account Type</SelectLabel>
+                                    <SelectItem value="INDIVIDUAL">Individual</SelectItem>
+                                    <SelectItem value="ENTREPRISE">Enterprise</SelectItem>
+                                    <SelectItem value="DONATOR">Donator</SelectItem>
+                                    <SelectItem value="ENTREPRENEUR">Entrepreneur</SelectItem>
+                                </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            {errors.type && (
+                                <p className="text-red-500 text-sm mt-1">{errors.type.message as string}</p>
+                            )}
+                        </div>
+                        
                         <div className='mt-5'>
                             <label>Bio</label>
                             <Textarea 
                                 {...register("bio")}
-                                placeholder='Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, '
+                                placeholder='Tell us about yourself...'
                                 className=''
                                 rows={5}
                             />
@@ -465,17 +590,37 @@ function ProfilePage() {
             {
                 !edit && (
                     <div className='mt-5'>
+                        {user?.name && (
+                            <div className='flex items-center mb-4 space-x-2'>
+                                <span className='font-bold'>Name:</span>
+                                <span className='font-thin'>{user.name}</span>
+                            </div>
+                        )}
                         <div className='flex items-center mb-4 space-x-2'>
                             <span className='font-bold'>Email:</span>
                             <span className='font-thin'>{user?.email}</span>
                         </div>
                         {
-                            user?.phone_number &&
+                            (user?.phone_number || user?.phone) &&
                             <div className='flex items-center mb-4 space-x-2'>
                                 <span className='font-bold'>Phone:</span>
-                                <span className='font-thin'>{user?.phone_number}</span>
+                                <span className='font-thin'>{user?.phone_number || user?.phone}</span>
                             </div>
                         }
+                        {user?.gender && (
+                            <div className='flex items-center mb-4 space-x-2'>
+                                <span className='font-bold'>Gender:</span>
+                                <span className='font-thin'>
+                                    {user.gender === 'M' ? 'Male' : user.gender === 'F' ? 'Female' : 'Other'}
+                                </span>
+                            </div>
+                        )}
+                        {user?.type && (
+                            <div className='flex items-center mb-4 space-x-2'>
+                                <span className='font-bold'>Account Type:</span>
+                                <span className='font-thin'>{user.type}</span>
+                            </div>
+                        )}
                         <div className='flex items-center mb-4 space-x-2'>
                             <span className='font-bold'>Location:</span>
                             <span className='font-thin'>{user?.location || 'Not specified'}</span>
