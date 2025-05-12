@@ -14,6 +14,9 @@ import { useEffect, useState } from 'react';
 import { useEditProfileMutation} from '@/redux/services/userServices';
 import toast from 'react-hot-toast';
 import LoadingComponent from './LoadingComponent';
+import { FaUser, FaEnvelope, FaPhone, FaVenusMars, FaMapMarkerAlt, FaInfoCircle, FaBuilding } from "react-icons/fa";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Maximum file size: 5MB
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -205,447 +208,330 @@ function ProfilePage() {
         reset();
       };
 
-  return (
-    <div className="bg-gray-200 min-h-[90vh] py-5 p-2 md:pt-10 pb-20 overflow-y-auto">
+      // Get account type display name
+      const getAccountTypeDisplay = (type?: string) => {
+        if (!type) return 'Not specified';
         
-        <form onSubmit={handleSubmit(onsubmit)} className='md:hidden mb-16'>
-            <span className='text-semibold text-xl'>Profile</span>
-            <div className='flex items-center space-x-5'>
-                <div className="w-[100px] h-[100px] rounded-full mt-5">
-                    {
-                        !preview && user?.avatar ? (
-                            <img 
-                                src={user.avatar}
-                                className='w-full h-full rounded-full object-cover'
-                                alt="profile-img"
-                            />
-                        ) : !preview ? (
-                            <img 
-                                src={Avatar}
-                                className='w-full h-full rounded-full object-cover'
-                                alt="profile-img"
-                            />
-                        ) : (
-                            <img 
-                                src={preview}
-                                className='w-full h-full rounded-full object-cover'
-                                alt="profile-img"
-                            />
-                        )
-                    }
-                </div>
-                <div className=''>
-                    <div
-                        className='flex items-center space-x-2 px-5 py-1 rounded-[100px] hover:bg-blue-200 bg-lightBlue'
-                    >
-                        <SlCloudUpload color='white' />
-                        <Input 
-                            disabled={!edit}
-                            placeholder='Upload new picture'  
-                            accept={ACCEPTED_IMAGE_TYPES.join(',')} 
-                            type="file" 
-                            {...register("avatar")}
-                            className='border-none text-white' 
-                            onChange={handleFileChange}
-                        />
-                    </div>
-                    {errors.avatar && (
-                        <p className="text-red-500 text-sm mt-1">{errors.avatar.message as string}</p>
-                    )}
-                </div>
-            </div>
-            {
-                edit && (
-                    <div className='my-5 w-[90%]'>
-                        <div className='flex flex-col space-y-1 mb-3'>
-                            <label className="font-semibold">Name</label>
-                            <Input 
-                                {...register("name")}
-                                placeholder="Your name"
-                                className='h-10 border-[1px] border-black rounded-[100px]'
-                            />
-                            {errors.name && (
-                                <p className="text-red-500 text-sm mt-1">{errors.name.message as string}</p>
-                            )}
-                        </div>
-                        
-                        <div className="flex flex-col space-y-1 my-5">
-                            <div className=''>
-                                <label className="font-semibold">Gender</label>
-                                <Select 
-                                    defaultValue={user?.gender}
-                                    onValueChange={(value) => setValue("gender", value as "M"| "F" | "OTHER")}
-                                >
-                                    <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                                    <SelectValue placeholder="Select gender" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                    <SelectGroup>
-                                        <SelectLabel>Gender</SelectLabel>
-                                        <SelectItem value="M">Male</SelectItem>
-                                        <SelectItem value="F">Female</SelectItem>
-                                        <SelectItem value="OTHER">Other</SelectItem>
-                                    </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                {errors.gender && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.gender.message as string}</p>
-                                )}
-                            </div>
-                        </div>
-                        
-                        <div className="flex flex-col space-y-1 my-5">
-                            <div className=''>
-                                <label className="font-semibold">Account Type</label>
-                                <Select 
-                                    defaultValue={user?.type}
-                                    onValueChange={(value) => setValue("type", value as "INDIVIDUAL" | "ENTREPRISE" | "DONATOR" | "ENTREPRENEUR")}
-                                >
-                                    <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                                    <SelectValue placeholder="Select account type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                    <SelectGroup>
-                                        <SelectLabel>Account Type</SelectLabel>
-                                        <SelectItem value="INDIVIDUAL">Individual</SelectItem>
-                                        <SelectItem value="ENTREPRISE">Enterprise</SelectItem>
-                                        <SelectItem value="DONATOR">Donator</SelectItem>
-                                        <SelectItem value="ENTREPRENEUR">Entrepreneur</SelectItem>
-                                    </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                {errors.type && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.type.message as string}</p>
-                                )}
-                            </div>
-                        </div>
-                        
-                        <div className='flex flex-col space-y-1'>
-                            <label>Location</label>
-                            <Input 
-                                {...register("location")}
-                                placeholder="Goma"
-                                className='h-10 border-[1px] border-black rounded-[100px]'
-                            />
-                            {errors.location && (
-                                <p className="text-red-500 text-sm mt-1">{errors.location.message as string}</p>
-                            )}
-                        </div>
-                        <div className='mt-5'>
-                            <label>Bio</label>
-                            <Textarea 
-                                {...register("bio")}
-                                placeholder='Tell us about yourself...'
-                                className='border-[1px] border-black'
-                                rows={5}
-                            />
-                            {errors.bio && (
-                                <p className="text-red-500 text-sm mt-1">{errors.bio.message as string}</p>
-                            )}
-                        </div>
-                        <div className="flex space-x-3 mt-5">
-                            <Button
-                                type="submit"
-                                disabled={editProfileIsLoading}
-                                className='bg-darkBlue px-5 text-white rounded-[100px] w-full h-10'
-                            >
-                                {editProfileIsLoading ? <LoadingComponent /> :"Save changes"}
-                            </Button>
-                            <Button
-                                type="button"
-                                onClick={handleCancel}
-                                className='bg-white text-black border-[1px] border-black rounded-[100px] w-full h-10'
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-                )
-            }
-            {
-                !edit && (
-                    <div className='my-5'>
-                        {user?.name && (
-                            <div className='flex items-center mb-4 space-x-2'>
-                                <span className='font-bold'>Name:</span>
-                                <span className='font-thin'>{user.name}</span>
-                            </div>
-                        )}
-                        <div className='flex items-center mb-4 space-x-2'>
-                            <span className='font-bold'>Email:</span>
-                            <span className='font-thin'>{user?.email}</span>
-                        </div>
-                        {
-                            (user?.phone_number || user?.phone) &&
-                            <div className='flex items-center mb-4 space-x-2'>
-                                <span className='font-bold'>Phone:</span>
-                                <span className='font-thin'>{user?.phone_number || user?.phone}</span>
-                            </div>
-                        }
-                        {user?.gender && (
-                            <div className='flex items-center mb-4 space-x-2'>
-                                <span className='font-bold'>Gender:</span>
-                                <span className='font-thin'>
-                                    {user.gender === 'M' ? 'Male' : user.gender === 'F' ? 'Female' : 'Other'}
-                                </span>
-                            </div>
-                        )}
-                        {user?.type && (
-                            <div className='flex items-center mb-4 space-x-2'>
-                                <span className='font-bold'>Account Type:</span>
-                                <span className='font-thin'>{user.type}</span>
-                            </div>
-                        )}
-                        <div className='flex items-center mb-4 space-x-2'>
-                            <span className='font-bold'>Location:</span>
-                            <span className='font-thin'>{user?.location || 'Not specified'}</span>
-                        </div>
-                        {
-                            user?.bio && (
-                                <div className='flex items-center mb-4 space-x-2'>
-                                    <span className='font-bold'>Bio:</span>
-                                    <span className='font-thin'>{user?.bio}</span>
-                                </div>
-                            )
-                        }
-                        <Button
-                            onClick={()=>setEdit(true)}
-                            className='max-w-fit px-10 mt-5 bg-lightBlue py-2 rounded-[100px]'
-                        >
-                            Edit
-                        </Button>
-                        
-                    </div>
-                )
-            }
-            
-        </form>
-        {/* Small devices and large devices */}
-        <form onSubmit={handleSubmit(onsubmit)} className="hidden md:block w-3/4 lg:w-2/4 rounded-md px-5 py-10 mx-auto bg-white mb-16">
-            <span className="font-bold text-xl ml-2">Profile</span>
-            <div className="flex items-center space-x-5">
-                <div className="w-[100px] h-[100px] rounded-full mt-5">
-                    {
-                        !preview && user?.avatar ? (
-                            <img 
-                                src={user.avatar}
-                                className='w-full h-full rounded-full object-cover'
-                                alt="profile-img"
-                            />
-                        ) : !preview ? (
-                            <img 
-                                src={Avatar}
-                                className='w-full h-full rounded-full object-cover'
-                                alt="profile-img"
-                            />
-                        ) : (
-                            <img 
-                                src={preview}
-                                className='w-full h-full rounded-full object-cover'
-                                alt="profile-img"
-                            />
-                        )
-                    }
-                </div>
-                <div className='flex items-center space-x-5'>
-                    <div
-                        className='flex items-center space-x-2 px-5 py-1 rounded-[100px] hover:bg-blue-200 bg-lightBlue'
-                    >
-                        <SlCloudUpload color='white' />
-                        <Input 
-                            disabled={!edit}
-                            placeholder='Upload new picture'  
-                            accept={ACCEPTED_IMAGE_TYPES.join(',')} 
-                            type="file" 
-                            {...register("avatar")}
-                            className='border-none text-white' 
-                            onChange={handleFileChange}
-                        />
-                    </div>
-                    <Button
-                        disabled={!edit || !preview}
-                        onClick={() => {
-                            setPreview(null);
-                            setValue("avatar", undefined); // Reset form file state
-                        }}
-                        className='hidden md:flex items-center space-x-2 px-5 border-[1px] hover:bg-gray-100 border-black text-black rounded-[100px] bg-white'
-                    >
-                        <FaTrashCan color='black' />
-                        Delete Picture
-                    </Button>
-                </div>
-            </div>
-            {errors.avatar && (
-                <p className="text-red-500 text-sm mt-1 ml-2">{errors.avatar.message as string}</p>
-            )}
-            {
-                edit && (
-                    <div className='my-10'>
-                        <div className='grid grid-cols-1 gap-y-5 mb-5'>
-                            <div>
-                                <label className="font-semibold">Name</label>
-                                <Input 
-                                    {...register("name")}
-                                    placeholder="Your name"
-                                    className='h-10 rounded-[100px] mt-1'
-                                />
-                                {errors.name && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.name.message as string}</p>
-                                )}
-                            </div>
-                        </div>
-                        
-                        <div className='grid grid-cols-2 gap-x-5'>
-                            <div className=''>
-                                <label className="font-semibold">Gender</label>
-                                <Select 
-                                    defaultValue={user?.gender}
-                                    onValueChange={(value) => setValue("gender", value as "M"| "F" | "OTHER")}
-                                >
-                                    <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                                    <SelectValue placeholder="Select Gender" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                    <SelectGroup>
-                                        <SelectLabel>Gender</SelectLabel>
-                                        <SelectItem value="M">Male</SelectItem>
-                                        <SelectItem value="F">Female</SelectItem>
-                                        <SelectItem value="OTHER">Other</SelectItem>
-                                    </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                                {errors.gender && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.gender.message as string}</p>
-                                )}
-                            </div>
-                            <div className=''>
-                                <label>Location</label>
-                                <Input 
-                                    {...register("location")}
-                                    placeholder="Goma"
-                                    className='h-10 rounded-[100px]'
-                                />
-                                {errors.location && (
-                                    <p className="text-red-500 text-sm mt-1">{errors.location.message as string}</p>
-                                )}
-                            </div>
-                        </div>
-                        
-                        <div className='mt-5'>
-                            <label className="font-semibold">Account Type</label>
-                            <Select 
-                                defaultValue={user?.type}
-                                onValueChange={(value) => setValue("type", value as "INDIVIDUAL" | "ENTREPRISE" | "DONATOR" | "ENTREPRENEUR")}
-                            >
-                                <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                                <SelectValue placeholder="Select account type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                <SelectGroup>
-                                    <SelectLabel>Account Type</SelectLabel>
-                                    <SelectItem value="INDIVIDUAL">Individual</SelectItem>
-                                    <SelectItem value="ENTREPRISE">Enterprise</SelectItem>
-                                    <SelectItem value="DONATOR">Donator</SelectItem>
-                                    <SelectItem value="ENTREPRENEUR">Entrepreneur</SelectItem>
-                                </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                            {errors.type && (
-                                <p className="text-red-500 text-sm mt-1">{errors.type.message as string}</p>
-                            )}
-                        </div>
-                        
-                        <div className='mt-5'>
-                            <label>Bio</label>
-                            <Textarea 
-                                {...register("bio")}
-                                placeholder='Tell us about yourself...'
-                                className=''
-                                rows={5}
-                            />
-                            {errors.bio && (
-                                <p className="text-red-500 text-sm mt-1">{errors.bio.message as string}</p>
-                            )}
-                        </div>
-                        <div className='mt-5 flex space-x-5'>
-                            <Button
-                                type="submit"
-                                disabled={editProfileIsLoading}
-                                className='bg-darkBlue px-5 text-white rounded-[100px] h-10'
-                            >
-                                {editProfileIsLoading ? <LoadingComponent />:"Save"}
-                            </Button>
-                            <Button
-                                type="button"
-                                onClick={handleCancel}
-                                className='bg-white text-black border-[1px] border-black rounded-[100px] h-10'
-                            >
-                                Cancel
-                            </Button>
+        switch(type) {
+          case 'INDIVIDUAL': return 'Individual';
+          case 'ENTREPRISE': return 'Enterprise';
+          case 'DONATOR': return 'Donator';
+          case 'ENTREPRENEUR': return 'Entrepreneur';
+          default: return type;
+        }
+      };
 
-                        </div>
+      // Get gender display name
+      const getGenderDisplay = (gender?: string) => {
+        if (!gender) return 'Not specified';
+        
+        switch(gender) {
+          case 'M': return 'Male';
+          case 'F': return 'Female';
+          case 'OTHER': return 'Other';
+          default: return gender;
+        }
+      };
+
+  return (
+    <div className="bg-gray-100 min-h-[90vh] py-5 p-4 md:pt-10 pb-20 overflow-y-auto">
+      <div className="max-w-5xl mx-auto">
+        <Tabs defaultValue="profile" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="profile">Profile Information</TabsTrigger>
+            <TabsTrigger value="edit">Edit Profile</TabsTrigger>
+          </TabsList>
+          
+          {/* Profile Information Tab */}
+          <TabsContent value="profile">
+            <Card className="border-none shadow-md">
+              <CardHeader className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-t-lg">
+                <div className="flex items-center gap-6">
+                  <div className="w-24 h-24 rounded-full border-4 border-white overflow-hidden bg-white">
+                    <img 
+                      src={user?.avatar || Avatar} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-bold">
+                      {user?.name || 'User Profile'}
+                    </CardTitle>
+                    <CardDescription className="text-gray-100 mt-1">
+                      {getAccountTypeDisplay(user?.type)}
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="pt-6 px-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaUser className="text-blue-500 text-xl" />
+                      <div>
+                        <p className="text-sm text-gray-500">Name</p>
+                        <p className="font-medium">{user?.name || 'Not specified'}</p>
+                      </div>
                     </div>
-                )
-            }
-            {
-                !edit && (
-                    <div className='mt-5'>
-                        {user?.name && (
-                            <div className='flex items-center mb-4 space-x-2'>
-                                <span className='font-bold'>Name:</span>
-                                <span className='font-thin'>{user.name}</span>
-                            </div>
+                    
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaEnvelope className="text-blue-500 text-xl" />
+                      <div>
+                        <p className="text-sm text-gray-500">Email</p>
+                        <p className="font-medium">{user?.email}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaPhone className="text-blue-500 text-xl" />
+                      <div>
+                        <p className="text-sm text-gray-500">Phone</p>
+                        <p className="font-medium">{user?.phone_number || user?.phone || 'Not specified'}</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaVenusMars className="text-blue-500 text-xl" />
+                      <div>
+                        <p className="text-sm text-gray-500">Gender</p>
+                        <p className="font-medium">{getGenderDisplay(user?.gender)}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaMapMarkerAlt className="text-blue-500 text-xl" />
+                      <div>
+                        <p className="text-sm text-gray-500">Location</p>
+                        <p className="font-medium">{user?.location || 'Not specified'}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <FaBuilding className="text-blue-500 text-xl" />
+                      <div>
+                        <p className="text-sm text-gray-500">Account Type</p>
+                        <p className="font-medium">{getAccountTypeDisplay(user?.type)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {user?.bio && (
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <FaInfoCircle className="text-blue-500" />
+                      <h3 className="font-semibold">Bio</h3>
+                    </div>
+                    <p className="text-gray-700">{user.bio}</p>
+                  </div>
+                )}
+              </CardContent>
+              
+              <CardFooter className="flex justify-end border-t p-6">
+                <Button 
+                  onClick={() => document.querySelector('[data-value="edit"]')?.dispatchEvent(new MouseEvent('click'))}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6"
+                >
+                  Edit Profile
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+          
+          {/* Edit Profile Tab */}
+          <TabsContent value="edit">
+            <Card className="border-none shadow-md">
+              <CardHeader>
+                <CardTitle>Edit Your Profile</CardTitle>
+                <CardDescription>
+                  Update your profile information and settings
+                </CardDescription>
+              </CardHeader>
+              
+              <form onSubmit={handleSubmit(onsubmit)}>
+                <CardContent className="space-y-6">
+                  <div className="flex flex-col items-center sm:flex-row sm:items-start gap-6 pb-6 border-b">
+                    <div className="relative">
+                      <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-gray-200">
+                        {!preview && user?.avatar ? (
+                          <img 
+                            src={user.avatar}
+                            className="w-full h-full object-cover"
+                            alt="profile-img"
+                          />
+                        ) : !preview ? (
+                          <img 
+                            src={Avatar}
+                            className="w-full h-full object-cover"
+                            alt="profile-img"
+                          />
+                        ) : (
+                          <img 
+                            src={preview}
+                            className="w-full h-full object-cover"
+                            alt="profile-img"
+                          />
                         )}
-                        <div className='flex items-center mb-4 space-x-2'>
-                            <span className='font-bold'>Email:</span>
-                            <span className='font-thin'>{user?.email}</span>
-                        </div>
-                        {
-                            (user?.phone_number || user?.phone) &&
-                            <div className='flex items-center mb-4 space-x-2'>
-                                <span className='font-bold'>Phone:</span>
-                                <span className='font-thin'>{user?.phone_number || user?.phone}</span>
-                            </div>
-                        }
-                        {user?.gender && (
-                            <div className='flex items-center mb-4 space-x-2'>
-                                <span className='font-bold'>Gender:</span>
-                                <span className='font-thin'>
-                                    {user.gender === 'M' ? 'Male' : user.gender === 'F' ? 'Female' : 'Other'}
-                                </span>
-                            </div>
-                        )}
-                        {user?.type && (
-                            <div className='flex items-center mb-4 space-x-2'>
-                                <span className='font-bold'>Account Type:</span>
-                                <span className='font-thin'>{user.type}</span>
-                            </div>
-                        )}
-                        <div className='flex items-center mb-4 space-x-2'>
-                            <span className='font-bold'>Location:</span>
-                            <span className='font-thin'>{user?.location || 'Not specified'}</span>
-                        </div>
-                        {
-                            user?.bio && (
-                                <div className='flex items-center mb-4 space-x-2'>
-                                    <span className='font-bold'>Bio:</span>
-                                    <span className='font-thin'>{user?.bio}</span>
-                                </div>
-                            )
-                        }
-                        <Button
-                            onClick={()=>setEdit(true)}
-                            className='max-w-fit px-10 mt-5 bg-lightBlue py-2 rounded-[100px]'
+                      </div>
+                      
+                      {preview && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPreview(null);
+                            setValue("avatar", undefined);
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
                         >
-                            Edit
-                        </Button>
-                        
+                          <FaTrashCan size={14} />
+                        </button>
+                      )}
                     </div>
-                )
-            }
-        </form>
+                    
+                    <div className="flex-1">
+                      <h3 className="font-medium mb-2">Profile Picture</h3>
+                      <p className="text-sm text-gray-500 mb-4">
+                        Upload a new profile picture. JPG, PNG or WebP (max. 5MB)
+                      </p>
+                      
+                      <div className="flex items-center">
+                        <label 
+                          htmlFor="avatar-upload" 
+                          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
+                        >
+                          <SlCloudUpload />
+                          <span>Upload Image</span>
+                        </label>
+                        <Input 
+                          id="avatar-upload"
+                          type="file"
+                          accept={ACCEPTED_IMAGE_TYPES.join(',')} 
+                          {...register("avatar")}
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                      
+                      {errors.avatar && (
+                        <p className="text-red-500 text-sm mt-2">{errors.avatar.message as string}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="font-medium">Name</label>
+                      <Input 
+                        {...register("name")}
+                        placeholder="Your full name"
+                        className="h-10"
+                      />
+                      {errors.name && (
+                        <p className="text-red-500 text-sm">{errors.name.message as string}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="font-medium">Location</label>
+                      <Input 
+                        {...register("location")}
+                        placeholder="Your location"
+                        className="h-10"
+                      />
+                      {errors.location && (
+                        <p className="text-red-500 text-sm">{errors.location.message as string}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="font-medium">Gender</label>
+                      <Select 
+                        defaultValue={user?.gender}
+                        onValueChange={(value) => setValue("gender", value as "M"| "F" | "OTHER")}
+                      >
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Gender</SelectLabel>
+                            <SelectItem value="M">Male</SelectItem>
+                            <SelectItem value="F">Female</SelectItem>
+                            <SelectItem value="OTHER">Other</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      {errors.gender && (
+                        <p className="text-red-500 text-sm">{errors.gender.message as string}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="font-medium">Account Type</label>
+                      <Select 
+                        defaultValue={user?.type}
+                        onValueChange={(value) => setValue("type", value as "INDIVIDUAL" | "ENTREPRISE" | "DONATOR" | "ENTREPRENEUR")}
+                      >
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select account type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Account Type</SelectLabel>
+                            <SelectItem value="INDIVIDUAL">Individual</SelectItem>
+                            <SelectItem value="ENTREPRISE">Enterprise</SelectItem>
+                            <SelectItem value="DONATOR">Donator</SelectItem>
+                            <SelectItem value="ENTREPRENEUR">Entrepreneur</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      {errors.type && (
+                        <p className="text-red-500 text-sm">{errors.type.message as string}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="font-medium">Bio</label>
+                    <Textarea 
+                      {...register("bio")}
+                      placeholder="Tell us about yourself..."
+                      className="min-h-[120px]"
+                    />
+                    {errors.bio && (
+                      <p className="text-red-500 text-sm">{errors.bio.message as string}</p>
+                    )}
+                  </div>
+                </CardContent>
+                
+                <CardFooter className="flex flex-col sm:flex-row gap-3 justify-end border-t p-6">
+                  <Button
+                    type="button"
+                    onClick={() => document.querySelector('[data-value="profile"]')?.dispatchEvent(new MouseEvent('click'))}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={editProfileIsLoading}
+                    className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+                  >
+                    {editProfileIsLoading ? <LoadingComponent /> : "Save Changes"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
-  )
+  );
 }
 
 export default ProfilePage
