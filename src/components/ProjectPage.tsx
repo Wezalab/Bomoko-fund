@@ -168,465 +168,587 @@ function ProjectPage() {
 
   //console.log("filtered data-->",filterDatas)
   return (
-    <div className='relative'>
+    <div className='relative min-h-screen bg-gray-50'>
         {
             login && 
-            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] absolute md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
-                <SignIn onClose={()=>setLogin(false)} />
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+                <div className="md:w-[80%] lg:w-[500px] max-w-full mx-4">
+                    <SignIn onClose={()=>setLogin(false)} />
+                </div>
             </div>
         }
         {
             donate &&
-            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] absolute md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
-                <Donate projectId={selectedProject?._id} onClose={()=>setDonate(false)} />
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+                <div className="md:w-[80%] lg:w-[500px] max-w-full mx-4">
+                    <Donate projectId={selectedProject?._id} onClose={()=>setDonate(false)} />
+                </div>
             </div>
         }
         {
             cashout &&
-            <div className="md:w-[80%] md:left-[10%] lg:w-[500px] absolute md:top-[20%] lg:top-[15%] z-20 lg:left-[40%]">
-                <Cashout projectId={selectedProject?._id} onClose={()=>setCashout(false)} />                
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+                <div className="md:w-[80%] lg:w-[500px] max-w-full mx-4">
+                    <Cashout projectId={selectedProject?._id} onClose={()=>setCashout(false)} />                
+                </div>
             </div>
         }
         {
           (viewProjectSecurity && (!user.email && !user.phone_number)) &&
-          <div className='fixed bg-white rounded-xl top-[20%] z-10 md:left-[10%] md:w-[80%] lg:left-[35%] lg:w-[30%]'>
-            <ViewProjectChecker 
-              onClose={()=>setViewProjectSecurity(false)} 
-              next={()=>{
-                setViewProjectSecurity(false)
-                navigate(`/projects/${selectedProject?._id}`)
-              }}
-            />
-          </div> 
-          
+          <div className='fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50'>
+            <div className='bg-white rounded-xl w-full max-w-lg mx-4 shadow-xl'>
+              <ViewProjectChecker 
+                onClose={()=>setViewProjectSecurity(false)} 
+                next={()=>{
+                  setViewProjectSecurity(false)
+                  navigate(`/projects/${selectedProject?._id}`)
+                }}
+              />
+            </div>
+          </div>
         }
         {
           openFilter && 
-          <div className='absolute bg-white rounded-xl w-[96%] left-[2%] top-10 z-50 md:top-[12%] md:z-10 md:left-[10%] lg:left-[35%] md:w-[80%] lg:w-[30%]'>
-            <FilterModal 
-              setFilterProject={()=>setFilterProject(true)} 
-              setFilterData={setFilterDatas} 
-              onClose={()=>setOpenFilter(false)} 
-            />
-          </div>
-        }
-        <div className={(openFilter || viewProjectSecurity) ? 'relative blur-md':"relative"}>
-          <div className="w-full h-[20vh] relative">
-              <img 
-                src={projectBg}
-                className='w-full h-full object-cover'
-                alt="project-bg"
+          <div className='fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50'>
+            <div className='bg-white rounded-xl w-full max-w-lg mx-4 shadow-xl'>
+              <FilterModal 
+                setFilterProject={()=>setFilterProject(true)} 
+                setFilterData={setFilterDatas} 
+                onClose={()=>setOpenFilter(false)} 
               />
-              {/* small devices filter and search */}
-              <div className='flex md:hidden flex-col  mt-5 px-5'>
-                <div className='flex items-center justify-between'>
-                  <div className='flex items-center space-x-2'>
-                    <MdMenu color='blue' size={18} />
-                    <IoLocation size={16}/>
-                  </div>
-                  <GiSettingsKnobs onClick={()=>setOpenFilter(true)} className='' size={18} />
-                </div>
-                <div className='w-full relative mt-2'>
-                  <CiSearch className='absolute top-2 left-2' />
-                  <Input 
-                    onChange={(e)=>setSearch(e.target.value)}
-                    placeholder='Search Project'
-                    className='h-8 border-none rounded-xl text-sm bg-gray-200 indent-8'
-                  />
-                </div>
-              </div>
-              <div className='w-[95%] lg:w-[90%] hidden shadow-md h-[100px] rounded-lg md:flex justify-between items-center p-10 bg-white absolute -bottom-10 left-[2%] lg:left-[5%]'>
-                <div className='flex md:w-[40%] space-x-5'>
-                  <div onClick={()=>setViewMode('other')} className={viewMode === 'other'?'flex flex-col cursor-not-allowed space-y-2':'flex cursor-pointer'}>
-                    <span className={viewMode ==='other'?"text-black md:text-sm lg:text-md text-nowrap font-semibold":"text-lightGray lg:text-md md:text-sm text-nowrap "}>Projects</span>
-                    {
-                      viewMode ==='other' &&
-                      <div className='w-[30px] h-1 bg-black'></div>
-                    }
-                    
-                  </div>
-                  <div onClick={()=>setViewMode('map')} className={viewMode === 'map'?'flex cursor-not-allowed flex-col space-y-2':'flex  cursor-pointer'}>
-                    <span className={viewMode ==='map'?"text-black font-semibold md:text-sm lg:text-md text-nowrap":"text-lightGray md:text-sm text-nowrap lg:text-md"}>Map view</span>
-                    {
-                      viewMode ==='map' &&
-                      <div className='w-[30px] h-1 bg-black'></div>
-                    }
-                    
-                  </div>
-                  {
-                    (user?.email || user?.phone_number) && (
-                      <div onClick={()=>setViewMode('grid')} className={viewMode === 'grid'?'flex flex-col cursor-not-allowed space-y-2':'flex cursor-pointer'}>
-                        <span className={viewMode ==='grid'?"text-black md:text-sm text-nowrap lg:text-md font-semibold":"text-lightGray md:text-sm lg:text-md text-nowrap"}>Personal projects</span>
-                        {
-                          viewMode ==='grid' &&
-                          <div className='w-[30px] h-1 bg-black'></div>
-                        }
-                        
-                      </div>
-                    )
-                  }
-                  
-                </div>
-                
-                <div className='flex  items-center md:space-x-4 lg:space-x-8'>
-                    {
-                      (user?.email || user?.phone_number) && (
-                        <Button
-                          onClick={()=>navigate('/projects/create')}
-                          className='flex items-center space-x-3 md:h-[35px] lg:h-[50px] bg-lightBlue hover:bg-blue-300 text-white rounded-[100px] max-w-fit'
-                        >
-                          <PlusCircle />
-                          Create
-                        </Button>
-                      )
-                    }
-                    {
-                      viewMode === "other" && (
-                        <Button
-                          onClick={()=>{
-                            // filterProjects && setFilterProject(false)
-                            if(filterProjects){
-                              setFilterProject(false)
-                              return
-                            }
-                            setFilterProject(true)
-                            setOpenFilter(true)
-                          }}
-                          className={filterProjects  ? "md:w-[100px] lg:w-[150px] md:h-[35px] lg:h-[50px] rounded-[100px] text-white bg-lightBlue flex items-center space-x-5" :'bg-grayColor md:w-[100px] lg:w-[150px] md:h-[35px] lg:h-[50px] text-black rounded-[100px] hover:text-white hover:bg-lightBlue flex items-center space-x-5'}
-                        >
-                          <GiSettingsKnobs className='' size={24} />
-                          Filter
-                        </Button>
-                      )
-                    }
-                    
-                    <div className='w-[430px] hidden md:hidden bg-grayColor rounded-[100px] lg:flex items-center space-x-5 px-2 h-[50px]'>
-                      <div className='relative w-[300px]'>
-                        <Input 
-                          onChange={(e)=>setSearch(e.target.value)}
-                          className='w-full py-4 indent-10 rounded-[100px] outline-none'
-                          placeholder='Search'
-                        />
-                        <CiSearch className='text-lightGray absolute top-2 left-3' size={20} />
-                      </div>
-                      {
-                        !search && (
-                          <Button
-                            className='w-[100px] h-[42px] rounded-[100px] bg-lightBlue text-white hover:bg-blue-200'
-                          >
-                            Search
-                          </Button>
-                        )
-                      }
-                      
-                    </div>
-                    <Button
-                      className='md:w-[80px] lg:hidden md:h-[35px] lg:w-[100px] lg:h-[42px] rounded-[100px] bg-lightBlue text-white hover:bg-blue-200'
-                    >
-                      Search
-                    </Button>
-                </div>
-              </div>
+            </div>
           </div>
-          { viewMode ==='grid' &&
-          <>
-            {/* project session */}
-          <div className='mt-24 mb-10 px-[5%] md:grid-cols-2 grid lg:grid-cols-3 gap-x-8 gap-y-5'>
-              
-              {
-                currentDataPersonal?.length > 0 &&  currentDataPersonal?.slice(0,9).map((project:any)=>(
-                  <PopularProjectCard 
-                    onClick={()=>{
-                      setSelectedProject(project)
-                      //@ts-ignore
-                      dispatch(setProject(project))
-                      if(project?._id){
-                        navigate(`/projects/${project._id}`)
-                      }
-                      
-                      //(!user.email&& !user.phone_number) && setViewProjectSecurity(true)
-                      
-                    }}
-                    action={()=>{
-                      setSelectedProject(project)
-                      //@ts-ignore
-                      dispatch(setProject(project))
-                      if(project?._id){
-                        navigate(`/projects/${project._id}`)
-                      }
-                      // setSelectedProject(project)
-                      // //@ts-ignore
-                      // dispatch(setProject(project))
-                      // setCashout(true)
-                    }}
-                    actionName='Cashout'
-                    key={project?._id}
-                    image={project?.medias[0]}
-                    title={project?.name}
-                    desc={project?.description}
-                    type={project?.type.name}
-                    amount={project?.actualBalance}
-                    limit={project?.targetAmount}
-
-                  />
-                ))
-              }
-              
-          </div>
-              {
-                userProjectsData?.length === 0 && (
-                  <div className='flex items-center justify-center text-center w-full mb-10'>
-                    <span className='text-lightGray font-bold text-xl'>No Personal Projects</span>
-                  </div>
-                )
-              }
-              {
-                viewMode ==="grid" && !userProjectsData  && (
-                  <div className='flex items-center justify-center text-center w-full mb-10'>
-                    <span className='text-lightGray font-bold text-xl'>No Personal Projects</span>
-                  </div>
-                )
-              }
-              {
-                userProjectIsLoading && (
-                  <div className='flex items-center justify-center text-center w-full mb-10'>
-                    <span className='text-blue-600 font-bold text-xl'>Getting all user's Projects...</span>
-                  </div>
-                )
-              }
-
-          {/* Pagination */}
-          {/* //TODO: Only display user projects when a user is logged in  */}
-          {
-            (user?.email || user?.phone_number) && userProjectsData?.length > 0 && (
-              <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
-                  <Button
-                    disabled={currentPage === 1}
-                    onClick={()=>{
-                      handleClick(currentPage-1)
-                      window.scrollTo(0,0)
-                    }}
-                    className=' bg-transparent text-black hover:bg-lightBlue hover:text-white'
-                  >
-                    <IoChevronBackSharp />
-                  </Button>
-
-                  <div className='flex items-center space-x-4'>
-                    {
-                      Array.from({length:Math.ceil(userProjectsData?.length / itemsPerPage)},(_,i)=>(
-                        <span 
-                          key={i} 
-                          onClick={()=>{
-                            handleClick(i+1)
-                            window.scrollTo(0,0)
-                          }} 
-                          className={i+1 === currentPage ?'text-lightBlue cursor-pointer font-bold underline':'cursor-pointer'}
-                        >
-                          {i+1}
-                        </span>
-                      ))
-                    }
-                  </div>
-                  <div className='flex items-center space-x-2'>
-                    <Button
-                      disabled={currentPage === Math.ceil(userProjectsData?.length / itemsPerPage)}
-                      onClick={()=>{
-                        handleClick(currentPage+1)
-                        window.scrollTo(0,0)
-                      }}
-                      className=' bg-transparent text-black hover:bg-lightBlue hover:text-white'
-                    >
-                      <IoChevronForward />
-                    </Button>
-                    <NavigationMenu className='z-0'>
-                      <NavigationMenuList>
-                          <NavigationMenuItem>
-                              <NavigationMenuTrigger className='font-bold'>{itemsPerPage}/page</NavigationMenuTrigger>
-                              <NavigationMenuContent >
-                                  <ul className="grid w-[100px] gap-3 p-4">
-                                      <li 
-                                        onClick={()=>{
-                                          setItemsPerPage(9)
-                                          window.scrollTo(0,0)
-                                          }} 
-                                        className='hover:text-lightBlue cursor-pointer'
-                                      >
-                                        9
-                                      </li>
-                                      <li 
-                                        onClick={()=>{
-                                          setItemsPerPage(12)
-                                          window.scrollTo(0,0)
-                                        }} 
-                                        className='hover:text-lightBlue cursor-pointer'
-                                      >
-                                        12
-                                      </li>
-                                  </ul>
-                              </NavigationMenuContent>
-                          </NavigationMenuItem>
-                      </NavigationMenuList>
-                  </NavigationMenu>
-                  </div>
-                  
-              </div>
-            )
-          }
-          
-          </>
         }
-        { viewMode ==='other' &&
-          <>
-            {/* project session */}
-          <div className='mt-24 mb-10 px-[5%] md:grid-cols-2 grid lg:grid-cols-3 gap-4'>
-              
-              {
-                currentData?.length > 0 &&  currentData?.slice(0,9).map((project:any,index:number)=>(
-                  <PopularProjectCard 
-                    key={project._id}
-                    onClick={()=>{
-                      setSelectedProject(project)
-                      //@ts-ignore
-                      dispatch(setProject(project))
-                      if(project?._id){
-                        navigate(`/projects/${project._id}`)
-                      }
-                      
-                      //(!user.email&& !user.phone_number) && setViewProjectSecurity(true)
-                      
-                    }}
-                    actionName='Donate'
-                    action={()=>{
-                      setSelectedProject(project)
-                      //@ts-ignore
-                      dispatch(setProject(project))
-                      if(project?._id){
-                        navigate(`/projects/${project._id}`)
-                      }
-                      // setSelectedProject(project)
-                      // //@ts-ignore
-                      // dispatch(setProject(project))
-                      // if((user?.email || user?.phone_number && !userProjectsData?.map((item:any)=>item._id).includes(project._id))){
-                      //   setDonate(true)
-                      //   return
-                      // }
-                    setLogin(true)
-                    }}
-                    image={project?.medias[0]}
-                    title={project?.name}
-                    desc={project?.description}
-                    type={project?.type.name}
-                    amount={project?.actualBalance}
-                    limit={project?.targetAmount}
 
-                  />
-                ))
-              }
+        <div className={(openFilter || viewProjectSecurity) ? 'relative blur-md':"relative"}>
+          {/* Hero Banner Section */}
+          <div className="w-full relative">
+              <div className="h-[30vh] md:h-[40vh] relative overflow-hidden rounded-b-3xl">
+                <img 
+                  src={projectBg}
+                  className='w-full h-full object-cover transform scale-110 hover:scale-105 transition-transform duration-700'
+                  alt="Projects Banner"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent flex flex-col justify-center items-center">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 text-center">Discover Projects</h1>
+                  <p className="text-white text-lg md:text-xl max-w-xl text-center px-4">Find and support amazing initiatives that make a difference</p>
+                </div>
+              </div>
               
+              {/* Mobile Filter & Search */}
+              <div className='md:hidden px-4 py-4 mt-2 bg-white rounded-xl mx-3 shadow-md -mt-6 relative z-10'>
+                <div className='flex items-center justify-between mb-3'>
+                  <h2 className="font-semibold text-gray-800">Projects</h2>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={()=>setOpenFilter(true)}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 text-gray-700"
+                    >
+                      <GiSettingsKnobs size={16} />
+                      <span>Filter</span>
+                    </Button>
+                  </div>
+                </div>
+                <div className='w-full relative'>
+                  <div className="relative">
+                    <CiSearch className='absolute top-3 left-3 text-gray-400' size={18} />
+                    <Input 
+                      onChange={(e)=>setSearch(e.target.value)}
+                      placeholder='Search projects...'
+                      className='h-10 pl-10 pr-4 w-full rounded-xl border border-gray-200 focus:ring-2 focus:ring-lightBlue'
+                    />
+                  </div>
+                </div>
+
+                {/* Mobile View Tabs */}
+                <div className="mt-4 flex gap-4 border-b border-gray-200">
+                  <button 
+                    onClick={()=>setViewMode('other')} 
+                    className={`pb-2 ${viewMode === 'other' ? 'border-b-2 border-lightBlue text-lightBlue font-medium' : 'text-gray-500'}`}
+                  >
+                    All Projects
+                  </button>
+                  <button 
+                    onClick={()=>setViewMode('map')} 
+                    className={`pb-2 ${viewMode === 'map' ? 'border-b-2 border-lightBlue text-lightBlue font-medium' : 'text-gray-500'}`}
+                  >
+                    Map View
+                  </button>
+                  {(user?.email || user?.phone_number) && (
+                    <button 
+                      onClick={()=>setViewMode('grid')} 
+                      className={`pb-2 ${viewMode === 'grid' ? 'border-b-2 border-lightBlue text-lightBlue font-medium' : 'text-gray-500'}`}
+                    >
+                      My Projects
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Desktop Navigation & Search Bar */}
+              <div className='hidden md:block w-[95%] lg:w-[90%] shadow-lg rounded-xl mx-auto -mt-10 bg-white relative z-10'>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between p-6">
+                  {/* Desktop Tabs */}
+                  <div className='flex space-x-8 mb-4 md:mb-0'>
+                    <div onClick={()=>setViewMode('other')} className={`cursor-pointer relative`}>
+                      <span className={`${viewMode === 'other' ? "text-lightBlue font-semibold" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200`}>
+                        All Projects
+                      </span>
+                      {viewMode === 'other' && <div className='absolute -bottom-6 w-full h-0.5 bg-lightBlue rounded-full'></div>}
+                    </div>
+                    
+                    <div onClick={()=>setViewMode('map')} className={`cursor-pointer relative`}>
+                      <span className={`${viewMode === 'map' ? "text-lightBlue font-semibold" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200`}>
+                        Map View
+                      </span>
+                      {viewMode === 'map' && <div className='absolute -bottom-6 w-full h-0.5 bg-lightBlue rounded-full'></div>}
+                    </div>
+                    
+                    {(user?.email || user?.phone_number) && (
+                      <div onClick={()=>setViewMode('grid')} className={`cursor-pointer relative`}>
+                        <span className={`${viewMode === 'grid' ? "text-lightBlue font-semibold" : "text-gray-500 hover:text-gray-800"} transition-colors duration-200`}>
+                          My Projects
+                        </span>
+                        {viewMode === 'grid' && <div className='absolute -bottom-6 w-full h-0.5 bg-lightBlue rounded-full'></div>}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Search and Action Buttons */}
+                  <div className='flex flex-wrap items-center gap-4'>
+                    {/* Create Button */}
+                    {(user?.email || user?.phone_number) && (
+                      <Button
+                        onClick={()=>navigate('/projects/create')}
+                        className='flex items-center gap-2 bg-lightBlue hover:bg-blue-300 text-white rounded-full'
+                        size="sm"
+                      >
+                        <PlusCircle size={16} />
+                        <span>Create Project</span>
+                      </Button>
+                    )}
+                    
+                    {/* Filter Button */}
+                    {viewMode === "other" && (
+                      <Button
+                        onClick={()=>{
+                          if(filterProjects) {
+                            setFilterProject(false)
+                            return
+                          }
+                          setFilterProject(true)
+                          setOpenFilter(true)
+                        }}
+                        className={filterProjects ? "rounded-full gap-2 bg-lightBlue text-white" : 'rounded-full gap-2 bg-grayColor text-black hover:bg-lightBlue hover:text-white'}
+                        size="sm"
+                      >
+                        <GiSettingsKnobs size={16} />
+                        <span>Filter</span>
+                      </Button>
+                    )}
+                    
+                    {/* Search Box */}
+                    <div className='relative w-full md:w-72 lg:w-80'>
+                      <CiSearch className='absolute top-2.5 left-3 text-gray-400' size={18} />
+                      <Input 
+                        onChange={(e)=>setSearch(e.target.value)}
+                        placeholder='Search projects...'
+                        className='pl-10 pr-4 h-10 w-full rounded-full border border-gray-200 focus:ring-2 focus:ring-lightBlue'
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
           </div>
-              {
-                !currentData && (
-                  <div className='flex items-center justify-center text-center w-full mb-10'>
-                    <span className='text-lightGray font-bold text-xl'>No Projects Available</span>
-                  </div>
-                )
-              }
-              {
-                AllProjectsIsLoading && (
-                  <div className='flex items-center justify-center text-center w-full mb-10'>
-                    <span className='text-blue-600 font-bold text-xl'>Getting all Projects...</span>
-                  </div>
-                )
-              }
-              
 
-          {/* Pagination */}
-          {/* //TODO: Only display user projects when a user is logged in  */}
-          {
-            currentData?.length <= itemsPerPage && (
-              <div className='w-[90%] mx-auto flex items-center justify-center space-x-10 my-5'>
+          {/* Personal Projects Section */}
+          {viewMode === 'grid' && (
+            <div className="container mx-auto px-4 py-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">My Projects</h2>
+                <Button
+                  onClick={()=>navigate('/projects/create')}
+                  className='flex items-center gap-2 bg-lightBlue hover:bg-blue-300 text-white rounded-full md:hidden'
+                  size="sm"
+                >
+                  <PlusCircle size={16} />
+                  <span>Create</span>
+                </Button>
+              </div>
+
+              {userProjectIsLoading ? (
+                <div className='flex items-center justify-center h-64'>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lightBlue"></div>
+                </div>
+              ) : currentDataPersonal?.length > 0 ? (
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+                  {currentDataPersonal?.map((project: any) => (
+                    <PopularProjectCard 
+                      onClick={() => {
+                        setSelectedProject(project);
+                        dispatch(setProject(project));
+                        if(project?._id) {
+                          navigate(`/projects/${project._id}`);
+                        }
+                      }}
+                      action={() => {
+                        setSelectedProject(project);
+                        dispatch(setProject(project));
+                        if(project?._id) {
+                          navigate(`/projects/${project._id}`);
+                        }
+                      }}
+                      actionName='Cashout'
+                      key={project?._id}
+                      image={project?.medias[0]}
+                      title={project?.name}
+                      desc={project?.description}
+                      type={project?.type.name}
+                      amount={project?.actualBalance}
+                      limit={project?.targetAmount}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className='flex flex-col items-center justify-center bg-gray-50 rounded-lg p-12 border border-dashed border-gray-300'>
+                  <div className="bg-gray-100 p-4 rounded-full mb-4">
+                    <PlusCircle size={40} className="text-gray-400" />
+                  </div>
+                  <h3 className='text-xl font-semibold text-gray-700 mb-2'>No projects found</h3>
+                  <p className='text-gray-500 mb-4 text-center'>You haven't created any projects yet.</p>
+                  <Button
+                    onClick={()=>navigate('/projects/create')}
+                    className='flex items-center gap-2 bg-lightBlue hover:bg-blue-300 text-white rounded-full'
+                  >
+                    <PlusCircle size={16} />
+                    <span>Create New Project</span>
+                  </Button>
+                </div>
+              )}
+
+              {/* Pagination for Personal Projects */}
+              {(user?.email || user?.phone_number) && userProjectsData?.length > itemsPerPage && (
+                <div className='flex items-center justify-center mt-10 space-x-2'>
                   <Button
                     disabled={currentPage === 1}
-                    onClick={()=>{
-                      handleClick(currentPage-1)
-                      window.scrollTo(0,0)
+                    onClick={() => {
+                      handleClick(currentPage-1);
+                      window.scrollTo(0,0);
                     }}
-                    className=' bg-transparent text-black hover:bg-lightBlue hover:text-white'
+                    variant="outline"
+                    className='rounded-full w-10 h-10 p-0 flex items-center justify-center'
+                    aria-label="Previous page"
                   >
                     <IoChevronBackSharp />
                   </Button>
 
-                  <div className='flex items-center space-x-4'>
-                    {
-                      Array.from({length:Math.ceil(allProjects?.length / itemsPerPage)},(_,i)=>(
-                        <span 
-                          key={i} 
-                          onClick={()=>{
-                            handleClick(i+1)
-                            window.scrollTo(0,0)
-                          }} 
-                          className={i+1 === currentPage ?'text-lightBlue cursor-pointer font-bold underline':'cursor-pointer'}
-                        >
-                          {i+1}
-                        </span>
-                      ))
-                    }
+                  <div className='flex items-center'>
+                    {Array.from({length: Math.min(5, Math.ceil(userProjectsData?.length / itemsPerPage))}, (_, i) => {
+                      // Logic to show ellipsis for many pages
+                      const pageNum = i + 1;
+                      if (Math.ceil(userProjectsData?.length / itemsPerPage) > 5) {
+                        // Show first page, last page, current page, and pages around current
+                        if (pageNum === 1 || 
+                            pageNum === Math.ceil(userProjectsData?.length / itemsPerPage) ||
+                            (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)) {
+                          return (
+                            <Button
+                              key={i}
+                              onClick={() => {
+                                handleClick(pageNum);
+                                window.scrollTo(0,0);
+                              }}
+                              variant={pageNum === currentPage ? "default" : "ghost"}
+                              className={`rounded-full w-10 h-10 p-0 ${pageNum === currentPage ? 'bg-lightBlue text-white' : 'text-gray-700'}`}
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        } else if (pageNum === 2 && currentPage > 3) {
+                          return <span key="ellipsis-start" className="px-2">...</span>;
+                        } else if (pageNum === Math.ceil(userProjectsData?.length / itemsPerPage) - 1 && currentPage < Math.ceil(userProjectsData?.length / itemsPerPage) - 2) {
+                          return <span key="ellipsis-end" className="px-2">...</span>;
+                        } else {
+                          return null;
+                        }
+                      } else {
+                        // Show all pages if 5 or fewer
+                        return (
+                          <Button
+                            key={i}
+                            onClick={() => {
+                              handleClick(pageNum);
+                              window.scrollTo(0,0);
+                            }}
+                            variant={pageNum === currentPage ? "default" : "ghost"}
+                            className={`rounded-full w-10 h-10 p-0 ${pageNum === currentPage ? 'bg-lightBlue text-white' : 'text-gray-700'}`}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      }
+                    })}
                   </div>
-                  <div className='flex items-center space-x-2'>
-                    <Button
-                      disabled={currentPage === Math.ceil(allProjects?.length / itemsPerPage)}
-                      onClick={()=>{
-                        handleClick(currentPage+1)
-                        window.scrollTo(0,0)
-                      }}
-                      className=' bg-transparent text-black hover:bg-lightBlue hover:text-white'
-                    >
-                      <IoChevronForward />
-                    </Button>
+
+                  <Button
+                    disabled={currentPage === Math.ceil(userProjectsData?.length / itemsPerPage)}
+                    onClick={() => {
+                      handleClick(currentPage+1);
+                      window.scrollTo(0,0);
+                    }}
+                    variant="outline"
+                    className='rounded-full w-10 h-10 p-0 flex items-center justify-center'
+                    aria-label="Next page"
+                  >
+                    <IoChevronForward />
+                  </Button>
+
+                  <div className="ml-4 border-l pl-4 border-gray-200">
                     <NavigationMenu>
                       <NavigationMenuList>
-                          <NavigationMenuItem>
-                              <NavigationMenuTrigger className='font-bold'>{itemsPerPage}/page</NavigationMenuTrigger>
-                              <NavigationMenuContent >
-                                  <ul className="grid w-[100px] gap-3 p-4">
-                                      <li 
-                                        onClick={()=>{
-                                          setItemsPerPage(9)
-                                          window.scrollTo(0,0)
-                                          }} 
-                                        className='hover:text-lightBlue cursor-pointer'
-                                      >
-                                        9
-                                      </li>
-                                      <li 
-                                        onClick={()=>{
-                                          setItemsPerPage(12)
-                                          window.scrollTo(0,0)
-                                        }} 
-                                        className='hover:text-lightBlue cursor-pointer'
-                                      >
-                                        12
-                                      </li>
-                                  </ul>
-                              </NavigationMenuContent>
-                          </NavigationMenuItem>
+                        <NavigationMenuItem>
+                          <NavigationMenuTrigger className='px-3 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md'>
+                            {itemsPerPage} per page
+                          </NavigationMenuTrigger>
+                          <NavigationMenuContent>
+                            <ul className="grid w-28 gap-1 p-2">
+                              <li 
+                                onClick={() => {
+                                  setItemsPerPage(9);
+                                  setCurrentPage(1);
+                                  window.scrollTo(0,0);
+                                }}
+                                className='px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer text-sm'
+                              >
+                                9 per page
+                              </li>
+                              <li 
+                                onClick={() => {
+                                  setItemsPerPage(12);
+                                  setCurrentPage(1);
+                                  window.scrollTo(0,0);
+                                }}
+                                className='px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer text-sm'
+                              >
+                                12 per page
+                              </li>
+                            </ul>
+                          </NavigationMenuContent>
+                        </NavigationMenuItem>
                       </NavigationMenuList>
-                  </NavigationMenu>
+                    </NavigationMenu>
                   </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* All Projects Section */}
+          {viewMode === 'other' && (
+            <div className="container mx-auto px-4 py-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">All Projects</h2>
+                {filterProjects && (
+                  <Button
+                    onClick={() => setFilterProject(false)}
+                    variant="outline"
+                    size="sm"
+                    className="text-gray-600 border-gray-300 hidden md:flex"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
               </div>
-            )
-          }
-          
-          </>
-        }
-        {
-          viewMode ==='map' &&
-          <div className='mt-10 p-[5%]'>
-            <MapComponent />
-          </div>
-        }
+
+              {AllProjectsIsLoading ? (
+                <div className='flex items-center justify-center h-64'>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lightBlue"></div>
+                </div>
+              ) : currentData?.length > 0 ? (
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
+                  {currentData?.map((project: any, index: number) => (
+                    <PopularProjectCard 
+                      key={project._id}
+                      onClick={() => {
+                        setSelectedProject(project);
+                        dispatch(setProject(project));
+                        if(project?._id) {
+                          navigate(`/projects/${project._id}`);
+                        }
+                      }}
+                      actionName='Donate'
+                      action={() => {
+                        setSelectedProject(project);
+                        dispatch(setProject(project));
+                        if (user?.email || user?.phone_number) {
+                          if(project?._id) {
+                            navigate(`/projects/${project._id}`);
+                          }
+                        } else {
+                          setLogin(true);
+                        }
+                      }}
+                      image={project?.medias[0]}
+                      title={project?.name}
+                      desc={project?.description}
+                      type={project?.type.name}
+                      amount={project?.actualBalance}
+                      limit={project?.targetAmount}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className='flex flex-col items-center justify-center bg-gray-50 rounded-lg p-12 border border-dashed border-gray-300'>
+                  <div className="bg-gray-100 p-4 rounded-full mb-4">
+                    <CiSearch size={40} className="text-gray-400" />
+                  </div>
+                  <h3 className='text-xl font-semibold text-gray-700 mb-2'>No projects found</h3>
+                  <p className='text-gray-500 mb-4 text-center'>
+                    {search ? 'No projects match your search criteria' : 'There are no projects available at the moment'}
+                  </p>
+                  {search && (
+                    <Button
+                      onClick={() => setSearch('')}
+                      variant="outline"
+                      className='flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-lightBlue hover:text-white'
+                    >
+                      Clear Search
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Pagination for All Projects */}
+              {currentData?.length > 0 && allProjects?.length > itemsPerPage && (
+                <div className='flex items-center justify-center mt-10 space-x-2'>
+                  <Button
+                    disabled={currentPage === 1}
+                    onClick={() => {
+                      handleClick(currentPage-1);
+                      window.scrollTo(0,0);
+                    }}
+                    variant="outline"
+                    className='rounded-full w-10 h-10 p-0 flex items-center justify-center'
+                    aria-label="Previous page"
+                  >
+                    <IoChevronBackSharp />
+                  </Button>
+
+                  <div className='flex items-center'>
+                    {Array.from({length: Math.min(5, Math.ceil(allProjects?.length / itemsPerPage))}, (_, i) => {
+                      // Logic to show ellipsis for many pages
+                      const pageNum = i + 1;
+                      if (Math.ceil(allProjects?.length / itemsPerPage) > 5) {
+                        // Show first page, last page, current page, and pages around current
+                        if (pageNum === 1 || 
+                            pageNum === Math.ceil(allProjects?.length / itemsPerPage) ||
+                            (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)) {
+                          return (
+                            <Button
+                              key={i}
+                              onClick={() => {
+                                handleClick(pageNum);
+                                window.scrollTo(0,0);
+                              }}
+                              variant={pageNum === currentPage ? "default" : "ghost"}
+                              className={`rounded-full w-10 h-10 p-0 ${pageNum === currentPage ? 'bg-lightBlue text-white' : 'text-gray-700'}`}
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        } else if (pageNum === 2 && currentPage > 3) {
+                          return <span key="ellipsis-start" className="px-2">...</span>;
+                        } else if (pageNum === Math.ceil(allProjects?.length / itemsPerPage) - 1 && currentPage < Math.ceil(allProjects?.length / itemsPerPage) - 2) {
+                          return <span key="ellipsis-end" className="px-2">...</span>;
+                        } else {
+                          return null;
+                        }
+                      } else {
+                        // Show all pages if 5 or fewer
+                        return (
+                          <Button
+                            key={i}
+                            onClick={() => {
+                              handleClick(pageNum);
+                              window.scrollTo(0,0);
+                            }}
+                            variant={pageNum === currentPage ? "default" : "ghost"}
+                            className={`rounded-full w-10 h-10 p-0 ${pageNum === currentPage ? 'bg-lightBlue text-white' : 'text-gray-700'}`}
+                          >
+                            {pageNum}
+                          </Button>
+                        );
+                      }
+                    })}
+                  </div>
+
+                  <Button
+                    disabled={currentPage === Math.ceil(allProjects?.length / itemsPerPage)}
+                    onClick={() => {
+                      handleClick(currentPage+1);
+                      window.scrollTo(0,0);
+                    }}
+                    variant="outline"
+                    className='rounded-full w-10 h-10 p-0 flex items-center justify-center'
+                    aria-label="Next page"
+                  >
+                    <IoChevronForward />
+                  </Button>
+
+                  <div className="ml-4 border-l pl-4 border-gray-200">
+                    <NavigationMenu>
+                      <NavigationMenuList>
+                        <NavigationMenuItem>
+                          <NavigationMenuTrigger className='px-3 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md'>
+                            {itemsPerPage} per page
+                          </NavigationMenuTrigger>
+                          <NavigationMenuContent>
+                            <ul className="grid w-28 gap-1 p-2">
+                              <li 
+                                onClick={() => {
+                                  setItemsPerPage(9);
+                                  setCurrentPage(1);
+                                  window.scrollTo(0,0);
+                                }}
+                                className='px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer text-sm'
+                              >
+                                9 per page
+                              </li>
+                              <li 
+                                onClick={() => {
+                                  setItemsPerPage(12);
+                                  setCurrentPage(1);
+                                  window.scrollTo(0,0);
+                                }}
+                                className='px-2 py-1.5 hover:bg-gray-100 rounded cursor-pointer text-sm'
+                              >
+                                12 per page
+                              </li>
+                            </ul>
+                          </NavigationMenuContent>
+                        </NavigationMenuItem>
+                      </NavigationMenuList>
+                    </NavigationMenu>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Map View Section */}
+          {viewMode === 'map' && (
+            <div className="container mx-auto px-4 py-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">Project Map</h2>
+              </div>
+              <div className='bg-white p-4 sm:p-6 rounded-xl shadow-sm'>
+                <MapComponent />
+              </div>
+            </div>
+          )}
         </div>
-      
     </div>
   )
 }
