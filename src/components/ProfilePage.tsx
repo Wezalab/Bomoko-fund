@@ -93,6 +93,8 @@ function ProfilePage() {
     const [uploadProgress, setUploadProgress] = useState(0);
     // Store potential server-side errors
     const [serverError, setServerError] = useState<string | null>(null);
+    // Use for navigation
+    const navigate = useNavigate();
     
     const {
         register,
@@ -310,6 +312,17 @@ function ProfilePage() {
                 // Show success message
                 toast.success("Profile updated successfully!");
                 setServerError(null);
+                
+                // If avatar was updated successfully, force a navigation refresh to update navbar
+                if (file && response.data.updatedUser.avatar) {
+                    console.log("[DEBUG] Avatar updated successfully, forcing UI refresh");
+                    
+                    // Small delay to ensure Redux state is updated before refresh
+                    setTimeout(() => {
+                        // Navigate to the same page to force a refresh of all components including navbar
+                        navigate("/profile", { replace: true });
+                    }, 100);
+                }
             }
             
             // Update user data in the Redux store
@@ -318,8 +331,14 @@ function ProfilePage() {
                 dispatch(setUser(response.data.updatedUser));
                 
                 // If we received a new avatar URL from the server, update it in the preview
-                if (response.data.updatedUser.avatar && file) {
+                if (response.data.updatedUser.avatar) {
                     console.log("[DEBUG] Updated avatar URL in Redux store:", response.data.updatedUser.avatar);
+                    console.log("[DEBUG] Avatar URL format check:", {
+                        isString: typeof response.data.updatedUser.avatar === 'string',
+                        length: response.data.updatedUser.avatar.length,
+                        startsWithHttp: response.data.updatedUser.avatar.startsWith('http'),
+                        containsImageExt: /\.(jpg|jpeg|png|gif|webp)/i.test(response.data.updatedUser.avatar)
+                    });
                 }
             }
             
