@@ -9,18 +9,21 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { selectUser, setUser } from '@/redux/slices/userSlice';
+import { selectUser, setUser, selectToken } from '@/redux/slices/userSlice';
 import { useEffect, useState } from 'react';
-import { useEditProfileMutation} from '@/redux/services/userServices';
 import toast from 'react-hot-toast';
 import LoadingComponent from './LoadingComponent';
 import { FaUser, FaEnvelope, FaPhone, FaVenusMars, FaMapMarkerAlt, FaInfoCircle, FaBuilding } from "react-icons/fa";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import axios from 'axios';
 
 // Maximum file size: 5MB
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+
+// API base URL
+const API_BASE_URL = "https://api.bomoko.fund";
 
 // Extended User type to match backend model
 interface ExtendedUser {
@@ -58,7 +61,9 @@ const formSchema = z.object({
     location: z.string().max(100, "Location must be less than 100 characters").optional(),
     bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
     name: z.string().max(100, "Name must be less than 100 characters").optional(),
-    type: z.enum(["INDIVIDUAL", "ENTREPRISE", "DONATOR", "ENTREPRENEUR"]).optional()
+    type: z.enum(["INDIVIDUAL", "ENTREPRISE", "DONATOR", "ENTREPRENEUR"]).optional(),
+    email: z.string().email("Invalid email address").optional(),
+    phone: z.string().optional()
 })
 
 type FormValues = z.infer<typeof formSchema>;
@@ -73,18 +78,29 @@ interface ApiError {
     message?: string;
 }
 
+// Type for API success response
+interface ApiResponse {
+  message: string;
+  updatedUser: ExtendedUser;
+}
+
 function ProfilePage() {
     const user = useAppSelector(selectUser) as unknown as ExtendedUser;
+    const token = useAppSelector(selectToken);
     const [preview, setPreview] = useState<string | null>(null);
-    const dispatch = useAppDispatch()
-    const [edit, setEdit] = useState(false)
+    const dispatch = useAppDispatch();
+    const [edit, setEdit] = useState(false);
+    const [activeTab, setActiveTab] = useState<string>("profile");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    
     const {
         register,
         handleSubmit,
         setValue,
         watch,
         reset,
-        formState: { errors },
+        formState: { errors, isDirty },
       } = useForm<FormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -92,20 +108,11 @@ function ProfilePage() {
             location: user?.location || '',
             bio: user?.bio || '',
             name: user?.name || '',
-            type: user?.type
+            type: user?.type,
+            email: user?.email || '',
+            phone: user?.phone || user?.phone_number || ''
         }
       });
-
-      const [
-        EditProfile,
-        {
-            data: editProfileData,
-            error: editProfileError,
-            isError: editProfileIsError,
-            isSuccess: editProfileIsSuccess,
-            isLoading: editProfileIsLoading
-        }
-      ] = useEditProfileMutation()
 
       // Initialize form with user data when edit mode is enabled
       useEffect(() => {
@@ -115,68 +122,104 @@ function ProfilePage() {
             setValue("bio", user.bio || '');
             setValue("name", user.name || '');
             setValue("type", user.type);
+            setValue("email", user.email || '');
+            setValue("phone", user.phone || user?.phone_number || '');
         }
       }, [edit, user, setValue]);
 
-      const onsubmit = (data: FormValues) => {
+      const onsubmit = async (data: FormValues) => {
         if (!user?._id) {
             toast.error("User ID not found. Please log in again.");
             return;
         }
 
+        if (!token) {
+            toast.error("Authentication token not found. Please log in again.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setSubmitError(null);
+
         try {
+            // Show loading toast
+            const loadingToast = toast.loading("Updating your profile...");
+            
             const file = data.avatar?.[0]; // Get the selected file
             const formData = new FormData();
             
-            // Only append file if it exists
-            if (file) {
-                formData.append("avatar", file);
-            }
-            
             // Only append fields with values
+            if (file) formData.append("avatar", file);
             if (data.gender) formData.append("gender", data.gender);
             if (data.location) formData.append("location", data.location);
             if (data.bio) formData.append("bio", data.bio);
             if (data.name) formData.append("name", data.name);
             if (data.type) formData.append("type", data.type);
+            if (data.email) formData.append("email", data.email);
+            if (data.phone) formData.append("phone", data.phone);
             
-            // Call the API
-            EditProfile({
-                userId: user._id,
-                data: formData
-            });
-        } catch (err) {
-            console.error("Error submitting form:", err);
-            toast.error("An unexpected error occurred. Please try again.");
-        }
-      };
-
-      useEffect(() => {
-        if (editProfileIsSuccess && editProfileData) {
-            dispatch(setUser(editProfileData.updatedUser));
+            // Call the API directly using axios for more control
+            const response = await axios.put<ApiResponse>(
+                `${API_BASE_URL}/api/auth/profile/${user._id}`,
+                formData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            
+            // Dismiss loading toast
+            toast.dismiss(loadingToast);
+            
+            // Show success message
             toast.success("Profile updated successfully!");
-            setEdit(false);
-            setPreview(null);
-            reset();
-        }
-        
-        if (editProfileIsError && editProfileError) {
-            const error = editProfileError as ApiError;
             
-            // Handle different types of errors
-            if (error.status === 413) {
-                toast.error("File too large. Please upload a smaller image.");
-            } else if (error.data?.message) {
-                toast.error(error.data.message);
-            } else if (error.message) {
-                toast.error(error.message);
-            } else {
-                toast.error("Failed to update profile. Please try again.");
+            // Update user data in the Redux store
+            if (response.data && response.data.updatedUser) {
+                dispatch(setUser(response.data.updatedUser));
             }
             
+            // Reset form state
+            setActiveTab("profile");
+            setPreview(null);
+            setEdit(false);
+            reset();
+        } catch (error) {
+            // Handle different types of errors
+            let errorMessage = "Failed to update profile. Please try again.";
+            
+            if (axios.isAxiosError(error)) {
+                const axiosError = error;
+                
+                // Handle specific HTTP status codes
+                if (axiosError.response) {
+                    const status = axiosError.response.status;
+                    
+                    if (status === 400) {
+                        errorMessage = "Invalid user data. Please check your inputs.";
+                    } else if (status === 404) {
+                        errorMessage = "User not found. Please log in again.";
+                    } else if (status === 413) {
+                        errorMessage = "File too large. Please upload a smaller image (max 5MB).";
+                    } else if (axiosError.response.data?.message) {
+                        errorMessage = axiosError.response.data.message;
+                    }
+                } else if (axiosError.request) {
+                    // Request was made but no response received (network error)
+                    errorMessage = "Network error. Please check your connection and try again.";
+                }
+            }
+            
+            // Show error message
+            toast.error(errorMessage);
+            setSubmitError(errorMessage);
             console.error("Profile update error:", error);
+        } finally {
+            setIsSubmitting(false);
         }
-      }, [editProfileIsSuccess, editProfileIsError, editProfileData, editProfileError, dispatch, reset]);
+      };
 
       // Handle file selection and validation
       const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,15 +240,49 @@ function ProfilePage() {
             return;
         }
         
+        // Show preview and update form state
+        toast.success("Image selected successfully!");
         setPreview(URL.createObjectURL(file));
         setValue("avatar", e.target.files);
       };
 
       // Cancel edit mode
       const handleCancel = () => {
-        setEdit(false);
-        setPreview(null);
-        reset();
+        // Ask for confirmation if user has made changes
+        if (isDirty || preview) {
+            if (confirm("You have unsaved changes. Are you sure you want to cancel?")) {
+                setActiveTab("profile");
+                setPreview(null);
+                setEdit(false);
+                reset();
+            }
+        } else {
+            setActiveTab("profile");
+            setPreview(null);
+            setEdit(false);
+            reset();
+        }
+      };
+
+      // Handle tab change
+      const handleTabChange = (value: string) => {
+        // If switching from edit to profile and there are unsaved changes, ask for confirmation
+        if (activeTab === "edit" && value === "profile" && (isDirty || preview)) {
+            if (confirm("You have unsaved changes. Are you sure you want to leave?")) {
+                setActiveTab(value);
+                // Reset form if switching back to profile tab
+                if (value === "profile") {
+                    setPreview(null);
+                    reset();
+                }
+            }
+        } else {
+            setActiveTab(value);
+            // Reset form if switching to edit tab
+            if (value === "edit") {
+                setEdit(true);
+            }
+        }
       };
 
       // Get account type display name
@@ -236,7 +313,7 @@ function ProfilePage() {
   return (
     <div className="bg-gray-100 min-h-[90vh] py-5 p-4 md:pt-10 pb-20 overflow-y-auto">
       <div className="max-w-5xl mx-auto">
-        <Tabs defaultValue="profile" className="w-full">
+        <Tabs defaultValue="profile" value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="profile">Profile Information</TabsTrigger>
             <TabsTrigger value="edit">Edit Profile</TabsTrigger>
@@ -333,7 +410,7 @@ function ProfilePage() {
               
               <CardFooter className="flex justify-end border-t p-6">
                 <Button 
-                  onClick={() => document.querySelector('[data-value="edit"]')?.dispatchEvent(new MouseEvent('click'))}
+                  onClick={() => setActiveTab("edit")}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6"
                 >
                   Edit Profile
@@ -354,6 +431,12 @@ function ProfilePage() {
               
               <form onSubmit={handleSubmit(onsubmit)}>
                 <CardContent className="space-y-6">
+                  {submitError && (
+                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md">
+                      {submitError}
+                    </div>
+                  )}
+                  
                   <div className="flex flex-col items-center sm:flex-row sm:items-start gap-6 pb-6 border-b">
                     <div className="relative">
                       <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-gray-200">
@@ -436,6 +519,31 @@ function ProfilePage() {
                     </div>
                     
                     <div className="space-y-2">
+                      <label className="font-medium">Email</label>
+                      <Input 
+                        {...register("email")}
+                        placeholder="Your email address"
+                        className="h-10"
+                        type="email"
+                      />
+                      {errors.email && (
+                        <p className="text-red-500 text-sm">{errors.email.message as string}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="font-medium">Phone</label>
+                      <Input 
+                        {...register("phone")}
+                        placeholder="Your phone number"
+                        className="h-10"
+                      />
+                      {errors.phone && (
+                        <p className="text-red-500 text-sm">{errors.phone.message as string}</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
                       <label className="font-medium">Location</label>
                       <Input 
                         {...register("location")}
@@ -511,7 +619,7 @@ function ProfilePage() {
                 <CardFooter className="flex flex-col sm:flex-row gap-3 justify-end border-t p-6">
                   <Button
                     type="button"
-                    onClick={() => document.querySelector('[data-value="profile"]')?.dispatchEvent(new MouseEvent('click'))}
+                    onClick={handleCancel}
                     variant="outline"
                     className="w-full sm:w-auto"
                   >
@@ -519,10 +627,10 @@ function ProfilePage() {
                   </Button>
                   <Button
                     type="submit"
-                    disabled={editProfileIsLoading}
+                    disabled={isSubmitting}
                     className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
                   >
-                    {editProfileIsLoading ? <LoadingComponent /> : "Save Changes"}
+                    {isSubmitting ? <LoadingComponent /> : "Save Changes"}
                   </Button>
                 </CardFooter>
               </form>
