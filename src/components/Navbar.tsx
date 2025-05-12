@@ -48,12 +48,44 @@ interface navbarProps{
     setNotification:any
 }
 
+// Extended User type to match the type in ProfilePage
+interface ExtendedUser {
+  _id: string;
+  name?: string;
+  gender?: "M" | "F" | "OTHER";
+  avatar?: string;
+  bio?: string;
+  location?: string;
+  email: string;
+  phone_number?: string;
+  phone?: string;
+  type?: "INDIVIDUAL" | "ENTREPRISE" | "DONATOR" | "ENTREPRENEUR";
+  isGoogleUser?: boolean;
+  isStillRegistering?: boolean;
+  isDeactivated?: boolean;
+  deactivateReason?: string;
+  googleId?: string | null;
+  updatedAt?: string;
+  profile?: string;
+  projects?: any[];
+  cryptoWallet?: any[];
+}
+
 function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSignIn,setChangePassword}:navbarProps) {
-    const user=useAppSelector(selectUser)
+    const user = useAppSelector(selectUser) as unknown as ExtendedUser;
     const [sideBar,setSideBar]=useState(false)
     const { t, language, setLanguage } = useTranslation()
     const navigate=useNavigate()
     const dispatch=useAppDispatch()
+
+    // Use user's avatar from Redux if available, otherwise use default profile image
+    const userAvatar = user?.avatar ? user.avatar : profileImage;
+    
+    // Function to handle image load errors
+    const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        console.log("[DEBUG] Avatar image failed to load, using fallback");
+        e.currentTarget.src = profileImage;
+    };
 
     const handleLogout=()=>{
         navigate('/')
@@ -77,9 +109,10 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                     (user?.email || user?.phone_number) && (
                         <div className='w-6 h-6'>
                             <img 
-                                src={profileImage}
+                                src={userAvatar}
                                 className='w-full h-full object-cover'
                                 alt='user-profile'
+                                onError={handleImageError}
                             />
                         </div>
                     )
@@ -215,9 +248,10 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                                 className='flex items-center bg-[#ECEFF3] py-[8px] rounded-full  h-[50px] hover:bg-lightBlue'
                             >
                                 <img 
-                                    src={profileImage}
+                                    src={userAvatar}
                                     className='w-[39px] h-[39px] rounded-full'
                                     alt='profile-image'
+                                    onError={handleImageError}
                                 />
                                 <GoChevronDown 
                                     className="font-bold hover:text-white"
@@ -229,9 +263,10 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                         <DropdownMenuContent className='p-3'>
                             <div className='flex items-center space-x-5'>
                                 <img 
-                                    src={profileImage}
+                                    src={userAvatar}
                                     className='w-[30px] h-[30px] rounded-full'
                                     alt='profile-image'
+                                    onError={handleImageError}
                                 />
                                 <div className='flex flex-col'>
                                     <span className='text-black font-semibold text-sm'>{user?.email?.split("@")[0]}</span>
