@@ -204,17 +204,19 @@ function SignIn({
         window.location.href = "http://localhost:7007/api/auth/google";
     }   
   return (
-    <div className="px-5 pb-8 pt-5 bg-white shadow-md rounded-2xl">
-        <MdCancel size={28} onClick={onClose} className="absolute top-6 right-5 cursor-pointer" />
+    <div className="px-5 pb-8 pt-10 bg-white shadow-md rounded-2xl">
+        {/* Remove the absolute positioned close button since SheetContent provides a close button */}
+        {/* <MdCancel size={28} onClick={onClose} className="absolute top-6 right-5 cursor-pointer" /> */}
+        
         {
             signWithPhone ? 
-            <IoMdArrowRoundBack size={28} onClick={()=>setSignWithPhone(false)} className="absolute top-6 left-5 cursor-pointer" />:
-            signWithEmail?<IoMdArrowRoundBack size={28} onClick={()=>setSignWithEmail(false)} className="absolute top-6 left-5 cursor-pointer" />:""
+            <IoMdArrowRoundBack size={28} onClick={()=>setSignWithPhone(false)} className="mb-4 cursor-pointer" />:
+            signWithEmail ? <IoMdArrowRoundBack size={28} onClick={()=>setSignWithEmail(false)} className="mb-4 cursor-pointer" /> : null
         }
         {
             (!signWithGoogle && !signWithPhone && !signWithEmail)&&(
                 <div className="">
-                    <div className="mt-10 flex flex-col space-y-2 mx-5">
+                    <div className="flex flex-col space-y-2 mx-5">
                         <span className="font-bold text-[20px]">Sign into your account</span>
                         {
                             (!signWithGoogle && !signWithPhone && !signWithEmail)&&
@@ -294,7 +296,7 @@ function SignIn({
                         </div>
                         {/* Error message for phone login */}
                         { typeof loginWithPhoneError === 'object' && loginWithPhoneError !== null && 'data' in loginWithPhoneError && loginWithPhoneError.data && typeof loginWithPhoneError.data === 'object' && 'message' in loginWithPhoneError.data && typeof loginWithPhoneError.data.message === 'string' && (
-                            <p className="text-red-500 text-sm">{loginWithPhoneError.data.message}</p>
+                            <p className="text-red-500 text-sm">{loginWithPhoneError.data.message as string}</p>
                         )}
                         <Button
                             disabled={loginWithPhoneIsLoading}
@@ -375,7 +377,7 @@ function SignIn({
                         </div>
                         {/* Error message for email login */}
                         { typeof loginError === 'object' && loginError !== null && 'data' in loginError && loginError.data && typeof loginError.data === 'object' && 'message' in loginError.data && typeof loginError.data.message === 'string' && (
-                            <p className="text-red-500 text-sm">{loginError.data.message}</p>
+                            <p className="text-red-500 text-sm">{loginError.data.message as string}</p>
                         )}
 
                         <Button

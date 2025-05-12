@@ -274,10 +274,21 @@ function SignUp({
 
     // console.log("sign up data",selectedGender)
     return (
-      <div className="px-5 pb-8 pt-5 bg-white shadow-md rounded-2xl">
-        <MdCancel size={28} onClick={onClose} className="absolute top-6 right-5 cursor-pointer" />
-          {
-              (!signWithGoogle && !signWithPhone && !signWithEmail)&&(
+      <div className="p-6 bg-white shadow-md rounded-2xl">
+        {
+          (signWithPhone || signWithEmail) && (
+            <IoMdArrowRoundBack 
+              onClick={()=> {
+                setSignWithPhone(false)
+                setSignWithEmail(false)
+              }} 
+              size={28} 
+              className="mb-4 cursor-pointer" 
+            />
+          )
+        }
+        {
+          (!signWithGoogle && !signWithPhone && !signWithEmail)&&(
                   <div className="">
                       <div className="mt-10 flex flex-col space-y-2 mx-5">
                           <span className="font-bold text-[20px]">Set up your account</span>
