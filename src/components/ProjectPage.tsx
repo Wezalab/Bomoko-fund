@@ -26,6 +26,7 @@ import { useFilterProjectsMutation, useGetAllProjectsQuery, useUsersProjectsQuer
 import SignIn from './SignIn';
 import Donate from './Donate';
 import Cashout from './Cashout';
+import { Sheet, SheetContent, SheetOverlay } from '@/components/ui/sheet'
 
 
 interface FilterDatasProps{
@@ -169,58 +170,57 @@ function ProjectPage() {
   //console.log("filtered data-->",filterDatas)
   return (
     <div className='relative min-h-screen bg-gray-50'>
-        {
-            login && 
-            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-                <div className="md:w-[80%] lg:w-[500px] max-w-full mx-4">
-                    <SignIn onClose={()=>setLogin(false)} />
-                </div>
-            </div>
-        }
-        {
-            donate &&
-            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-                <div className="md:w-[80%] lg:w-[500px] max-w-full mx-4">
-                    <Donate projectId={selectedProject?._id} onClose={()=>setDonate(false)} />
-                </div>
-            </div>
-        }
-        {
-            cashout &&
-            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-                <div className="md:w-[80%] lg:w-[500px] max-w-full mx-4">
-                    <Cashout projectId={selectedProject?._id} onClose={()=>setCashout(false)} />                
-                </div>
-            </div>
-        }
-        {
-          (viewProjectSecurity && (!user.email && !user.phone_number)) &&
-          <div className='fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50'>
-            <div className='bg-white rounded-xl w-full max-w-lg mx-4 shadow-xl'>
-              <ViewProjectChecker 
-                onClose={()=>setViewProjectSecurity(false)} 
-                next={()=>{
-                  setViewProjectSecurity(false)
-                  navigate(`/projects/${selectedProject?._id}`)
-                }}
-              />
-            </div>
-          </div>
-        }
-        {
-          openFilter && 
-          <div className='fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50'>
-            <div className='bg-white rounded-xl w-full max-w-lg mx-4 shadow-xl'>
-              <FilterModal 
-                setFilterProject={()=>setFilterProject(true)} 
-                setFilterData={setFilterDatas} 
-                onClose={()=>setOpenFilter(false)} 
-              />
-            </div>
-          </div>
-        }
+        {/* Login Modal */}
+        <Sheet open={login} onOpenChange={setLogin}>
+          <SheetOverlay className="bg-black/50" />
+          <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+            <SignIn onClose={() => setLogin(false)} />
+          </SheetContent>
+        </Sheet>
 
-        <div className={(openFilter || viewProjectSecurity) ? 'relative blur-md':"relative"}>
+        {/* Donate Modal */}
+        <Sheet open={donate} onOpenChange={setDonate}>
+          <SheetOverlay className="bg-black/50" />
+          <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+            <Donate projectId={selectedProject?._id} onClose={() => setDonate(false)} />
+          </SheetContent>
+        </Sheet>
+
+        {/* Cashout Modal */}
+        <Sheet open={cashout} onOpenChange={setCashout}>
+          <SheetOverlay className="bg-black/50" />
+          <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+            <Cashout projectId={selectedProject?._id} onClose={() => setCashout(false)} />
+          </SheetContent>
+        </Sheet>
+
+        {/* View Project Security Modal */}
+        <Sheet open={viewProjectSecurity && (!user.email && !user.phone_number)} onOpenChange={setViewProjectSecurity}>
+          <SheetOverlay className="bg-black/50" />
+          <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+            <ViewProjectChecker 
+              onClose={() => setViewProjectSecurity(false)} 
+              next={() => {
+                setViewProjectSecurity(false)
+                navigate(`/projects/${selectedProject?._id}`)
+              }}
+            />
+          </SheetContent>
+        </Sheet>
+
+        {/* Filter Modal */}
+        <Sheet open={openFilter} onOpenChange={setOpenFilter}>
+          <SheetOverlay className="bg-black/50" />
+          <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+            <FilterModal 
+              setFilterProject={() => setFilterProject(true)} 
+              setFilterData={setFilterDatas} 
+              onClose={() => setOpenFilter(false)} 
+            />
+          </SheetContent>
+        </Sheet>
+
+        <div className={(openFilter || viewProjectSecurity || login || donate || cashout) ? 'relative blur-sm' : "relative"}>
           {/* Hero Banner Section */}
           <div className="w-full relative">
               <div className="h-[30vh] md:h-[40vh] relative overflow-hidden rounded-b-3xl">
