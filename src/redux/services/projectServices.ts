@@ -51,19 +51,89 @@ export const projectService=splitApi.injectEndpoints({
             }
         }),
         getProjectCategories:builder.query({
-            query:()=>"/project-categories"
+            query: () => {
+                console.log("[DEBUG API] Fetching project categories");
+                return "/project-categories";
+            },
+            transformResponse: (response: any) => {
+                console.log("[DEBUG API] Project categories raw response:", response);
+                // Detailed logging of API response structure
+                if (Array.isArray(response)) {
+                    console.log("[DEBUG API] Project categories is an array with length:", response.length);
+                    response.forEach((item, index) => {
+                        console.log(`[DEBUG API] Category ${index}:`, item);
+                        console.log(`[DEBUG API] Category ${index} properties:`, Object.keys(item));
+                        console.log(`[DEBUG API] Category ${index} name:`, item.name);
+                        console.log(`[DEBUG API] Category ${index} id:`, item._id);
+                        console.log(`[DEBUG API] Category ${index} status:`, item.status);
+                    });
+                } else {
+                    console.log("[DEBUG API] Project categories is NOT an array:", typeof response);
+                }
+                return response;
+            },
+            transformErrorResponse: (response: any) => {
+                console.error("[DEBUG API ERROR] Project categories error:", response);
+                return response;
+            }
         }),
         getProjectCategory:builder.query({
             query:(id)=>`/project-categories/${id}`
         }),
         getProjectTypes:builder.query({
-            query:()=>"/project-types"
+            query: () => {
+                console.log("[DEBUG API] Fetching project types");
+                return "/project-types";
+            },
+            transformResponse: (response: any) => {
+                console.log("[DEBUG API] Project types raw response:", response);
+                // Detailed logging of API response structure
+                if (Array.isArray(response)) {
+                    console.log("[DEBUG API] Project types is an array with length:", response.length);
+                    response.forEach((item, index) => {
+                        console.log(`[DEBUG API] Type ${index}:`, item);
+                        console.log(`[DEBUG API] Type ${index} properties:`, Object.keys(item));
+                        console.log(`[DEBUG API] Type ${index} name:`, item.name);
+                        console.log(`[DEBUG API] Type ${index} id:`, item._id);
+                        console.log(`[DEBUG API] Type ${index} status:`, item.status);
+                    });
+                } else {
+                    console.log("[DEBUG API] Project types is NOT an array:", typeof response);
+                }
+                return response;
+            },
+            transformErrorResponse: (response: any) => {
+                console.error("[DEBUG API ERROR] Project types error:", response);
+                return response;
+            }
         }),
         getProvinces:builder.query({
-            query:()=>"/provinces"
+            query: () => {
+                console.log("[DEBUG API] Fetching provinces");
+                return "/provinces";
+            },
+            transformResponse: (response: any) => {
+                console.log("[DEBUG API] Provinces response:", response);
+                return response;
+            },
+            transformErrorResponse: (response: any) => {
+                console.error("[DEBUG API ERROR] Provinces error:", response);
+                return response;
+            }
         }),
         getTerritories:builder.query({
-            query:()=>"/territories"
+            query: () => {
+                console.log("[DEBUG API] Fetching territories");
+                return "/territories";
+            },
+            transformResponse: (response: any) => {
+                console.log("[DEBUG API] Territories response:", response);
+                return response;
+            },
+            transformErrorResponse: (response: any) => {
+                console.error("[DEBUG API ERROR] Territories error:", response);
+                return response;
+            }
         }),
         donate:builder.mutation({
             query(data){

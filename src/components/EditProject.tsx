@@ -170,70 +170,63 @@ function EditProject() {
 
         const onsubmit=async(e:any)=>{
           e.preventDefault()
+          console.log("[DEBUG] Edit - Form submission started");
+          
           const formData = new FormData();
 
+          console.log("[DEBUG] Edit - Current values being added to FormData:", values);
+          
           Object.entries(values).forEach(([key, value]) => {
             // Only append if it's a non-empty string or a non-zero number
             if ((typeof value === "string" && value !== "") || 
                 (typeof value === "number" && value !== 0)) {
                   //@ts-ignore
-              formData.append(key, value);
+              console.log(`[DEBUG] Edit - Adding ${key} to FormData:`, value);
+              // Convert any value to string to ensure compatibility with FormData
+              formData.append(key, String(value));
             }
           });
-          // formData.append("name", data.name);
-          // formData.append("type", data.type);
-          // formData.append("category", data.category);
-          // formData.append("description", data.description);
-          // formData.append("province", data.province);
-          // formData.append("territory", data.territory);
-          // formData.append("endDate", formattedDate);
-          // formData.append("currency", data.currency);
-          // formData.append("targetAmount", data.targetAmount?.toString());
-          // formData.append("projectOwner", user._id);
-          
-    
-          //! only works for single file upload
-          // uploadedMedias.forEach((file) => {
-          //   formData.append("medias", file);
-          // });
-        
-          // uploadedAttachments.forEach((file) => {
-          //   formData.append("attachments", file);
-          // });
-          
-          formData.append("projectOwner",user._id)
-          // if(date){
-          //   formData.append("endDate",formattedDate)
-          // }
-          //adjust for array upload files
+
+          console.log("[DEBUG] Edit - Adding projectOwner to FormData:", user._id);
+          formData.append("projectOwner", user._id);
+
+          // Log media files
+          console.log("[DEBUG] Edit - Media files being uploaded:", uploadedMedias);
           uploadedMedias.forEach((file, index) => {
+            console.log(`[DEBUG] Edit - Adding media file ${index} to FormData:`, file.name);
             formData.append(`medias[${index}]`, file);
           });
           
+          // Log attachment files
+          console.log("[DEBUG] Edit - Attachment files being uploaded:", uploadedAttachments);
           uploadedAttachments.forEach((file, index) => {
+            console.log(`[DEBUG] Edit - Adding attachment file ${index} to FormData:`, file.name);
             formData.append(`attachments[${index}]`, file);
           });
-    
-    
+
           try {
+            console.log("[DEBUG] Edit - Calling EditProject API with FormData for project ID:", project._id);
             const response = await EditProject({id:project._id,data:formData}).unwrap();
-            console.log("edit project response",response)
+            console.log("[DEBUG] Edit - Project update successful. Response:", response);
             toast.success("Project edited successfully!");
             navigate("/projects");
           } catch (err) {
-            console.error("Error updating project:", err);
+            console.error("[DEBUG ERROR] Edit - Project update failed with error:", err);
+            // More detailed error logging
+            if ((err as any)?.status) {
+              console.error("[DEBUG ERROR] Edit - Error status:", (err as any).status);
+            }
+            if ((err as any)?.data) {
+              console.error("[DEBUG ERROR] Edit - Error response data:", (err as any).data);
+            }
             toast.error("Failed to updating project!");
           }
           
-          // console.log("medias",uploadedMedias)
-          // console.log("attachment",uploadedAttachments)
+          // Log FormData entries for debugging
+          console.log("[DEBUG] Edit - FormData entries:");
           for (let [key, value] of formData.entries()) {
-            console.log(key, value);
-            //  CreateProject((key,value))
+            console.log(`[DEBUG] Edit - FormData entry - ${key}:`, value);
           }
-    
-          // console.log("date",formattedDate)
-    
         }
 
 
@@ -290,7 +283,13 @@ function EditProject() {
 
     //errors handling
     useEffect(()=>{
-      console.log("errors",errors)
+      console.log("[DEBUG] Edit - Form Errors:", errors);
+      if (Object.keys(errors).length > 0) {
+        console.log("[DEBUG] Edit - Form has validation errors:");
+        Object.entries(errors).forEach(([field, error]) => {
+          console.error(`[DEBUG ERROR] Edit - Field: ${field}, Error:`, error);
+        });
+      }
     },[errors])
 
     useEffect(()=>{
@@ -303,6 +302,32 @@ function EditProject() {
     },[projectIsError,projectIsSuccess])
 
     //console.log("edit project page",project)
+
+    // Enhanced logging for Select dropdowns
+    const handleCategoryChange = (value: string) => {
+      console.log("[DEBUG] Edit - Category selected:", value);
+      console.log("[DEBUG] Edit - Available categories:", projectCategoriesData);
+      setValues({...values, category: value});
+    };
+
+    const handleTypeChange = (value: string) => {
+      console.log("[DEBUG] Edit - Type selected:", value);
+      console.log("[DEBUG] Edit - Available types:", projectTypesData);
+      setValues({...values, type: value});
+    };
+
+    const handleProvinceChange = (value: string) => {
+      console.log("[DEBUG] Edit - Province selected:", value);
+      console.log("[DEBUG] Edit - Available provinces:", getProvincesData);
+      setValues({...values, province: value});
+    };
+
+    const handleTerritoryChange = (value: string) => {
+      console.log("[DEBUG] Edit - Territory selected:", value);
+      console.log("[DEBUG] Edit - Available territories:", getTerritoriesData);
+      setValues({...values, territory: value});
+    };
+
   return (
     <form  className="grid grid-cols-1 gap-y-5 lg:grid-cols-2 gap-x-10 p-5 md:p-10">
           <div className="w-[98%] md:w-3/4 mx-auto">
@@ -343,7 +368,7 @@ function EditProject() {
                     }
                     {
                       projectCategoriesData?.length > 0 && 
-                      <Select onValueChange={(value) => setValues({...values,category:value})}>
+                      <Select onValueChange={handleCategoryChange}>
                         <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
                           <SelectValue placeholder={project?.category.name} />
                         </SelectTrigger>
@@ -420,7 +445,7 @@ function EditProject() {
                     }
                     {
                       getProvincesData?.length > 0 && 
-                      <Select onValueChange={(value) => setValues({...values,province: value})}>
+                      <Select onValueChange={handleProvinceChange}>
                         <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
                           <SelectValue placeholder="Select province" />
                         </SelectTrigger>
@@ -458,7 +483,7 @@ function EditProject() {
                     }
                     {
                       getTerritoriesData?.length >0 && 
-                      <Select onValueChange={(value) => setValues({...values,territory: value})}>
+                      <Select onValueChange={handleTerritoryChange}>
                         <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
                           <SelectValue placeholder="Select Territory" />
                         </SelectTrigger>
