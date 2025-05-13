@@ -29,6 +29,8 @@ import PopularImage1 from '../assets/popularProjectImg1.png'
 import PopularImage2 from '../assets/popularProjectProfile1.png'
 import PopularImage3 from '../assets/popularProjectProfile2.png'
 import PopularImage4 from '../assets/popularProjectProfile3.png'
+import axios from 'axios';
+import { apiUrl } from "@/lib/env";
 
 
 
@@ -137,6 +139,18 @@ function CreateProject() {
       isSuccess:projectCategoriesIsSuccess
     }=useGetProjectCategoriesQuery(undefined)
 
+    // Debug log for project categories response
+    useEffect(() => {
+      if(projectCategoriesIsSuccess) {
+        console.log("[DEBUG] Project Categories API Response:", projectCategoriesData);
+        console.log("[DEBUG] Project Categories Count:", projectCategoriesData?.length);
+      }
+      if(projectCategoriesIsError) {
+        console.error("[DEBUG ERROR] Project Categories API Error:", projectCategoriesError);
+        console.error("[DEBUG ERROR] Project Categories Error Status:", (projectCategoriesError as any)?.status);
+        console.error("[DEBUG ERROR] Project Categories Error Data:", (projectCategoriesError as any)?.data);
+      }
+    }, [projectCategoriesIsSuccess, projectCategoriesIsError, projectCategoriesData, projectCategoriesError]);
 
     const {
       data:projectTypesData,
@@ -146,8 +160,130 @@ function CreateProject() {
       isLoading:projectTypesIsLoading
     }=useGetProjectTypesQuery(undefined)
 
+    // Debug log for project types response
+    useEffect(() => {
+      if(projectTypesIsSuccess) {
+        console.log("[DEBUG] Project Types API Response:", projectTypesData);
+        console.log("[DEBUG] Project Types Count:", projectTypesData?.length);
+      }
+      if(projectTypesIsError) {
+        console.error("[DEBUG ERROR] Project Types API Error:", projectTypesError);
+        console.error("[DEBUG ERROR] Project Types Error Status:", (projectTypesError as any)?.status);
+        console.error("[DEBUG ERROR] Project Types Error Data:", (projectTypesError as any)?.data);
+      }
+    }, [projectTypesIsSuccess, projectTypesIsError, projectTypesData, projectTypesError]);
+
+    const validateCategoryData = (data: any[]) => {
+      if (!Array.isArray(data)) {
+        console.error("[DEBUG ERROR] Project categories is not an array");
+        return [];
+      }
+      
+      // Filter and normalize category data
+      return data.map(item => {
+        // Check if item has required properties
+        if (!item || typeof item !== 'object') {
+          console.error("[DEBUG ERROR] Category item is not an object:", item);
+          return null;
+        }
+        
+        // Check for potential alternate property names (e.g. 'title' instead of 'name')
+        const possibleKeys = Object.keys(item);
+        console.log("[DEBUG] Category item keys:", possibleKeys);
+        
+        // Try to find the name property - check various possibilities
+        let itemName = item.name;
+        if (!itemName) {
+          if (item.title) {
+            console.log("[DEBUG] Using 'title' property instead of 'name' for category");
+            itemName = item.title;
+          } else if (item.label) {
+            console.log("[DEBUG] Using 'label' property instead of 'name' for category");
+            itemName = item.label;
+          } else if (item.categoryName) {
+            console.log("[DEBUG] Using 'categoryName' property instead of 'name' for category");
+            itemName = item.categoryName;
+          }
+        }
+        
+        // Create normalized item with defaults for missing properties
+        const normalizedItem = {
+          _id: item._id || item.id || `temp-id-${Math.random()}`,
+          name: itemName || "Unknown Category",
+          status: item.status || item.state || "ENABLED"
+        };
+        
+        console.log("[DEBUG] Normalized category item:", normalizedItem);
+        return normalizedItem;
+      }).filter(Boolean); // Remove null items
+    };
+
+    const validateTypeData = (data: any[]) => {
+      if (!Array.isArray(data)) {
+        console.error("[DEBUG ERROR] Project types is not an array");
+        return [];
+      }
+      
+      // Filter and normalize type data
+      return data.map(item => {
+        // Check if item has required properties
+        if (!item || typeof item !== 'object') {
+          console.error("[DEBUG ERROR] Type item is not an object:", item);
+          return null;
+        }
+        
+        // Check for potential alternate property names (e.g. 'title' instead of 'name')
+        const possibleKeys = Object.keys(item);
+        console.log("[DEBUG] Type item keys:", possibleKeys);
+        
+        // Try to find the name property - check various possibilities
+        let itemName = item.name;
+        if (!itemName) {
+          if (item.title) {
+            console.log("[DEBUG] Using 'title' property instead of 'name' for type");
+            itemName = item.title;
+          } else if (item.label) {
+            console.log("[DEBUG] Using 'label' property instead of 'name' for type");
+            itemName = item.label;
+          } else if (item.typeName) {
+            console.log("[DEBUG] Using 'typeName' property instead of 'name' for type");
+            itemName = item.typeName;
+          }
+        }
+        
+        // Create normalized item with defaults for missing properties
+        const normalizedItem = {
+          _id: item._id || item.id || `temp-id-${Math.random()}`,
+          name: itemName || "Unknown Type",
+          status: item.status || item.state || "ENABLED"
+        };
+        
+        console.log("[DEBUG] Normalized type item:", normalizedItem);
+        return normalizedItem;
+      }).filter(Boolean); // Remove null items
+    };
+
+    const normalizedCategories = projectCategoriesData ? validateCategoryData(projectCategoriesData) : [];
+    const normalizedTypes = projectTypesData ? validateTypeData(projectTypesData) : [];
+
+    // Log the normalized data
+    useEffect(() => {
+      if (projectCategoriesIsSuccess) {
+        console.log("[DEBUG] Normalized categories:", normalizedCategories);
+        console.log("[DEBUG] Normalized categories count:", normalizedCategories.length);
+      }
+    }, [projectCategoriesIsSuccess, normalizedCategories]);
+
+    useEffect(() => {
+      if (projectTypesIsSuccess) {
+        console.log("[DEBUG] Normalized types:", normalizedTypes);
+        console.log("[DEBUG] Normalized types count:", normalizedTypes.length);
+      }
+    }, [projectTypesIsSuccess, normalizedTypes]);
 
     const onsubmit=async(data:FormValues)=>{
+      console.log("[DEBUG] Form submission started with data:", data);
+      
       if(!preview){
         let current=getValues()
         
@@ -191,19 +327,27 @@ function CreateProject() {
 
 
         try {
+          console.log("[DEBUG] Calling CreateProject API with FormData");
           const response = await CreateProject(formData).unwrap();
+          console.log("[DEBUG] Project creation successful. Response:", response);
           toast.success("Project created successfully!");
           navigate("/projects");
         } catch (err) {
-          console.error("Error creating project:", err);
+          console.error("[DEBUG ERROR] Project creation failed with error:", err);
+          // More detailed error logging
+          if ((err as any)?.status) {
+            console.error("[DEBUG ERROR] Error status:", (err as any).status);
+          }
+          if ((err as any)?.data) {
+            console.error("[DEBUG ERROR] Error response data:", (err as any).data);
+          }
           toast.error("Failed to create project!");
         }
         
         // console.log("medias",uploadedMedias)
         // console.log("attachment",uploadedAttachments)
         for (let [key, value] of formData.entries()) {
-          console.log(key, value);
-          //  CreateProject((key,value))
+          console.log(`[DEBUG] FormData entry - ${key}:`, value);
         }
 
 
@@ -272,6 +416,71 @@ function CreateProject() {
       console.log("errors",errors)
     },[errors])
 
+    // Enhanced form validation error logging
+    useEffect(() => {
+      console.log("[DEBUG] Form Errors:", errors);
+      if (Object.keys(errors).length > 0) {
+        console.log("[DEBUG] Form has validation errors:");
+        Object.entries(errors).forEach(([field, error]) => {
+          console.error(`[DEBUG ERROR] Field: ${field}, Error:`, error);
+        });
+      }
+    }, [errors]);
+
+    // Watch form field changes
+    useEffect(() => {
+      const subscription = watch((value, { name, type }) => {
+        console.log(`[DEBUG] Form field "${name}" changed:`, value[name as keyof FormValues]);
+      });
+      return () => subscription.unsubscribe();
+    }, [watch]);
+
+    // Enhanced logging for Select dropdowns
+    const handleCategoryChange = (value: string) => {
+      console.log("[DEBUG INTERACTION] Category selected:", value);
+      console.log("[DEBUG INTERACTION] Available categories:", normalizedCategories);
+      console.log("[DEBUG INTERACTION] Found category object:", 
+        normalizedCategories.find(cat => cat.name === value) || "Not found in normalized data");
+      
+      // Check if we're setting the value correctly
+      try {
+        setValue("category", value);
+        const currentValues = getValues();
+        console.log("[DEBUG INTERACTION] Form values after category selection:", currentValues);
+        console.log("[DEBUG INTERACTION] Category in form after selection:", currentValues.category);
+      } catch (error) {
+        console.error("[DEBUG INTERACTION ERROR] Error setting category value:", error);
+      }
+    };
+
+    const handleTypeChange = (value: string) => {
+      console.log("[DEBUG INTERACTION] Type selected:", value);
+      console.log("[DEBUG INTERACTION] Available types:", normalizedTypes);
+      console.log("[DEBUG INTERACTION] Found type object:", 
+        normalizedTypes.find(type => type.name === value) || "Not found in normalized data");
+      
+      // Check if we're setting the value correctly
+      try {
+        setValue("type", value);
+        const currentValues = getValues();
+        console.log("[DEBUG INTERACTION] Form values after type selection:", currentValues);
+        console.log("[DEBUG INTERACTION] Type in form after selection:", currentValues.type);
+      } catch (error) {
+        console.error("[DEBUG INTERACTION ERROR] Error setting type value:", error);
+      }
+    };
+
+    const handleProvinceChange = (value: string) => {
+      console.log("[DEBUG] Province selected:", value);
+      console.log("[DEBUG] Available provinces:", getProvincesData);
+      setValue("province", value);
+    };
+
+    const handleTerritoryChange = (value: string) => {
+      console.log("[DEBUG] Territory selected:", value);
+      console.log("[DEBUG] Available territories:", getTerritoriesData);
+      setValue("territory", value);
+    };
 
     const handleShowPreview=(e:any)=>{
       e.preventDefault()
@@ -287,6 +496,39 @@ function CreateProject() {
     // }, [watch()]);
 
     //console.log("edit project page",project)
+    
+    // Direct API test
+    useEffect(() => {
+      const testAPI = async () => {
+        try {
+          console.log("[DEBUG DIRECT API] Testing direct API call to /project-categories");
+          const response = await axios.get(`${apiUrl}/project-categories`);
+          console.log("[DEBUG DIRECT API] Response data:", response.data);
+          console.log("[DEBUG DIRECT API] Response status:", response.status);
+          
+          // Check if the response is an array with expected properties
+          if (Array.isArray(response.data)) {
+            console.log("[DEBUG DIRECT API] Response is an array with length:", response.data.length);
+            response.data.forEach((item, index) => {
+              console.log(`[DEBUG DIRECT API] Item ${index}:`, item);
+              console.log(`[DEBUG DIRECT API] Item ${index} has name:`, item.name ? "Yes" : "No");
+              console.log(`[DEBUG DIRECT API] Item ${index} has _id:`, item._id ? "Yes" : "No");
+              console.log(`[DEBUG DIRECT API] Item ${index} has status:`, item.status ? "Yes" : "No");
+            });
+          } else {
+            console.log("[DEBUG DIRECT API] Response is not an array:", typeof response.data);
+          }
+        } catch (error) {
+          console.error("[DEBUG DIRECT API] Error testing API:", error);
+          if (axios.isAxiosError(error)) {
+            console.error("[DEBUG DIRECT API] Response:", error.response?.data);
+            console.error("[DEBUG DIRECT API] Status:", error.response?.status);
+          }
+        }
+      };
+      
+      testAPI();
+    }, []);
     
   return (
     <>
@@ -329,8 +571,8 @@ function CreateProject() {
                       </div>
                     }
                     {
-                      projectCategoriesData?.length > 0 && 
-                      <Select onValueChange={(value) => setValue("category", value)}>
+                      normalizedCategories.length > 0 && 
+                      <Select onValueChange={handleCategoryChange}>
                         <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
                           <SelectValue placeholder="Select project category" />
                         </SelectTrigger>
@@ -338,7 +580,7 @@ function CreateProject() {
                           <SelectGroup>
                             <SelectLabel>Project category</SelectLabel>
                             {
-                              projectCategoriesData?.map((item:any)=>(
+                              normalizedCategories.map((item: any) => (
                                 <SelectItem 
                                   key={item._id} 
                                   value={item.name}
@@ -367,8 +609,8 @@ function CreateProject() {
                       </div>
                     }
                     {
-                      projectTypesData?.length > 0 && 
-                      <Select onValueChange={(value) => setValue("type", value)}>
+                      normalizedTypes.length > 0 && 
+                      <Select onValueChange={handleTypeChange}>
                         <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
                           <SelectValue placeholder="Select project type" />
                         </SelectTrigger>
@@ -376,7 +618,7 @@ function CreateProject() {
                           <SelectGroup>
                             <SelectLabel>Project type</SelectLabel>
                             {
-                              projectTypesData?.map((item:any)=>(
+                              normalizedTypes.map((item: any) => (
                                 <SelectItem 
                                   key={item._id} 
                                   value={item.name}
@@ -450,7 +692,7 @@ function CreateProject() {
                     }
                     {
                       getProvincesData?.length > 0 && 
-                      <Select onValueChange={(value) => setValue("province", value)}>
+                      <Select onValueChange={handleProvinceChange}>
                         <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
                           <SelectValue placeholder="Select province" />
                         </SelectTrigger>
@@ -489,7 +731,7 @@ function CreateProject() {
                     }
                     {
                       getTerritoriesData?.length >0 && 
-                      <Select onValueChange={(value) => setValue("territory", value)}>
+                      <Select onValueChange={handleTerritoryChange}>
                         <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
                           <SelectValue placeholder="Select Territory" />
                         </SelectTrigger>
