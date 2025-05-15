@@ -140,7 +140,7 @@ function HomePage() {
 
       {/* start of popular projects */}
       {
-        AllProjects?.length > 0 &&(
+        AllProjects?.length > 0 && (
           <div className="mt-5 md:mt-0">
             <div className="flex items-center md:items-start justify-between">
               <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-x-2 md:w-2/5 lg:w-2/6">
@@ -166,90 +166,126 @@ function HomePage() {
               </span>
             </div>
 
-            <div className="relative hidden md:grid md:grid-cols-7 lg:grid-cols-8  py-10 h-[750px] w-full">
-              <PopularProjectCard
-                className="absolute w-[100%] -bottom-36 left-0  md:col-span-3 lg:col-span-2"
-                onClick={() => {
-                  setSelectedProject(AllProjects?.[0])
-                  //@ts-ignore
-                  dispatch(setProject(AllProjects?.[0]))
-                  if (AllProjects?.[0]?._id) {
-                    navigate(`/projects/${AllProjects?.[0]?._id}`)
-                  }
-                }}
-                actionName={t("Donate")}
-                action={() => {
-
-                }}
-                image={AllProjects?.[0]?.medias[0]}
-                title={AllProjects?.[0]?.name}
-                desc={AllProjects?.[0]?.desctiption}
-                type={AllProjects?.[0]?.type.name}
-                amount={AllProjects?.[0]?.actualBalance || 0}
-                limit={AllProjects?.[0]?.targetAmount}
-                profile={popularProjectProfileImg}
-              />
-              <div className="col-span-1"></div>
-
-              <PopularProjectCard
-                className="absolute w-[108%] -bottom-16 md:col-span-3 lg:col-span-2"
-                onClick={() => {
-                  setSelectedProject(AllProjects?.[1])
-                  //@ts-ignore
-                  dispatch(setProject(AllProjects?.[1]))
-                  if (AllProjects?.[1]?._id) {
-                    navigate(`/projects/${AllProjects?.[1]?._id}`)
-                  }
-                }}
-                actionName={t("Donate")}
-                action={() => {
-
-                }}
-                image={AllProjects?.[1]?.medias[0]}
-                title={AllProjects?.[1]?.name}
-                desc={AllProjects?.[1]?.desctiption}
-                type={AllProjects?.[1]?.type.name}
-                amount={AllProjects?.[1]?.actualBalance || 0}
-                limit={AllProjects?.[1]?.targetAmount}
-                profile={popularProjectProfileImg}
-              />
-              <div className="md:hidden lg:col-span-1"></div>
-              <PopularProjectCard
-                className="absolute w-[108%] lg:block md:hidden lg:left-[50%] 2xl:-top-[15%] -top-[10%] lg:col-span-2"
-                onClick={() => {
-                  setSelectedProject(AllProjects?.[2])
-                  //@ts-ignore
-                  dispatch(setProject(AllProjects?.[2]))
-                  if (AllProjects?.[2]?._id) {
-                    navigate(`/projects/${AllProjects?.[2]?._id}`)
-                  }
-                }}
-                actionName={t("Donate")}
-                action={() => {
-
-                }}
-                image={AllProjects?.[2]?.medias[0]}
-                title={AllProjects?.[2]?.name}
-                desc={AllProjects?.[2]?.desctiption}
-                type={AllProjects?.[2]?.type.name}
-                amount={AllProjects?.[2]?.actualBalance || 0}
-                limit={AllProjects?.[2]?.targetAmount}
-                profile={popularProjectProfileImg}
-              />
-
-              <div className="flex items-center space-x-5 absolute bottom-5 md:right-2 lg:right-0">
-                <div className="flex items-center space-x-2">
-                  <div className="h-2 w-6 rounded-3xl bg-lightBlue"></div>
-                  <div className="w-2 h-2 rounded-full bg-lightGray"></div>
-                  <div className="w-2 h-2 rounded-full bg-lightGray"></div>
-                </div>
-                <Button
-                  onClick={() => navigate("/projects")}
-                  className="flex items-center space-x-5 text-black w-[110px] h-[50px] rounded-[100px] border-2 border-black bg-transparent"
+            {/* Modern card grid layout for desktop */}
+            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+              {AllProjects.slice(0, 3).map((project, index) => (
+                <div 
+                  key={project._id} 
+                  className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
                 >
-                  {t("Next")}
-                  <ChevronRight size={28} color="black" />
-                </Button>
+                  <div className="relative">
+                    {/* Project Category Badge */}
+                    <div className="absolute top-4 left-4 bg-white/90 px-4 py-1.5 rounded-full flex items-center gap-2">
+                      {project.type.name === "High Yield" ? (
+                        <>
+                          <span className="text-blue-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                              <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2z"/>
+                              <path fillRule="evenodd" d="M8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                            </svg>
+                          </span>
+                          <span className="font-medium">High Yield</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-amber-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                              <path fillRule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707z"/>
+                            </svg>
+                          </span>
+                          <span className="font-medium">Balanced</span>
+                        </>
+                      )}
+                    </div>
+                    
+                    {/* Project Image */}
+                    <img 
+                      src={project.medias[0]} 
+                      alt={project.name} 
+                      className="w-full h-64 object-cover"
+                    />
+                    
+                    {/* Carousel Indicators */}
+                    <div className="absolute bottom-4 w-full flex justify-center space-x-2">
+                      {[...Array(3)].map((_, i) => (
+                        <div 
+                          key={i} 
+                          className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/50'}`}
+                        ></div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Project Info */}
+                  <div className="p-5">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <img 
+                        src={`https://flagcdn.com/16x12/ae.png`} 
+                        alt="Country flag" 
+                        className="w-5 h-auto"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        {project.province?.name || 'Location'}
+                      </span>
+                    </div>
+                    
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{project.name}</h3>
+                    
+                    <div className="flex items-center space-x-2 mb-4">
+                      <span className="text-2xl font-bold text-green-500">
+                        {project.currency} {project.targetAmount.toLocaleString()}
+                      </span>
+                    </div>
+                    
+                    {/* Project Details */}
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="grid grid-cols-2 gap-y-3">
+                        <div>
+                          <p className="text-gray-500 text-sm">Yearly investment return</p>
+                          <p className="font-semibold text-gray-900">{project.loanRate || 8.5}%</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-500 text-sm">Funded date</p>
+                          <p className="font-semibold text-gray-900">
+                            {new Date(project.endDate).toLocaleDateString('en-US', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-gray-500 text-sm">Current valuation</p>
+                          <p className="font-semibold text-gray-900">
+                            {project.currency} {project.actualBalance.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Action Button */}
+                    <Button
+                      onClick={() => {
+                        setSelectedProject(project);
+                        dispatch(setProject(project));
+                        if (project?._id) {
+                          navigate(`/projects/${project._id}`);
+                        }
+                      }}
+                      className="w-full mt-4 bg-darkBlue hover:bg-blue-700 text-white py-2.5 rounded-lg"
+                    >
+                      {t("View Details")}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-center mt-6 md:hidden">
+              <div className="flex items-center space-x-2">
+                <div className="h-2 w-6 rounded-3xl bg-lightBlue"></div>
+                <div className="w-2 h-2 rounded-full bg-lightGray"></div>
+                <div className="w-2 h-2 rounded-full bg-lightGray"></div>
               </div>
             </div>
           </div>
@@ -261,45 +297,92 @@ function HomePage() {
       {/* start of popular project on small devices */}
       {
         AllProjects?.length > 0 && (
-          <div className="block md:hidden">
+          <div className="block md:hidden mt-4">
             <Carousel className="mx-auto max-w-[90%]">
               <CarouselContent className="">
-                {Array.from({ length: AllProjects?.slice(0, 3).length }).map((_, index) => (
-                  <CarouselItem key={index}>
+                {AllProjects.slice(0, Math.min(3, AllProjects.length)).map((project, index) => (
+                  <CarouselItem key={project._id || index}>
                     <div className="p-1">
-                      <Card>
-                        <CardContent className="flex aspect-square items-center justify-center w-full m-0 p-0">
-                          <PopularProjectCard
-                            className="w-full"
-                            onClick={() => {
-                              setSelectedProject(AllProjects?.[index])
-                              //@ts-ignore
-                              dispatch(setProject(AllProjects?.[index]))
-                              if (AllProjects?.[index]?._id) {
-                                navigate(`/projects/${AllProjects?.[index]._id}`)
-                              }
-
-                              //(!user.email&& !user.phone_number) && setViewProjectSecurity(true)
-
-                            }}
-                            actionName={t("Donate")}
-                            action={() => {
-                              setSelectedProject(AllProjects?.[index])
-                              //@ts-ignore
-                              dispatch(setProject(AllProjects?.[index]))
-                              if ((user.email || user.phone_number && !userProjectsData?.map((item: any) => item._id).includes(AllProjects?.[index]?._id))) {
-                                setDonate(true)
-                                return
-                              }
-                              setLogin(true)
-                            }}
-                            image={AllProjects[index].medias[0]}
-                            title={AllProjects[index].name}
-                            desc={AllProjects[index].desccription}
-                            type={AllProjects[index].type.name}
-                            amount={AllProjects[index].actualBalance || 0}
-                            limit={AllProjects[index].targetAmount}
-                          />
+                      <Card className="overflow-hidden">
+                        <CardContent className="flex flex-col p-0">
+                          <div className="relative">
+                            {/* Project Category Badge */}
+                            <div className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-full flex items-center gap-1.5 z-10 text-sm">
+                              {index % 2 === 0 ? (
+                                <>
+                                  <span className="text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                      <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2z"/>
+                                      <path fillRule="evenodd" d="M8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                                    </svg>
+                                  </span>
+                                  <span className="font-medium">High Yield</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="text-amber-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                      <path fillRule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707z"/>
+                                    </svg>
+                                  </span>
+                                  <span className="font-medium">Balanced</span>
+                                </>
+                              )}
+                            </div>
+                            
+                            {/* Project Image */}
+                            <img 
+                              src={project.medias[0]} 
+                              alt={project.name} 
+                              className="w-full h-56 object-cover"
+                            />
+                            
+                            {/* Carousel Indicators */}
+                            <div className="absolute bottom-4 w-full flex justify-center space-x-1.5">
+                              {[...Array(3)].map((_, i) => (
+                                <div 
+                                  key={i} 
+                                  className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/50'}`}
+                                ></div>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          {/* Project Info */}
+                          <div className="p-4">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <img 
+                                src={`https://flagcdn.com/16x12/ae.png`} 
+                                alt="Country flag" 
+                                className="w-4 h-auto"
+                              />
+                              <span className="text-xs font-medium text-gray-700">
+                                {project.province?.name || 'Location'}
+                              </span>
+                            </div>
+                            
+                            <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2">{project.name}</h3>
+                            
+                            <div className="flex items-center space-x-2 mb-3">
+                              <span className="text-xl font-bold text-green-500">
+                                {project.currency} {project.targetAmount.toLocaleString()}
+                              </span>
+                            </div>
+                            
+                            {/* Action Button */}
+                            <Button
+                              onClick={() => {
+                                setSelectedProject(project);
+                                dispatch(setProject(project));
+                                if (project?._id) {
+                                  navigate(`/projects/${project._id}`);
+                                }
+                              }}
+                              className="w-full bg-darkBlue hover:bg-blue-700 text-white py-2 rounded-lg text-sm"
+                            >
+                              {t("View Details")}
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>
                     </div>
