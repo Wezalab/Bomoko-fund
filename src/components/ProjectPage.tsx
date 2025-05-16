@@ -385,30 +385,115 @@ function ProjectPage() {
               ) : currentDataPersonal?.length > 0 ? (
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
                   {currentDataPersonal?.map((project: any) => (
-                    <PopularProjectCard 
-                      onClick={() => {
-                        setSelectedProject(project);
-                        dispatch(setProject(project));
-                        if(project?._id) {
-                          navigate(`/projects/${project._id}`);
-                        }
-                      }}
-                      action={() => {
-                        setSelectedProject(project);
-                        dispatch(setProject(project));
-                        if(project?._id) {
-                          navigate(`/projects/${project._id}`);
-                        }
-                      }}
-                      actionName='Cashout'
-                      key={project?._id}
-                      image={project?.medias[0]}
-                      title={project?.name}
-                      desc={project?.description}
-                      type={project?.type.name}
-                      amount={project?.actualBalance}
-                      limit={project?.targetAmount}
-                    />
+                    <div 
+                      key={project._id} 
+                      className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                    >
+                      <div className="relative">
+                        {/* Project Category Badge */}
+                        <div className="absolute top-4 left-4 bg-white/90 px-4 py-1.5 rounded-full flex items-center gap-2 z-10">
+                          {project.type.name === "High Yield" || project.type.name === "Business" ? (
+                            <>
+                              <span className="text-blue-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                  <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2z"/>
+                                  <path fillRule="evenodd" d="M8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                                </svg>
+                              </span>
+                              <span className="font-medium">High Yield</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-amber-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                  <path fillRule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707z"/>
+                                </svg>
+                              </span>
+                              <span className="font-medium">Balanced</span>
+                            </>
+                          )}
+                        </div>
+                        
+                        {/* Project Image */}
+                        <img 
+                          src={project.medias[0]} 
+                          alt={project.name} 
+                          className="w-full h-64 object-cover"
+                        />
+                        
+                        {/* Carousel Indicators */}
+                        <div className="absolute bottom-4 w-full flex justify-center space-x-2">
+                          {[...Array(Math.min(3, project.medias.length || 1))].map((_, i) => (
+                            <div 
+                              key={i} 
+                              className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/50'}`}
+                            ></div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Project Info */}
+                      <div className="p-5">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <img 
+                            src={`https://flagcdn.com/16x12/cd.png`} 
+                            alt="Country flag" 
+                            className="w-5 h-auto"
+                          />
+                          <span className="text-sm font-medium text-gray-700">
+                            {project.province?.name || 'DRC'}
+                          </span>
+                        </div>
+                        
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{project.name}</h3>
+                        
+                        <div className="flex items-center space-x-2 mb-4">
+                          <span className="text-2xl font-bold text-green-500">
+                            {project.currency} {project.targetAmount.toLocaleString()}
+                          </span>
+                        </div>
+                        
+                        {/* Project Details */}
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <div className="grid grid-cols-2 gap-y-3">
+                            <div>
+                              <p className="text-gray-500 text-sm">Yearly return</p>
+                              <p className="font-semibold text-gray-900">{project.loanRate || 8.5}%</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 text-sm">Funded date</p>
+                              <p className="font-semibold text-gray-900">
+                                {new Date(project.endDate).toLocaleDateString('en-US', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric'
+                                })}
+                              </p>
+                            </div>
+                            <div className="col-span-2">
+                              <p className="text-gray-500 text-sm">Current valuation</p>
+                              <p className="font-semibold text-gray-900">
+                                {project.currency} {project.actualBalance.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Action Button */}
+                        <Button
+                          onClick={() => {
+                            setSelectedProject(project);
+                            dispatch(setProject(project));
+                            if(project?._id) {
+                              navigate(`/projects/${project._id}`);
+                            }
+                          }}
+                          className="w-full mt-4 bg-darkBlue hover:bg-blue-700 text-white py-2.5 rounded-lg"
+                        >
+                          Cashout
+                        </Button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -569,34 +654,119 @@ function ProjectPage() {
               ) : currentData?.length > 0 ? (
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
                   {currentData?.map((project: any, index: number) => (
-                    <PopularProjectCard 
-                      key={project._id}
-                      onClick={() => {
-                        setSelectedProject(project);
-                        dispatch(setProject(project));
-                        if(project?._id) {
-                          navigate(`/projects/${project._id}`);
-                        }
-                      }}
-                      actionName='Donate'
-                      action={() => {
-                        setSelectedProject(project);
-                        dispatch(setProject(project));
-                        if (user?.email || user?.phone_number) {
-                          if(project?._id) {
-                            navigate(`/projects/${project._id}`);
-                          }
-                        } else {
-                          setLogin(true);
-                        }
-                      }}
-                      image={project?.medias[0]}
-                      title={project?.name}
-                      desc={project?.description}
-                      type={project?.type.name}
-                      amount={project?.actualBalance}
-                      limit={project?.targetAmount}
-                    />
+                    <div 
+                      key={project._id} 
+                      className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                    >
+                      <div className="relative">
+                        {/* Project Category Badge */}
+                        <div className="absolute top-4 left-4 bg-white/90 px-4 py-1.5 rounded-full flex items-center gap-2 z-10">
+                          {project.type.name === "High Yield" || project.type.name === "Business" ? (
+                            <>
+                              <span className="text-blue-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                  <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2z"/>
+                                  <path fillRule="evenodd" d="M8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                                </svg>
+                              </span>
+                              <span className="font-medium">High Yield</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-amber-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                  <path fillRule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707z"/>
+                                </svg>
+                              </span>
+                              <span className="font-medium">Balanced</span>
+                            </>
+                          )}
+                        </div>
+                        
+                        {/* Project Image */}
+                        <img 
+                          src={project.medias[0]} 
+                          alt={project.name} 
+                          className="w-full h-64 object-cover"
+                        />
+                        
+                        {/* Carousel Indicators */}
+                        <div className="absolute bottom-4 w-full flex justify-center space-x-2">
+                          {[...Array(Math.min(3, project.medias.length || 1))].map((_, i) => (
+                            <div 
+                              key={i} 
+                              className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/50'}`}
+                            ></div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Project Info */}
+                      <div className="p-5">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <img 
+                            src={`https://flagcdn.com/16x12/cd.png`} 
+                            alt="Country flag" 
+                            className="w-5 h-auto"
+                          />
+                          <span className="text-sm font-medium text-gray-700">
+                            {project.province?.name || 'DRC'}
+                          </span>
+                        </div>
+                        
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{project.name}</h3>
+                        
+                        <div className="flex items-center space-x-2 mb-4">
+                          <span className="text-2xl font-bold text-green-500">
+                            {project.currency} {project.targetAmount.toLocaleString()}
+                          </span>
+                        </div>
+                        
+                        {/* Project Details */}
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                          <div className="grid grid-cols-2 gap-y-3">
+                            <div>
+                              <p className="text-gray-500 text-sm">Yearly return</p>
+                              <p className="font-semibold text-gray-900">{project.loanRate || 8.5}%</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 text-sm">Funded date</p>
+                              <p className="font-semibold text-gray-900">
+                                {new Date(project.endDate).toLocaleDateString('en-US', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric'
+                                })}
+                              </p>
+                            </div>
+                            <div className="col-span-2">
+                              <p className="text-gray-500 text-sm">Current valuation</p>
+                              <p className="font-semibold text-gray-900">
+                                {project.currency} {project.actualBalance.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Action Button */}
+                        <Button
+                          onClick={() => {
+                            setSelectedProject(project);
+                            dispatch(setProject(project));
+                            if (user?.email || user?.phone_number) {
+                              if(project?._id) {
+                                navigate(`/projects/${project._id}`);
+                              }
+                            } else {
+                              setLogin(true);
+                            }
+                          }}
+                          className="w-full mt-4 bg-darkBlue hover:bg-blue-700 text-white py-2.5 rounded-lg"
+                        >
+                          Donate
+                        </Button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               ) : (
