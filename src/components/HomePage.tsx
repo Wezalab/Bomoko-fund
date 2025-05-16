@@ -218,15 +218,34 @@ function HomePage() {
                   
                   {/* Project Info */}
                   <div className="p-5">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <img 
-                        src={`https://flagcdn.com/16x12/ae.png`} 
-                        alt="Country flag" 
-                        className="w-5 h-auto"
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        {project.province?.name || 'Location'}
-                      </span>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <img 
+                          src={`https://flagcdn.com/16x12/ae.png`} 
+                          alt="Country flag" 
+                          className="w-5 h-auto"
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                          {project.province?.name || 'Location'}
+                        </span>
+                      </div>
+                      
+                      {/* Project Owner - Adding new section */}
+                      <div className="flex items-center space-x-1.5">
+                        <div className="w-7 h-7 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
+                          <img 
+                            src={project.projectOwner?.avatar || "https://ui-avatars.com/api/?name=" + encodeURIComponent(project.projectOwner?.name || "User")} 
+                            alt="Owner" 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(project.projectOwner?.name || "User")}&background=random`;
+                            }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-600 font-medium truncate max-w-[80px]">
+                          {project.projectOwner?.name || "Anonymous"}
+                        </span>
+                      </div>
                     </div>
                     
                     <h3 className="text-xl font-bold text-gray-900 mb-2">{project.name}</h3>
@@ -350,15 +369,34 @@ function HomePage() {
                           
                           {/* Project Info */}
                           <div className="p-4">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <img 
-                                src={`https://flagcdn.com/16x12/ae.png`} 
-                                alt="Country flag" 
-                                className="w-4 h-auto"
-                              />
-                              <span className="text-xs font-medium text-gray-700">
-                                {project.province?.name || 'Location'}
-                              </span>
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center space-x-2">
+                                <img 
+                                  src={`https://flagcdn.com/16x12/ae.png`} 
+                                  alt="Country flag" 
+                                  className="w-4 h-auto"
+                                />
+                                <span className="text-xs font-medium text-gray-700">
+                                  {project.province?.name || 'Location'}
+                                </span>
+                              </div>
+                              
+                              {/* Project Owner - Adding new section */}
+                              <div className="flex items-center space-x-1">
+                                <div className="w-5 h-5 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
+                                  <img 
+                                    src={project.projectOwner?.avatar || "https://ui-avatars.com/api/?name=" + encodeURIComponent(project.projectOwner?.name || "User")} 
+                                    alt="Owner" 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(project.projectOwner?.name || "User")}&background=random`;
+                                    }}
+                                  />
+                                </div>
+                                <span className="text-[10px] text-gray-600 font-medium truncate max-w-[60px]">
+                                  {project.projectOwner?.name || "Anonymous"}
+                                </span>
+                              </div>
                             </div>
                             
                             <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2">{project.name}</h3>
