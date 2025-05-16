@@ -37,6 +37,40 @@ interface FilterDatasProps{
   authorGender:string
 }
 
+// Helper function to get initials from name
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map(word => word[0]?.toUpperCase() || '')
+    .slice(0, 2)
+    .join('');
+}
+
+// Helper function to generate consistent color based on name
+function getRandomColor(name: string): string {
+  // Generate a consistent color based on the name string
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  const colors = [
+    '#4F46E5', // indigo
+    '#0891B2', // cyan
+    '#4D7C0F', // lime
+    '#9333EA', // purple
+    '#0369A1', // blue
+    '#059669', // emerald
+    '#B91C1C', // red
+    '#C2410C', // orange
+    '#0F766E', // teal
+    '#7E22CE'  // violet
+  ];
+  
+  // Use the hash to pick a consistent color
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+}
 
 function ProjectPage() {
   
@@ -448,15 +482,29 @@ function ProjectPage() {
                           
                           {/* Project Owner */}
                           <div className="flex items-center space-x-1.5">
-                            <div className="w-7 h-7 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
-                              <img 
-                                src={project.projectOwner?.profile || "https://ui-avatars.com/api/?name=" + encodeURIComponent(project.projectOwner?.name || "User")} 
-                                alt="Owner" 
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(project.projectOwner?.name || "User")}&background=random`;
-                                }}
-                              />
+                            <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden border border-gray-200 flex items-center justify-center text-xs font-medium">
+                              {project.projectOwner?.avatar ? (
+                                <img 
+                                  src={project.projectOwner.avatar} 
+                                  alt={`${project.projectOwner.name || 'User'}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // Replace with initials when image fails to load
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    target.parentElement!.innerText = getInitials(project.projectOwner?.name || 'User');
+                                    target.parentElement!.style.backgroundColor = getRandomColor(project.projectOwner?.name || 'User');
+                                    target.parentElement!.style.color = 'white';
+                                    target.parentElement!.style.display = 'flex';
+                                    target.parentElement!.style.alignItems = 'center';
+                                    target.parentElement!.style.justifyContent = 'center';
+                                  }}
+                                />
+                              ) : (
+                                <span style={{backgroundColor: getRandomColor(project.projectOwner?.name || 'User'), color: 'white'}}>
+                                  {getInitials(project.projectOwner?.name || 'User')}
+                                </span>
+                              )}
                             </div>
                             <span className="text-xs text-gray-600 font-medium truncate max-w-[80px]">
                               {project.projectOwner?.name || "Anonymous"}
@@ -736,15 +784,29 @@ function ProjectPage() {
                           
                           {/* Project Owner */}
                           <div className="flex items-center space-x-1.5">
-                            <div className="w-7 h-7 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
-                              <img 
-                                src={project.projectOwner?.profile || "https://ui-avatars.com/api/?name=" + encodeURIComponent(project.projectOwner?.name || "User")} 
-                                alt="Owner" 
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(project.projectOwner?.name || "User")}&background=random`;
-                                }}
-                              />
+                            <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden border border-gray-200 flex items-center justify-center text-xs font-medium">
+                              {project.projectOwner?.avatar ? (
+                                <img 
+                                  src={project.projectOwner.avatar} 
+                                  alt={`${project.projectOwner.name || 'User'}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // Replace with initials when image fails to load
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    target.parentElement!.innerText = getInitials(project.projectOwner?.name || 'User');
+                                    target.parentElement!.style.backgroundColor = getRandomColor(project.projectOwner?.name || 'User');
+                                    target.parentElement!.style.color = 'white';
+                                    target.parentElement!.style.display = 'flex';
+                                    target.parentElement!.style.alignItems = 'center';
+                                    target.parentElement!.style.justifyContent = 'center';
+                                  }}
+                                />
+                              ) : (
+                                <span style={{backgroundColor: getRandomColor(project.projectOwner?.name || 'User'), color: 'white'}}>
+                                  {getInitials(project.projectOwner?.name || 'User')}
+                                </span>
+                              )}
                             </div>
                             <span className="text-xs text-gray-600 font-medium truncate max-w-[80px]">
                               {project.projectOwner?.name || "Anonymous"}

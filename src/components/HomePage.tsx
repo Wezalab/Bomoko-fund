@@ -27,6 +27,7 @@ import SignIn from "./SignIn";
 import Donate from "./Donate";
 import Cashout from "./Cashout";
 import { setProject } from "@/redux/slices/projectSlice";
+import { Project } from "@/types";
 
 
 function HomePage() {
@@ -168,7 +169,7 @@ function HomePage() {
 
             {/* Modern card grid layout for desktop */}
             <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-              {AllProjects.slice(0, 3).map((project, index) => (
+              {AllProjects.slice(0, 3).map((project: any, index: number) => (
                 <div 
                   key={project._id} 
                   className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
@@ -230,17 +231,31 @@ function HomePage() {
                         </span>
                       </div>
                       
-                      {/* Project Owner - Adding new section */}
+                      {/* Project Owner - Fix avatar property name */}
                       <div className="flex items-center space-x-1.5">
-                        <div className="w-7 h-7 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
-                          <img 
-                            src={project.projectOwner?.avatar || "https://ui-avatars.com/api/?name=" + encodeURIComponent(project.projectOwner?.name || "User")} 
-                            alt="Owner" 
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(project.projectOwner?.name || "User")}&background=random`;
-                            }}
-                          />
+                        <div className="w-7 h-7 rounded-full bg-gray-200 overflow-hidden border border-gray-200 flex items-center justify-center text-xs font-medium">
+                          {project.projectOwner?.avatar ? (
+                            <img 
+                              src={project.projectOwner.avatar} 
+                              alt={`${project.projectOwner.name || 'User'}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                // Replace with initials when image fails to load
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                target.parentElement!.innerText = getInitials(project.projectOwner?.name || 'User');
+                                target.parentElement!.style.backgroundColor = getRandomColor(project.projectOwner?.name || 'User');
+                                target.parentElement!.style.color = 'white';
+                                target.parentElement!.style.display = 'flex';
+                                target.parentElement!.style.alignItems = 'center';
+                                target.parentElement!.style.justifyContent = 'center';
+                              }}
+                            />
+                          ) : (
+                            <span style={{backgroundColor: getRandomColor(project.projectOwner?.name || 'User'), color: 'white'}}>
+                              {getInitials(project.projectOwner?.name || 'User')}
+                            </span>
+                          )}
                         </div>
                         <span className="text-xs text-gray-600 font-medium truncate max-w-[80px]">
                           {project.projectOwner?.name || "Anonymous"}
@@ -319,7 +334,7 @@ function HomePage() {
           <div className="block md:hidden mt-4">
             <Carousel className="mx-auto max-w-[90%]">
               <CarouselContent className="">
-                {AllProjects.slice(0, Math.min(3, AllProjects.length)).map((project, index) => (
+                {AllProjects.slice(0, Math.min(3, AllProjects.length)).map((project: any, index: number) => (
                   <CarouselItem key={project._id || index}>
                     <div className="p-1">
                       <Card className="overflow-hidden">
@@ -381,17 +396,31 @@ function HomePage() {
                                 </span>
                               </div>
                               
-                              {/* Project Owner - Adding new section */}
+                              {/* Project Owner - Fix avatar property name */}
                               <div className="flex items-center space-x-1">
-                                <div className="w-5 h-5 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
-                                  <img 
-                                    src={project.projectOwner?.avatar || "https://ui-avatars.com/api/?name=" + encodeURIComponent(project.projectOwner?.name || "User")} 
-                                    alt="Owner" 
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(project.projectOwner?.name || "User")}&background=random`;
-                                    }}
-                                  />
+                                <div className="w-5 h-5 rounded-full bg-gray-200 overflow-hidden border border-gray-200 flex items-center justify-center text-[8px] font-medium">
+                                {project.projectOwner?.avatar ? (
+                                <img 
+                                  src={project.projectOwner.avatar} 
+                                  alt={`${project.projectOwner.name || 'User'}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    // Replace with initials when image fails to load
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    target.parentElement!.innerText = getInitials(project.projectOwner?.name || 'User');
+                                    target.parentElement!.style.backgroundColor = getRandomColor(project.projectOwner?.name || 'User');
+                                    target.parentElement!.style.color = 'white';
+                                    target.parentElement!.style.display = 'flex';
+                                    target.parentElement!.style.alignItems = 'center';
+                                    target.parentElement!.style.justifyContent = 'center';
+                                  }}
+                                />
+                              ) : (
+                                <span style={{backgroundColor: getRandomColor(project.projectOwner?.name || 'User'), color: 'white'}}>
+                                  {getInitials(project.projectOwner?.name || 'User')}
+                                </span>
+                              )}
                                 </div>
                                 <span className="text-[10px] text-gray-600 font-medium truncate max-w-[60px]">
                                   {project.projectOwner?.name || "Anonymous"}
@@ -557,6 +586,41 @@ function HomePage() {
 
     </section>
   )
+}
+
+// Helper function to get initials from name
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map(word => word[0]?.toUpperCase() || '')
+    .slice(0, 2)
+    .join('');
+}
+
+// Helper function to generate consistent color based on name
+function getRandomColor(name: string): string {
+  // Generate a consistent color based on the name string
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  const colors = [
+    '#4F46E5', // indigo
+    '#0891B2', // cyan
+    '#4D7C0F', // lime
+    '#9333EA', // purple
+    '#0369A1', // blue
+    '#059669', // emerald
+    '#B91C1C', // red
+    '#C2410C', // orange
+    '#0F766E', // teal
+    '#7E22CE'  // violet
+  ];
+  
+  // Use the hash to pick a consistent color
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
 }
 
 export default HomePage
