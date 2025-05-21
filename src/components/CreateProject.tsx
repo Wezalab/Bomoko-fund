@@ -49,8 +49,6 @@ const formSchema = z.object({
   description: z.string().min(3, "Description is required"),
   province: z.string().min(3, "Province is required"),
   territory: z.string().min(3, "Territory is required"),
-  additionalProvince: z.string().optional(),
-  additionalTerritory: z.string().optional(),
   currency: z.enum(["USD", "EUR", "CDF"]),
   targetAmount: z.coerce.number().min(1, "Target amount is required"),
   projectOwner: z.string().min(1, "Project owner ID is required").optional(),
@@ -59,6 +57,23 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+// Define interfaces for our data types
+interface Province {
+  _id: string;
+  name: string;
+  status: string;
+}
+
+interface Territory {
+  _id: string;
+  name: string;
+  status: string;
+  province?: {
+    _id: string;
+    name: string;
+  };
+}
 
 function CreateProject() {
     const project=useAppSelector(selectProject)
@@ -109,8 +124,6 @@ function CreateProject() {
         category:"",
         province:"",
         territory:"",
-        additionalProvince: "",
-        additionalTerritory: "",
         currency:"USD"
       }
     });
@@ -460,14 +473,6 @@ function CreateProject() {
         formData.append("province", data.province);
         formData.append("territory", data.territory);
         
-        // Add additional province and territory if provided
-        if (data.additionalProvince) {
-          formData.append("additionalProvince", data.additionalProvince);
-        }
-        if (data.additionalTerritory) {
-          formData.append("additionalTerritory", data.additionalTerritory);
-        }
-        
         formData.append("endDate", formattedDate);
         formData.append("currency", data.currency);
         formData.append("targetAmount", data.targetAmount?.toString());
@@ -670,38 +675,58 @@ function CreateProject() {
       }
     };
 
+    // State to track filtered territories based on selected province
+    const [filteredTerritories, setFilteredTerritories] = useState<Territory[]>([]);
+
+    // Update filtered territories when province changes
     const handleProvinceChange = (value: string) => {
-      console.log("[DEBUG] Province selected:", value);
-      console.log("[DEBUG] Available provinces:", normalizedProvinces);
-      console.log("[DEBUG] Found province object:", 
-        normalizedProvinces.find(province => province && province.name === value) || "Not found in normalized data");
+      console.log("[PROVINCE CHANGE] Selected province:", value);
       
-      // Check if we're setting the value correctly
-      try {
-        setValue("province", value);
-        const currentValues = getValues();
-        console.log("[DEBUG] Form values after province selection:", currentValues);
-        console.log("[DEBUG] Province in form after selection:", currentValues.province);
-      } catch (error) {
-        console.error("[DEBUG ERROR] Error setting province value:", error);
+      // Set the province value in the form
+      setValue("province", value);
+      
+      // Clear the territory selection when province changes
+      setValue("territory", "");
+      
+      // Find the province object from the selected name
+      const allProvinces = getProvincesList();
+      const selectedProvince = allProvinces.find(p => p.name === value);
+      
+      if (selectedProvince) {
+        console.log("[PROVINCE CHANGE] Found province object:", selectedProvince);
+        
+        // Filter territories for the selected province
+        const allTerritories = directTerritories.length > 0 ? directTerritories : 
+                              (getTerritoriesData || fallbackTerritories);
+        
+        const filtered = allTerritories.filter((t: Territory) => 
+          t.province && 
+          (t.province._id === selectedProvince._id || t.province.name === selectedProvince.name)
+        );
+        
+        console.log(`[PROVINCE CHANGE] Found ${filtered.length} territories for province ${value}`);
+        setFilteredTerritories(filtered);
+        
+        // Automatically select the first territory if available
+        if (filtered.length > 0) {
+          setValue("territory", filtered[0].name);
+          console.log("[PROVINCE CHANGE] Auto-selected territory:", filtered[0].name);
+        }
+      } else {
+        console.log("[PROVINCE CHANGE] Could not find province object for:", value);
+        setFilteredTerritories([]);
       }
     };
 
-    const handleTerritoryChange = (value: string) => {
-      console.log("[DEBUG] Territory selected:", value);
-      console.log("[DEBUG] Available territories:", normalizedTerritories);
-      console.log("[DEBUG] Found territory object:", 
-        normalizedTerritories.find(territory => territory && territory.name === value) || "Not found in normalized data");
-      
-      // Check if we're setting the value correctly
-      try {
-        setValue("territory", value);
-        const currentValues = getValues();
-        console.log("[DEBUG] Form values after territory selection:", currentValues);
-        console.log("[DEBUG] Territory in form after selection:", currentValues.territory);
-      } catch (error) {
-        console.error("[DEBUG ERROR] Error setting territory value:", error);
+    // Get the appropriate list of territories based on province selection
+    const getFilteredTerritoriesList = () => {
+      // If we have a filtered list based on province selection, use it
+      if (filteredTerritories.length > 0) {
+        return filteredTerritories;
       }
+      
+      // Otherwise return all territories
+      return getTerritoriesList();
     };
 
     const handleShowPreview=(e:any)=>{
@@ -818,16 +843,31 @@ function CreateProject() {
         getTerritoriesIsLoading, getTerritoriesIsError, getTerritoriesData]);
     
     // Static fallback data for provinces and territories
-    const fallbackProvinces = [
+    const fallbackProvinces: Province[] = [
       { _id: "fallback-1", name: "Nord-kivu", status: "ENABLED" },
       { _id: "fallback-2", name: "Kinshasa", status: "ENABLED" },
       { _id: "fallback-3", name: "Sud-Kivu", status: "ENABLED" },
     ];
     
-    const fallbackTerritories = [
-      { _id: "fallback-t1", name: "Goma", status: "ENABLED" },
-      { _id: "fallback-t2", name: "Beni", status: "ENABLED" },
-      { _id: "fallback-t3", name: "Bukavu", status: "ENABLED" },
+    const fallbackTerritories: Territory[] = [
+      { 
+        _id: "fallback-t1", 
+        name: "Goma", 
+        status: "ENABLED",
+        province: { _id: "fallback-1", name: "Nord-kivu" }
+      },
+      { 
+        _id: "fallback-t2", 
+        name: "Beni", 
+        status: "ENABLED",
+        province: { _id: "fallback-1", name: "Nord-kivu" }
+      },
+      { 
+        _id: "fallback-t3", 
+        name: "Bukavu", 
+        status: "ENABLED",
+        province: { _id: "fallback-3", name: "Sud-Kivu" }
+      },
     ];
     
     // State for direct API fetched data
@@ -967,403 +1007,367 @@ function CreateProject() {
       return () => clearTimeout(timer);
     }, [directProvinces, directTerritories, getProvincesData, getTerritoriesData]);
     
-  return (
-    <>
-      {
-        preview && (
-          <PreviewProject 
-            data={allValues}
-            back={()=>setPreview(false)}
-            loading={createProjectIsLoading ? true :false}
-            submit={handleSubmit(onsubmit)}
-            
-          />
-        )
-      }
-      {
-        !preview  &&
-        <form className="grid grid-cols-1 gap-y-5 lg:grid-cols-2 gap-x-10 p-5 md:p-10">
-          <div className="w-[98%] md:w-3/4 mx-auto">
-            <div className="flex items-center space-x-10 ">
+    // Handler for territory selection
+    const handleTerritoryChange = (value: string) => {
+      console.log("[TERRITORY CHANGE] Selected territory:", value);
+      setValue("territory", value);
+    };
+    
+    return (
+      <>
+        {
+          preview && (
+            <PreviewProject 
+              data={allValues}
+              back={()=>setPreview(false)}
+              loading={createProjectIsLoading ? true :false}
+              submit={handleSubmit(onsubmit)}
               
-              <span className="font-bold text-2xl">Create your Project</span>
-            </div>
-            <div  className="">
-              <div className="grid w-full gap-2 mt-10">
-                <Label htmlFor="project-name">Project Name</Label>
-                <Textarea {...register("name")} rows={2} placeholder="Support 230 children to get school fees" id="project-name" />
-                {errors.name && <p className="text-red-600">{errors.name.message}</p>}
+            />
+          )
+        }
+        {
+          !preview  &&
+          <form className="grid grid-cols-1 gap-y-5 lg:grid-cols-2 gap-x-10 p-5 md:p-10">
+            <div className="w-[98%] md:w-3/4 mx-auto">
+              <div className="flex items-center space-x-10 ">
+                
+                <span className="font-bold text-2xl">Create your Project</span>
               </div>
-              <div className="grid grid-cols-2 mt-5 gap-x-5">
-                  <div className="flex flex-col space-y-1 my-5">
-                    <label className="font-semibold">Project category</label>
-                    {
-                      projectCategoriesIsLoading && <div className="text-blue-600">
-                        <LoadingComponent />
-                      </div>
-                    }
-                    {
-                      !projectCategoriesIsLoading && projectCategoriesData?.length===0 && <div className="text-red-600 font-semibold">
-                        <span className="font-semibold">No Project Categories available</span>
-                      </div>
-                    }
-                    {
-                      normalizedCategories.length > 0 && 
-                      <Select onValueChange={handleCategoryChange}>
-                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                          <SelectValue placeholder="Select project category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Project category</SelectLabel>
-                            {
-                              normalizedCategories.map((item: any) => (
-                                <SelectItem 
-                                  key={item._id} 
-                                  value={item.name}
-                                  disabled={item.status !== "ENABLED"} 
-                                  className={item.status !== "ENABLED" ? "opacity-50 cursor-not-allowed" : ""}
-                                >
-                                  {item.name}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    }
-                  </div>
-                  <div className="flex flex-col space-y-1 my-5">
-                    <label className="font-semibold">Project type</label>
-                    {
-                      projectTypesIsLoading && <div className="text-blue-600">
-                        <LoadingComponent />
-                      </div>
-                    }
-                    {
-                      !projectTypesIsLoading && projectTypesData?.length===0 && <div className="text-red-600 font-semibold">
-                        <span className="font-semibold">No Project Type</span>
-                      </div>
-                    }
-                    {
-                      normalizedTypes.length > 0 && 
-                      <Select onValueChange={handleTypeChange}>
-                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                          <SelectValue placeholder="Select project type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Project type</SelectLabel>
-                            {
-                              normalizedTypes.map((item: any) => (
-                                <SelectItem 
-                                  key={item._id} 
-                                  value={item.name}
-                                  disabled={item.status !== "ENABLED"} 
-                                  className={item.status !== "ENABLED" ? "opacity-50 cursor-not-allowed" : ""}
-                                >
-                                  {item.name}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    }
-                    {errors.type && <p className="text-red-600">{errors.type.message}</p>}
+              <div  className="">
+                <div className="grid w-full gap-2 mt-10">
+                  <Label htmlFor="project-name">Project Name</Label>
+                  <Textarea {...register("name")} rows={2} placeholder="Support 230 children to get school fees" id="project-name" />
+                  {errors.name && <p className="text-red-600">{errors.name.message}</p>}
+                </div>
+                <div className="grid grid-cols-2 mt-5 gap-x-5">
+                    <div className="flex flex-col space-y-1 my-5">
+                      <label className="font-semibold">Project category</label>
+                      {
+                        projectCategoriesIsLoading && <div className="text-blue-600">
+                          <LoadingComponent />
+                        </div>
+                      }
+                      {
+                        !projectCategoriesIsLoading && projectCategoriesData?.length===0 && <div className="text-red-600 font-semibold">
+                          <span className="font-semibold">No Project Categories available</span>
+                        </div>
+                      }
+                      {
+                        normalizedCategories.length > 0 && 
+                        <Select onValueChange={handleCategoryChange}>
+                          <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                            <SelectValue placeholder="Select project category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Project category</SelectLabel>
+                              {
+                                normalizedCategories.map((item: any) => (
+                                  <SelectItem 
+                                    key={item._id} 
+                                    value={item.name}
+                                    disabled={item.status !== "ENABLED"} 
+                                    className={item.status !== "ENABLED" ? "opacity-50 cursor-not-allowed" : ""}
+                                  >
+                                    {item.name}
+                                  </SelectItem>
+                                ))
+                              }
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      }
+                    </div>
+                    <div className="flex flex-col space-y-1 my-5">
+                      <label className="font-semibold">Project type</label>
+                      {
+                        projectTypesIsLoading && <div className="text-blue-600">
+                          <LoadingComponent />
+                        </div>
+                      }
+                      {
+                        !projectTypesIsLoading && projectTypesData?.length===0 && <div className="text-red-600 font-semibold">
+                          <span className="font-semibold">No Project Type</span>
+                        </div>
+                      }
+                      {
+                        normalizedTypes.length > 0 && 
+                        <Select onValueChange={handleTypeChange}>
+                          <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                            <SelectValue placeholder="Select project type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Project type</SelectLabel>
+                              {
+                                normalizedTypes.map((item: any) => (
+                                  <SelectItem 
+                                    key={item._id} 
+                                    value={item.name}
+                                    disabled={item.status !== "ENABLED"} 
+                                    className={item.status !== "ENABLED" ? "opacity-50 cursor-not-allowed" : ""}
+                                  >
+                                    {item.name}
+                                  </SelectItem>
+                                ))
+                              }
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      }
+                      {errors.type && <p className="text-red-600">{errors.type.message}</p>}
 
-                  </div>
-              </div>
-              <div className="grid w-full gap-2 mt-5">
-                <Label htmlFor="project-description">Project Description</Label>
-                <Textarea 
-                  {...register("description")}
-                  rows={5} 
-                  placeholder="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu" 
-                  id="project-description" 
-                />
-                {errors.description  && <span className="text-red-600 mt-2">{errors.description?.message}</span>}
-              </div>
-              <div className="grid grid-cols-2 mt-5 gap-x-5">
-                  <div className="flex flex-col space-y-1 my-5">
-                    <label className="font-semibold">Currency</label>
-                    <Select onValueChange={(value) => setValue("currency", value as "USD"|"EUR"|"CDF")}>
-                      <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                        <SelectValue placeholder="Select currency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Currency</SelectLabel>
-                          <SelectItem value="CDF">CDF</SelectItem>
-                          <SelectItem value="USD">USD</SelectItem>
-                          <SelectItem value="EUR">EUR</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    </div>
+                </div>
+                <div className="grid w-full gap-2 mt-5">
+                  <Label htmlFor="project-description">Project Description</Label>
+                  <Textarea 
+                    {...register("description")}
+                    rows={5} 
+                    placeholder="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu" 
+                    id="project-description" 
+                  />
+                  {errors.description  && <span className="text-red-600 mt-2">{errors.description?.message}</span>}
+                </div>
+                <div className="grid grid-cols-2 mt-5 gap-x-5">
+                    <div className="flex flex-col space-y-1 my-5">
+                      <label className="font-semibold">Currency</label>
+                      <Select onValueChange={(value) => setValue("currency", value as "USD"|"EUR"|"CDF")}>
+                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Currency</SelectLabel>
+                            <SelectItem value="CDF">CDF</SelectItem>
+                            <SelectItem value="USD">USD</SelectItem>
+                            <SelectItem value="EUR">EUR</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      
+                    </div>
+                    <div className="flex flex-col space-y-1 my-5">
+                      <label className="font-semibold">Target amount</label>
+                      <div className="relative">
+                        <Input 
+                          {...register("targetAmount")}
+                          className="h-10 rounded-xl w-full indent-2 text-black lg:text-md"
+                          placeholder="Target amount"
+                        />
+                        {errors.targetAmount  && <span className="text-red-600 mt-2">{errors.targetAmount?.message}</span>}
+                      </div>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 mt-5 gap-x-5">
+                    <div className="flex flex-col space-y-1 my-5">
+                      <label className="font-semibold">Province</label>
+                      <Select onValueChange={handleProvinceChange}>
+                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                          <SelectValue placeholder={getProvincesIsLoading ? "Loading provinces..." : "Select province"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Province</SelectLabel>
+                            {getProvincesList().map((item: Province) => (
+                              <SelectItem 
+                                key={item._id} 
+                                value={item.name}
+                              >
+                                {item.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      {errors.province && <p className="text-red-600">{errors.province.message}</p>}
+                    </div>
                     
-                  </div>
-                  <div className="flex flex-col space-y-1 my-5">
-                    <label className="font-semibold">Target amount</label>
-                    <div className="relative">
-                      <Input 
-                        {...register("targetAmount")}
-                        className="h-10 rounded-xl w-full indent-2 text-black lg:text-md"
-                        placeholder="Target amount"
-                      />
-                      {errors.targetAmount  && <span className="text-red-600 mt-2">{errors.targetAmount?.message}</span>}
-                    </div>
-                  </div>
-              </div>
-              <div className="grid grid-cols-2 mt-5 gap-x-5">
-                  <div className="flex flex-col space-y-1 my-5">
-                    <label className="font-semibold">Province</label>
-                    <Select onValueChange={value => setValue("province", value)}>
-                      <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                        <SelectValue placeholder={getProvincesIsLoading ? "Loading provinces..." : "Select province"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Province</SelectLabel>
-                          {getProvincesList().map((item: any) => (
-                            <SelectItem 
-                              key={item._id} 
-                              value={item.name}
-                            >
-                              {item.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    {errors.province && <p className="text-red-600">{errors.province.message}</p>}
-                  </div>
-                  
-                  <div className="flex flex-col space-y-1 my-5">
-                    <label className="font-semibold">Territory</label>
-                    <Select onValueChange={value => setValue("territory", value)}>
-                      <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                        <SelectValue placeholder={getTerritoriesIsLoading ? "Loading territories..." : "Select territory"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Territory</SelectLabel>
-                          {getTerritoriesList().map((item: any) => (
-                            <SelectItem 
-                              key={item._id} 
-                              value={item.name}
-                            >
-                              {item.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    {errors.territory && <p className="text-red-600">{errors.territory.message}</p>}
-                  </div>
-              </div>
-              
-              {/* Additional province and territory select fields */}
-              <div className="grid grid-cols-2 mt-5 gap-x-5">
-                  <div className="flex flex-col space-y-1 my-5">
-                    <label className="font-semibold">Additional Province</label>
-                    <Select onValueChange={value => setValue("additionalProvince", value)}>
-                      <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                        <SelectValue placeholder={getProvincesIsLoading ? "Loading provinces..." : "Select province"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Province</SelectLabel>
-                          {getProvincesList().map((item: any) => (
-                            <SelectItem 
-                              key={`additional-province-${item._id}`} 
-                              value={item.name}
-                            >
-                              {item.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    {errors.additionalProvince && <p className="text-red-600">{errors.additionalProvince.message}</p>}
-                  </div>
-                  
-                  <div className="flex flex-col space-y-1 my-5">
-                    <label className="font-semibold">Additional Territory</label>
-                    <Select onValueChange={value => setValue("additionalTerritory", value)}>
-                      <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                        <SelectValue placeholder={getTerritoriesIsLoading ? "Loading territories..." : "Select territory"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Territory</SelectLabel>
-                          {getTerritoriesList().map((item: any) => (
-                            <SelectItem 
-                              key={`additional-territory-${item._id}`} 
-                              value={item.name}
-                            >
-                              {item.name}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    {errors.additionalTerritory && <p className="text-red-600">{errors.additionalTerritory.message}</p>}
-                  </div>
-              </div>
-              <div className="flex flex-col space-y-1 my-5">
-                <label className="font-semibold">Project end date</label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full h-10 justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
+                    <div className="flex flex-col space-y-1 my-5">
+                      <label className="font-semibold">Territory</label>
+                      <Select onValueChange={handleTerritoryChange}>
+                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                          <SelectValue placeholder={getTerritoriesIsLoading ? "Loading territories..." : "Select territory"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Territory</SelectLabel>
+                            {getFilteredTerritoriesList().map((item: Territory) => (
+                              <SelectItem 
+                                key={item._id} 
+                                value={item.name}
+                              >
+                                {item.name} {item.province ? `(${item.province.name})` : ''}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      {watch("territory") && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          {getFilteredTerritoriesList().find(t => t.name === watch("territory"))?.province?.name 
+                            ? `In ${getFilteredTerritoriesList().find(t => t.name === watch("territory"))?.province?.name}` 
+                            : ''}
+                        </p>
                       )}
-                    >
-                      <CalendarIcon />
-                      {date ? format(date, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" className="flex w-auto flex-col space-y-2 p-2">
-                    <Select
-                      onValueChange={(value) => setDate(addDays(new Date(), parseInt(value)))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        <SelectItem value="0">Today</SelectItem>
-                        <SelectItem value="1">Tomorrow</SelectItem>
-                        <SelectItem value="3">In 3 days</SelectItem>
-                        <SelectItem value="7">In a week</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="rounded-md border">
-                      <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={(selectedDate) => selectedDate && setDate(selectedDate)}
+                      {errors.territory && <p className="text-red-600">{errors.territory.message}</p>}
+                    </div>
+                </div>
+                <div className="flex flex-col space-y-1 my-5">
+                  <label className="font-semibold">Project end date</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full h-10 justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon />
+                        {date ? format(date, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="flex w-auto flex-col space-y-2 p-2">
+                      <Select
+                        onValueChange={(value) => setDate(addDays(new Date(), parseInt(value)))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent position="popper">
+                          <SelectItem value="0">Today</SelectItem>
+                          <SelectItem value="1">Tomorrow</SelectItem>
+                          <SelectItem value="3">In 3 days</SelectItem>
+                          <SelectItem value="7">In a week</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="rounded-md border">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={(selectedDate) => selectedDate && setDate(selectedDate)}
+                        />
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                {
+                  next && 
+                  <Button
+                    type="button"
+                    onClick={()=>setNext(false)}
+                    className="bg-darkBlue h-14 text-white hover:bg-lightBlue rounded-[100px] w-full mt-10"
+                  >
+                      Next
+                  </Button>
+                }
+              </div>
+            </div>
+            <div className="">
+              <div className="w-3/4 mx-auto">
+                <span className="text-black font-semibold text-2xl">Project media</span>
+                <div className="mt-5 flex space-x-4">
+                  <div onClick={()=>{
+                      setUpload(true)
+                      setEmbededLink(false)
+                      setUnsplash(false)
+                  }} className={upload ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
+                      <span className={upload ?"text-lightBlue font-semibold":"text-black"}>Upload</span>
+                      {upload &&<div className="w-[30px] h-1 bg-lightBlue"></div>}
+                  </div>
+                  <div onClick={()=>{
+                      setUpload(false)
+                      setEmbededLink(true)
+                      setUnsplash(false)
+                  }} className={embededLink ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
+                      <span className={embededLink ?"text-lightBlue font-semibold":"text-black"}>Embeded Link</span>
+                      {embededLink && <div className="w-[30px] h-1 bg-lightBlue"></div>}
+                  </div>
+                  <div onClick={()=>{
+                      setUpload(false)
+                      setEmbededLink(false)
+                      setUnsplash(true)
+                    }} className={unsplash ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
+                        <span className={unsplash ?"text-lightBlue font-semibold":"text-black"}>Unplash</span>
+                        {unsplash && <div className="w-[30px] h-1 bg-lightBlue"></div>}
+                    </div>
+                </div>
+                
+                {
+                  embededLink && (
+                    <div className="flex flex-col space-y-2 mt-5">
+                      <label className="font-semibold">Media links</label>
+                      <Input 
+                        placeholder="Media Link"
+                        className="h-10"
                       />
                     </div>
-                  </PopoverContent>
-                </Popover>
+                  )
+                }
+                {
+                  unsplash && (
+                    <div className="flex flex-col space-y-2 mt-5">
+                      <div className="mt-5 bg-gray-200 rounded-[100px] flex items-center justify-between p-1">
+                        <Input 
+                          placeholder="Search"
+                          className="h-10 outline-none border-0 w-[80%] bg-white text-black rounded-[100px] m-1 indent-2"
+                        />
+                        <Button
+                          className="max-w-fit px-10 h-10 bg-lightBlue rounded-[100px]"
+                        >
+                          search
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4">
+                        <img 
+                          src={PopularImage1}
+                          alt="image-1"
+                          className="w-full h-full object-cover"
+                        />
+                        <img 
+                          src={PopularImage4}
+                          alt="image-2"
+                          className="w-full h-full object-cover"
+                        />
+                        <img 
+                          src={PopularImage3}
+                          alt="image-3"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      
+                    </div>
+                    
+                  )
+                }
+                {upload && <div className="mt-8">
+                    <MediaUpload accept="image/*" isDisabled={next} onFilesChange={handleMediasChange} />
+                </div>}
               </div>
+              <div className="w-3/4 mx-auto mt-5">
+                <span className="text-black font-semibold text-2xl">Project Attachments</span>
+                
+                <div className="mt-8">
+                    <MediaUpload accept="application/pdf" isDisabled={next} onFilesChange={handleAttachmentsChange} />
+                </div>
+              </div>
+
               {
-                next && 
+                !next && 
                 <Button
-                  type="button"
-                  onClick={()=>setNext(false)}
-                  className="bg-darkBlue h-14 text-white hover:bg-lightBlue rounded-[100px] w-full mt-10"
+                  onClick={handleSubmit(onsubmit)}
+                  className="h-12 w-[50%] ml-[15%] mt-5 text-white bg-darkBlue rounded-[100px]"
                 >
-                    Next
+                  Show Preview
                 </Button>
               }
             </div>
-          </div>
-          <div className="">
-            <div className="w-3/4 mx-auto">
-              <span className="text-black font-semibold text-2xl">Project media</span>
-              <div className="mt-5 flex space-x-4">
-                <div onClick={()=>{
-                    setUpload(true)
-                    setEmbededLink(false)
-                    setUnsplash(false)
-                }} className={upload ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
-                    <span className={upload ?"text-lightBlue font-semibold":"text-black"}>Upload</span>
-                    {upload &&<div className="w-[30px] h-1 bg-lightBlue"></div>}
-                </div>
-                <div onClick={()=>{
-                    setUpload(false)
-                    setEmbededLink(true)
-                    setUnsplash(false)
-                }} className={embededLink ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
-                    <span className={embededLink ?"text-lightBlue font-semibold":"text-black"}>Embeded Link</span>
-                    {embededLink && <div className="w-[30px] h-1 bg-lightBlue"></div>}
-                </div>
-                <div onClick={()=>{
-                    setUpload(false)
-                    setEmbededLink(false)
-                    setUnsplash(true)
-                  }} className={unsplash ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
-                      <span className={unsplash ?"text-lightBlue font-semibold":"text-black"}>Unplash</span>
-                      {unsplash && <div className="w-[30px] h-1 bg-lightBlue"></div>}
-                  </div>
-              </div>
-              
-              {
-                embededLink && (
-                  <div className="flex flex-col space-y-2 mt-5">
-                    <label className="font-semibold">Media links</label>
-                    <Input 
-                      placeholder="Media Link"
-                      className="h-10"
-                    />
-                  </div>
-                )
-              }
-              {
-                unsplash && (
-                  <div className="flex flex-col space-y-2 mt-5">
-                    <div className="mt-5 bg-gray-200 rounded-[100px] flex items-center justify-between p-1">
-                      <Input 
-                        placeholder="Search"
-                        className="h-10 outline-none border-0 w-[80%] bg-white text-black rounded-[100px] m-1 indent-2"
-                      />
-                      <Button
-                        className="max-w-fit px-10 h-10 bg-lightBlue rounded-[100px]"
-                      >
-                        search
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <img 
-                        src={PopularImage1}
-                        alt="image-1"
-                        className="w-full h-full object-cover"
-                      />
-                      <img 
-                        src={PopularImage4}
-                        alt="image-2"
-                        className="w-full h-full object-cover"
-                      />
-                      <img 
-                        src={PopularImage3}
-                        alt="image-3"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    
-                  </div>
-                  
-                )
-              }
-              {upload && <div className="mt-8">
-                  <MediaUpload accept="image/*" isDisabled={next} onFilesChange={handleMediasChange} />
-              </div>}
-            </div>
-            <div className="w-3/4 mx-auto mt-5">
-              <span className="text-black font-semibold text-2xl">Project Attachments</span>
-              
-              <div className="mt-8">
-                  <MediaUpload accept="application/pdf" isDisabled={next} onFilesChange={handleAttachmentsChange} />
-              </div>
-            </div>
-
-            {
-              !next && 
-              <Button
-                onClick={handleSubmit(onsubmit)}
-                className="h-12 w-[50%] ml-[15%] mt-5 text-white bg-darkBlue rounded-[100px]"
-              >
-                Show Preview
-              </Button>
-            }
-          </div>
-      </form>
-      }
-    </>
-  )
+        </form>
+        }
+      </>
+    )
 }
 
 export default CreateProject
