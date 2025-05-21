@@ -113,11 +113,33 @@ export const projectService=splitApi.injectEndpoints({
                 return "/provinces";
             },
             transformResponse: (response: any) => {
-                console.log("[DEBUG API] Provinces response:", response);
+                console.log("[DEBUG API] Provinces raw response:", response);
+                // Detailed logging of API response structure
+                if (Array.isArray(response)) {
+                    console.log("[DEBUG API] Provinces is an array with length:", response.length);
+                    if (response.length > 0) {
+                        console.log("[DEBUG API] First province item:", response[0]);
+                        console.log("[DEBUG API] Province properties:", Object.keys(response[0]));
+                        response.forEach((item, index) => {
+                            console.log(`[DEBUG API] Province ${index}:`, item);
+                            console.log(`[DEBUG API] Province ${index} properties:`, Object.keys(item));
+                            console.log(`[DEBUG API] Province ${index} name:`, item.name);
+                            console.log(`[DEBUG API] Province ${index} id:`, item._id);
+                            console.log(`[DEBUG API] Province ${index} status:`, item.status);
+                        });
+                    } else {
+                        console.log("[DEBUG API] Provinces array is empty");
+                    }
+                } else {
+                    console.log("[DEBUG API] Provinces is NOT an array:", typeof response);
+                    console.log("[DEBUG API] Provinces response structure:", response);
+                }
                 return response;
             },
             transformErrorResponse: (response: any) => {
                 console.error("[DEBUG API ERROR] Provinces error:", response);
+                console.error("[DEBUG API ERROR] Provinces error status:", response.status);
+                console.error("[DEBUG API ERROR] Provinces error data:", response.data);
                 return response;
             }
         }),
@@ -127,11 +149,33 @@ export const projectService=splitApi.injectEndpoints({
                 return "/territories";
             },
             transformResponse: (response: any) => {
-                console.log("[DEBUG API] Territories response:", response);
+                console.log("[DEBUG API] Territories raw response:", response);
+                // Detailed logging of API response structure
+                if (Array.isArray(response)) {
+                    console.log("[DEBUG API] Territories is an array with length:", response.length);
+                    if (response.length > 0) {
+                        console.log("[DEBUG API] First territory item:", response[0]);
+                        console.log("[DEBUG API] Territory properties:", Object.keys(response[0]));
+                        response.forEach((item, index) => {
+                            console.log(`[DEBUG API] Territory ${index}:`, item);
+                            console.log(`[DEBUG API] Territory ${index} properties:`, Object.keys(item));
+                            console.log(`[DEBUG API] Territory ${index} name:`, item.name);
+                            console.log(`[DEBUG API] Territory ${index} id:`, item._id);
+                            console.log(`[DEBUG API] Territory ${index} status:`, item.status);
+                        });
+                    } else {
+                        console.log("[DEBUG API] Territories array is empty");
+                    }
+                } else {
+                    console.log("[DEBUG API] Territories is NOT an array:", typeof response);
+                    console.log("[DEBUG API] Territories response structure:", response);
+                }
                 return response;
             },
             transformErrorResponse: (response: any) => {
                 console.error("[DEBUG API ERROR] Territories error:", response);
+                console.error("[DEBUG API ERROR] Territories error status:", response.status);
+                console.error("[DEBUG API ERROR] Territories error data:", response.data);
                 return response;
             }
         }),
