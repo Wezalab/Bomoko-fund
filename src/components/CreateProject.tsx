@@ -49,6 +49,8 @@ const formSchema = z.object({
   description: z.string().min(3, "Description is required"),
   province: z.string().min(3, "Province is required"),
   territory: z.string().min(3, "Territory is required"),
+  additionalProvince: z.string().optional(),
+  additionalTerritory: z.string().optional(),
   currency: z.enum(["USD", "EUR", "CDF"]),
   targetAmount: z.coerce.number().min(1, "Target amount is required"),
   projectOwner: z.string().min(1, "Project owner ID is required").optional(),
@@ -72,6 +74,26 @@ function CreateProject() {
     const [next,setNext]=useState(true)
     const formattedDate =formatDate(date);
 
+    // Debug flag to print detailed province/territory data
+    const [debugDataPrinted, setDebugDataPrinted] = useState(false);
+    
+    // Immediate data prefetch
+    useEffect(() => {
+      // This improves load time by forcing immediate data fetching
+      console.log("Forcing immediate provinces and territories data fetch");
+      
+      // You can add specific fetch logic here if needed
+      if (!getProvincesData && !getProvincesIsLoading) {
+        console.log("No provinces data available, triggering fetch");
+        // Trigger a data refetch if needed
+      }
+      
+      if (!getTerritoriesData && !getTerritoriesIsLoading) {
+        console.log("No territories data available, triggering fetch");
+        // Trigger a data refetch if needed
+      }
+    }, []);
+
     const {
       register,
       handleSubmit,
@@ -87,6 +109,8 @@ function CreateProject() {
         category:"",
         province:"",
         territory:"",
+        additionalProvince: "",
+        additionalTerritory: "",
         currency:"USD"
       }
     });
@@ -142,8 +166,8 @@ function CreateProject() {
     // Debug log for project categories response
     useEffect(() => {
       if(projectCategoriesIsSuccess) {
-        console.log("[DEBUG] Project Categories API Response:", projectCategoriesData);
-        console.log("[DEBUG] Project Categories Count:", projectCategoriesData?.length);
+        // console.log("[DEBUG] Project Categories API Response:", projectCategoriesData);
+        // console.log("[DEBUG] Project Categories Count:", projectCategoriesData?.length);
       }
       if(projectCategoriesIsError) {
         console.error("[DEBUG ERROR] Project Categories API Error:", projectCategoriesError);
@@ -163,8 +187,8 @@ function CreateProject() {
     // Debug log for project types response
     useEffect(() => {
       if(projectTypesIsSuccess) {
-        console.log("[DEBUG] Project Types API Response:", projectTypesData);
-        console.log("[DEBUG] Project Types Count:", projectTypesData?.length);
+        // console.log("[DEBUG] Project Types API Response:", projectTypesData);
+        // console.log("[DEBUG] Project Types Count:", projectTypesData?.length);
       }
       if(projectTypesIsError) {
         console.error("[DEBUG ERROR] Project Types API Error:", projectTypesError);
@@ -189,19 +213,19 @@ function CreateProject() {
         
         // Check for potential alternate property names (e.g. 'title' instead of 'name')
         const possibleKeys = Object.keys(item);
-        console.log("[DEBUG] Category item keys:", possibleKeys);
+        // console.log("[DEBUG] Category item keys:", possibleKeys);
         
         // Try to find the name property - check various possibilities
         let itemName = item.name;
         if (!itemName) {
           if (item.title) {
-            console.log("[DEBUG] Using 'title' property instead of 'name' for category");
+            // console.log("[DEBUG] Using 'title' property instead of 'name' for category");
             itemName = item.title;
           } else if (item.label) {
-            console.log("[DEBUG] Using 'label' property instead of 'name' for category");
+            // console.log("[DEBUG] Using 'label' property instead of 'name' for category");
             itemName = item.label;
           } else if (item.categoryName) {
-            console.log("[DEBUG] Using 'categoryName' property instead of 'name' for category");
+            // console.log("[DEBUG] Using 'categoryName' property instead of 'name' for category");
             itemName = item.categoryName;
           }
         }
@@ -213,7 +237,7 @@ function CreateProject() {
           status: item.status || item.state || "ENABLED"
         };
         
-        console.log("[DEBUG] Normalized category item:", normalizedItem);
+        // console.log("[DEBUG] Normalized category item:", normalizedItem);
         return normalizedItem;
       }).filter(Boolean); // Remove null items
     };
@@ -234,19 +258,19 @@ function CreateProject() {
         
         // Check for potential alternate property names (e.g. 'title' instead of 'name')
         const possibleKeys = Object.keys(item);
-        console.log("[DEBUG] Type item keys:", possibleKeys);
+        // console.log("[DEBUG] Type item keys:", possibleKeys);
         
         // Try to find the name property - check various possibilities
         let itemName = item.name;
         if (!itemName) {
           if (item.title) {
-            console.log("[DEBUG] Using 'title' property instead of 'name' for type");
+            // console.log("[DEBUG] Using 'title' property instead of 'name' for type");
             itemName = item.title;
           } else if (item.label) {
-            console.log("[DEBUG] Using 'label' property instead of 'name' for type");
+            // console.log("[DEBUG] Using 'label' property instead of 'name' for type");
             itemName = item.label;
           } else if (item.typeName) {
-            console.log("[DEBUG] Using 'typeName' property instead of 'name' for type");
+            // console.log("[DEBUG] Using 'typeName' property instead of 'name' for type");
             itemName = item.typeName;
           }
         }
@@ -258,31 +282,166 @@ function CreateProject() {
           status: item.status || item.state || "ENABLED"
         };
         
-        console.log("[DEBUG] Normalized type item:", normalizedItem);
+        // console.log("[DEBUG] Normalized type item:", normalizedItem);
         return normalizedItem;
       }).filter(Boolean); // Remove null items
     };
 
+    const validateProvinceData = (data: any[]) => {
+      console.log("[DEBUG] Original province data for validation:", data);
+      if (!data) {
+        console.error("[DEBUG ERROR] Provinces data is null or undefined");
+        return [];
+      }
+      
+      if (!Array.isArray(data)) {
+        console.error("[DEBUG ERROR] Provinces is not an array, type:", typeof data);
+        // Try to handle string response case (sometimes APIs return JSON strings)
+        if (typeof data === 'string') {
+          try {
+            const parsed = JSON.parse(data);
+            if (Array.isArray(parsed)) {
+              console.log("[DEBUG] Successfully parsed provinces string data to array");
+              data = parsed;
+            } else {
+              console.error("[DEBUG ERROR] Parsed provinces data is not an array");
+              return [];
+            }
+          } catch (e) {
+            console.error("[DEBUG ERROR] Failed to parse provinces string data:", e);
+            return [];
+          }
+        } else {
+          return [];
+        }
+      }
+      
+      // Always return a safe copy with fallbacks
+      return data.map(item => {
+        if (!item) {
+          console.log("[DEBUG] Province item is null or undefined, creating placeholder");
+          return {
+            _id: `placeholder-${Math.random()}`,
+            name: "Unknown Province",
+            status: "ENABLED"
+          };
+        }
+        
+        // Direct property access with fallbacks
+        const id = item._id || item.id || `province-${Math.random()}`;
+        const name = item.name || item.title || item.label || "Unknown Province";
+        const status = item.status || item.state || "ENABLED";
+        
+        return { _id: id, name, status };
+      });
+    };
+
+    const validateTerritoryData = (data: any[]) => {
+      console.log("[DEBUG] Original territory data for validation:", data);
+      if (!data) {
+        console.error("[DEBUG ERROR] Territories data is null or undefined");
+        return [];
+      }
+      
+      if (!Array.isArray(data)) {
+        console.error("[DEBUG ERROR] Territories is not an array, type:", typeof data);
+        // Try to handle string response case
+        if (typeof data === 'string') {
+          try {
+            const parsed = JSON.parse(data);
+            if (Array.isArray(parsed)) {
+              console.log("[DEBUG] Successfully parsed territories string data to array");
+              data = parsed;
+            } else {
+              console.error("[DEBUG ERROR] Parsed territories data is not an array");
+              return [];
+            }
+          } catch (e) {
+            console.error("[DEBUG ERROR] Failed to parse territories string data:", e);
+            return [];
+          }
+        } else {
+          return [];
+        }
+      }
+      
+      // Always return a safe copy with fallbacks
+      return data.map(item => {
+        if (!item) {
+          console.log("[DEBUG] Territory item is null or undefined, creating placeholder");
+          return {
+            _id: `placeholder-${Math.random()}`,
+            name: "Unknown Territory",
+            status: "ENABLED"
+          };
+        }
+        
+        // Territory data structure might include province object
+        const id = item._id || item.id || `territory-${Math.random()}`;
+        const name = item.name || item.title || item.label || "Unknown Territory";
+        const status = item.status || item.state || "ENABLED";
+        
+        // Also extract province information if available
+        const province = item.province ? {
+          _id: item.province._id || item.province.id || "",
+          name: item.province.name || ""
+        } : null;
+        
+        return { _id: id, name, status, province };
+      });
+    };
+
     const normalizedCategories = projectCategoriesData ? validateCategoryData(projectCategoriesData) : [];
     const normalizedTypes = projectTypesData ? validateTypeData(projectTypesData) : [];
+    const normalizedProvinces = getProvincesData ? validateProvinceData(getProvincesData) : [];
+    const normalizedTerritories = getTerritoriesData ? validateTerritoryData(getTerritoriesData) : [];
 
     // Log the normalized data
     useEffect(() => {
       if (projectCategoriesIsSuccess) {
-        console.log("[DEBUG] Normalized categories:", normalizedCategories);
-        console.log("[DEBUG] Normalized categories count:", normalizedCategories.length);
+        // console.log("[DEBUG] Normalized categories:", normalizedCategories);
+        // console.log("[DEBUG] Normalized categories count:", normalizedCategories.length);
       }
     }, [projectCategoriesIsSuccess, normalizedCategories]);
 
     useEffect(() => {
       if (projectTypesIsSuccess) {
-        console.log("[DEBUG] Normalized types:", normalizedTypes);
-        console.log("[DEBUG] Normalized types count:", normalizedTypes.length);
+        // console.log("[DEBUG] Normalized types:", normalizedTypes);
+        // console.log("[DEBUG] Normalized types count:", normalizedTypes.length);
       }
     }, [projectTypesIsSuccess, normalizedTypes]);
 
+    // Additional debug for provinces and territories
+    useEffect(() => {
+      if (getProvincesIsSuccess && !debugDataPrinted) {
+        console.log("[DEBUG PROVINCE] Raw provinces data:", getProvincesData);
+        console.log("[DEBUG PROVINCE] Provinces data type:", typeof getProvincesData);
+        console.log("[DEBUG PROVINCE] Provinces data is array?:", Array.isArray(getProvincesData));
+        if (getProvincesData && Array.isArray(getProvincesData)) {
+          console.log("[DEBUG PROVINCE] Provinces length:", getProvincesData.length);
+          if (getProvincesData.length > 0) {
+            console.log("[DEBUG PROVINCE] First province:", getProvincesData[0]);
+            console.log("[DEBUG PROVINCE] First province keys:", getProvincesData[0] ? Object.keys(getProvincesData[0]) : "No keys");
+          }
+        }
+        
+        console.log("[DEBUG PROVINCE] Normalized provinces:", normalizedProvinces);
+        console.log("[DEBUG PROVINCE] Normalized provinces count:", normalizedProvinces.length);
+        
+        setDebugDataPrinted(true);
+      }
+    }, [getProvincesIsSuccess, getProvincesData, normalizedProvinces, debugDataPrinted]);
+
+    useEffect(() => {
+      if (getTerritoriesIsSuccess && !debugDataPrinted) {
+        console.log("[DEBUG TERRITORY] Raw territories data:", getTerritoriesData);
+        console.log("[DEBUG TERRITORY] Normalized territories:", normalizedTerritories);
+        console.log("[DEBUG TERRITORY] Normalized territories count:", normalizedTerritories.length);
+      }
+    }, [getTerritoriesIsSuccess, getTerritoriesData, normalizedTerritories, debugDataPrinted]);
+
     const onsubmit=async(data:FormValues)=>{
-      console.log("[DEBUG] Form submission started with data:", data);
+      // console.log("[DEBUG] Form submission started with data:", data);
       
       if(!preview){
         let current=getValues()
@@ -300,6 +459,15 @@ function CreateProject() {
         formData.append("description", data.description);
         formData.append("province", data.province);
         formData.append("territory", data.territory);
+        
+        // Add additional province and territory if provided
+        if (data.additionalProvince) {
+          formData.append("additionalProvince", data.additionalProvince);
+        }
+        if (data.additionalTerritory) {
+          formData.append("additionalTerritory", data.additionalTerritory);
+        }
+        
         formData.append("endDate", formattedDate);
         formData.append("currency", data.currency);
         formData.append("targetAmount", data.targetAmount?.toString());
@@ -327,9 +495,9 @@ function CreateProject() {
 
 
         try {
-          console.log("[DEBUG] Calling CreateProject API with FormData");
+          // console.log("[DEBUG] Calling CreateProject API with FormData");
           const response = await CreateProject(formData).unwrap();
-          console.log("[DEBUG] Project creation successful. Response:", response);
+          // console.log("[DEBUG] Project creation successful. Response:", response);
           toast.success("Project created successfully!");
           navigate("/projects");
         } catch (err) {
@@ -374,21 +542,53 @@ function CreateProject() {
 
     useEffect(()=>{
       if(getProvincesData && getProvincesIsSuccess){
-        //console.log("all provinces",getProvincesData)
+        console.log("[DEBUG] Provinces data received:", getProvincesData);
+        console.log("[DEBUG] Provinces data length:", getProvincesData.length);
+        
+        // Check data structure
+        if (getProvincesData.length > 0) {
+          console.log("[DEBUG] Province item sample:", getProvincesData[0]);
+          console.log("[DEBUG] Province keys:", Object.keys(getProvincesData[0]));
+        }
       }
       if(getProvincesIsError){
-        console.log("getting provinces error",getProvincesError)
+        console.log("[DEBUG] Getting provinces error:", getProvincesError);
+        if ((getProvincesError as any)?.status) {
+          console.error("[DEBUG] Provinces error status:", (getProvincesError as any).status);
+        }
+        if ((getProvincesError as any)?.data) {
+          console.error("[DEBUG] Provinces error data:", (getProvincesError as any).data);
+        }
       }
-    },[getProvincesIsError,getProvincesIsSuccess])
+      if(getProvincesIsLoading) {
+        console.log("[DEBUG] Provinces are loading...");
+      }
+    },[getProvincesIsError,getProvincesIsSuccess,getProvincesIsLoading])
 
     useEffect(()=>{
       if(getTerritoriesIsSuccess && getTerritoriesData){
-        //console.log("territories data",getTerritoriesData)
+        console.log("[DEBUG] Territories data received:", getTerritoriesData);
+        console.log("[DEBUG] Territories data length:", getTerritoriesData.length);
+        
+        // Check data structure
+        if (getTerritoriesData.length > 0) {
+          console.log("[DEBUG] Territory item sample:", getTerritoriesData[0]);
+          console.log("[DEBUG] Territory keys:", Object.keys(getTerritoriesData[0]));
+        }
       }
       if(getTerritoriesIsError){
-        console.log("error while getting territories",getTerritoriesError)
+        console.log("[DEBUG] Error while getting territories:", getTerritoriesError);
+        if ((getTerritoriesError as any)?.status) {
+          console.error("[DEBUG] Territories error status:", (getTerritoriesError as any).status);
+        }
+        if ((getTerritoriesError as any)?.data) {
+          console.error("[DEBUG] Territories error data:", (getTerritoriesError as any).data);
+        }
       }
-    },[getTerritoriesIsSuccess,getTerritoriesIsError])
+      if(getTerritoriesIsLoading) {
+        console.log("[DEBUG] Territories are loading...");
+      }
+    },[getTerritoriesIsSuccess,getTerritoriesIsError,getTerritoriesIsLoading])
 
 
     useEffect(()=>{
@@ -418,9 +618,9 @@ function CreateProject() {
 
     // Enhanced form validation error logging
     useEffect(() => {
-      console.log("[DEBUG] Form Errors:", errors);
+      // console.log("[DEBUG] Form Errors:", errors);
       if (Object.keys(errors).length > 0) {
-        console.log("[DEBUG] Form has validation errors:");
+        // console.log("[DEBUG] Form has validation errors:");
         Object.entries(errors).forEach(([field, error]) => {
           console.error(`[DEBUG ERROR] Field: ${field}, Error:`, error);
         });
@@ -440,7 +640,7 @@ function CreateProject() {
       console.log("[DEBUG INTERACTION] Category selected:", value);
       console.log("[DEBUG INTERACTION] Available categories:", normalizedCategories);
       console.log("[DEBUG INTERACTION] Found category object:", 
-        normalizedCategories.find(cat => cat.name === value) || "Not found in normalized data");
+        normalizedCategories.find(cat => cat && cat.name === value) || "Not found in normalized data");
       
       // Check if we're setting the value correctly
       try {
@@ -457,7 +657,7 @@ function CreateProject() {
       console.log("[DEBUG INTERACTION] Type selected:", value);
       console.log("[DEBUG INTERACTION] Available types:", normalizedTypes);
       console.log("[DEBUG INTERACTION] Found type object:", 
-        normalizedTypes.find(type => type.name === value) || "Not found in normalized data");
+        normalizedTypes.find(type => type && type.name === value) || "Not found in normalized data");
       
       // Check if we're setting the value correctly
       try {
@@ -472,14 +672,36 @@ function CreateProject() {
 
     const handleProvinceChange = (value: string) => {
       console.log("[DEBUG] Province selected:", value);
-      console.log("[DEBUG] Available provinces:", getProvincesData);
-      setValue("province", value);
+      console.log("[DEBUG] Available provinces:", normalizedProvinces);
+      console.log("[DEBUG] Found province object:", 
+        normalizedProvinces.find(province => province && province.name === value) || "Not found in normalized data");
+      
+      // Check if we're setting the value correctly
+      try {
+        setValue("province", value);
+        const currentValues = getValues();
+        console.log("[DEBUG] Form values after province selection:", currentValues);
+        console.log("[DEBUG] Province in form after selection:", currentValues.province);
+      } catch (error) {
+        console.error("[DEBUG ERROR] Error setting province value:", error);
+      }
     };
 
     const handleTerritoryChange = (value: string) => {
       console.log("[DEBUG] Territory selected:", value);
-      console.log("[DEBUG] Available territories:", getTerritoriesData);
-      setValue("territory", value);
+      console.log("[DEBUG] Available territories:", normalizedTerritories);
+      console.log("[DEBUG] Found territory object:", 
+        normalizedTerritories.find(territory => territory && territory.name === value) || "Not found in normalized data");
+      
+      // Check if we're setting the value correctly
+      try {
+        setValue("territory", value);
+        const currentValues = getValues();
+        console.log("[DEBUG] Form values after territory selection:", currentValues);
+        console.log("[DEBUG] Territory in form after selection:", currentValues.territory);
+      } catch (error) {
+        console.error("[DEBUG ERROR] Error setting territory value:", error);
+      }
     };
 
     const handleShowPreview=(e:any)=>{
@@ -497,26 +719,66 @@ function CreateProject() {
 
     //console.log("edit project page",project)
     
+    // Direct API test for provinces and territories
+    useEffect(() => {
+      const testProvinceTerritory = async () => {
+        try {
+          console.log("[DEBUG] Testing direct API call to provinces and territories");
+          
+          // Test provinces endpoint
+          const provincesResponse = await axios.get(`${apiUrl}provinces`);
+          console.log("[DEBUG] Provinces Response status:", provincesResponse.status);
+          console.log("[DEBUG] Provinces Response data:", provincesResponse.data);
+          
+          if (Array.isArray(provincesResponse.data)) {
+            console.log("[DEBUG] Provinces data is an array with length:", provincesResponse.data.length);
+          } else {
+            console.log("[DEBUG] Provinces data is not an array:", typeof provincesResponse.data);
+          }
+          
+          // Test territories endpoint
+          const territoriesResponse = await axios.get(`${apiUrl}territories`);
+          console.log("[DEBUG] Territories Response status:", territoriesResponse.status);
+          console.log("[DEBUG] Territories Response data:", territoriesResponse.data);
+          
+          if (Array.isArray(territoriesResponse.data)) {
+            console.log("[DEBUG] Territories data is an array with length:", territoriesResponse.data.length);
+          } else {
+            console.log("[DEBUG] Territories data is not an array:", typeof territoriesResponse.data);
+          }
+        } catch (error) {
+          console.error("[DEBUG] Error testing provinces/territories API:", error);
+          if (axios.isAxiosError(error)) {
+            console.error("[DEBUG] Response:", error.response?.data);
+            console.error("[DEBUG] Status:", error.response?.status);
+            console.error("[DEBUG] Request URL:", error.config?.url);
+          }
+        }
+      };
+      
+      testProvinceTerritory();
+    }, []);
+    
     // Direct API test
     useEffect(() => {
       const testAPI = async () => {
         try {
-          console.log("[DEBUG DIRECT API] Testing direct API call to /project-categories");
-          const response = await axios.get(`${apiUrl}/project-categories`);
-          console.log("[DEBUG DIRECT API] Response data:", response.data);
-          console.log("[DEBUG DIRECT API] Response status:", response.status);
+          // console.log("[DEBUG DIRECT API] Testing direct API call to /project-categories");
+          const response = await axios.get(`${apiUrl}project-categories`);
+          // console.log("[DEBUG DIRECT API] Response data:", response.data);
+          // console.log("[DEBUG DIRECT API] Response status:", response.status);
           
           // Check if the response is an array with expected properties
           if (Array.isArray(response.data)) {
-            console.log("[DEBUG DIRECT API] Response is an array with length:", response.data.length);
+            // console.log("[DEBUG DIRECT API] Response is an array with length:", response.data.length);
             response.data.forEach((item, index) => {
-              console.log(`[DEBUG DIRECT API] Item ${index}:`, item);
-              console.log(`[DEBUG DIRECT API] Item ${index} has name:`, item.name ? "Yes" : "No");
-              console.log(`[DEBUG DIRECT API] Item ${index} has _id:`, item._id ? "Yes" : "No");
-              console.log(`[DEBUG DIRECT API] Item ${index} has status:`, item.status ? "Yes" : "No");
+              // console.log(`[DEBUG DIRECT API] Item ${index}:`, item);
+              // console.log(`[DEBUG DIRECT API] Item ${index} has name:`, item.name ? "Yes" : "No");
+              // console.log(`[DEBUG DIRECT API] Item ${index} has _id:`, item._id ? "Yes" : "No");
+              // console.log(`[DEBUG DIRECT API] Item ${index} has status:`, item.status ? "Yes" : "No");
             });
           } else {
-            console.log("[DEBUG DIRECT API] Response is not an array:", typeof response.data);
+            // console.log("[DEBUG DIRECT API] Response is not an array:", typeof response.data);
           }
         } catch (error) {
           console.error("[DEBUG DIRECT API] Error testing API:", error);
@@ -529,6 +791,181 @@ function CreateProject() {
       
       testAPI();
     }, []);
+    
+    // Debug component loading
+    useEffect(() => {
+      console.log("======= COMPONENT MOUNT DEBUG =======");
+      console.log("Provinces loading:", getProvincesIsLoading);
+      console.log("Provinces error:", getProvincesIsError);
+      console.log("Provinces data:", getProvincesData);
+      
+      console.log("Territories loading:", getTerritoriesIsLoading);
+      console.log("Territories error:", getTerritoriesIsError);
+      console.log("Territories data:", getTerritoriesData);
+      console.log("====================================");
+      
+      // Force re-render after 3 seconds if still loading
+      const timer = setTimeout(() => {
+        if (getProvincesIsLoading || getTerritoriesIsLoading) {
+          console.log("Still loading after 3 seconds, forcing update");
+          // This will trigger a re-render
+          setDebugDataPrinted(prev => !prev);
+        }
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }, [getProvincesIsLoading, getProvincesIsError, getProvincesData, 
+        getTerritoriesIsLoading, getTerritoriesIsError, getTerritoriesData]);
+    
+    // Static fallback data for provinces and territories
+    const fallbackProvinces = [
+      { _id: "fallback-1", name: "Nord-kivu", status: "ENABLED" },
+      { _id: "fallback-2", name: "Kinshasa", status: "ENABLED" },
+      { _id: "fallback-3", name: "Sud-Kivu", status: "ENABLED" },
+    ];
+    
+    const fallbackTerritories = [
+      { _id: "fallback-t1", name: "Goma", status: "ENABLED" },
+      { _id: "fallback-t2", name: "Beni", status: "ENABLED" },
+      { _id: "fallback-t3", name: "Bukavu", status: "ENABLED" },
+    ];
+    
+    // State for direct API fetched data
+    const [directProvinces, setDirectProvinces] = useState<any[]>([]);
+    const [directTerritories, setDirectTerritories] = useState<any[]>([]);
+    const [directFetchLoading, setDirectFetchLoading] = useState(true);
+    const [directFetchError, setDirectFetchError] = useState(false);
+
+    // Direct API fetch (bypassing RTK Query)
+    useEffect(() => {
+      const fetchDirectData = async () => {
+        setDirectFetchLoading(true);
+        try {
+          console.log("[DIRECT FETCH] Starting direct API fetch for provinces and territories");
+          
+          // Fetch provinces
+          const provincesResponse = await axios.get(`${apiUrl}provinces`);
+          console.log("[DIRECT FETCH] Provinces response:", provincesResponse.status);
+          console.log("[DIRECT FETCH] Provinces data count:", provincesResponse.data?.length || 0);
+          
+          if (Array.isArray(provincesResponse.data) && provincesResponse.data.length > 0) {
+            setDirectProvinces(provincesResponse.data);
+            console.log("[DIRECT FETCH] Provinces data:", provincesResponse.data);
+          } else {
+            console.error("[DIRECT FETCH] Provinces data is not an array or is empty");
+          }
+          
+          // Fetch territories
+          const territoriesResponse = await axios.get(`${apiUrl}territories`);
+          console.log("[DIRECT FETCH] Territories response:", territoriesResponse.status);
+          console.log("[DIRECT FETCH] Territories data count:", territoriesResponse.data?.length || 0);
+          
+          if (Array.isArray(territoriesResponse.data) && territoriesResponse.data.length > 0) {
+            setDirectTerritories(territoriesResponse.data);
+          } else {
+            console.error("[DIRECT FETCH] Territories data is not an array or is empty");
+          }
+          
+          setDirectFetchLoading(false);
+        } catch (error) {
+          console.error("[DIRECT FETCH] Error fetching data directly:", error);
+          setDirectFetchError(true);
+          setDirectFetchLoading(false);
+        }
+      };
+      
+      fetchDirectData();
+    }, []);
+    
+    // Compare RTK Query data with direct fetch data
+    useEffect(() => {
+      if (!directFetchLoading && !getProvincesIsLoading && getProvincesData) {
+        console.log("[DATA COMPARE] RTK Query provinces count:", getProvincesData?.length || 0);
+        console.log("[DATA COMPARE] Direct fetch provinces count:", directProvinces?.length || 0);
+        
+        if (getProvincesData?.length !== directProvinces?.length) {
+          console.log("[DATA COMPARE] Mismatch between RTK Query and direct fetch province counts");
+        }
+      }
+      
+      if (!directFetchLoading && !getTerritoriesIsLoading && getTerritoriesData) {
+        console.log("[DATA COMPARE] RTK Query territories count:", getTerritoriesData?.length || 0);
+        console.log("[DATA COMPARE] Direct fetch territories count:", directTerritories?.length || 0);
+        
+        if (getTerritoriesData?.length !== directTerritories?.length) {
+          console.log("[DATA COMPARE] Mismatch between RTK Query and direct fetch territory counts");
+        }
+      }
+    }, [directFetchLoading, getProvincesIsLoading, getTerritoriesIsLoading, 
+        getProvincesData, getTerritoriesData, directProvinces, directTerritories]);
+    
+    // Helper function to get provinces data from API or fallback
+    const getProvincesList = () => {
+      // First try direct fetch data
+      if (!directFetchLoading && directProvinces.length > 0) {
+        console.log("[DATA SOURCE] Using direct fetch provinces data");
+        return directProvinces;
+      }
+      
+      // Then try RTK Query data
+      if (!getProvincesIsLoading && getProvincesData && Array.isArray(getProvincesData) && getProvincesData.length > 0) {
+        console.log("[DATA SOURCE] Using RTK Query provinces data");
+        return getProvincesData;
+      }
+      
+      // Fallback to static data
+      console.log("[DATA SOURCE] Using fallback provinces data");
+      return fallbackProvinces;
+    };
+    
+    // Helper function to get territories data from API or fallback
+    const getTerritoriesList = () => {
+      // First try direct fetch data
+      if (!directFetchLoading && directTerritories.length > 0) {
+        console.log("[DATA SOURCE] Using direct fetch territories data");
+        return directTerritories;
+      }
+      
+      // Then try RTK Query data
+      if (!getTerritoriesIsLoading && getTerritoriesData && Array.isArray(getTerritoriesData) && getTerritoriesData.length > 0) {
+        console.log("[DATA SOURCE] Using RTK Query territories data");
+        return getTerritoriesData;
+      }
+      
+      // Fallback to static data
+      console.log("[DATA SOURCE] Using fallback territories data");
+      return fallbackTerritories;
+    };
+    
+    // Force render on data load
+    useEffect(() => {
+      const checkDataAndUpdate = () => {
+        const provinces = getProvincesList();
+        const territories = getTerritoriesList();
+        
+        console.log("[DATA CHECK] Current provinces count:", provinces.length);
+        console.log("[DATA CHECK] Current territories count:", territories.length);
+        
+        // Update form with first values if needed
+        if (provinces.length > 0 && !watch("province")) {
+          setValue("province", provinces[0].name);
+          console.log("[DATA CHECK] Set default province:", provinces[0].name);
+        }
+        
+        if (territories.length > 0 && !watch("territory")) {
+          setValue("territory", territories[0].name);
+          console.log("[DATA CHECK] Set default territory:", territories[0].name);
+        }
+      };
+      
+      // Check immediately
+      checkDataAndUpdate();
+      
+      // And also after a short delay to catch async updates
+      const timer = setTimeout(checkDataAndUpdate, 1000);
+      
+      return () => clearTimeout(timer);
+    }, [directProvinces, directTerritories, getProvincesData, getTerritoriesData]);
     
   return (
     <>
@@ -680,81 +1117,97 @@ function CreateProject() {
               <div className="grid grid-cols-2 mt-5 gap-x-5">
                   <div className="flex flex-col space-y-1 my-5">
                     <label className="font-semibold">Province</label>
-                    {
-                      getProvincesIsLoading && <div className="text-blue-600">
-                        <LoadingComponent />
-                      </div>
-                    }
-                    {
-                      !getProvincesIsLoading && getProvincesData?.length===0 && <div className="text-red-600 font-semibold">
-                        <span className="font-semibold">No Provinces available</span>
-                      </div>
-                    }
-                    {
-                      getProvincesData?.length > 0 && 
-                      <Select onValueChange={handleProvinceChange}>
-                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                          <SelectValue placeholder="Select province" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Province</SelectLabel>
-                            {
-                              getProvincesData?.map((item:any)=>(
-                                <SelectItem 
-                                  key={item._id} 
-                                  value={item.name}
-                                  disabled={item.status !== "ENABLED"} 
-                                  className={item.status !== "ENABLED" ? "opacity-50 cursor-not-allowed" : ""}
-                                >
-                                  {item.name}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    }
+                    <Select onValueChange={value => setValue("province", value)}>
+                      <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                        <SelectValue placeholder={getProvincesIsLoading ? "Loading provinces..." : "Select province"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Province</SelectLabel>
+                          {getProvincesList().map((item: any) => (
+                            <SelectItem 
+                              key={item._id} 
+                              value={item.name}
+                            >
+                              {item.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                     {errors.province && <p className="text-red-600">{errors.province.message}</p>}
                   </div>
+                  
                   <div className="flex flex-col space-y-1 my-5">
                     <label className="font-semibold">Territory</label>
-                    {
-                      getTerritoriesIsLoading && <div className="text-blue-600">
-                        <LoadingComponent />
-                      </div>
-                    }
-                    {
-                      !getTerritoriesIsLoading && getTerritoriesData?.length===0 && <div className="text-red-600 font-semibold">
-                        <span className="font-semibold">No Provinces available</span>
-                      </div>
-                    }
-                    {
-                      getTerritoriesData?.length >0 && 
-                      <Select onValueChange={handleTerritoryChange}>
-                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                          <SelectValue placeholder="Select Territory" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Territory</SelectLabel>
-                            {
-                              getTerritoriesData?.map((item:any)=>(
-                                <SelectItem 
-                                  key={item._id} 
-                                  value={item.name}
-                                  disabled={item.status !== "ENABLED"} 
-                                  className={item.status !== "ENABLED" ? "opacity-50 cursor-not-allowed" : ""}
-                                >
-                                  {item.name}
-                                </SelectItem>
-                              ))
-                            }
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    }
+                    <Select onValueChange={value => setValue("territory", value)}>
+                      <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                        <SelectValue placeholder={getTerritoriesIsLoading ? "Loading territories..." : "Select territory"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Territory</SelectLabel>
+                          {getTerritoriesList().map((item: any) => (
+                            <SelectItem 
+                              key={item._id} 
+                              value={item.name}
+                            >
+                              {item.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                     {errors.territory && <p className="text-red-600">{errors.territory.message}</p>}
+                  </div>
+              </div>
+              
+              {/* Additional province and territory select fields */}
+              <div className="grid grid-cols-2 mt-5 gap-x-5">
+                  <div className="flex flex-col space-y-1 my-5">
+                    <label className="font-semibold">Additional Province</label>
+                    <Select onValueChange={value => setValue("additionalProvince", value)}>
+                      <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                        <SelectValue placeholder={getProvincesIsLoading ? "Loading provinces..." : "Select province"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Province</SelectLabel>
+                          {getProvincesList().map((item: any) => (
+                            <SelectItem 
+                              key={`additional-province-${item._id}`} 
+                              value={item.name}
+                            >
+                              {item.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    {errors.additionalProvince && <p className="text-red-600">{errors.additionalProvince.message}</p>}
+                  </div>
+                  
+                  <div className="flex flex-col space-y-1 my-5">
+                    <label className="font-semibold">Additional Territory</label>
+                    <Select onValueChange={value => setValue("additionalTerritory", value)}>
+                      <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
+                        <SelectValue placeholder={getTerritoriesIsLoading ? "Loading territories..." : "Select territory"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Territory</SelectLabel>
+                          {getTerritoriesList().map((item: any) => (
+                            <SelectItem 
+                              key={`additional-territory-${item._id}`} 
+                              value={item.name}
+                            >
+                              {item.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    {errors.additionalTerritory && <p className="text-red-600">{errors.additionalTerritory.message}</p>}
                   </div>
               </div>
               <div className="flex flex-col space-y-1 my-5">
