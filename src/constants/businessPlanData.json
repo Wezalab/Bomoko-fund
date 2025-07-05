@@ -241,7 +241,11 @@
               {
                 "label": "How does your business solve these problems?",
                 "description": "Explain how your business solves each problem and the benefits that customers get when using your product or service.",
-                "type": "problem-solution-mapping"
+                "type": "problem-solution-mapping",
+                "problems": [
+                  "Long wait times for seating or food",
+                  "Overpriced menu items"
+                ]
               }
             ]
           },

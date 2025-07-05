@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Check, Users, Plus, X } from 'lucide-react';
 import businessPlanData from '../constants/businessPlanData.json';
+import { 
+  MultiSelectCards, 
+  ProblemSolutionMapping, 
+  OwnershipTable, 
+  CompetitorMatrix, 
+  LocationTable 
+} from './businessPlan/FieldComponents';
 
 interface WizardData {
   [key: string]: any;
@@ -456,36 +463,77 @@ const FieldRenderer: React.FC<{
         </div>
       );
 
-    case 'multi-select':
+    case 'textarea':
+      return (
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
+          <p className="text-gray-600 text-sm mb-3">{field.description}</p>
+          <textarea
+            value={value || ''}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={field.placeholder}
+            rows={4}
+            className="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+          />
+        </div>
+      );
+
+    case 'single-select':
       return (
         <div>
           <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
           <p className="text-gray-600 text-sm mb-4">{field.description}</p>
-          <div className="grid grid-cols-2 gap-3">
-            {field.options.map((option: string) => {
-              const isSelected = value?.includes(option) || false;
-              return (
-                <button
-                  key={option}
-                  onClick={() => {
-                    const currentValues = value || [];
-                    if (isSelected) {
-                      onChange(currentValues.filter((v: string) => v !== option));
-                    } else {
-                      onChange([...currentValues, option]);
-                    }
-                  }}
-                  className={`p-3 text-left border rounded-lg transition-colors ${
-                    isSelected
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  {option}
-                </button>
-              );
-            })}
+          <div className="space-y-3">
+            {field.options.map((option: string) => (
+              <button
+                key={option}
+                onClick={() => onChange(option)}
+                className={`w-full p-4 text-left border rounded-lg transition-colors ${
+                  value === option
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                {option}
+              </button>
+            ))}
           </div>
+        </div>
+      );
+
+    case 'multi-select':
+      return (
+        <MultiSelectCards
+          options={field.options}
+          value={value || []}
+          onChange={onChange}
+          maxSelection={field.maxSelection}
+          title={field.label}
+          description={field.description}
+        />
+      );
+
+    case 'multi-text':
+      return (
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
+          <p className="text-gray-600 text-sm mb-4">{field.description}</p>
+          <div className="space-y-3">
+            {field.options?.map((option: string, index: number) => (
+              <div key={index} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <input
+                  type="text"
+                  value={option}
+                  readOnly
+                  className="w-full bg-transparent border-none focus:outline-none"
+                />
+              </div>
+            ))}
+          </div>
+          <button className="mt-3 flex items-center text-blue-500 hover:text-blue-600">
+            <Plus className="w-4 h-4 mr-1" />
+            Add More
+          </button>
         </div>
       );
 
@@ -510,6 +558,125 @@ const FieldRenderer: React.FC<{
             ))}
           </div>
         </div>
+      );
+
+    case 'date':
+      return (
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
+          <p className="text-gray-600 text-sm mb-3">{field.description}</p>
+          <div className="grid grid-cols-2 gap-4">
+            {field.fields.map((fieldName: string) => (
+              <input
+                key={fieldName}
+                type={fieldName.toLowerCase() === 'month' ? 'text' : 'number'}
+                placeholder={fieldName === 'Month' ? 'Month in text format, e.g. January' : 'Year in number format, e.g. 2024'}
+                value={value?.[fieldName] || ''}
+                onChange={(e) => onChange({
+                  ...value,
+                  [fieldName]: e.target.value
+                })}
+                className="p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              />
+            ))}
+          </div>
+        </div>
+      );
+
+    case 'ownership-table':
+      return (
+        <OwnershipTable
+          owners={value || []}
+          onChange={onChange}
+        />
+      );
+
+    case 'ip-management':
+      return (
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
+          <p className="text-gray-600 text-sm mb-4">{field.description}</p>
+          
+          <div className="mb-4">
+            <h4 className="font-medium mb-3">Intellectual Property 1</h4>
+            <div className="grid grid-cols-5 gap-3 mb-4">
+              {field.types.map((type: string) => (
+                <button
+                  key={type}
+                  onClick={() => onChange({
+                    ...value,
+                    selectedType: type
+                  })}
+                  className={`p-3 text-center border rounded-lg transition-colors ${
+                    value?.selectedType === type
+                      ? 'border-blue-500 bg-blue-500 text-white'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                How will you name this intellectual property in your business plan?
+              </label>
+              <input
+                type="text"
+                placeholder="IP Name"
+                value={value?.name || ''}
+                onChange={(e) => onChange({
+                  ...value,
+                  name: e.target.value
+                })}
+                className="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <textarea
+                placeholder="IP Description"
+                value={value?.description || ''}
+                onChange={(e) => onChange({
+                  ...value,
+                  description: e.target.value
+                })}
+                rows={3}
+                className="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      );
+
+    case 'problem-solution-mapping':
+      return (
+        <ProblemSolutionMapping
+          problems={field.problems || []}
+          solutions={value || {}}
+          onChange={onChange}
+        />
+      );
+
+    case 'competitor-matrix':
+      return (
+        <CompetitorMatrix
+          competitors={field.competitors || []}
+          factors={field.factors || []}
+          ratings={value || {}}
+          onChange={onChange}
+        />
+      );
+
+    case 'location-table':
+      return (
+        <LocationTable
+          locations={value || []}
+          onChange={onChange}
+        />
       );
 
     default:
