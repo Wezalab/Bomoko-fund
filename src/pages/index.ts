@@ -3,6 +3,7 @@ import Layout from "./Layout";
 import ProjectLayout from "./ProjectLayout";
 import WorkLayout from "./WorkLayout";
 import ContactLayout from "./ContactLayout";
+import BusinessPlanLayout from "./BusinessPlanLayout";
 
 
 
@@ -11,5 +12,6 @@ export {
     HomeLayout,
     ProjectLayout,
     WorkLayout,
-    ContactLayout
+    ContactLayout,
+    BusinessPlanLayout
 }
