@@ -22,7 +22,13 @@ const BusinessPlanWizard: React.FC = () => {
   const [isInitialSetup, setIsInitialSetup] = useState(true);
   const [currentSection, setCurrentSection] = useState(0);
   const [currentSubsection, setCurrentSubsection] = useState(0);
-  const [showWelcome, setShowWelcome] = useState(true);
+
+  // Reset wizard state on component mount to ensure fresh start
+  React.useEffect(() => {
+    setCurrentStep(0);
+    setIsInitialSetup(true);
+    setWizardData({});
+  }, []);
 
   const initialQuestions = businessPlanData.initialQuestions;
   const businessPlan = businessPlanData.businessPlanStructure;
@@ -32,8 +38,7 @@ const BusinessPlanWizard: React.FC = () => {
     initialQuestionsLength: initialQuestions?.length,
     businessPlanData: businessPlanData,
     isInitialSetup,
-    currentStep,
-    showWelcome
+    currentStep
   });
 
   const updateWizardData = (key: string, value: any) => {
@@ -49,16 +54,22 @@ const BusinessPlanWizard: React.FC = () => {
         setCurrentStep(currentStep + 1);
       } else {
         setIsInitialSetup(false);
-        setShowWelcome(true);
       }
     } else {
-      // Handle business plan navigation
-      const section = businessPlan.sections[currentSection];
+      // Handle business plan navigation - work with section IDs, not indices
+      const section = businessPlan.sections.find((s: any) => s.id === currentSection);
+      if (!section) return;
+      
       if (currentSubsection < section.subsections.length - 1) {
         setCurrentSubsection(currentSubsection + 1);
-      } else if (currentSection < businessPlan.sections.length - 1) {
-        setCurrentSection(currentSection + 1);
-        setCurrentSubsection(0);
+      } else {
+        // Find next section
+        const currentIndex = businessPlan.sections.findIndex((s: any) => s.id === currentSection);
+        if (currentIndex < businessPlan.sections.length - 1) {
+          const nextSection = businessPlan.sections[currentIndex + 1];
+          setCurrentSection(nextSection.id);
+          setCurrentSubsection(0);
+        }
       }
     }
   };
@@ -69,18 +80,23 @@ const BusinessPlanWizard: React.FC = () => {
         setCurrentStep(currentStep - 1);
       }
     } else {
-      const section = businessPlan.sections[currentSection];
+      // Handle business plan navigation - work with section IDs, not indices
       if (currentSubsection > 0) {
         setCurrentSubsection(currentSubsection - 1);
-      } else if (currentSection > 0) {
-        setCurrentSection(currentSection - 1);
-        const prevSection = businessPlan.sections[currentSection - 1];
-        setCurrentSubsection(prevSection.subsections.length - 1);
+      } else {
+        // Find previous section
+        const currentIndex = businessPlan.sections.findIndex((s: any) => s.id === currentSection);
+        if (currentIndex > 0) {
+          const prevSection = businessPlan.sections[currentIndex - 1];
+          setCurrentSection(prevSection.id);
+          setCurrentSubsection(prevSection.subsections.length - 1);
+        }
       }
     }
   };
 
-  if (isInitialSetup) {
+  // Toujours commencer par le setup initial
+  if (isInitialSetup && initialQuestions && initialQuestions.length > 0) {
     return (
       <InitialSetupWizard
         questions={initialQuestions}
@@ -93,15 +109,55 @@ const BusinessPlanWizard: React.FC = () => {
     );
   }
 
+  // Si on a terminé le setup initial, montrer l'aperçu ou les sections du plan
+  if (!isInitialSetup) {
+    // Si on n'a pas encore commencé l'évaluation des sections (currentSection === 0)
+    const isInSectionEvaluation = currentSection > 0 || currentSubsection > 0;
+    
+    if (!isInSectionEvaluation) {
+      return (
+        <BusinessPlanOverview
+          wizardData={wizardData}
+          onStartPlan={() => {
+            console.log('Commencer l\'évaluation des sections du plan d\'affaires');
+            setCurrentSection(1); // Commencer à la première section (id: 1)
+            setCurrentSubsection(0); // Première sous-section
+          }}
+          onViewPlan={() => {
+            localStorage.setItem('businessPlanWizardData', JSON.stringify(wizardData));
+            navigate('/business-plan/editor');
+          }}
+        />
+      );
+    } else {
+      // Dans l'évaluation des sections du businessPlanStructure
+      return (
+        <BusinessPlanSectionWizard
+          businessPlan={businessPlan}
+          currentSection={currentSection}
+          currentSubsection={currentSubsection}
+          wizardData={wizardData}
+          onUpdateData={updateWizardData}
+          onNext={handleNextStep}
+          onPrev={handlePrevStep}
+          onFinish={() => {
+            localStorage.setItem('businessPlanWizardData', JSON.stringify(wizardData));
+            navigate('/business-plan/editor');
+          }}
+        />
+      );
+    }
+  }
+
+  // État de chargement par défaut
   return (
-    <BusinessPlanOverview
-      wizardData={wizardData}
-      onStartPlan={() => console.log('Démarrer le plan')}
-      onViewPlan={() => {
-        localStorage.setItem('businessPlanWizardData', JSON.stringify(wizardData));
-        navigate('/business-plan/editor');
-      }}
-    />
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Chargement...</h2>
+        <p className="text-gray-600">Préparation de votre assistant de plan d'affaires</p>
+      </div>
+    </div>
   );
 };
 
@@ -563,6 +619,150 @@ const BusinessPlanOverview: React.FC<{
   );
 };
 
+const BusinessPlanSectionWizard: React.FC<{
+  businessPlan: any;
+  currentSection: number;
+  currentSubsection: number;
+  wizardData: WizardData;
+  onUpdateData: (key: string, value: any) => void;
+  onNext: () => void;
+  onPrev: () => void;
+  onFinish: () => void;
+}> = ({ businessPlan, currentSection, currentSubsection, wizardData, onUpdateData, onNext, onPrev, onFinish }) => {
+  
+  console.log('BusinessPlanSectionWizard rendered with:', {
+    currentSection,
+    currentSubsection,
+    businessPlanSections: businessPlan?.sections?.length
+  });
+
+  if (!businessPlan || !businessPlan.sections) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Erreur</h2>
+            <p className="text-gray-600">Structure du plan d'affaires non trouvée</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const section = businessPlan.sections.find((s: any) => s.id === currentSection);
+  if (!section) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Section non trouvée</h2>
+            <p className="text-gray-600">Section {currentSection} introuvable</p>
+            <button
+              onClick={onFinish}
+              className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Terminer et voir le plan
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const subsection = section.subsections[currentSubsection];
+  if (!subsection) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Sous-section non trouvée</h2>
+            <p className="text-gray-600">Sous-section {currentSubsection} de la section "{section.title}" introuvable</p>
+            <button
+              onClick={onNext}
+              className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              Section suivante
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const currentSectionIndex = businessPlan.sections.findIndex((s: any) => s.id === currentSection);
+  const isLastSection = currentSectionIndex === businessPlan.sections.length - 1;
+  const isLastSubsection = currentSubsection === section.subsections.length - 1;
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-blue-500 mb-2">{section.title}</h1>
+          <p className="text-gray-600">Section {currentSectionIndex + 1} sur {businessPlan.sections.length}</p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">{subsection.title}</h2>
+            {subsection.description && (
+              <p className="text-gray-600 text-sm">{subsection.description}</p>
+            )}
+          </div>
+
+          {subsection.fields && subsection.fields.length > 0 ? (
+            <div className="space-y-6">
+              {subsection.fields.map((field: any, index: number) => (
+                <div key={index}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {field.label}
+                  </label>
+                  {field.description && (
+                    <p className="text-sm text-gray-500 mb-3">{field.description}</p>
+                  )}
+                  <QuestionRenderer
+                    question={field}
+                    value={wizardData[`section_${currentSection}_${currentSubsection}_field_${index}`]}
+                    onChange={(value) => onUpdateData(`section_${currentSection}_${currentSubsection}_field_${index}`, value)}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Cette section n'a pas de champs à remplir pour le moment.</p>
+            </div>
+          )}
+
+          <div className="flex justify-between mt-8">
+            <button
+              onClick={onPrev}
+              disabled={currentSectionIndex === 0 && currentSubsection === 0}
+              className="flex items-center px-4 py-2 text-gray-600 disabled:opacity-50"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Précédent
+            </button>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-500">
+                {currentSubsection + 1} sur {section.subsections.length} sous-sections
+              </p>
+            </div>
+
+            <button
+              onClick={isLastSection && isLastSubsection ? onFinish : onNext}
+              className="flex items-center px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+            >
+              {isLastSection && isLastSubsection ? 'Terminer' : 'Suivant'}
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const QuestionRenderer: React.FC<{
   question: any;
   value: any;
@@ -631,6 +831,40 @@ const QuestionRenderer: React.FC<{
             </label>
           ))}
         </div>
+      );
+    
+    case 'single-select':
+      return (
+        <div className="space-y-3">
+          {question.options.map((option: string, index: number) => (
+            <label
+              key={index}
+              className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
+                value === option
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <input
+                type="radio"
+                name={`question-${question.id || question.label}`}
+                value={option}
+                checked={value === option}
+                onChange={(e) => onChange(e.target.value)}
+                className="mr-3 text-blue-500"
+              />
+              <span className="text-gray-700">{option}</span>
+            </label>
+          ))}
+        </div>
+      );
+    
+    case 'ownership-table':
+      return (
+        <OwnershipTable
+          owners={value || []}
+          onChange={onChange}
+        />
       );
     
     case 'multi-select':
@@ -706,6 +940,190 @@ const QuestionRenderer: React.FC<{
           <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
             {question.placeholder}
           </button>
+        </div>
+      );
+    
+    case 'multi-text':
+      return (
+        <div className="space-y-4">
+          {(value || []).map((item: string, index: number) => (
+            <div key={index} className="flex gap-2">
+              <input
+                type="text"
+                value={item}
+                onChange={(e) => {
+                  const newValue = [...(value || [])];
+                  newValue[index] = e.target.value;
+                  onChange(newValue);
+                }}
+                className="flex-1 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={`Élément ${index + 1}`}
+              />
+              <button
+                onClick={() => {
+                  const newValue = (value || []).filter((_: any, i: number) => i !== index);
+                  onChange(newValue);
+                }}
+                className="p-4 text-red-500 hover:text-red-600"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={() => onChange([...(value || []), ''])}
+            className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-blue-500 hover:text-blue-500 transition-colors"
+          >
+            + Ajouter un élément
+          </button>
+        </div>
+      );
+    
+    case 'location':
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {question.fields.map((field: string, index: number) => (
+            <div key={index}>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {field}
+              </label>
+              <input
+                type="text"
+                value={value?.[field] || ''}
+                onChange={(e) => {
+                  const newValue = { ...(value || {}), [field]: e.target.value };
+                  onChange(newValue);
+                }}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={field}
+              />
+            </div>
+          ))}
+        </div>
+      );
+    
+    case 'date':
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {question.fields.map((field: string, index: number) => (
+            <div key={index}>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {field}
+              </label>
+              {field === 'Mois' ? (
+                <select
+                  value={value?.[field] || ''}
+                  onChange={(e) => {
+                    const newValue = { ...(value || {}), [field]: e.target.value };
+                    onChange(newValue);
+                  }}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Sélectionnez un mois</option>
+                  {[
+                    'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+                  ].map((month) => (
+                    <option key={month} value={month}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="number"
+                  value={value?.[field] || ''}
+                  onChange={(e) => {
+                    const newValue = { ...(value || {}), [field]: e.target.value };
+                    onChange(newValue);
+                  }}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder={field}
+                  min="1900"
+                  max="2100"
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    
+    case 'ip-management':
+      return (
+        <div className="space-y-4">
+          <div className="flex gap-2 mb-4">
+            {question.types.map((type: string) => (
+              <button
+                key={type}
+                onClick={() => {
+                  const newValue = [...(value || []), { type, name: '', description: '' }];
+                  onChange(newValue);
+                }}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                + {type}
+              </button>
+            ))}
+          </div>
+          {(value || []).map((item: any, index: number) => (
+            <div key={index} className="border border-gray-200 rounded-lg p-4">
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="font-medium text-gray-900">{item.type}</h4>
+                <button
+                  onClick={() => {
+                    const newValue = (value || []).filter((_: any, i: number) => i !== index);
+                    onChange(newValue);
+                  }}
+                  className="text-red-500 hover:text-red-600"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nom de la PI
+                  </label>
+                  <input
+                    type="text"
+                    value={item.name || ''}
+                    onChange={(e) => {
+                      const newValue = [...(value || [])];
+                      newValue[index] = { ...newValue[index], name: e.target.value };
+                      onChange(newValue);
+                    }}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Nom de la propriété intellectuelle"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={item.description || ''}
+                    onChange={(e) => {
+                      const newValue = [...(value || [])];
+                      newValue[index] = { ...newValue[index], description: e.target.value };
+                      onChange(newValue);
+                    }}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Description de la propriété intellectuelle"
+                    rows={3}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+          {(value || []).length === 0 && (
+            <div className="text-center py-8 text-gray-500">
+              <p>Aucune propriété intellectuelle ajoutée. Cliquez sur les boutons ci-dessus pour en ajouter.</p>
+            </div>
+          )}
         </div>
       );
     

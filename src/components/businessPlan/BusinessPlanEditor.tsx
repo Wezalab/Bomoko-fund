@@ -185,9 +185,12 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
   useEffect(() => {
     const loadWizardData = () => {
       const savedData = localStorage.getItem('businessPlanWizardData');
+      console.log('BusinessPlanEditor - Loading wizard data:', savedData);
+      
       if (savedData) {
         try {
           const parsedData = JSON.parse(savedData);
+          console.log('BusinessPlanEditor - Parsed wizard data:', parsedData);
           setWizardData(parsedData);
           
           // Extraire les informations de l'entreprise des données de l'assistant
@@ -196,11 +199,16 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
             industry: parsedData.question_3 || industry
           };
           
+          console.log('BusinessPlanEditor - Company info extracted:', companyInfo);
+          console.log('BusinessPlanEditor - Current sections:', sections);
+          
           // Auto-générer le contenu pour toutes les sections
           autoGenerateAllSections(companyInfo);
         } catch (error) {
           console.error('Erreur lors de l\'analyse des données de l\'assistant:', error);
         }
+      } else {
+        console.log('BusinessPlanEditor - No wizard data found in localStorage');
       }
     };
 
@@ -208,6 +216,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
   }, []);
 
   const autoGenerateAllSections = async (companyInfo: any) => {
+    console.log('BusinessPlanEditor - Starting auto-generation for:', companyInfo);
     setIsGenerating(true);
     
     try {
@@ -229,17 +238,25 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
         'executive-summary'
       ];
 
+      console.log('BusinessPlanEditor - Sections to generate:', sectionsToGenerate);
+      console.log('BusinessPlanEditor - Available sections:', sections.map(s => ({ id: s.id, title: s.title })));
+
       // Générer le contenu pour chaque section
       for (const sectionId of sectionsToGenerate) {
         const section = sections.find(s => s.id === sectionId);
+        console.log(`BusinessPlanEditor - Processing section: ${sectionId}`, section);
+        
         if (section && section.content === '') {
           try {
+            console.log(`BusinessPlanEditor - Generating content for: ${section.title}`);
             const generatedContent = await generateBusinessPlanContent(
               section.title, 
               companyInfo.name, 
               companyInfo.industry,
               wizardData
             );
+            
+            console.log(`BusinessPlanEditor - Generated content for ${sectionId}:`, generatedContent);
             
             // Convertir le texte brut en HTML avec un formatage approprié
             const htmlContent = generatedContent
@@ -254,12 +271,17 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
           } catch (error) {
             console.error(`Erreur lors de la génération du contenu pour ${sectionId}:`, error);
           }
+        } else if (section) {
+          console.log(`BusinessPlanEditor - Skipping section ${sectionId} (already has content)`);
+        } else {
+          console.log(`BusinessPlanEditor - Section ${sectionId} not found in sections array`);
         }
       }
     } catch (error) {
       console.error('Erreur lors de l\'auto-génération des sections:', error);
     } finally {
       setIsGenerating(false);
+      console.log('BusinessPlanEditor - Auto-generation completed');
     }
   };
 
