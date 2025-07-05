@@ -155,7 +155,7 @@ const BusinessPlanWizard: React.FC = () => {
 
   // État de chargement par défaut
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="bg-gray-50 py-20 flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Chargement...</h2>
@@ -222,7 +222,7 @@ const InitialSetupWizard: React.FC<{
 
   if (!questions || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Chargement des questions...</h2>
@@ -237,7 +237,7 @@ const InitialSetupWizard: React.FC<{
 
   if (!question) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Erreur</h2>
@@ -250,7 +250,7 @@ const InitialSetupWizard: React.FC<{
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-blue-500 mb-2">Commençons !</h1>
@@ -326,7 +326,7 @@ const BusinessPlanOverview: React.FC<{
   onViewPlan: () => void;
 }> = ({ wizardData, onStartPlan, onViewPlan }) => {
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Créez votre plan d'affaires avec l'IA</h1>
@@ -746,7 +746,7 @@ const BusinessPlanSectionWizard: React.FC<{
 
   if (!businessPlan || !businessPlan.sections) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Erreur</h2>
@@ -760,7 +760,7 @@ const BusinessPlanSectionWizard: React.FC<{
   const section = businessPlan.sections.find((s: any) => s.id === currentSection);
   if (!section) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Section non trouvée</h2>
@@ -780,7 +780,7 @@ const BusinessPlanSectionWizard: React.FC<{
   const subsection = section.subsections[currentSubsection];
   if (!subsection) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Sous-section non trouvée</h2>
@@ -826,10 +826,10 @@ const BusinessPlanSectionWizard: React.FC<{
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-blue-100 py-8 mb-8">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 py-8 mb-8 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div className="mr-6">
