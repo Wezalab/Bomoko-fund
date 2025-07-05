@@ -7,6 +7,7 @@ import EditProjectLayout from '@/pages/EditProjectLayout'
 import ProfileLayout from '@/pages/ProfileLayout'
 import CreateProjectLayout from '@/pages/CreateProjectLayout'
 import BusinessPlanLayout from '@/pages/BusinessPlanLayout'
+import BusinessPlanEditorLayout from '@/pages/BusinessPlanEditorLayout'
 import NotFound from '@/pages/NotFound'
 import AuthRedirect from '@/components/AuthRedirect'
 
@@ -23,6 +24,7 @@ function RootNavigation() {
             <Route path="/projects/:id/edit" element={<EditProjectLayout />}/>
             <Route path="/projects/create" element={<CreateProjectLayout />} />
             <Route path="/business-plan" element={<BusinessPlanLayout />} />
+            <Route path="/business-plan/editor" element={<BusinessPlanEditorLayout />} />
             <Route path="/faq" element={<FaqLayout />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyLayout />} />
             <Route path="/profile" element={<ProfileLayout />} />
