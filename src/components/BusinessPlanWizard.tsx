@@ -140,6 +140,9 @@ const BusinessPlanWizard: React.FC = () => {
           onUpdateData={updateWizardData}
           onNext={handleNextStep}
           onPrev={handlePrevStep}
+          onNavigateToSubsection={(subsectionIndex: number) => {
+            setCurrentSubsection(subsectionIndex);
+          }}
           onFinish={() => {
             localStorage.setItem('businessPlanWizardData', JSON.stringify(wizardData));
             navigate('/business-plan/editor');
@@ -627,8 +630,10 @@ const BusinessPlanSectionWizard: React.FC<{
   onUpdateData: (key: string, value: any) => void;
   onNext: () => void;
   onPrev: () => void;
+  onNavigateToSubsection: (subsectionIndex: number) => void;
   onFinish: () => void;
-}> = ({ businessPlan, currentSection, currentSubsection, wizardData, onUpdateData, onNext, onPrev, onFinish }) => {
+}> = ({ businessPlan, currentSection, currentSubsection, wizardData, onUpdateData, onNext, onPrev, onNavigateToSubsection, onFinish }) => {
+  const navigate = useNavigate();
   
   console.log('BusinessPlanSectionWizard rendered with:', {
     currentSection,
@@ -693,69 +698,215 @@ const BusinessPlanSectionWizard: React.FC<{
   const isLastSection = currentSectionIndex === businessPlan.sections.length - 1;
   const isLastSubsection = currentSubsection === section.subsections.length - 1;
 
+  // Function to check if a subsection is completed
+  const isSubsectionCompleted = (subsectionIndex: number) => {
+    const subsectionToCheck = section.subsections[subsectionIndex];
+    if (!subsectionToCheck?.fields) return false;
+    
+    return subsectionToCheck.fields.every((field: any, fieldIndex: number) => {
+      const fieldKey = `section_${currentSection}_${subsectionIndex}_field_${fieldIndex}`;
+      const value = wizardData[fieldKey];
+      return value !== undefined && value !== null && value !== '';
+    });
+  };
+
+  // Function to check if a subsection has been started
+  const isSubsectionStarted = (subsectionIndex: number) => {
+    const subsectionToCheck = section.subsections[subsectionIndex];
+    if (!subsectionToCheck?.fields) return false;
+    
+    return subsectionToCheck.fields.some((field: any, fieldIndex: number) => {
+      const fieldKey = `section_${currentSection}_${subsectionIndex}_field_${fieldIndex}`;
+      const value = wizardData[fieldKey];
+      return value !== undefined && value !== null && value !== '';
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-500 mb-2">{section.title}</h1>
-          <p className="text-gray-600">Section {currentSectionIndex + 1} sur {businessPlan.sections.length}</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 py-8 mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <div className="mr-6">
+                <span className="text-6xl font-bold text-blue-400 opacity-60">{subsection.id}</span>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{subsection.title}</h1>
+                <p className="text-gray-600 text-lg">{section.title}</p>
+                {subsection.description && (
+                  <p className="text-gray-700 mt-3 max-w-2xl">{subsection.description}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => {
+                  // TODO: Implement regenerate options functionality
+                  console.log('Regenerate options clicked');
+                }}
+                className="flex items-center px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Regenerate options
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">{subsection.title}</h2>
-            {subsection.description && (
-              <p className="text-gray-600 text-sm">{subsection.description}</p>
+        <div className="flex gap-8">
+          {/* Main Content Area */}
+          <div className="flex-1 bg-white rounded-lg shadow-lg p-8">
+
+            {subsection.fields && subsection.fields.length > 0 ? (
+              <div className="space-y-6">
+                {subsection.fields.map((field: any, index: number) => (
+                  <div key={index}>
+                    <div className="flex items-center mb-2">
+                      <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-gray-500 text-sm">{index + 1}</span>
+                      </div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        {field.label}
+                      </label>
+                    </div>
+                    {field.description && (
+                      <p className="text-sm text-gray-500 mb-3 ml-9">{field.description}</p>
+                    )}
+                    <div className="ml-9">
+                      <QuestionRenderer
+                        question={field}
+                        value={wizardData[`section_${currentSection}_${currentSubsection}_field_${index}`]}
+                        onChange={(value) => onUpdateData(`section_${currentSection}_${currentSubsection}_field_${index}`, value)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Cette section n'a pas de champs à remplir pour le moment.</p>
+              </div>
             )}
+
+            <div className="flex justify-between mt-8">
+              <button
+                onClick={onPrev}
+                disabled={currentSectionIndex === 0 && currentSubsection === 0}
+                className="flex items-center px-4 py-2 text-gray-600 disabled:opacity-50 hover:text-gray-800"
+              >
+                <ChevronLeft className="w-4 h-4 mr-1" />
+                Précédent
+              </button>
+
+              <div className="text-center">
+                <p className="text-sm text-gray-500">
+                  {currentSubsection + 1} sur {section.subsections.length} sous-sections
+                </p>
+              </div>
+
+              <button
+                onClick={isLastSection && isLastSubsection ? onFinish : onNext}
+                className="flex items-center px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                {isLastSection && isLastSubsection ? 'Terminer' : 'Suivant'}
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </button>
+            </div>
           </div>
 
-          {subsection.fields && subsection.fields.length > 0 ? (
-            <div className="space-y-6">
-              {subsection.fields.map((field: any, index: number) => (
-                <div key={index}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {field.label}
-                  </label>
-                  {field.description && (
-                    <p className="text-sm text-gray-500 mb-3">{field.description}</p>
-                  )}
-                  <QuestionRenderer
-                    question={field}
-                    value={wizardData[`section_${currentSection}_${currentSubsection}_field_${index}`]}
-                    onChange={(value) => onUpdateData(`section_${currentSection}_${currentSubsection}_field_${index}`, value)}
-                  />
-                </div>
-              ))}
+          {/* Right Sidebar - Overview Panel */}
+          <div className="w-80 bg-white rounded-lg shadow-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{section.title}</h3>
+            
+            <div className="space-y-3 mb-6">
+              {section.subsections.map((subsectionItem: any, index: number) => {
+                const completed = isSubsectionCompleted(index);
+                const started = isSubsectionStarted(index);
+                const isCurrent = index === currentSubsection;
+                
+                return (
+                  <div
+                    key={index}
+                    className={`flex items-center justify-between p-3 rounded-lg border ${
+                      isCurrent 
+                        ? 'border-blue-500 bg-blue-50' 
+                        : 'border-gray-200 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 ${
+                        completed 
+                          ? 'bg-green-500 text-white' 
+                          : started 
+                            ? 'bg-yellow-500 text-white' 
+                            : 'bg-gray-200 text-gray-500'
+                      }`}>
+                        {completed ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <span className="text-xs">{index + 1}</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className={`text-sm font-medium ${
+                          isCurrent ? 'text-blue-700' : 'text-gray-700'
+                        }`}>
+                          {subsectionItem.id}
+                        </p>
+                        <p className={`text-xs ${
+                          isCurrent ? 'text-blue-600' : 'text-gray-500'
+                        }`}>
+                          {subsectionItem.title}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <button
+                      onClick={() => {
+                        if (index !== currentSubsection) {
+                          onNavigateToSubsection(index);
+                        }
+                      }}
+                      className={`px-3 py-1 text-xs font-medium rounded ${
+                        isCurrent
+                          ? 'bg-blue-500 text-white'
+                          : completed
+                            ? 'bg-green-100 text-green-700'
+                            : started
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {completed ? 'Terminé' : started ? 'En cours' : 'Commencer'}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">Cette section n'a pas de champs à remplir pour le moment.</p>
+            
+            <div className="space-y-3 pt-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  // Navigate back to plan overview
+                  localStorage.setItem('businessPlanWizardData', JSON.stringify(wizardData));
+                  navigate('/business-plan');
+                }}
+                className="w-full px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 text-sm font-medium"
+              >
+                Aperçu du plan
+              </button>
+              
+              <button
+                onClick={onFinish}
+                className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm font-medium"
+              >
+                Voir le plan
+              </button>
             </div>
-          )}
-
-          <div className="flex justify-between mt-8">
-            <button
-              onClick={onPrev}
-              disabled={currentSectionIndex === 0 && currentSubsection === 0}
-              className="flex items-center px-4 py-2 text-gray-600 disabled:opacity-50"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Précédent
-            </button>
-
-            <div className="text-center">
-              <p className="text-sm text-gray-500">
-                {currentSubsection + 1} sur {section.subsections.length} sous-sections
-              </p>
-            </div>
-
-            <button
-              onClick={isLastSection && isLastSubsection ? onFinish : onNext}
-              className="flex items-center px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            >
-              {isLastSection && isLastSubsection ? 'Terminer' : 'Suivant'}
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </button>
           </div>
         </div>
       </div>
