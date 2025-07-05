@@ -27,6 +27,15 @@ const BusinessPlanWizard: React.FC = () => {
   const initialQuestions = businessPlanData.initialQuestions;
   const businessPlan = businessPlanData.businessPlanStructure;
 
+  // Debug logging
+  console.log('BusinessPlanWizard rendered with:', {
+    initialQuestionsLength: initialQuestions?.length,
+    businessPlanData: businessPlanData,
+    isInitialSetup,
+    currentStep,
+    showWelcome
+  });
+
   const updateWizardData = (key: string, value: any) => {
     setWizardData(prev => ({
       ...prev,
@@ -144,7 +153,41 @@ const InitialSetupWizard: React.FC<{
   onNext: () => void;
   onPrev: () => void;
 }> = ({ questions, currentStep, wizardData, onUpdateData, onNext, onPrev }) => {
+  // Debug logging
+  console.log('InitialSetupWizard rendered with:', {
+    questionsLength: questions?.length,
+    currentStep,
+    questionsData: questions
+  });
+
+  if (!questions || questions.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Chargement des questions...</h2>
+            <p className="text-gray-600">Veuillez patienter pendant que nous chargeons vos questions.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const question = questions[currentStep];
+
+  if (!question) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Erreur</h2>
+            <p className="text-gray-600">Question non trouvée pour l'étape {currentStep + 1}</p>
+            <p className="text-gray-500 text-sm mt-2">Questions disponibles: {questions.length}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

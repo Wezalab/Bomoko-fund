@@ -2,8 +2,8 @@
   "initialQuestions": [
     {
       "id": 1,
-      "question": "Comment prévoyez-vous d'utiliser Modeliks ?",
-      "description": "Comment prévoyez-vous d'utiliser Modeliks ?",
+      "question": "Comment prévoyez-vous d'utiliser Bomoko Fund ?",
+      "description": "Comment prévoyez-vous d'utiliser Bomoko Fund ?",
       "type": "single-choice",
       "options": [
         "Ma propre entreprise",
@@ -23,7 +23,7 @@
     {
       "id": 3,
       "question": "Quel est votre secteur d'activité ?",
-      "description": "Nous personnaliserons votre expérience Modeliks en fonction de votre choix.",
+      "description": "Nous personnaliserons votre expérience Bomoko Fund en fonction de votre choix.",
       "type": "single-choice",
       "options": [
         "Commerce électronique",
@@ -42,7 +42,7 @@
     {
       "id": 4,
       "question": "Voulez-vous utiliser un modèle financier prédéfini basé sur votre secteur ?",
-      "description": "Modeliks a fait le gros du travail pour vous, les modèles sectoriels prédéfinis sont là pour vous faciliter la vie !",
+      "description": "Bomoko Fund a fait le gros du travail pour vous, les modèles sectoriels prédéfinis sont là pour vous faciliter la vie !",
       "type": "single-choice",
       "options": [
         "Oui, utiliser le modèle sectoriel",
@@ -53,7 +53,7 @@
     {
       "id": 5,
       "question": "Quel est le premier mois de votre plan ?",
-      "description": "Les prévisions de Modeliks permettent des entrées mensuelles pour la première année. Idéalement, l'année de prévision commence avec votre année comptable. Pas de souci si ce n'est pas le cas, nous pourrons revoir cela plus tard.",
+      "description": "Les prévisions de Bomoko Fund permettent des entrées mensuelles pour la première année. Idéalement, l'année de prévision commence avec votre année comptable. Pas de souci si ce n'est pas le cas, nous pourrons revoir cela plus tard.",
       "type": "month-year",
       "defaultValue": "Mai 2025"
     },
