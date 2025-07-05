@@ -108,15 +108,15 @@ const WelcomeModal: React.FC<{ onContinue: () => void }> = ({ onContinue }) => {
       <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
         <div className="mb-6">
           <div className="w-16 h-16 bg-blue-500 rounded-lg mx-auto mb-4 flex items-center justify-center">
-            <span className="text-white font-bold text-xl">M</span>
+                          <span className="text-white font-bold text-xl">B</span>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Bienvenue chez Modeliks !</h2>
-          <p className="text-gray-600 mb-4">Nous sommes ravis de vous accueillir !</p>
-          <p className="text-gray-600 mb-6">Commencez par explorer les différentes fonctionnalités et modules.</p>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">Bienvenue chez Bomoko Fund !</h2>
+                      <p className="text-gray-600 mb-4">Nous sommes ravis de vous accueillir !</p>
+            <p className="text-gray-600 mb-6">Créez votre plan d'affaires professionnel avec l'aide de notre IA et accédez au financement participatif.</p>
         </div>
         
         <div className="mb-6">
-          <img src="/api/placeholder/400/200" alt="Aperçu Modeliks" className="w-full rounded-lg" />
+                      <img src="/api/placeholder/400/200" alt="Aperçu Bomoko Fund" className="w-full rounded-lg" />
         </div>
         
         <div className="mb-6">
@@ -564,6 +564,32 @@ const QuestionRenderer: React.FC<{
         </select>
       );
     
+    case 'single-choice':
+      return (
+        <div className="space-y-3">
+          {question.options.map((option: string, index: number) => (
+            <label
+              key={index}
+              className={`flex items-center p-4 border rounded-lg cursor-pointer transition-colors ${
+                value === option
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <input
+                type="radio"
+                name={`question-${question.id}`}
+                value={option}
+                checked={value === option}
+                onChange={(e) => onChange(e.target.value)}
+                className="mr-3 text-blue-500"
+              />
+              <span className="text-gray-700">{option}</span>
+            </label>
+          ))}
+        </div>
+      );
+    
     case 'multi-select':
       return (
         <MultiSelectCards
@@ -582,6 +608,62 @@ const QuestionRenderer: React.FC<{
           solutions={value || {}}
           onChange={onChange}
         />
+      );
+    
+    case 'month-year':
+      return (
+        <div className="flex gap-4">
+          <select
+            value={value?.split(' ')[0] || ''}
+            onChange={(e) => {
+              const month = e.target.value;
+              const year = value?.split(' ')[1] || new Date().getFullYear();
+              onChange(`${month} ${year}`);
+            }}
+            className="flex-1 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Mois</option>
+            {[
+              'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+              'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+            ].map((month) => (
+              <option key={month} value={month}>
+                {month}
+              </option>
+            ))}
+          </select>
+          <select
+            value={value?.split(' ')[1] || ''}
+            onChange={(e) => {
+              const month = value?.split(' ')[0] || 'Janvier';
+              const year = e.target.value;
+              onChange(`${month} ${year}`);
+            }}
+            className="flex-1 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Année</option>
+            {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() + i).map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    
+    case 'user-management':
+      return (
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+          <div className="text-gray-400 mb-2">
+            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          </div>
+          <p className="text-gray-500 mb-4">Ajoutez des membres de votre équipe</p>
+          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+            {question.placeholder}
+          </button>
+        </div>
       );
     
     default:

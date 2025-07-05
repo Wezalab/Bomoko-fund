@@ -237,7 +237,8 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
             const generatedContent = await generateBusinessPlanContent(
               section.title, 
               companyInfo.name, 
-              companyInfo.industry
+              companyInfo.industry,
+              wizardData
             );
             
             // Convertir le texte brut en HTML avec un formatage approprié
@@ -276,7 +277,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
     setIsGenerating(true);
     try {
       const sectionName = currentSection.title;
-      const generatedContent = await generateBusinessPlanContent(sectionName, companyName, industry);
+      const generatedContent = await generateBusinessPlanContent(sectionName, companyName, industry, wizardData);
       
       // Convertir le texte brut en HTML avec un formatage approprié
       const htmlContent = generatedContent
