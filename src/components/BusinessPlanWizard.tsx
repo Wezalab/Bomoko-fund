@@ -85,16 +85,13 @@ const BusinessPlanWizard: React.FC = () => {
   }
 
   return (
-    <BusinessPlanBuilder
-      businessPlan={businessPlan}
-      currentSection={currentSection}
-      currentSubsection={currentSubsection}
+    <BusinessPlanOverview
       wizardData={wizardData}
-      onUpdateData={updateWizardData}
-      onNext={handleNextStep}
-      onPrev={handlePrevStep}
-      onSectionChange={setCurrentSection}
-      onSubsectionChange={setCurrentSubsection}
+      onStartPlan={() => console.log('Start plan')}
+      onViewPlan={() => {
+        localStorage.setItem('businessPlanWizardData', JSON.stringify(wizardData));
+        navigate('/business-plan/editor');
+      }}
     />
   );
 };
@@ -198,8 +195,9 @@ const InitialSetupWizard: React.FC<{
               {questions.map((_, index) => (
                 <div
                   key={index}
-                  className={`w-2 h-2 rounded-full ${
-                    index <= currentStep ? 'bg-blue-500' : 'bg-gray-300'
+                  className={`w-3 h-3 rounded-full ${
+                    index === currentStep ? 'bg-blue-500' : 
+                    index < currentStep ? 'bg-green-500' : 'bg-gray-300'
                   }`}
                 />
               ))}
@@ -209,8 +207,311 @@ const InitialSetupWizard: React.FC<{
               onClick={onNext}
               className="flex items-center px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             >
-              Next
+              {currentStep === questions.length - 1 ? 'Complete' : 'Next'}
               <ChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const BusinessPlanOverview: React.FC<{
+  wizardData: WizardData;
+  onStartPlan: () => void;
+  onViewPlan: () => void;
+}> = ({ wizardData, onStartPlan, onViewPlan }) => {
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Create your business plan with AI</h1>
+          <p className="text-gray-600 max-w-4xl mx-auto mb-2">
+            Your business plan is organized into chapters, with each chapter containing several sections. To complete your plan, navigate through each chapter and fill in the corresponding sections. Be sure to finish the "Executive Summary" chapter last. You can also customize the cover page as needed.
+          </p>
+          <p className="text-gray-600 font-medium">
+            Please use English as a primary language for building your business plan.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+              Plan Name: Business Plan (Original) <span className="text-blue-500">{'>'}</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-5 gap-4 mb-8">
+            {/* Business Overview */}
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                  1
+                </div>
+                <h3 className="text-base font-semibold text-gray-900">Business<br/>Overview</h3>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">1.1</span>
+                    <span className="text-gray-700 text-sm">Description</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">1.2</span>
+                    <span className="text-gray-700 text-sm">Our Values</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">1.3</span>
+                    <span className="text-gray-700 text-sm">Ownership</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">1.4</span>
+                    <span className="text-gray-700 text-sm">Products &<br/>Services</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">1.5</span>
+                    <span className="text-gray-700 text-sm">Intellectual<br/>Property</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Market Analysis */}
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                  2
+                </div>
+                <h3 className="text-base font-semibold text-gray-900">Market<br/>Analysis</h3>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">2.1</span>
+                    <span className="text-gray-700 text-sm">Problems<br/>& Solutions</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">2.2</span>
+                    <span className="text-gray-700 text-sm">Target<br/>Market</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">2.3</span>
+                    <span className="text-gray-700 text-sm">Market<br/>Trends</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">2.4</span>
+                    <span className="text-gray-700 text-sm">Target<br/>Customers</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">2.5</span>
+                    <span className="text-gray-700 text-sm">Competition</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Strategy */}
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                  3
+                </div>
+                <h3 className="text-base font-semibold text-gray-900">Strategy</h3>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">3.1</span>
+                    <span className="text-gray-700 text-sm">Marketing</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">3.2</span>
+                    <span className="text-gray-700 text-sm">Pricing</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">3.3</span>
+                    <span className="text-gray-700 text-sm">Sales</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">3.4</span>
+                    <span className="text-gray-700 text-sm">Operations</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">3.5</span>
+                    <span className="text-gray-700 text-sm">Team</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Financials */}
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                  4
+                </div>
+                <h3 className="text-base font-semibold text-gray-900">Financials</h3>
+              </div>
+              
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">4.1</span>
+                    <span className="text-gray-700 text-sm">Financial<br/>Forecast</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Start
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 text-center">
+                <p className="text-sm text-gray-600 mb-3">
+                  See your Forecast and analyze your future financial projections.
+                </p>
+                <div className="inline-flex flex-col items-center p-4 border border-blue-200 rounded-lg">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg mb-2 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                    </svg>
+                  </div>
+                  <p className="text-xs text-blue-500 font-medium">
+                    Financial<br/>Forecast
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Executive Summary */}
+            <div className="bg-blue-50 rounded-lg p-4">
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                  5
+                </div>
+                <h3 className="text-base font-semibold text-gray-900">Executive<br/>Summary</h3>
+              </div>
+              
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="text-blue-500 font-medium text-sm mr-2">5.1</span>
+                    <span className="text-gray-700 text-sm">Executive<br/>Summary</span>
+                  </div>
+                  <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
+                    Generate
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 text-center">
+                <p className="text-sm text-gray-600 mb-3">
+                  See your Forecast and analyze your future financial projections.
+                </p>
+                <div className="inline-flex flex-col items-center p-4 border border-blue-200 rounded-lg">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg mb-2 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                    </svg>
+                  </div>
+                  <p className="text-xs text-blue-500 font-medium">
+                    Generate<br/>Executive<br/>Summary
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={onStartPlan}
+              className="px-8 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
+            >
+              Start your business plan
+            </button>
+            <button
+              onClick={onViewPlan}
+              className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
+              View plan
+            </button>
+          </div>
+
+          <div className="text-center mt-4">
+            <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">
+              Share & Downloads Plan
             </button>
           </div>
         </div>
@@ -225,610 +526,66 @@ const QuestionRenderer: React.FC<{
   onChange: (value: any) => void;
 }> = ({ question, value, onChange }) => {
   switch (question.type) {
-    case 'single-choice':
-      return (
-        <div className="space-y-3">
-          {question.options.map((option: string) => (
-            <button
-              key={option}
-              onClick={() => onChange(option)}
-              className={`w-full p-4 text-left border rounded-lg transition-colors ${
-                value === option
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-      );
-
     case 'text':
       return (
         <input
           type="text"
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
+          className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder={question.placeholder}
-          className="w-full p-4 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
         />
       );
-
-    case 'month-year':
-      return (
-        <input
-          type="month"
-          value={value || '2025-05'}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full p-4 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-        />
-      );
-
-    case 'user-management':
-      return (
-        <div className="space-y-4">
-          <button className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg text-blue-500 hover:border-blue-400 flex items-center justify-center">
-            <Users className="w-5 h-5 mr-2" />
-            Add user +
-          </button>
-        </div>
-      );
-
-    default:
-      return <div>Unsupported question type</div>;
-  }
-};
-
-const BusinessPlanBuilder: React.FC<{
-  businessPlan: any;
-  currentSection: number;
-  currentSubsection: number;
-  wizardData: WizardData;
-  onUpdateData: (key: string, value: any) => void;
-  onNext: () => void;
-  onPrev: () => void;
-  onSectionChange: (section: number) => void;
-  onSubsectionChange: (subsection: number) => void;
-}> = ({
-  businessPlan,
-  currentSection,
-  currentSubsection,
-  wizardData,
-  onUpdateData,
-  onNext,
-  onPrev,
-  onSectionChange,
-  onSubsectionChange
-}) => {
-  const navigate = useNavigate();
-  const [showOverview, setShowOverview] = useState(true);
-
-  // Business plan sections for overview
-  const planSections = [
-    {
-      id: 'business-overview',
-      title: 'Business Overview',
-      number: '1',
-      subsections: [
-        { title: 'Description', id: 'description' },
-        { title: 'Our Values', id: 'values' },
-        { title: 'Ownership', id: 'ownership' },
-        { title: 'Products & Services', id: 'products' },
-        { title: 'Intellectual Property', id: 'ip' }
-      ]
-    },
-    {
-      id: 'market-analysis',
-      title: 'Market Analysis',
-      number: '2',
-      subsections: [
-        { title: 'Problems & Solutions', id: 'problems' },
-        { title: 'Target Market', id: 'target-market' },
-        { title: 'Market Trends', id: 'trends' },
-        { title: 'Target Customers', id: 'customers' },
-        { title: 'Competition', id: 'competition' }
-      ]
-    },
-    {
-      id: 'strategy',
-      title: 'Strategy',
-      number: '3',
-      subsections: [
-        { title: 'Marketing', id: 'marketing' },
-        { title: 'Pricing', id: 'pricing' },
-        { title: 'Sales', id: 'sales' },
-        { title: 'Operations', id: 'operations' },
-        { title: 'Team', id: 'team' }
-      ]
-    },
-    {
-      id: 'financials',
-      title: 'Financials',
-      number: '4',
-      subsections: [
-        { title: 'Financial Forecast', id: 'forecast' }
-      ]
-    },
-    {
-      id: 'executive-summary',
-      title: 'Executive Summary',
-      number: '5',
-      subsections: [
-        { title: 'Generate Executive Summary', id: 'summary' }
-      ]
-    }
-  ];
-
-  const handleViewPlan = () => {
-    // Store wizard data in localStorage to pass to editor
-    localStorage.setItem('businessPlanWizardData', JSON.stringify(wizardData));
-    navigate('/business-plan/editor');
-  };
-
-  if (showOverview) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Create your business plan with AI</h1>
-            <p className="text-gray-600 max-w-4xl mx-auto mb-2">
-              Your business plan is organized into chapters, with each chapter containing several sections. To complete your plan, navigate through each chapter and fill in the corresponding sections. Be sure to finish the "Executive Summary" chapter last. You can also customize the cover page as needed.
-            </p>
-            <p className="text-gray-600 font-medium">
-              Please use English as a primary language for building your business plan.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                Plan Name: Business Plan (Original) <span className="text-blue-500">{'>'}</span>
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-              {planSections.map((section, index) => (
-                <div key={section.id} className="bg-blue-50 rounded-lg p-6">
-                  <div className="flex items-center mb-4">
-                    <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl mr-3">
-                      {section.number}
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {section.subsections.map((subsection, subIndex) => (
-                      <div key={subsection.id} className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <span className="text-blue-500 font-medium text-sm mr-2">
-                            {section.number}.{subIndex + 1}
-                          </span>
-                          <span className="text-gray-700 text-sm">{subsection.title}</span>
-                        </div>
-                        <button 
-                          onClick={() => setShowOverview(false)}
-                          className="px-3 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors"
-                        >
-                          Start
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  {(section.id === 'financials' || section.id === 'executive-summary') && (
-                    <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200">
-                      <p className="text-sm text-gray-600 mb-3">
-                        See your Forecast and analyze your future financial projections.
-                      </p>
-                      <div className="flex justify-center">
-                        <div className="p-4 border border-blue-200 rounded-lg">
-                          <div className="w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                            <span className="text-blue-500 text-lg">📊</span>
-                          </div>
-                          <p className="text-xs text-blue-500 font-medium text-center">
-                            {section.id === 'financials' ? 'Financial\nForecast' : 'Generate\nExecutive\nSummary'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-center gap-4">
-              <button
-                onClick={() => setShowOverview(false)}
-                className="px-8 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
-              >
-                Start your business plan
-              </button>
-              <button
-                onClick={handleViewPlan}
-                className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-              >
-                View plan
-              </button>
-            </div>
-
-            <div className="text-center mt-4">
-              <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">
-                Share & Downloads Plan
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show the detailed section editing when not in overview
-  const section = businessPlan.sections[currentSection];
-  const subsection = section.subsections[currentSubsection];
-
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Create your business plan with AI</h1>
-          <div className="flex space-x-4">
-            <button 
-              onClick={() => setShowOverview(true)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-            >
-              Back to Overview
-            </button>
-            <button 
-              onClick={handleViewPlan}
-              className="px-4 py-2 border border-gray-300 rounded-lg"
-            >
-              View Plan
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <div className="p-6 border-b bg-blue-50">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              {section.title}
-            </h2>
-            <p className="text-gray-600">
-              {section.description}
-            </p>
-          </div>
-
-          <div className="flex">
-            <div className="w-1/3 bg-gray-50 p-6">
-              <div className="space-y-2">
-                {section.subsections.map((sub: any, index: number) => (
-                  <button
-                    key={sub.id}
-                    onClick={() => onSubsectionChange(index)}
-                    className={`w-full text-left p-3 rounded-lg flex items-center justify-between ${
-                      index === currentSubsection
-                        ? 'bg-blue-500 text-white'
-                        : 'hover:bg-gray-100'
-                    }`}
-                  >
-                    <span>{sub.id} {sub.title}</span>
-                    {index === currentSubsection && (
-                      <span className="bg-white text-blue-500 px-2 py-1 rounded text-sm">
-                        Start
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="w-2/3 p-6">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {subsection.id} {subsection.title}
-                </h2>
-                <p className="text-gray-600">{subsection.description}</p>
-              </div>
-
-              <SubsectionRenderer
-                subsection={subsection}
-                data={wizardData}
-                onUpdate={onUpdateData}
-              />
-
-              <div className="flex justify-between mt-8">
-                <button
-                  onClick={onPrev}
-                  className="flex items-center px-4 py-2 text-gray-600"
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Previous Section
-                </button>
-
-                <button
-                  onClick={onNext}
-                  className="flex items-center px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                >
-                  Next Section
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const SubsectionRenderer: React.FC<{
-  subsection: any;
-  data: WizardData;
-  onUpdate: (key: string, value: any) => void;
-}> = ({ subsection, data, onUpdate }) => {
-  if (!subsection.fields) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-gray-500">This section is under construction.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {subsection.fields.map((field: any, index: number) => (
-        <FieldRenderer
-          key={index}
-          field={field}
-          value={data[`${subsection.id}_field_${index}`]}
-          onChange={(value) => onUpdate(`${subsection.id}_field_${index}`, value)}
-        />
-      ))}
-    </div>
-  );
-};
-
-const FieldRenderer: React.FC<{
-  field: any;
-  value: any;
-  onChange: (value: any) => void;
-}> = ({ field, value, onChange }) => {
-  switch (field.type) {
-    case 'text':
-      return (
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
-          <p className="text-gray-600 text-sm mb-3">{field.description}</p>
-          <input
-            type="text"
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={field.placeholder}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-          />
-        </div>
-      );
-
+    
     case 'textarea':
       return (
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
-          <p className="text-gray-600 text-sm mb-3">{field.description}</p>
-          <textarea
-            value={value || ''}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder={field.placeholder}
-            rows={4}
-            className="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-          />
-        </div>
+        <textarea
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder={question.placeholder}
+          rows={4}
+        />
       );
-
-    case 'single-select':
+    
+    case 'select':
       return (
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
-          <p className="text-gray-600 text-sm mb-4">{field.description}</p>
-          <div className="space-y-3">
-            {field.options.map((option: string) => (
-              <button
-                key={option}
-                onClick={() => onChange(option)}
-                className={`w-full p-4 text-left border rounded-lg transition-colors ${
-                  value === option
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        </div>
+        <select
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Select an option</option>
+          {question.options.map((option: any) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       );
-
+    
     case 'multi-select':
       return (
         <MultiSelectCards
-          options={field.options}
+          options={question.options}
           value={value || []}
           onChange={onChange}
-          maxSelection={field.maxSelection}
-          title={field.label}
-          description={field.description}
+          title={question.label || ''}
+          description={question.description || ''}
         />
       );
-
-    case 'multi-text':
-      return (
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
-          <p className="text-gray-600 text-sm mb-4">{field.description}</p>
-          <div className="space-y-3">
-            {field.options?.map((option: string, index: number) => (
-              <div key={index} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
-                <input
-                  type="text"
-                  value={option}
-                  readOnly
-                  className="w-full bg-transparent border-none focus:outline-none"
-                />
-              </div>
-            ))}
-          </div>
-          <button className="mt-3 flex items-center text-blue-500 hover:text-blue-600">
-            <Plus className="w-4 h-4 mr-1" />
-            Add More
-          </button>
-        </div>
-      );
-
-    case 'location':
-      return (
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
-          <p className="text-gray-600 text-sm mb-3">{field.description}</p>
-          <div className="grid grid-cols-3 gap-4">
-            {field.fields.map((fieldName: string) => (
-              <input
-                key={fieldName}
-                type="text"
-                placeholder={fieldName}
-                value={value?.[fieldName] || ''}
-                onChange={(e) => onChange({
-                  ...value,
-                  [fieldName]: e.target.value
-                })}
-                className="p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-              />
-            ))}
-          </div>
-        </div>
-      );
-
-    case 'date':
-      return (
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
-          <p className="text-gray-600 text-sm mb-3">{field.description}</p>
-          <div className="grid grid-cols-2 gap-4">
-            {field.fields.map((fieldName: string) => (
-              <input
-                key={fieldName}
-                type={fieldName.toLowerCase() === 'month' ? 'text' : 'number'}
-                placeholder={fieldName === 'Month' ? 'Month in text format, e.g. January' : 'Year in number format, e.g. 2024'}
-                value={value?.[fieldName] || ''}
-                onChange={(e) => onChange({
-                  ...value,
-                  [fieldName]: e.target.value
-                })}
-                className="p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-              />
-            ))}
-          </div>
-        </div>
-      );
-
-    case 'ownership-table':
-      return (
-        <OwnershipTable
-          owners={value || []}
-          onChange={onChange}
-        />
-      );
-
-    case 'ip-management':
-      return (
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-2">{field.label}</h3>
-          <p className="text-gray-600 text-sm mb-4">{field.description}</p>
-          
-          <div className="mb-4">
-            <h4 className="font-medium mb-3">Intellectual Property 1</h4>
-            <div className="grid grid-cols-5 gap-3 mb-4">
-              {field.types.map((type: string) => (
-                <button
-                  key={type}
-                  onClick={() => onChange({
-                    ...value,
-                    selectedType: type
-                  })}
-                  className={`p-3 text-center border rounded-lg transition-colors ${
-                    value?.selectedType === type
-                      ? 'border-blue-500 bg-blue-500 text-white'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                How will you name this intellectual property in your business plan?
-              </label>
-              <input
-                type="text"
-                placeholder="IP Name"
-                value={value?.name || ''}
-                onChange={(e) => onChange({
-                  ...value,
-                  name: e.target.value
-                })}
-                className="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-              <textarea
-                placeholder="IP Description"
-                value={value?.description || ''}
-                onChange={(e) => onChange({
-                  ...value,
-                  description: e.target.value
-                })}
-                rows={3}
-                className="w-full p-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
-              />
-            </div>
-          </div>
-        </div>
-      );
-
-    case 'problem-solution-mapping':
+    
+    case 'problem-solution':
       return (
         <ProblemSolutionMapping
-          problems={field.problems || []}
+          problems={question.problems}
           solutions={value || {}}
           onChange={onChange}
         />
       );
-
-    case 'competitor-matrix':
-      return (
-        <CompetitorMatrix
-          competitors={field.competitors || []}
-          factors={field.factors || []}
-          ratings={value || {}}
-          onChange={onChange}
-        />
-      );
-
-    case 'location-table':
-      return (
-        <LocationTable
-          locations={value || []}
-          onChange={onChange}
-        />
-      );
-
+    
     default:
-      return <div>Unsupported field type: {field.type}</div>;
+      return <div>Unsupported question type: {question.type}</div>;
   }
 };
 
