@@ -4,6 +4,7 @@ import ProjectLayout from "./ProjectLayout";
 import WorkLayout from "./WorkLayout";
 import ContactLayout from "./ContactLayout";
 import BusinessPlanLayout from "./BusinessPlanLayout";
+import BusinessPlanEditorLayout from "./BusinessPlanEditorLayout";
 
 
 
@@ -13,5 +14,6 @@ export {
     ProjectLayout,
     WorkLayout,
     ContactLayout,
-    BusinessPlanLayout
+    BusinessPlanLayout,
+    BusinessPlanEditorLayout
 }
