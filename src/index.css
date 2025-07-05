@@ -3,6 +3,97 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Business Plan Editor Styles */
+.business-plan-editor {
+  @apply min-h-screen bg-gray-50;
+}
+
+.business-plan-editor .prose {
+  @apply max-w-none;
+}
+
+.business-plan-editor .prose h1 {
+  @apply text-3xl font-bold text-gray-900 mb-6;
+}
+
+.business-plan-editor .prose h2 {
+  @apply text-2xl font-semibold text-gray-800 mb-4 mt-8;
+}
+
+.business-plan-editor .prose h3 {
+  @apply text-xl font-semibold text-gray-700 mb-3 mt-6;
+}
+
+.business-plan-editor .prose p {
+  @apply text-gray-600 leading-relaxed mb-4;
+}
+
+.business-plan-editor .prose ul, .business-plan-editor .prose ol {
+  @apply mb-4;
+}
+
+.business-plan-editor .prose li {
+  @apply mb-2;
+}
+
+.business-plan-editor .prose blockquote {
+  @apply border-l-4 border-blue-500 pl-6 italic text-gray-700 my-6;
+}
+
+.business-plan-editor .prose strong {
+  @apply font-semibold text-gray-900;
+}
+
+.business-plan-editor .prose em {
+  @apply italic;
+}
+
+/* TipTap Editor Styles */
+.ProseMirror {
+  @apply outline-none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  @apply text-gray-400 float-left h-0 pointer-events-none;
+  content: attr(data-placeholder);
+}
+
+.ProseMirror-focused {
+  @apply outline-none;
+}
+
+/* Custom scrollbar for editor */
+.business-plan-editor .max-h-\[600px\]::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.business-plan-editor .max-h-\[600px\]::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-lg;
+}
+
+.business-plan-editor .max-h-\[600px\]::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-lg;
+}
+
+.business-plan-editor .max-h-\[600px\]::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* Sidebar active state */
+.business-plan-sidebar .border-l-4 {
+  @apply border-blue-600;
+}
+
+/* Progress bar animation */
+.progress-bar {
+  @apply transition-all duration-500 ease-out;
+}
+
+/* AI Generate button gradient */
+.ai-generate-btn {
+  @apply bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all duration-300;
+}
+
 
 body{
   margin: 0;
