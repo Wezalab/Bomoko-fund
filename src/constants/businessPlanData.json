@@ -1,0 +1,437 @@
+{
+  "initialQuestions": [
+    {
+      "id": 1,
+      "question": "How are you planning to use Modeliks?",
+      "description": "How are you planning to use Modeliks?",
+      "type": "single-choice",
+      "options": [
+        "Own Company",
+        "Client Work",
+        "Academic Research",
+        "Personal Learning"
+      ],
+      "defaultValue": "Own Company"
+    },
+    {
+      "id": 2,
+      "question": "What is your company name?",
+      "description": "Don't worry if you have not decided yet on your company name - you can change it later.",
+      "type": "text",
+      "placeholder": "My Company"
+    },
+    {
+      "id": 3,
+      "question": "What is your industry?",
+      "description": "We'll customize your Modeliks experience based on your choice.",
+      "type": "single-choice",
+      "options": [
+        "E-Commerce",
+        "Technology",
+        "Healthcare",
+        "Education",
+        "Manufacturing",
+        "Retail",
+        "Restaurant",
+        "Consulting",
+        "Real Estate",
+        "Financial Services"
+      ],
+      "defaultValue": "E-Commerce"
+    },
+    {
+      "id": 4,
+      "question": "Want to use a pre-defined financial model based on your industry?",
+      "description": "Modeliks did the heavy lifting for you, pre-defined industry models are here to make your life event easier!",
+      "type": "single-choice",
+      "options": [
+        "Yes, use industry template",
+        "No, I build my own model"
+      ],
+      "defaultValue": "No, I build my own model"
+    },
+    {
+      "id": 5,
+      "question": "What's the first month in your plan?",
+      "description": "Modeliks' forecast allow for monthly inputs in the first year. Ideally the forecast year starts with your accounting year. No worries if not, we can work through this later too.",
+      "type": "month-year",
+      "defaultValue": "May 2025"
+    },
+    {
+      "id": 6,
+      "question": "For how many years are you planning?",
+      "description": "Typical planning periods are 3 or 5 years. You can re adjust this later if you change your mind.",
+      "type": "single-choice",
+      "options": ["1 year", "2 years", "3 years", "4 years", "5 years"],
+      "defaultValue": "3 years"
+    },
+    {
+      "id": 7,
+      "question": "For how many years do you intend to plan on a monthly basis?",
+      "description": "Typically company plan 1 to 2 years on monthly basis and the rest of the years on annual basis.",
+      "type": "single-choice",
+      "options": ["1st year", "1st and 2nd year", "All years"],
+      "defaultValue": "1st year"
+    },
+    {
+      "id": 8,
+      "question": "Which currency do you want to use?",
+      "description": "If you are not sure what currency to use, don't worry, you can change it later!",
+      "type": "single-choice",
+      "options": [
+        "United States Dollar",
+        "Euro",
+        "British Pound",
+        "Canadian Dollar",
+        "Australian Dollar",
+        "Japanese Yen",
+        "Swiss Franc",
+        "Chinese Yuan"
+      ],
+      "defaultValue": "United States Dollar"
+    },
+    {
+      "id": 9,
+      "question": "Want to collaborate? Add users!",
+      "description": "Collaboration is at the center of all we do! Want to add your colleagues and users directly? Else you can always add and adjust your team in user settings later.",
+      "type": "user-management",
+      "placeholder": "Add user +"
+    }
+  ],
+  "businessPlanStructure": {
+    "sections": [
+      {
+        "id": 1,
+        "title": "Business Overview",
+        "subsections": [
+          {
+            "id": "1.1",
+            "title": "Description",
+            "fields": [
+              {
+                "label": "What is the business called?",
+                "description": "If you don't have a name yet, give it a temporary name and change it later.",
+                "type": "text",
+                "placeholder": "Company name"
+              },
+              {
+                "label": "What does the business do?",
+                "description": "Keep this short like digital marketing agency, food truck, financial advisory, etc.",
+                "type": "text",
+                "placeholder": "Industry name"
+              },
+              {
+                "label": "Where is the business located?",
+                "description": "If in multiple locations, provide the city, state, and country of the head office.",
+                "type": "location",
+                "fields": ["City", "State", "Country"]
+              },
+              {
+                "label": "When was the business established?",
+                "description": "If not established yet, tell us when you plan to establish it.",
+                "type": "date",
+                "fields": ["Month", "Year"]
+              }
+            ]
+          },
+          {
+            "id": "1.2",
+            "title": "Our Values",
+            "fields": [
+              {
+                "label": "What are your business values?",
+                "description": "Business values are the fundamental beliefs and guiding principles that shape a company's culture, decision-making, and overall behavior.",
+                "type": "multi-select",
+                "maxSelection": 10,
+                "options": [
+                  "Integrity", "Innovation", "Customer centric", "Quality", "Transparency",
+                  "Accountability", "Teamwork", "Sustainability", "Diversity and Inclusion", "Reliability",
+                  "Continuous improvement", "Trust", "Efficiency", "Social responsibility", "Respect",
+                  "Passion", "Value for money", "Result oriented", "Detail oriented", "Nothing is impossible"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "1.3",
+            "title": "Ownership",
+            "fields": [
+              {
+                "label": "How is the business structured legally?",
+                "description": "Select one of the following common business structures or add your own.",
+                "type": "single-select",
+                "options": [
+                  "Sole Proprietorship",
+                  "Limited Liability Company (LLC)",
+                  "Partnership",
+                  "Corporation",
+                  "Non Profit",
+                  "SARLU"
+                ]
+              },
+              {
+                "label": "Who are the business owners?",
+                "description": "List the names of the owners and their percent ownership in the company.",
+                "type": "ownership-table",
+                "fields": [
+                  { "name": "Shareholder name", "type": "text" },
+                  { "name": "Percent ownership", "type": "number" }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "1.4",
+            "title": "Products & Services",
+            "fields": [
+              {
+                "label": "What products will your business sell?",
+                "description": "Define the products that you plan to sell. Services that you sell will be defined later. Skip if you don't offer products",
+                "type": "multi-text",
+                "options": ["Appetizers", "Salads", "Soups"]
+              },
+              {
+                "label": "What services will your business provide?",
+                "description": "Now define the services your business will offer. Skip if you don't offer services",
+                "type": "multi-text",
+                "options": ["Dine-in service", "Takeout and delivery options", "Catering for events", "Private dining experiences"]
+              }
+            ]
+          },
+          {
+            "id": "1.5",
+            "title": "Intellectual Property",
+            "fields": [
+              {
+                "label": "What intellectual property does the business own or have access to?",
+                "description": "Intellectual property such as patents, copyrights, trademarks, franchise, trade secrets, digital assets. If this does not apply to your business you can skip this section.",
+                "type": "ip-management",
+                "types": ["Patent", "Trademark", "Copyright", "Trade Secret", "Franchise"],
+                "fields": [
+                  { "name": "IP Name", "type": "text" },
+                  { "name": "Description", "type": "textarea" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Market Analysis",
+        "subsections": [
+          {
+            "id": "2.1",
+            "title": "Problems & Solutions",
+            "fields": [
+              {
+                "label": "What problems do your potential customers typically face?",
+                "description": "Identify the problems or challenges your potential customers often face. Next, you will describe how your business solves these problems.",
+                "type": "multi-select",
+                "maxSelection": 5,
+                "options": [
+                  "Long wait times for seating or food",
+                  "Inconsistent food quality and presentation",
+                  "Poor customer service and attentiveness",
+                  "Limited menu options or dietary restrictions",
+                  "Unpleasant restaurant ambiance or cleanliness",
+                  "Overpriced menu items"
+                ]
+              },
+              {
+                "label": "How does your business solve these problems?",
+                "description": "Explain how your business solves each problem and the benefits that customers get when using your product or service.",
+                "type": "problem-solution-mapping"
+              }
+            ]
+          },
+          {
+            "id": "2.2",
+            "title": "Target Market",
+            "fields": [
+              {
+                "label": "What is your geographical target market?",
+                "description": "Define where you sell your products and services.",
+                "type": "single-select",
+                "options": ["City", "State", "Country", "International", "World-wide"]
+              }
+            ]
+          },
+          {
+            "id": "2.3",
+            "title": "Market Trends",
+            "fields": [
+              {
+                "label": "What are the current market trends?",
+                "description": "Identify key trends affecting your industry and market.",
+                "type": "multi-text",
+                "options": [
+                  "Focus on health-conscious menu options",
+                  "Popularity of farm-to-table dining experiences",
+                  "Investment in technology for online ordering systems",
+                  "Emergence of community-oriented dining experiences",
+                  "Increased interest in sustainable and eco-friendly practices",
+                  "Collaboration with local farms and artisans"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "2.4",
+            "title": "Target Customers",
+            "fields": [
+              {
+                "label": "Who are your target customers?",
+                "description": "Define the buyer personas for your business.",
+                "type": "multi-select",
+                "maxSelection": 5,
+                "options": [
+                  "Families seeking affordable dining options for occasions and gatherings",
+                  "Local farmers and workers looking for hearty, traditional meals after a long day",
+                  "Tourists exploring the area and searching for unique, regional cuisine experiences",
+                  "Elderly residents who value home-cooked meals and community atmosphere",
+                  "Young couples looking for romantic date nights or special celebrations",
+                  "Health-conscious individuals seeking fresh, locally-sourced menu items",
+                  "Students searching for budget-friendly meals and casual dining environments"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "2.5",
+            "title": "Competition",
+            "fields": [
+              {
+                "label": "What are your Critical Success Factors?",
+                "description": "Define the critical success factors for your business.",
+                "type": "multi-select",
+                "maxSelection": 10,
+                "options": [
+                  "Food quality and taste",
+                  "Customer service",
+                  "Hygiene and cleanliness",
+                  "Price and value for money",
+                  "Menu variety",
+                  "Ambiance and atmosphere",
+                  "Marketing and promotions"
+                ]
+              },
+              {
+                "label": "Competitor Analysis",
+                "description": "Compare yourself and each competitor along the critical success factors. Green means best in class. Yellow means average performance. Red means poor performance or not available at all.",
+                "type": "competitor-matrix",
+                "competitors": ["REST", "Country Kitchen", "Farmhouse Grill", "KIVU Eat"],
+                "factors": ["Food quality and taste", "Customer service", "Menu variety", "Marketing and promotions"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Strategy",
+        "subsections": [
+          {
+            "id": "3.1",
+            "title": "Marketing",
+            "fields": [
+              {
+                "label": "What are the steps that your customers go through?",
+                "description": "Define all relevant steps that your customers go through when buying your products and services.",
+                "type": "multi-select",
+                "maxSelection": 10,
+                "options": [
+                  "Awareness",
+                  "Consideration",
+                  "Reservation",
+                  "Dining Experience",
+                  "Post-Dining Follow-Up",
+                  "Feedback and Reviews"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "3.2",
+            "title": "Pricing",
+            "fields": []
+          },
+          {
+            "id": "3.3",
+            "title": "Sales",
+            "fields": []
+          },
+          {
+            "id": "3.4",
+            "title": "Operations",
+            "fields": [
+              {
+                "label": "List your company's physical locations.",
+                "description": "This might be your office, store locations, manufacturing plants, storage facilities, etc.",
+                "type": "location-table",
+                "fields": [
+                  { "name": "Name", "type": "text", "placeholder": "Office" },
+                  { "name": "Description", "type": "text", "placeholder": "Type here" },
+                  { "name": "Size", "type": "text", "placeholder": "Type here" },
+                  { "name": "Location", "type": "text", "placeholder": "Type here" },
+                  { "name": "Status", "type": "select", "options": ["Existing", "Planned"] }
+                ]
+              },
+              {
+                "label": "What equipment do you need for your business?",
+                "description": "List any specialty equipment that you need to operate your business.",
+                "type": "multi-select",
+                "maxSelection": 10,
+                "options": [
+                  "Commercial oven",
+                  "Range hood",
+                  "Dishwasher",
+                  "Deep fryer",
+                  "Salamander broiler",
+                  "Griddle"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "3.5",
+            "title": "Team",
+            "fields": []
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Financials",
+        "subsections": [
+          {
+            "id": "4.1",
+            "title": "Financial Plan",
+            "description": "See your Forecast and analyze your future financial projections."
+          },
+          {
+            "id": "4.2",
+            "title": "Profit & Loss",
+            "description": "Detailed profit and loss statements."
+          },
+          {
+            "id": "4.3",
+            "title": "Balance Sheet",
+            "description": "Balance sheet projections."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Executive Summary",
+        "subsections": [
+          {
+            "id": "5.1",
+            "title": "Executive Summary",
+            "description": "See your Forecast and analyze your future financial projections."
+          }
+        ]
+      }
+    ]
+  }
+} 
