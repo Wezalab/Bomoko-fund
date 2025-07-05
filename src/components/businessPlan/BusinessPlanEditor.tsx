@@ -21,7 +21,12 @@ import {
   Globe,
   Briefcase,
   CheckCircle,
-  Wand2
+  Wand2,
+  PieChart,
+  Calculator,
+  CreditCard,
+  Calendar,
+  LineChart
 } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
 import AIEnhancementDialog from './AIEnhancementDialog';
@@ -68,13 +73,6 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
       isCompleted: true
     },
     {
-      id: 'executive-summary',
-      title: 'Résumé exécutif',
-      icon: <BookOpen className="w-5 h-5" />,
-      content: '',
-      isCompleted: false
-    },
-    {
       id: 'business-overview',
       title: 'Aperçu de l\'entreprise',
       icon: <Briefcase className="w-5 h-5" />,
@@ -96,15 +94,15 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
       isCompleted: false
     },
     {
-      id: 'products-services',
-      title: 'Produits et services',
-      icon: <Globe className="w-5 h-5" />,
+      id: 'competition',
+      title: 'Concurrence',
+      icon: <BarChart3 className="w-5 h-5" />,
       content: '',
       isCompleted: false
     },
     {
       id: 'marketing',
-      title: 'Stratégie marketing',
+      title: 'Marketing',
       icon: <Zap className="w-5 h-5" />,
       content: '',
       isCompleted: false
@@ -131,9 +129,51 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
       isCompleted: false
     },
     {
-      id: 'competition',
-      title: 'Concurrence',
-      icon: <BarChart3 className="w-5 h-5" />,
+      id: 'profit-loss',
+      title: 'Compte de résultat',
+      icon: <PieChart className="w-5 h-5" />,
+      content: '',
+      isCompleted: false
+    },
+    {
+      id: 'balance-sheet',
+      title: 'Bilan',
+      icon: <Calculator className="w-5 h-5" />,
+      content: '',
+      isCompleted: false
+    },
+    {
+      id: 'cash-flow',
+      title: 'État des flux de trésorerie',
+      icon: <CreditCard className="w-5 h-5" />,
+      content: '',
+      isCompleted: false
+    },
+    {
+      id: 'profit-loss-monthly',
+      title: 'Compte de résultat (mensuel)',
+      icon: <LineChart className="w-5 h-5" />,
+      content: '',
+      isCompleted: false
+    },
+    {
+      id: 'balance-sheet-monthly',
+      title: 'Bilan (mensuel)',
+      icon: <Calendar className="w-5 h-5" />,
+      content: '',
+      isCompleted: false
+    },
+    {
+      id: 'cash-flow-monthly',
+      title: 'Flux de trésorerie (mensuel)',
+      icon: <Globe className="w-5 h-5" />,
+      content: '',
+      isCompleted: false
+    },
+    {
+      id: 'executive-summary',
+      title: 'Résumé exécutif',
+      icon: <BookOpen className="w-5 h-5" />,
       content: '',
       isCompleted: false
     }
@@ -172,16 +212,21 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
     
     try {
       const sectionsToGenerate = [
-        'executive-summary',
-        'business-overview', 
+        'business-overview',
         'opportunity',
         'market-analysis',
-        'products-services',
+        'competition',
         'marketing',
         'operations',
         'team',
         'financial-plan',
-        'competition'
+        'profit-loss',
+        'balance-sheet',
+        'cash-flow',
+        'profit-loss-monthly',
+        'balance-sheet-monthly',
+        'cash-flow-monthly',
+        'executive-summary'
       ];
 
       // Générer le contenu pour chaque section
@@ -350,7 +395,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
                 </div>
               </div>
               
-              <nav className="p-4">
+              <nav className="p-4 max-h-[calc(100vh-300px)] overflow-y-auto">
                 <ul className="space-y-2">
                   {sections.map((section) => (
                     <li key={section.id}>

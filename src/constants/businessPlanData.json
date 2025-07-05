@@ -218,10 +218,21 @@
       },
       {
         "id": 2,
-        "title": "Analyse du marché",
+        "title": "Opportunité",
         "subsections": [
           {
             "id": "2.1",
+            "title": "Opportunité de marché",
+            "description": "Décrivez l'opportunité de marché que votre entreprise vise à exploiter."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Analyse du marché",
+        "subsections": [
+          {
+            "id": "3.1",
             "title": "Problèmes et solutions",
             "fields": [
               {
@@ -250,7 +261,7 @@
             ]
           },
           {
-            "id": "2.2",
+            "id": "3.2",
             "title": "Marché cible",
             "fields": [
               {
@@ -262,7 +273,7 @@
             ]
           },
           {
-            "id": "2.3",
+            "id": "3.3",
             "title": "Tendances du marché",
             "fields": [
               {
@@ -281,7 +292,7 @@
             ]
           },
           {
-            "id": "2.4",
+            "id": "3.4",
             "title": "Clients cibles",
             "fields": [
               {
@@ -300,10 +311,16 @@
                 ]
               }
             ]
-          },
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Concurrence",
+        "subsections": [
           {
-            "id": "2.5",
-            "title": "Concurrence",
+            "id": "4.1",
+            "title": "Analyse de la concurrence",
             "fields": [
               {
                 "label": "Quels sont vos facteurs critiques de succès ?",
@@ -332,12 +349,12 @@
         ]
       },
       {
-        "id": 3,
-        "title": "Stratégie",
+        "id": 5,
+        "title": "Marketing",
         "subsections": [
           {
-            "id": "3.1",
-            "title": "Marketing",
+            "id": "5.1",
+            "title": "Stratégie marketing",
             "fields": [
               {
                 "label": "Quelles sont les étapes que vos clients traversent ?",
@@ -354,20 +371,16 @@
                 ]
               }
             ]
-          },
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Opérations",
+        "subsections": [
           {
-            "id": "3.2",
-            "title": "Tarification",
-            "fields": []
-          },
-          {
-            "id": "3.3",
-            "title": "Ventes",
-            "fields": []
-          },
-          {
-            "id": "3.4",
-            "title": "Opérations",
+            "id": "6.1",
+            "title": "Plan opérationnel",
             "fields": [
               {
                 "label": "Listez les emplacements physiques de votre entreprise.",
@@ -396,41 +409,103 @@
                 ]
               }
             ]
-          },
-          {
-            "id": "3.5",
-            "title": "Équipe",
-            "fields": []
           }
         ]
       },
       {
-        "id": 4,
-        "title": "Financier",
+        "id": 7,
+        "title": "Équipe",
         "subsections": [
           {
-            "id": "4.1",
-            "title": "Plan financier",
-            "description": "Consultez vos prévisions et analysez vos projections financières futures."
-          },
-          {
-            "id": "4.2",
-            "title": "Compte de résultat",
-            "description": "États détaillés des profits et pertes."
-          },
-          {
-            "id": "4.3",
-            "title": "Bilan",
-            "description": "Projections du bilan."
+            "id": "7.1",
+            "title": "Structure de l'équipe",
+            "description": "Décrivez la structure de votre équipe et les rôles clés."
           }
         ]
       },
       {
-        "id": 5,
+        "id": 8,
+        "title": "Plan financier",
+        "subsections": [
+          {
+            "id": "8.1",
+            "title": "Prévisions financières",
+            "description": "Consultez vos prévisions et analysez vos projections financières futures."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Compte de résultat",
+        "subsections": [
+          {
+            "id": "9.1",
+            "title": "Profit et pertes",
+            "description": "États détaillés des profits et pertes annuels."
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Bilan",
+        "subsections": [
+          {
+            "id": "10.1",
+            "title": "Bilan comptable",
+            "description": "Projections du bilan comptable."
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "État des flux de trésorerie",
+        "subsections": [
+          {
+            "id": "11.1",
+            "title": "Flux de trésorerie",
+            "description": "Analyse des flux de trésorerie."
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Compte de résultat (mensuel)",
+        "subsections": [
+          {
+            "id": "12.1",
+            "title": "Profit et pertes mensuels",
+            "description": "États détaillés des profits et pertes sur base mensuelle."
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Bilan (mensuel)",
+        "subsections": [
+          {
+            "id": "13.1",
+            "title": "Bilan mensuel",
+            "description": "Projections du bilan sur base mensuelle."
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "title": "Flux de trésorerie (mensuel)",
+        "subsections": [
+          {
+            "id": "14.1",
+            "title": "Flux de trésorerie mensuel",
+            "description": "Analyse des flux de trésorerie sur base mensuelle."
+          }
+        ]
+      },
+      {
+        "id": 15,
         "title": "Résumé exécutif",
         "subsections": [
           {
-            "id": "5.1",
+            "id": "15.1",
             "title": "Résumé exécutif",
             "description": "Consultez vos prévisions et analysez vos projections financières futures."
           }
