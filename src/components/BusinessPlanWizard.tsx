@@ -10,6 +10,7 @@ import {
   CompetitorMatrix, 
   LocationTable 
 } from './businessPlan/FieldComponents';
+import { generateDomainSpecificOptions, generateSectionQuestions } from '../lib/groqService';
 
 interface WizardData {
   [key: string]: any;
@@ -634,12 +635,114 @@ const BusinessPlanSectionWizard: React.FC<{
   onFinish: () => void;
 }> = ({ businessPlan, currentSection, currentSubsection, wizardData, onUpdateData, onNext, onPrev, onNavigateToSubsection, onFinish }) => {
   const navigate = useNavigate();
+  const [isGeneratingOptions, setIsGeneratingOptions] = useState(false);
+  const [dynamicFields, setDynamicFields] = useState<any[]>([]);
+  const [hasGeneratedContent, setHasGeneratedContent] = useState(false);
   
   console.log('BusinessPlanSectionWizard rendered with:', {
     currentSection,
     currentSubsection,
     businessPlanSections: businessPlan?.sections?.length
   });
+
+  // Fonction pour obtenir le domaine d'activité depuis les données du wizard
+  const getBusinessDomain = () => {
+    // Rechercher la réponse à "Que fait l'entreprise ?" dans les données du wizard
+    // Cette réponse est généralement dans section_1_0_field_1 (section 1, subsection 0, champ 1)
+    const businessDomainFromWizard = wizardData['section_1_0_field_1'] || 
+                                     wizardData.question_3 || // Secteur d'activité du setup initial
+                                     '';
+    
+    // Si le domaine est vide ou générique, retourner une valeur par défaut
+    if (!businessDomainFromWizard || businessDomainFromWizard.trim() === '') {
+      return 'commerce général';
+    }
+    
+    return businessDomainFromWizard.trim();
+  };
+
+  // Fonction pour générer des questions et options spécifiques au domaine
+  const generateDynamicContent = async () => {
+    const businessDomain = getBusinessDomain();
+    if (!businessDomain || businessDomain === 'commerce général') return;
+
+    setIsGeneratingOptions(true);
+    
+    try {
+      const section = businessPlan.sections.find((s: any) => s.id === currentSection);
+      const subsection = section?.subsections[currentSubsection];
+      
+      if (!subsection) return;
+
+      // Générer des questions spécifiques au domaine
+      const generatedQuestions = await generateSectionQuestions(
+        businessDomain,
+        section.title,
+        subsection.title
+      );
+
+      // Générer des options pour les questions existantes qui ont des options
+      const enhancedFields = await Promise.all(
+        (subsection.fields || []).map(async (field: any) => {
+          if (field.type === 'multi-select' || field.type === 'single-choice') {
+            const generatedOptions = await generateDomainSpecificOptions(
+              businessDomain,
+              field.type,
+              field.label,
+              section.title
+            );
+            
+            return {
+              ...field,
+              options: generatedOptions.length > 0 ? generatedOptions : field.options
+            };
+          }
+          return field;
+        })
+      );
+
+      // Combiner les champs existants avec les questions générées
+      const combinedFields = [
+        ...enhancedFields,
+        ...generatedQuestions.map((q: any) => ({
+          ...q,
+          isGenerated: true
+        }))
+      ];
+
+      setDynamicFields(combinedFields);
+      setHasGeneratedContent(true);
+      
+    } catch (error) {
+      console.error('Error generating dynamic content:', error);
+    } finally {
+      setIsGeneratingOptions(false);
+    }
+  };
+
+  // Fonction pour regénérer les options
+  const regenerateOptions = async () => {
+    await generateDynamicContent();
+  };
+
+  // Réinitialiser les champs dynamiques quand on change de section/sous-section
+  useEffect(() => {
+    setDynamicFields([]);
+    setHasGeneratedContent(false);
+  }, [currentSection, currentSubsection]);
+
+  // Générer automatiquement le contenu si le domaine d'activité est renseigné
+  useEffect(() => {
+    const businessDomain = getBusinessDomain();
+    const shouldGenerate = businessDomain && 
+                          businessDomain !== 'commerce général' && 
+                          !hasGeneratedContent &&
+                          !isGeneratingOptions;
+    
+    if (shouldGenerate) {
+      generateDynamicContent();
+    }
+  }, [wizardData['section_1_0_field_1'], hasGeneratedContent]);
 
   if (!businessPlan || !businessPlan.sections) {
     return (
@@ -741,18 +844,36 @@ const BusinessPlanSectionWizard: React.FC<{
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <button
-                onClick={() => {
-                  // TODO: Implement regenerate options functionality
-                  console.log('Regenerate options clicked');
-                }}
-                className="flex items-center px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Regenerate options
-              </button>
+              {/* Indicateur du domaine d'activité */}
+              <div className={`text-sm px-3 py-1 rounded-full ${
+                getBusinessDomain() === 'commerce général' 
+                  ? 'bg-yellow-100 text-yellow-800' 
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
+                Domaine: <span className="font-medium">{getBusinessDomain()}</span>
+                {getBusinessDomain() === 'commerce général' && (
+                  <span className="ml-2 text-xs">(Obligatoire pour la génération IA)</span>
+                )}
+              </div>
+              
+              {/* Bouton Regenerate options - seulement si le domaine est spécifié */}
+              {getBusinessDomain() !== 'commerce général' && (
+                <button
+                  onClick={regenerateOptions}
+                  disabled={isGeneratingOptions}
+                  className="flex items-center px-4 py-2 text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <svg 
+                    className={`w-4 h-4 mr-2 ${isGeneratingOptions ? 'animate-spin' : ''}`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  {isGeneratingOptions ? 'Génération...' : 'Regenerate options'}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -761,35 +882,54 @@ const BusinessPlanSectionWizard: React.FC<{
           {/* Main Content Area */}
           <div className="flex-1 bg-white rounded-lg shadow-lg p-8">
 
-            {subsection.fields && subsection.fields.length > 0 ? (
-              <div className="space-y-6">
-                {subsection.fields.map((field: any, index: number) => (
-                  <div key={index}>
-                    <div className="flex items-center mb-2">
-                      <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-gray-500 text-sm">{index + 1}</span>
-                      </div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        {field.label}
-                      </label>
-                    </div>
-                    {field.description && (
-                      <p className="text-sm text-gray-500 mb-3 ml-9">{field.description}</p>
-                    )}
-                    <div className="ml-9">
-                      <QuestionRenderer
-                        question={field}
-                        value={wizardData[`section_${currentSection}_${currentSubsection}_field_${index}`]}
-                        onChange={(value) => onUpdateData(`section_${currentSection}_${currentSubsection}_field_${index}`, value)}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
+            {/* Indicateur de génération */}
+            {isGeneratingOptions && (
               <div className="text-center py-8">
-                <p className="text-gray-500">Cette section n'a pas de champs à remplir pour le moment.</p>
+                <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-gray-600">Génération de questions personnalisées pour votre domaine d'activité...</p>
               </div>
+            )}
+
+            {/* Utiliser les champs dynamiques si disponibles, sinon les champs statiques */}
+            {!isGeneratingOptions && (
+              (dynamicFields.length > 0 ? dynamicFields : subsection.fields || []).length > 0 ? (
+                <div className="space-y-6">
+                  {(dynamicFields.length > 0 ? dynamicFields : subsection.fields || []).map((field: any, index: number) => (
+                    <div key={index}>
+                      <div className="flex items-center mb-2">
+                        <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center mr-3">
+                          <span className="text-gray-500 text-sm">{index + 1}</span>
+                        </div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          {field.label}
+                          {field.isGenerated && (
+                            <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                              IA
+                            </span>
+                          )}
+                        </label>
+                      </div>
+                      {field.description && (
+                        <p className="text-sm text-gray-500 mb-3 ml-9">{field.description}</p>
+                      )}
+                      <div className="ml-9">
+                        <QuestionRenderer
+                          question={field}
+                          value={wizardData[`section_${currentSection}_${currentSubsection}_field_${index}`]}
+                          onChange={(value) => onUpdateData(`section_${currentSection}_${currentSubsection}_field_${index}`, value)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Cette section n'a pas de champs à remplir pour le moment.</p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    Renseignez votre domaine d'activité dans "Que fait l'entreprise ?" pour obtenir des questions personnalisées.
+                  </p>
+                </div>
+              )
             )}
 
             <div className="flex justify-between mt-8">
@@ -1034,6 +1174,33 @@ const QuestionRenderer: React.FC<{
         <ProblemSolutionMapping
           problems={question.problems}
           solutions={value || {}}
+          onChange={onChange}
+        />
+      );
+    
+    case 'problem-solution-mapping':
+      return (
+        <ProblemSolutionMapping
+          problems={question.problems || []}
+          solutions={value || {}}
+          onChange={onChange}
+        />
+      );
+    
+    case 'competitor-matrix':
+      return (
+        <CompetitorMatrix
+          competitors={question.competitors || []}
+          factors={question.factors || ['Prix', 'Qualité', 'Service client', 'Innovation', 'Réputation']}
+          ratings={value || {}}
+          onChange={onChange}
+        />
+      );
+    
+    case 'location-table':
+      return (
+        <LocationTable
+          locations={value || []}
           onChange={onChange}
         />
       );
