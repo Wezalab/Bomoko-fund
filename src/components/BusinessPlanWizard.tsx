@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Check, Users, Plus, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import businessPlanData from '../constants/businessPlanData.json';
 import { 
   MultiSelectCards, 
@@ -15,6 +16,7 @@ interface WizardData {
 }
 
 const BusinessPlanWizard: React.FC = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [wizardData, setWizardData] = useState<WizardData>({});
   const [isInitialSetup, setIsInitialSetup] = useState(true);
@@ -69,10 +71,6 @@ const BusinessPlanWizard: React.FC = () => {
     }
   };
 
-  if (showWelcome && !isInitialSetup) {
-    return <WelcomeModal onContinue={() => setShowWelcome(false)} />;
-  }
-
   if (isInitialSetup) {
     return (
       <InitialSetupWizard
@@ -102,6 +100,12 @@ const BusinessPlanWizard: React.FC = () => {
 };
 
 const WelcomeModal: React.FC<{ onContinue: () => void }> = ({ onContinue }) => {
+  const navigate = useNavigate();
+  
+  const handleGetStarted = () => {
+    navigate('/business-plan/editor');
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
@@ -125,7 +129,7 @@ const WelcomeModal: React.FC<{ onContinue: () => void }> = ({ onContinue }) => {
         </div>
         
         <button
-          onClick={onContinue}
+          onClick={handleGetStarted}
           className="w-full bg-blue-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-600 transition-colors"
         >
           Get Started
@@ -297,6 +301,169 @@ const BusinessPlanBuilder: React.FC<{
   onSectionChange,
   onSubsectionChange
 }) => {
+  const navigate = useNavigate();
+  const [showOverview, setShowOverview] = useState(true);
+
+  // Business plan sections for overview
+  const planSections = [
+    {
+      id: 'business-overview',
+      title: 'Business Overview',
+      number: '1',
+      subsections: [
+        { title: 'Description', id: 'description' },
+        { title: 'Our Values', id: 'values' },
+        { title: 'Ownership', id: 'ownership' },
+        { title: 'Products & Services', id: 'products' },
+        { title: 'Intellectual Property', id: 'ip' }
+      ]
+    },
+    {
+      id: 'market-analysis',
+      title: 'Market Analysis',
+      number: '2',
+      subsections: [
+        { title: 'Problems & Solutions', id: 'problems' },
+        { title: 'Target Market', id: 'target-market' },
+        { title: 'Market Trends', id: 'trends' },
+        { title: 'Target Customers', id: 'customers' },
+        { title: 'Competition', id: 'competition' }
+      ]
+    },
+    {
+      id: 'strategy',
+      title: 'Strategy',
+      number: '3',
+      subsections: [
+        { title: 'Marketing', id: 'marketing' },
+        { title: 'Pricing', id: 'pricing' },
+        { title: 'Sales', id: 'sales' },
+        { title: 'Operations', id: 'operations' },
+        { title: 'Team', id: 'team' }
+      ]
+    },
+    {
+      id: 'financials',
+      title: 'Financials',
+      number: '4',
+      subsections: [
+        { title: 'Financial Forecast', id: 'forecast' }
+      ]
+    },
+    {
+      id: 'executive-summary',
+      title: 'Executive Summary',
+      number: '5',
+      subsections: [
+        { title: 'Generate Executive Summary', id: 'summary' }
+      ]
+    }
+  ];
+
+  const handleViewPlan = () => {
+    // Store wizard data in localStorage to pass to editor
+    localStorage.setItem('businessPlanWizardData', JSON.stringify(wizardData));
+    navigate('/business-plan/editor');
+  };
+
+  if (showOverview) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Create your business plan with AI</h1>
+            <p className="text-gray-600 max-w-4xl mx-auto mb-2">
+              Your business plan is organized into chapters, with each chapter containing several sections. To complete your plan, navigate through each chapter and fill in the corresponding sections. Be sure to finish the "Executive Summary" chapter last. You can also customize the cover page as needed.
+            </p>
+            <p className="text-gray-600 font-medium">
+              Please use English as a primary language for building your business plan.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                Plan Name: Business Plan (Original) <span className="text-blue-500">{'>'}</span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+              {planSections.map((section, index) => (
+                <div key={section.id} className="bg-blue-50 rounded-lg p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl mr-3">
+                      {section.number}
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {section.subsections.map((subsection, subIndex) => (
+                      <div key={subsection.id} className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <span className="text-blue-500 font-medium text-sm mr-2">
+                            {section.number}.{subIndex + 1}
+                          </span>
+                          <span className="text-gray-700 text-sm">{subsection.title}</span>
+                        </div>
+                        <button 
+                          onClick={() => setShowOverview(false)}
+                          className="px-3 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors"
+                        >
+                          Start
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {(section.id === 'financials' || section.id === 'executive-summary') && (
+                    <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200">
+                      <p className="text-sm text-gray-600 mb-3">
+                        See your Forecast and analyze your future financial projections.
+                      </p>
+                      <div className="flex justify-center">
+                        <div className="p-4 border border-blue-200 rounded-lg">
+                          <div className="w-12 h-12 bg-blue-100 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                            <span className="text-blue-500 text-lg">📊</span>
+                          </div>
+                          <p className="text-xs text-blue-500 font-medium text-center">
+                            {section.id === 'financials' ? 'Financial\nForecast' : 'Generate\nExecutive\nSummary'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setShowOverview(false)}
+                className="px-8 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
+              >
+                Start your business plan
+              </button>
+              <button
+                onClick={handleViewPlan}
+                className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                View plan
+              </button>
+            </div>
+
+            <div className="text-center mt-4">
+              <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">
+                Share & Downloads Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show the detailed section editing when not in overview
   const section = businessPlan.sections[currentSection];
   const subsection = section.subsections[currentSubsection];
 
@@ -306,14 +473,17 @@ const BusinessPlanBuilder: React.FC<{
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <h1 className="text-xl font-semibold">Create your business plan with AI</h1>
           <div className="flex space-x-4">
-            <button className="px-4 py-2 bg-blue-500 text-white rounded-lg">
-              Business Plan Wizard
+            <button 
+              onClick={() => setShowOverview(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+            >
+              Back to Overview
             </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg">
-              Preview Mode
-            </button>
-            <button className="px-4 py-2 border border-gray-300 rounded-lg">
-              Share
+            <button 
+              onClick={handleViewPlan}
+              className="px-4 py-2 border border-gray-300 rounded-lg"
+            >
+              View Plan
             </button>
           </div>
         </div>
@@ -323,33 +493,11 @@ const BusinessPlanBuilder: React.FC<{
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="p-6 border-b bg-blue-50">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Business Plan (original)
+              {section.title}
             </h2>
-            <p className="text-gray-600 mb-6">
-              Your business plan is organized into chapters, with each chapter containing several sections. 
-              To complete your plan, navigate through each chapter and fill in the corresponding sections. 
-              Be sure to finish the "Executive Summary" chapter last. You can also customize the cover page as needed.
-            </p>
             <p className="text-gray-600">
-              Please use English as a primary language for building your business plan.
+              {section.description}
             </p>
-
-            <div className="grid grid-cols-5 gap-6 mt-8">
-              {businessPlan.sections.map((sec: any, index: number) => (
-                <div key={sec.id} className="text-center">
-                  <div
-                    className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold mb-3 mx-auto ${
-                      index <= currentSection
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 text-gray-400'
-                    }`}
-                  >
-                    {sec.id}
-                  </div>
-                  <h3 className="font-semibold text-gray-900">{sec.title}</h3>
-                </div>
-              ))}
-            </div>
           </div>
 
           <div className="flex">
@@ -381,7 +529,7 @@ const BusinessPlanBuilder: React.FC<{
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   {subsection.id} {subsection.title}
                 </h2>
-                <p className="text-gray-600">{section.title}</p>
+                <p className="text-gray-600">{subsection.description}</p>
               </div>
 
               <SubsectionRenderer
