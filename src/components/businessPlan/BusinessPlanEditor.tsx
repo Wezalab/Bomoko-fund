@@ -58,81 +58,81 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
   const [sections, setSections] = useState<BusinessPlanSection[]>([
     {
       id: 'cover',
-      title: 'Cover Page',
+      title: 'Page de couverture',
       icon: <FileText className="w-5 h-5" />,
       content: `<div class="text-center">
         <h1 class="text-4xl font-bold text-gray-900 mb-4">${companyName}</h1>
-        <h2 class="text-2xl text-gray-600 mb-8">Business Plan</h2>
-        <p class="text-lg text-gray-500">${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+        <h2 class="text-2xl text-gray-600 mb-8">Plan d'affaires</h2>
+        <p class="text-lg text-gray-500">${new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}</p>
       </div>`,
       isCompleted: true
     },
     {
       id: 'executive-summary',
-      title: 'Executive Summary',
+      title: 'Résumé exécutif',
       icon: <BookOpen className="w-5 h-5" />,
       content: '',
       isCompleted: false
     },
     {
       id: 'business-overview',
-      title: 'Business Overview',
+      title: 'Aperçu de l\'entreprise',
       icon: <Briefcase className="w-5 h-5" />,
       content: '',
       isCompleted: false
     },
     {
       id: 'opportunity',
-      title: 'Opportunity',
+      title: 'Opportunité',
       icon: <Target className="w-5 h-5" />,
       content: '',
       isCompleted: false
     },
     {
       id: 'market-analysis',
-      title: 'Market Analysis',
+      title: 'Analyse du marché',
       icon: <TrendingUp className="w-5 h-5" />,
       content: '',
       isCompleted: false
     },
     {
       id: 'products-services',
-      title: 'Products And Services',
+      title: 'Produits et services',
       icon: <Globe className="w-5 h-5" />,
       content: '',
       isCompleted: false
     },
     {
       id: 'marketing',
-      title: 'Marketing Strategy',
+      title: 'Stratégie marketing',
       icon: <Zap className="w-5 h-5" />,
       content: '',
       isCompleted: false
     },
     {
       id: 'operations',
-      title: 'Operations',
+      title: 'Opérations',
       icon: <Settings className="w-5 h-5" />,
       content: '',
       isCompleted: false
     },
     {
       id: 'team',
-      title: 'Team',
+      title: 'Équipe',
       icon: <Users className="w-5 h-5" />,
       content: '',
       isCompleted: false
     },
     {
       id: 'financial-plan',
-      title: 'Financial Plan',
+      title: 'Plan financier',
       icon: <DollarSign className="w-5 h-5" />,
       content: '',
       isCompleted: false
     },
     {
       id: 'competition',
-      title: 'Competition',
+      title: 'Concurrence',
       icon: <BarChart3 className="w-5 h-5" />,
       content: '',
       isCompleted: false
@@ -141,7 +141,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
 
   const currentSection = sections.find(s => s.id === activeSection);
 
-  // Load wizard data and auto-generate content on mount
+  // Charger les données de l'assistant et auto-générer le contenu au montage
   useEffect(() => {
     const loadWizardData = () => {
       const savedData = localStorage.getItem('businessPlanWizardData');
@@ -150,16 +150,16 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
           const parsedData = JSON.parse(savedData);
           setWizardData(parsedData);
           
-          // Extract company info from wizard data
+          // Extraire les informations de l'entreprise des données de l'assistant
           const companyInfo = {
             name: parsedData.question_2 || companyName,
             industry: parsedData.question_3 || industry
           };
           
-          // Auto-generate content for all sections
+          // Auto-générer le contenu pour toutes les sections
           autoGenerateAllSections(companyInfo);
         } catch (error) {
-          console.error('Error parsing wizard data:', error);
+          console.error('Erreur lors de l\'analyse des données de l\'assistant:', error);
         }
       }
     };
@@ -184,7 +184,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
         'competition'
       ];
 
-      // Generate content for each section
+      // Générer le contenu pour chaque section
       for (const sectionId of sectionsToGenerate) {
         const section = sections.find(s => s.id === sectionId);
         if (section && section.content === '') {
@@ -195,7 +195,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
               companyInfo.industry
             );
             
-            // Convert plain text to HTML with proper formatting
+            // Convertir le texte brut en HTML avec un formatage approprié
             const htmlContent = generatedContent
               .split('\n\n')
               .map(paragraph => `<p>${paragraph}</p>`)
@@ -203,15 +203,15 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
             
             updateSectionContent(sectionId, htmlContent);
             
-            // Small delay between generations to avoid rate limiting
+            // Petit délai entre les générations pour éviter la limitation de taux
             await new Promise(resolve => setTimeout(resolve, 1000));
           } catch (error) {
-            console.error(`Error generating content for ${sectionId}:`, error);
+            console.error(`Erreur lors de la génération du contenu pour ${sectionId}:`, error);
           }
         }
       }
     } catch (error) {
-      console.error('Error auto-generating sections:', error);
+      console.error('Erreur lors de l\'auto-génération des sections:', error);
     } finally {
       setIsGenerating(false);
     }
@@ -233,7 +233,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
       const sectionName = currentSection.title;
       const generatedContent = await generateBusinessPlanContent(sectionName, companyName, industry);
       
-      // Convert plain text to HTML with proper formatting
+      // Convertir le texte brut en HTML avec un formatage approprié
       const htmlContent = generatedContent
         .split('\n\n')
         .map(paragraph => `<p>${paragraph}</p>`)
@@ -241,7 +241,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
       
       updateSectionContent(currentSection.id, htmlContent);
     } catch (error) {
-      console.error('Error generating content:', error);
+      console.error('Erreur lors de la génération du contenu:', error);
     } finally {
       setIsGenerating(false);
     }
@@ -250,17 +250,15 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Simulate saving to backend
+      // Simuler la sauvegarde vers le backend
       await new Promise(resolve => setTimeout(resolve, 1000));
       setLastSaved(new Date());
     } catch (error) {
-      console.error('Error saving:', error);
+      console.error('Erreur lors de la sauvegarde:', error);
     } finally {
       setIsSaving(false);
     }
   };
-
-
 
   const completedSections = sections.filter(s => s.isCompleted).length;
   const totalSections = sections.length;
@@ -268,7 +266,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* En-tête */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -282,9 +280,9 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
                 </button>
               )}
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">{companyName} Business Plan</h1>
+                <h1 className="text-xl font-semibold text-gray-900">Plan d'affaires {companyName}</h1>
                 <p className="text-sm text-gray-500">
-                  {completedSections} of {totalSections} sections completed
+                  {completedSections} sur {totalSections} sections terminées
                 </p>
               </div>
             </div>
@@ -292,7 +290,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
             <div className="flex items-center gap-2">
               {lastSaved && (
                 <span className="text-sm text-gray-500">
-                  Saved {lastSaved.toLocaleTimeString()}
+                  Sauvegardé à {lastSaved.toLocaleTimeString()}
                 </span>
               )}
               
@@ -302,7 +300,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
-                {isSaving ? 'Saving...' : 'Save'}
+                {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
               </button>
 
               <button
@@ -310,7 +308,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <Eye className="w-4 h-4" />
-                {showPreview ? 'Edit' : 'Preview'}
+                {showPreview ? 'Modifier' : 'Aperçu'}
               </button>
 
               <button
@@ -319,19 +317,19 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
                 className="flex items-center gap-2 px-4 py-2 border border-purple-300 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Wand2 className="w-4 h-4" />
-                Enhance
+                Améliorer
               </button>
 
               <PDFExport
                 sections={sections.map(s => ({ id: s.id, title: s.title, content: s.content }))}
                 companyName={wizardData?.question_2 || companyName}
-                onExport={() => console.log('Export completed')}
+                onExport={() => console.log('Exportation terminée')}
               />
             </div>
           </div>
         </div>
 
-        {/* Progress Bar */}
+        {/* Barre de progression */}
         <div className="h-1 bg-gray-200">
           <div 
             className="h-full bg-blue-600 transition-all duration-300"
@@ -342,13 +340,13 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-8">
-          {/* Sidebar */}
+          {/* Barre latérale */}
           <div className="w-80 flex-shrink-0">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 sticky top-24">
               <div className="p-6 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Business Plan Sections</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">Sections du plan d'affaires</h2>
                 <div className="text-sm text-gray-600">
-                  {completedSections} of {totalSections} completed ({Math.round(progressPercentage)}%)
+                  {completedSections} sur {totalSections} terminées ({Math.round(progressPercentage)}%)
                 </div>
               </div>
               
@@ -388,7 +386,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
             </div>
           </div>
 
-          {/* Main Content */}
+          {/* Contenu principal */}
           <div className="flex-1">
             <AnimatePresence mode="wait">
               <motion.div
@@ -411,8 +409,8 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
                         </h1>
                         <p className="text-gray-600 mt-1">
                           {currentSection?.id === 'cover' 
-                            ? 'Your business plan cover page'
-                            : `Create compelling content for your ${currentSection?.title.toLowerCase()}`
+                            ? 'La page de couverture de votre plan d\'affaires'
+                            : `Créez un contenu convaincant pour votre ${currentSection?.title.toLowerCase()}`
                           }
                         </p>
                       </div>
@@ -426,7 +424,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
                       key={currentSection.id}
                       content={currentSection.content}
                       onChange={(content) => updateSectionContent(currentSection.id, content)}
-                      placeholder={`Write your ${currentSection.title.toLowerCase()} here...`}
+                      placeholder={`Rédigez votre ${currentSection.title.toLowerCase()} ici...`}
                       onGenerateContent={currentSection.id !== 'cover' ? handleGenerateContent : undefined}
                       isGenerating={isGenerating}
                     />
@@ -438,7 +436,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
         </div>
       </div>
 
-      {/* AI Enhancement Dialog */}
+      {/* Dialogue d'amélioration IA */}
       <AIEnhancementDialog
         isOpen={showEnhancementDialog}
         onClose={() => setShowEnhancementDialog(false)}
@@ -450,14 +448,14 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
         }}
       />
 
-      {/* Auto-generation Loading Overlay */}
+      {/* Overlay de génération */}
       {isGenerating && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
-            <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Generating Business Plan Content</h3>
+            <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Génération du contenu IA</h3>
             <p className="text-gray-600">
-              AI is creating professional content for all sections based on your answers. This may take a few minutes...
+              Veuillez patienter pendant que nous créons un contenu professionnel pour votre plan d'affaires...
             </p>
           </div>
         </div>

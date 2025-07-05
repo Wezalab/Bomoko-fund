@@ -14,7 +14,7 @@ interface PDFExportProps {
 const PDFExport: React.FC<PDFExportProps> = ({ sections, companyName, onExport }) => {
   const handlePDFExport = async () => {
     try {
-      // Dynamically import html2pdf to avoid SSR issues
+      // Importer dynamiquement html2pdf pour éviter les problèmes SSR
       const html2pdf = (await import('html2pdf.js')).default;
       
       const element = document.createElement('div');
@@ -22,7 +22,7 @@ const PDFExport: React.FC<PDFExportProps> = ({ sections, companyName, onExport }
       
       const opt = {
         margin: [20, 15, 20, 15],
-        filename: `${companyName.replace(/\s+/g, '-')}-Business-Plan.pdf`,
+        filename: `${companyName.replace(/\s+/g, '-')}-Plan-Affaires.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
           scale: 2,
@@ -45,8 +45,8 @@ const PDFExport: React.FC<PDFExportProps> = ({ sections, companyName, onExport }
       await html2pdf().set(opt).from(element).save();
       onExport?.();
     } catch (error) {
-      console.error('PDF Export Error:', error);
-      // Fallback to HTML export
+      console.error('Erreur d\'exportation PDF:', error);
+      // Solution de secours vers l'exportation HTML
       handleHTMLExport();
     }
   };
@@ -57,7 +57,7 @@ const PDFExport: React.FC<PDFExportProps> = ({ sections, companyName, onExport }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${companyName.replace(/\s+/g, '-')}-Business-Plan.html`;
+    a.download = `${companyName.replace(/\s+/g, '-')}-Plan-Affaires.html`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -68,11 +68,11 @@ const PDFExport: React.FC<PDFExportProps> = ({ sections, companyName, onExport }
   const generateBusinessPlanHTML = () => {
     return `
       <!DOCTYPE html>
-      <html lang="en">
+      <html lang="fr">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>${companyName} Business Plan</title>
+        <title>Plan d'affaires ${companyName}</title>
         <style>
           @page {
             margin: 20mm 15mm;
@@ -220,19 +220,19 @@ const PDFExport: React.FC<PDFExportProps> = ({ sections, companyName, onExport }
         </style>
       </head>
       <body>
-        <!-- Cover Page -->
+        <!-- Page de couverture -->
         <div class="cover-page">
           <div class="cover-title">${companyName}</div>
-          <div class="cover-subtitle">Business Plan</div>
-          <div class="cover-date">${new Date().toLocaleDateString('en-US', { 
+          <div class="cover-subtitle">Plan d'affaires</div>
+          <div class="cover-date">${new Date().toLocaleDateString('fr-FR', { 
             month: 'long', 
             year: 'numeric' 
           })}</div>
         </div>
         
-        <!-- Table of Contents -->
+        <!-- Table des matières -->
         <div class="table-of-contents">
-          <div class="toc-title">Table of Contents</div>
+          <div class="toc-title">Table des matières</div>
           ${sections.filter(s => s.content && s.id !== 'cover').map((section, index) => `
             <div class="toc-item">
               <span class="toc-section">${section.title}</span>
@@ -241,7 +241,7 @@ const PDFExport: React.FC<PDFExportProps> = ({ sections, companyName, onExport }
           `).join('')}
         </div>
         
-        <!-- Business Plan Sections -->
+        <!-- Sections du plan d'affaires -->
         ${sections
           .filter(section => section.content && section.id !== 'cover')
           .map((section, index) => `
@@ -254,7 +254,7 @@ const PDFExport: React.FC<PDFExportProps> = ({ sections, companyName, onExport }
           `).join('')}
         
         <div class="footer">
-          ${companyName} Business Plan - Confidential Document
+          Plan d'affaires ${companyName} - Document confidentiel
         </div>
       </body>
       </html>
@@ -268,7 +268,7 @@ const PDFExport: React.FC<PDFExportProps> = ({ sections, companyName, onExport }
         className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
       >
         <FileText className="w-4 h-4" />
-        Export PDF
+        Exporter PDF
       </button>
       
       <button
@@ -276,7 +276,7 @@ const PDFExport: React.FC<PDFExportProps> = ({ sections, companyName, onExport }
         className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
       >
         <Download className="w-4 h-4" />
-        Export HTML
+        Exporter HTML
       </button>
     </div>
   );

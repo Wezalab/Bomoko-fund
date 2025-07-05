@@ -22,34 +22,34 @@ const AIEnhancementDialog: React.FC<AIEnhancementDialogProps> = ({
 
   const enhancementPresets = [
     {
-      title: 'Make it more professional',
-      description: 'Improve the language and tone to sound more professional',
-      instruction: 'Make this content more professional and formal, using business language and terminology.'
+      title: 'Rendre plus professionnel',
+      description: 'Améliorer le langage et le ton pour paraître plus professionnel',
+      instruction: 'Rendre ce contenu plus professionnel et formel, en utilisant un langage et une terminologie d\'entreprise.'
     },
     {
-      title: 'Add more detail',
-      description: 'Expand with more comprehensive information',
-      instruction: 'Add more detailed information, examples, and explanations to make this content more comprehensive.'
+      title: 'Ajouter plus de détails',
+      description: 'Développer avec des informations plus complètes',
+      instruction: 'Ajouter des informations plus détaillées, des exemples et des explications pour rendre ce contenu plus complet.'
     },
     {
-      title: 'Make it more persuasive',
-      description: 'Enhance the content to be more compelling',
-      instruction: 'Make this content more persuasive and compelling for investors and stakeholders.'
+      title: 'Rendre plus persuasif',
+      description: 'Améliorer le contenu pour qu\'il soit plus convaincant',
+      instruction: 'Rendre ce contenu plus persuasif et convaincant pour les investisseurs et les parties prenantes.'
     },
     {
-      title: 'Improve clarity',
-      description: 'Make the content clearer and easier to understand',
-      instruction: 'Improve the clarity and readability of this content, making it easier to understand.'
+      title: 'Améliorer la clarté',
+      description: 'Rendre le contenu plus clair et plus facile à comprendre',
+      instruction: 'Améliorer la clarté et la lisibilité de ce contenu, en le rendant plus facile à comprendre.'
     },
     {
-      title: 'Add market data',
-      description: 'Include relevant market statistics and trends',
-      instruction: 'Add relevant market data, statistics, and industry trends to support this content.'
+      title: 'Ajouter des données de marché',
+      description: 'Inclure des statistiques et tendances de marché pertinentes',
+      instruction: 'Ajouter des données de marché pertinentes, des statistiques et des tendances sectorielles pour soutenir ce contenu.'
     },
     {
-      title: 'Make it more concise',
-      description: 'Reduce length while maintaining key points',
-      instruction: 'Make this content more concise while preserving all important information and key points.'
+      title: 'Rendre plus concis',
+      description: 'Réduire la longueur tout en maintenant les points clés',
+      instruction: 'Rendre ce contenu plus concis tout en préservant toutes les informations importantes et les points clés.'
     }
   ];
 
@@ -61,7 +61,7 @@ const AIEnhancementDialog: React.FC<AIEnhancementDialogProps> = ({
       const enhanced = await enhanceContent(currentContent, instructions);
       setEnhancedContent(enhanced);
     } catch (error) {
-      console.error('Error enhancing content:', error);
+      console.error('Erreur lors de l\'amélioration du contenu:', error);
     } finally {
       setIsProcessing(false);
     }
@@ -101,8 +101,8 @@ const AIEnhancementDialog: React.FC<AIEnhancementDialogProps> = ({
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">AI Content Enhancement</h2>
-              <p className="text-gray-600 text-sm">Improve your business plan content with AI assistance</p>
+              <h2 className="text-xl font-semibold text-gray-900">Amélioration du contenu IA</h2>
+              <p className="text-gray-600 text-sm">Améliorez le contenu de votre plan d'affaires avec l'aide de l'IA</p>
             </div>
           </div>
           <button
@@ -116,9 +116,9 @@ const AIEnhancementDialog: React.FC<AIEnhancementDialogProps> = ({
         <div className="p-6 space-y-6 max-h-[calc(90vh-140px)] overflow-y-auto">
           {!enhancedContent ? (
             <>
-              {/* Enhancement Presets */}
+              {/* Options d'amélioration prédéfinies */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Quick Enhancement Options</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Options d'amélioration rapide</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {enhancementPresets.map((preset, index) => (
                     <button
@@ -133,36 +133,36 @@ const AIEnhancementDialog: React.FC<AIEnhancementDialogProps> = ({
                 </div>
               </div>
 
-              {/* Custom Instructions */}
+              {/* Instructions personnalisées */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Custom Instructions</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Instructions personnalisées</h3>
                 <textarea
                   value={instructions}
                   onChange={(e) => setInstructions(e.target.value)}
-                  placeholder="Describe how you'd like to improve this content..."
+                  placeholder="Décrivez comment vous souhaitez améliorer ce contenu..."
                   className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   rows={4}
                 />
               </div>
 
-              {/* Current Content Preview */}
+              {/* Aperçu du contenu actuel */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Current Content</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Contenu actuel</h3>
                 <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 max-h-40 overflow-y-auto">
                   <div 
                     className="text-sm text-gray-700 prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: currentContent || 'No content available' }}
+                    dangerouslySetInnerHTML={{ __html: currentContent || 'Aucun contenu disponible' }}
                   />
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {/* Boutons d'action */}
               <div className="flex justify-end gap-3">
                 <button
                   onClick={handleClose}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
                 >
-                  Cancel
+                  Annuler
                 </button>
                 <button
                   onClick={handleEnhance}
@@ -172,12 +172,12 @@ const AIEnhancementDialog: React.FC<AIEnhancementDialogProps> = ({
                   {isProcessing ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Enhancing...
+                      Amélioration...
                     </>
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4" />
-                      Enhance Content
+                      Améliorer le contenu
                     </>
                   )}
                 </button>
@@ -185,9 +185,9 @@ const AIEnhancementDialog: React.FC<AIEnhancementDialogProps> = ({
             </>
           ) : (
             <>
-              {/* Enhanced Content Results */}
+              {/* Résultats du contenu amélioré */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-3">Enhanced Content</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-3">Contenu amélioré</h3>
                 <div className="p-4 bg-green-50 rounded-lg border border-green-200 max-h-60 overflow-y-auto">
                   <div 
                     className="text-sm text-gray-700 prose prose-sm max-w-none"
@@ -196,7 +196,7 @@ const AIEnhancementDialog: React.FC<AIEnhancementDialogProps> = ({
                 </div>
               </div>
 
-              {/* Comparison */}
+              {/* Comparaison */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-medium text-gray-900 mb-2">Original</h4>
@@ -208,7 +208,7 @@ const AIEnhancementDialog: React.FC<AIEnhancementDialogProps> = ({
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Enhanced</h4>
+                  <h4 className="font-medium text-gray-900 mb-2">Amélioré</h4>
                   <div className="p-3 bg-green-50 rounded-lg border border-green-200 max-h-40 overflow-y-auto">
                     <div 
                       className="text-xs text-gray-600 prose prose-xs max-w-none"
@@ -218,26 +218,26 @@ const AIEnhancementDialog: React.FC<AIEnhancementDialogProps> = ({
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {/* Boutons d'action */}
               <div className="flex justify-end gap-3">
                 <button
                   onClick={resetDialog}
                   className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
                 >
-                  Try Again
+                  Essayer à nouveau
                 </button>
                 <button
                   onClick={handleClose}
                   className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
-                  Keep Original
+                  Garder l'original
                 </button>
                 <button
                   onClick={handleApplyEnhancement}
                   className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   <ArrowRight className="w-4 h-4" />
-                  Apply Enhancement
+                  Appliquer l'amélioration
                 </button>
               </div>
             </>

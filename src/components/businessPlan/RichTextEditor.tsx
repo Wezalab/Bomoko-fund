@@ -33,7 +33,7 @@ interface RichTextEditorProps {
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
   onChange,
-  placeholder = "Start writing or click the AI button to generate content...",
+  placeholder = "Commencez à écrire ou cliquez sur le bouton IA pour générer du contenu...",
   onGenerateContent,
   isGenerating = false
 }) => {
@@ -83,9 +83,9 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-      {/* Toolbar */}
+      {/* Barre d'outils */}
       <div className="flex items-center gap-1 p-3 border-b border-gray-200 bg-gray-50 flex-wrap">
-        {/* AI Generate Button */}
+        {/* Bouton Générer IA */}
         {onGenerateContent && (
           <button
             onClick={onGenerateContent}
@@ -97,17 +97,17 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             }`}
           >
             <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
-            {isGenerating ? 'Generating...' : 'AI Generate'}
+            {isGenerating ? 'Génération...' : 'Générer IA'}
           </button>
         )}
 
         <div className="w-px h-6 bg-gray-300 mr-2" />
 
-        {/* Text Formatting */}
+        {/* Formatage du texte */}
         <MenuButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive('bold')}
-          title="Bold"
+          title="Gras"
         >
           <Bold className="w-4 h-4" />
         </MenuButton>
@@ -115,7 +115,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <MenuButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
           isActive={editor.isActive('italic')}
-          title="Italic"
+          title="Italique"
         >
           <Italic className="w-4 h-4" />
         </MenuButton>
@@ -123,14 +123,14 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <MenuButton
           onClick={() => editor.chain().focus().toggleStrike().run()}
           isActive={editor.isActive('strike')}
-          title="Strikethrough"
+          title="Barré"
         >
           <Underline className="w-4 h-4" />
         </MenuButton>
 
         <div className="w-px h-6 bg-gray-300 mx-2" />
 
-        {/* Headings */}
+        {/* Titres */}
         <select
           value={
             editor.isActive('heading', { level: 1 }) ? '1' :
@@ -147,19 +147,19 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           }}
           className="px-2 py-1 border border-gray-300 rounded text-sm bg-white"
         >
-          <option value="0">Paragraph</option>
-          <option value="1">Heading 1</option>
-          <option value="2">Heading 2</option>
-          <option value="3">Heading 3</option>
+          <option value="0">Paragraphe</option>
+          <option value="1">Titre 1</option>
+          <option value="2">Titre 2</option>
+          <option value="3">Titre 3</option>
         </select>
 
         <div className="w-px h-6 bg-gray-300 mx-2" />
 
-        {/* Lists */}
+        {/* Listes */}
         <MenuButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           isActive={editor.isActive('bulletList')}
-          title="Bullet List"
+          title="Liste à puces"
         >
           <List className="w-4 h-4" />
         </MenuButton>
@@ -167,7 +167,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <MenuButton
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           isActive={editor.isActive('orderedList')}
-          title="Numbered List"
+          title="Liste numérotée"
         >
           <ListOrdered className="w-4 h-4" />
         </MenuButton>
@@ -175,25 +175,25 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <MenuButton
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           isActive={editor.isActive('blockquote')}
-          title="Quote"
+          title="Citation"
         >
           <Quote className="w-4 h-4" />
         </MenuButton>
 
         <div className="w-px h-6 bg-gray-300 mx-2" />
 
-        {/* Text Color */}
+        {/* Couleur du texte */}
         <div className="relative">
           <input
             type="color"
             onInput={(e) => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
             value={editor.getAttributes('textStyle').color || '#000000'}
             className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
-            title="Text Color"
+            title="Couleur du texte"
           />
         </div>
 
-        {/* Font Family */}
+        {/* Police de caractères */}
         <select
           onChange={(e) => {
             if (e.target.value === 'unset') {
@@ -204,7 +204,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           }}
           className="px-2 py-1 border border-gray-300 rounded text-sm bg-white ml-2"
         >
-          <option value="unset">Default</option>
+          <option value="unset">Par défaut</option>
           <option value="Inter">Inter</option>
           <option value="Arial">Arial</option>
           <option value="Helvetica">Helvetica</option>
@@ -214,35 +214,35 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
         <div className="w-px h-6 bg-gray-300 mx-2" />
 
-        {/* Undo/Redo */}
+        {/* Annuler/Rétablir */}
         <MenuButton
           onClick={() => editor.chain().focus().undo().run()}
-          title="Undo"
+          title="Annuler"
         >
           <Undo className="w-4 h-4" />
         </MenuButton>
 
         <MenuButton
           onClick={() => editor.chain().focus().redo().run()}
-          title="Redo"
+          title="Rétablir"
         >
           <Redo className="w-4 h-4" />
         </MenuButton>
       </div>
 
-      {/* Editor Content */}
+      {/* Contenu de l'éditeur */}
       <div className="min-h-[200px] max-h-[600px] overflow-y-auto">
         <EditorContent editor={editor} />
       </div>
 
-      {/* Footer */}
+      {/* Pied de page */}
       <div className="flex items-center justify-between p-3 border-t border-gray-200 bg-gray-50 text-sm text-gray-500">
         <div>
-          {editor.storage.characterCount?.characters() || 0} characters
+          {editor.storage.characterCount?.characters() || 0} caractères
         </div>
         <div className="flex items-center gap-2">
           <Type className="w-4 h-4" />
-          <span>Rich Text Editor</span>
+          <span>Éditeur de texte enrichi</span>
         </div>
       </div>
     </div>

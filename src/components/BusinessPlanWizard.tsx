@@ -87,7 +87,7 @@ const BusinessPlanWizard: React.FC = () => {
   return (
     <BusinessPlanOverview
       wizardData={wizardData}
-      onStartPlan={() => console.log('Start plan')}
+      onStartPlan={() => console.log('Démarrer le plan')}
       onViewPlan={() => {
         localStorage.setItem('businessPlanWizardData', JSON.stringify(wizardData));
         navigate('/business-plan/editor');
@@ -110,18 +110,18 @@ const WelcomeModal: React.FC<{ onContinue: () => void }> = ({ onContinue }) => {
           <div className="w-16 h-16 bg-blue-500 rounded-lg mx-auto mb-4 flex items-center justify-center">
             <span className="text-white font-bold text-xl">M</span>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Modeliks!</h2>
-          <p className="text-gray-600 mb-4">We are excited to have you on board!</p>
-          <p className="text-gray-600 mb-6">Get started by exploring the various features and modules.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Bienvenue chez Modeliks !</h2>
+          <p className="text-gray-600 mb-4">Nous sommes ravis de vous accueillir !</p>
+          <p className="text-gray-600 mb-6">Commencez par explorer les différentes fonctionnalités et modules.</p>
         </div>
         
         <div className="mb-6">
-          <img src="/api/placeholder/400/200" alt="Modeliks Preview" className="w-full rounded-lg" />
+          <img src="/api/placeholder/400/200" alt="Aperçu Modeliks" className="w-full rounded-lg" />
         </div>
         
         <div className="mb-6">
           <p className="text-sm text-gray-600">
-            If you have any questions, our support team is here to assist you or consult our help center for guidance. We also offer live-chat during our business hours
+            Si vous avez des questions, notre équipe de support est là pour vous aider ou consultez notre centre d'aide pour des conseils. Nous offrons également un chat en direct pendant nos heures d'ouverture
           </p>
         </div>
         
@@ -129,7 +129,7 @@ const WelcomeModal: React.FC<{ onContinue: () => void }> = ({ onContinue }) => {
           onClick={handleGetStarted}
           className="w-full bg-blue-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-600 transition-colors"
         >
-          Get Started
+          Commencer
         </button>
       </div>
     </div>
@@ -150,8 +150,8 @@ const InitialSetupWizard: React.FC<{
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-500 mb-2">Let's get you started!</h1>
-          <p className="text-gray-600">Please answer 9 quick questions to tailor your plan.</p>
+          <h1 className="text-3xl font-bold text-blue-500 mb-2">Commençons !</h1>
+          <p className="text-gray-600">Veuillez répondre à 9 questions rapides pour personnaliser votre plan.</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8">
@@ -188,7 +188,7 @@ const InitialSetupWizard: React.FC<{
               className="flex items-center px-4 py-2 text-gray-600 disabled:opacity-50"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
-              Previous
+              Précédent
             </button>
 
             <div className="flex space-x-2">
@@ -207,7 +207,7 @@ const InitialSetupWizard: React.FC<{
               onClick={onNext}
               className="flex items-center px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
             >
-              {currentStep === questions.length - 1 ? 'Complete' : 'Next'}
+              {currentStep === questions.length - 1 ? 'Terminer' : 'Suivant'}
               <ChevronRight className="w-4 h-4 ml-1" />
             </button>
           </div>
@@ -226,30 +226,30 @@ const BusinessPlanOverview: React.FC<{
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Create your business plan with AI</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Créez votre plan d'affaires avec l'IA</h1>
           <p className="text-gray-600 max-w-4xl mx-auto mb-2">
-            Your business plan is organized into chapters, with each chapter containing several sections. To complete your plan, navigate through each chapter and fill in the corresponding sections. Be sure to finish the "Executive Summary" chapter last. You can also customize the cover page as needed.
+            Votre plan d'affaires est organisé en chapitres, chaque chapitre contenant plusieurs sections. Pour compléter votre plan, naviguez à travers chaque chapitre et remplissez les sections correspondantes. Assurez-vous de terminer le chapitre "Résumé exécutif" en dernier. Vous pouvez également personnaliser la page de couverture selon vos besoins.
           </p>
           <p className="text-gray-600 font-medium">
-            Please use English as a primary language for building your business plan.
+            Veuillez utiliser le français comme langue principale pour la création de votre plan d'affaires.
           </p>
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
-              Plan Name: Business Plan (Original) <span className="text-blue-500">{'>'}</span>
+              Nom du plan : Plan d'affaires (Original) <span className="text-blue-500">{'>'}</span>
             </h2>
           </div>
 
           <div className="grid grid-cols-5 gap-4 mb-8">
-            {/* Business Overview */}
+            {/* Aperçu de l'entreprise */}
             <div className="bg-blue-50 rounded-lg p-4">
               <div className="flex items-center mb-4">
                 <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
                   1
                 </div>
-                <h3 className="text-base font-semibold text-gray-900">Business<br/>Overview</h3>
+                <h3 className="text-base font-semibold text-gray-900">Aperçu de<br/>l'entreprise</h3>
               </div>
               
               <div className="space-y-2">
@@ -259,113 +259,113 @@ const BusinessPlanOverview: React.FC<{
                     <span className="text-gray-700 text-sm">Description</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">1.2</span>
-                    <span className="text-gray-700 text-sm">Our Values</span>
+                    <span className="text-gray-700 text-sm">Nos valeurs</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">1.3</span>
-                    <span className="text-gray-700 text-sm">Ownership</span>
+                    <span className="text-gray-700 text-sm">Propriété</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">1.4</span>
-                    <span className="text-gray-700 text-sm">Products &<br/>Services</span>
+                    <span className="text-gray-700 text-sm">Produits et<br/>services</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">1.5</span>
-                    <span className="text-gray-700 text-sm">Intellectual<br/>Property</span>
+                    <span className="text-gray-700 text-sm">Propriété<br/>intellectuelle</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Market Analysis */}
+            {/* Analyse du marché */}
             <div className="bg-blue-50 rounded-lg p-4">
               <div className="flex items-center mb-4">
                 <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
                   2
                 </div>
-                <h3 className="text-base font-semibold text-gray-900">Market<br/>Analysis</h3>
+                <h3 className="text-base font-semibold text-gray-900">Analyse du<br/>marché</h3>
               </div>
               
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">2.1</span>
-                    <span className="text-gray-700 text-sm">Problems<br/>& Solutions</span>
+                    <span className="text-gray-700 text-sm">Problèmes et<br/>solutions</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">2.2</span>
-                    <span className="text-gray-700 text-sm">Target<br/>Market</span>
+                    <span className="text-gray-700 text-sm">Marché<br/>cible</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">2.3</span>
-                    <span className="text-gray-700 text-sm">Market<br/>Trends</span>
+                    <span className="text-gray-700 text-sm">Tendances<br/>du marché</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">2.4</span>
-                    <span className="text-gray-700 text-sm">Target<br/>Customers</span>
+                    <span className="text-gray-700 text-sm">Clients<br/>cibles</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">2.5</span>
-                    <span className="text-gray-700 text-sm">Competition</span>
+                    <span className="text-gray-700 text-sm">Concurrence</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Strategy */}
+            {/* Stratégie */}
             <div className="bg-blue-50 rounded-lg p-4">
               <div className="flex items-center mb-4">
                 <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
                   3
                 </div>
-                <h3 className="text-base font-semibold text-gray-900">Strategy</h3>
+                <h3 className="text-base font-semibold text-gray-900">Stratégie</h3>
               </div>
               
               <div className="space-y-2">
@@ -375,72 +375,72 @@ const BusinessPlanOverview: React.FC<{
                     <span className="text-gray-700 text-sm">Marketing</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">3.2</span>
-                    <span className="text-gray-700 text-sm">Pricing</span>
+                    <span className="text-gray-700 text-sm">Tarification</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">3.3</span>
-                    <span className="text-gray-700 text-sm">Sales</span>
+                    <span className="text-gray-700 text-sm">Ventes</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">3.4</span>
-                    <span className="text-gray-700 text-sm">Operations</span>
+                    <span className="text-gray-700 text-sm">Opérations</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">3.5</span>
-                    <span className="text-gray-700 text-sm">Team</span>
+                    <span className="text-gray-700 text-sm">Équipe</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Financials */}
+            {/* Financier */}
             <div className="bg-blue-50 rounded-lg p-4">
               <div className="flex items-center mb-4">
                 <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
                   4
                 </div>
-                <h3 className="text-base font-semibold text-gray-900">Financials</h3>
+                <h3 className="text-base font-semibold text-gray-900">Financier</h3>
               </div>
               
               <div className="space-y-2 mb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">4.1</span>
-                    <span className="text-gray-700 text-sm">Financial<br/>Forecast</span>
+                    <span className="text-gray-700 text-sm">Prévisions<br/>financières</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Start
+                    Commencer
                   </button>
                 </div>
               </div>
 
               <div className="bg-white rounded-lg p-4 text-center">
                 <p className="text-sm text-gray-600 mb-3">
-                  See your Forecast and analyze your future financial projections.
+                  Consultez vos prévisions et analysez vos projections financières futures.
                 </p>
                 <div className="inline-flex flex-col items-center p-4 border border-blue-200 rounded-lg">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg mb-2 flex items-center justify-center">
@@ -449,36 +449,36 @@ const BusinessPlanOverview: React.FC<{
                     </svg>
                   </div>
                   <p className="text-xs text-blue-500 font-medium">
-                    Financial<br/>Forecast
+                    Prévisions<br/>financières
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Executive Summary */}
+            {/* Résumé exécutif */}
             <div className="bg-blue-50 rounded-lg p-4">
               <div className="flex items-center mb-4">
                 <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
                   5
                 </div>
-                <h3 className="text-base font-semibold text-gray-900">Executive<br/>Summary</h3>
+                <h3 className="text-base font-semibold text-gray-900">Résumé<br/>exécutif</h3>
               </div>
               
               <div className="space-y-2 mb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <span className="text-blue-500 font-medium text-sm mr-2">5.1</span>
-                    <span className="text-gray-700 text-sm">Executive<br/>Summary</span>
+                    <span className="text-gray-700 text-sm">Résumé<br/>exécutif</span>
                   </div>
                   <button className="px-2 py-1 bg-gray-200 text-gray-600 rounded text-xs hover:bg-gray-300 transition-colors">
-                    Generate
+                    Générer
                   </button>
                 </div>
               </div>
 
               <div className="bg-white rounded-lg p-4 text-center">
                 <p className="text-sm text-gray-600 mb-3">
-                  See your Forecast and analyze your future financial projections.
+                  Consultez vos prévisions et analysez vos projections financières futures.
                 </p>
                 <div className="inline-flex flex-col items-center p-4 border border-blue-200 rounded-lg">
                   <div className="w-12 h-12 bg-blue-100 rounded-lg mb-2 flex items-center justify-center">
@@ -487,7 +487,7 @@ const BusinessPlanOverview: React.FC<{
                     </svg>
                   </div>
                   <p className="text-xs text-blue-500 font-medium">
-                    Generate<br/>Executive<br/>Summary
+                    Générer<br/>résumé<br/>exécutif
                   </p>
                 </div>
               </div>
@@ -499,19 +499,19 @@ const BusinessPlanOverview: React.FC<{
               onClick={onStartPlan}
               className="px-8 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
             >
-              Start your business plan
+              Commencer votre plan d'affaires
             </button>
             <button
               onClick={onViewPlan}
               className="px-8 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
             >
-              View plan
+              Voir le plan
             </button>
           </div>
 
           <div className="text-center mt-4">
             <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">
-              Share & Downloads Plan
+              Partager et télécharger le plan
             </button>
           </div>
         </div>
@@ -555,7 +555,7 @@ const QuestionRenderer: React.FC<{
           onChange={(e) => onChange(e.target.value)}
           className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">Select an option</option>
+          <option value="">Sélectionnez une option</option>
           {question.options.map((option: any) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -585,7 +585,7 @@ const QuestionRenderer: React.FC<{
       );
     
     default:
-      return <div>Unsupported question type: {question.type}</div>;
+      return <div>Type de question non supporté : {question.type}</div>;
   }
 };
 
