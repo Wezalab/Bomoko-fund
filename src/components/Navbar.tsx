@@ -102,7 +102,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
     //console.log("user",user)
   return (
     <>
-        <nav className='flex sticky top-0 z-30 shadow-md py-3 px-2 bg-white justify-between items-center md:hidden'>
+        <nav className='flex sticky top-0 z-30 shadow-md py-2 px-2 bg-white justify-between items-center md:hidden'>
             <IoMdMenu onClick={()=>setSideBar(true)} size={28} />
             <div className='flex items-center space-x-1'>
                 {
@@ -181,12 +181,12 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                 </div>
             </aside>
         </nav>
-        <nav className='hidden md:py-5  lg:py-[16px] sticky top-0 z-30 md:px-2 lg:px-[80px] md:flex items-center justify-between bg-white shadow-sm'>
-            <div className='md:hidden lg:flex -mt-6 items-center md:space-x-2 lg:space-x-[8px]'>
+        <nav className='hidden md:py-2  lg:py-[8px] sticky top-0 z-30 md:px-2 lg:px-[80px] md:flex items-center justify-between bg-white shadow-sm'>
+            <div className='md:hidden lg:flex -mt-3 items-center md:space-x-2 lg:space-x-[8px]'>
                 <img 
                     onClick={()=>navigate("/")}
                     src={lightLogo}
-                    className='md:h-[70px] mt-5 md:w-[150px] cursor-pointer lg:w-[250px] lg:h-[140px]'
+                    className='md:h-[50px] mt-2 md:w-[120px] cursor-pointer lg:w-[200px] lg:h-[100px]'
                     alt='app-image'
                 />
                 {/* <h1 className='font-semibold md:hidden lg:inline capitalize md:text-[16px] text-nowrap lg:text-[24px] text-lightBlue'>bomoko fund</h1> */}

@@ -829,7 +829,7 @@ const BusinessPlanSectionWizard: React.FC<{
     <div className="bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-blue-100 py-8 mb-8 rounded-lg">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 py-4 mb-8 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <div className="mr-6">
