@@ -44,6 +44,7 @@ const VentureWizard: React.FC = () => {
   const [showNameSuggestions, setShowNameSuggestions] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [sidebarView, setSidebarView] = useState<'benefits' | 'funding'>('benefits');
   const [ventureData, setVentureData] = useState<VentureData>({
     purpose: '',
     country: '',
@@ -669,6 +670,121 @@ const VentureWizard: React.FC = () => {
 
   const currentStepData = steps[currentStep];
 
+  // Define colors for numbers
+  const numberColors = [
+    'text-yellow', // 01 - Yellow
+    'text-green-400', // 02 - Green
+    'text-blue-400', // 03 - Blue
+    'text-purple-400', // 04 - Purple
+    'text-red-400', // 05 - Red
+  ];
+
+  const renderSidebarContent = () => {
+    if (sidebarView === 'benefits') {
+      return (
+        <>
+          <div>
+            <h3 className="text-lg font-semibold mb-2 text-white">{t('Benefits of using BOMOKO FUND')}</h3>
+            <p className="text-sm text-gray-300">{t('for creating your business plan.')}</p>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex items-start space-x-4">
+              <div className={`text-4xl font-bold ${numberColors[0]} opacity-90`}>01</div>
+              <div>
+                <h4 className="font-semibold mb-2 text-white">{t('AI-powered business planning')}</h4>
+                <p className="text-sm text-gray-300">{t('Create a professional quality business plan in no time, just answer our multiple-choice questions and let BOMOKO FUND do the rest.')}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className={`text-4xl font-bold ${numberColors[1]} opacity-90`}>02</div>
+              <div>
+                <h4 className="font-semibold mb-2 text-white">{t('Access to funding opportunities')}</h4>
+                <p className="text-sm text-gray-300">{t('Connect with investors and funding opportunities specifically designed for African entrepreneurs and high-potential projects.')}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className={`text-4xl font-bold ${numberColors[2]} opacity-90`}>03</div>
+              <div>
+                <h4 className="font-semibold mb-2 text-white">{t('Community of entrepreneurs')}</h4>
+                <p className="text-sm text-gray-300">{t('Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.')}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className={`text-4xl font-bold ${numberColors[3]} opacity-90`}>04</div>
+              <div>
+                <h4 className="font-semibold mb-2 text-white">{t('Expert guidance and mentorship')}</h4>
+                <p className="text-sm text-gray-300">{t('Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.')}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className={`text-4xl font-bold ${numberColors[4]} opacity-90`}>05</div>
+              <div>
+                <h4 className="font-semibold mb-2 text-white">{t('Comprehensive business tools')}</h4>
+                <p className="text-sm text-gray-300">{t('Focus on high-potential projects that address critical social and economic needs across African communities.')}</p>
+              </div>
+            </div>
+          </div>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <div>
+            <h3 className="text-lg font-semibold mb-2 text-white">{t('How funding works on BOMOKO FUND')}</h3>
+            <p className="text-sm text-gray-300">{t('Step-by-step guide to get funded.')}</p>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex items-start space-x-4">
+              <div className={`text-4xl font-bold ${numberColors[0]} opacity-90`}>01</div>
+              <div>
+                <h4 className="font-semibold mb-2 text-white">{t('Create Your Business Plan')}</h4>
+                <p className="text-sm text-gray-300">{t('Build a comprehensive business plan using our AI-powered tools and templates specifically designed for African entrepreneurs.')}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className={`text-4xl font-bold ${numberColors[1]} opacity-90`}>02</div>
+              <div>
+                <h4 className="font-semibold mb-2 text-white">{t('Submit for Review')}</h4>
+                <p className="text-sm text-gray-300">{t('Our expert team reviews your business plan to ensure it meets funding requirements and provides feedback for improvement.')}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className={`text-4xl font-bold ${numberColors[2]} opacity-90`}>03</div>
+              <div>
+                <h4 className="font-semibold mb-2 text-white">{t('Get Matched with Investors')}</h4>
+                <p className="text-sm text-gray-300">{t('Connect with impact-driven investors who are specifically interested in funding high-potential African ventures and projects.')}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className={`text-4xl font-bold ${numberColors[3]} opacity-90`}>04</div>
+              <div>
+                <h4 className="font-semibold mb-2 text-white">{t('Receive Funding')}</h4>
+                <p className="text-sm text-gray-300">{t('Once matched, receive funding through our secure platform and start building your business with ongoing support and mentorship.')}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className={`text-4xl font-bold ${numberColors[4]} opacity-90`}>05</div>
+              <div>
+                <h4 className="font-semibold mb-2 text-white">{t('Launch & Scale')}</h4>
+                <p className="text-sm text-gray-300">{t('Launch your business with confidence and access our network of resources, mentors, and partners to scale your impact across Africa.')}</p>
+              </div>
+            </div>
+          </div>
+        </>
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-lightGreen/20 to-lightBlue/20 flex">
       {/* Sidebar */}
@@ -685,62 +801,35 @@ const VentureWizard: React.FC = () => {
 
           <div className="space-y-8">
             <div className="flex items-center space-x-2 mb-4">
-              <span className="text-sm bg-white/10 px-3 py-1 rounded-full text-gray-200">{t('Funding')}</span>
-              <span className="text-sm bg-white text-[#02093d] px-3 py-1 rounded-full">{t('Benefits')}</span>
+              <button
+                onClick={() => setSidebarView('funding')}
+                className={`text-sm px-3 py-1 rounded-full transition-colors ${
+                  sidebarView === 'funding'
+                    ? 'bg-white text-[#02093d]'
+                    : 'bg-white/10 text-gray-200 hover:bg-white/20'
+                }`}
+              >
+                {t('Funding')}
+              </button>
+              <button
+                onClick={() => setSidebarView('benefits')}
+                className={`text-sm px-3 py-1 rounded-full transition-colors ${
+                  sidebarView === 'benefits'
+                    ? 'bg-white text-[#02093d]'
+                    : 'bg-white/10 text-gray-200 hover:bg-white/20'
+                }`}
+              >
+                {t('Benefits')}
+              </button>
             </div>
 
-            <div>
-              <h3 className="text-lg font-semibold mb-2 text-white">{t('Benefits of using BOMOKO FUND')}</h3>
-              <p className="text-sm text-gray-300">{t('for creating your business plan.')}</p>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow opacity-90">01</div>
-                <div>
-                  <h4 className="font-semibold mb-2 text-white">{t('AI-powered business planning')}</h4>
-                  <p className="text-sm text-gray-300">{t('Create a professional quality business plan in no time, just answer our multiple-choice questions and let BOMOKO FUND do the rest.')}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow opacity-90">02</div>
-                <div>
-                  <h4 className="font-semibold mb-2 text-white">{t('Access to funding opportunities')}</h4>
-                  <p className="text-sm text-gray-300">{t('Connect with investors and funding opportunities specifically designed for African entrepreneurs and high-potential projects.')}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow opacity-90">03</div>
-                <div>
-                  <h4 className="font-semibold mb-2 text-white">{t('Community of entrepreneurs')}</h4>
-                  <p className="text-sm text-gray-300">{t('Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.')}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow opacity-90">04</div>
-                <div>
-                  <h4 className="font-semibold mb-2 text-white">{t('Expert guidance and mentorship')}</h4>
-                  <p className="text-sm text-gray-300">{t('Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.')}</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow opacity-90">05</div>
-                <div>
-                  <h4 className="font-semibold mb-2 text-white">{t('Comprehensive business tools')}</h4>
-                  <p className="text-sm text-gray-300">{t('Focus on high-potential projects that address critical social and economic needs across African communities.')}</p>
-                </div>
-              </div>
-            </div>
+            {renderSidebarContent()}
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 bg-white">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <div className="inline-block px-4 py-2 bg-yellow text-dark rounded-full text-sm font-medium mb-4">
