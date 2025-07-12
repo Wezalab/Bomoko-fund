@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Sparkles, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, Loader2, Search, X, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -9,6 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Textarea } from "./ui/textarea";
 import countryData from '../constants/countries.json';
 import { generateBusinessTypeSuggestions, generateBusinessNameSuggestions } from '../lib/groqService';
+import { useTranslation } from '../lib/TranslationContext';
+import logoLight from '../assets/logoLight.webp';
+import logoDark from '../assets/logoDark.webp';
+
+interface Country {
+  code: string;
+  name: string;
+  color: string;
+}
 
 interface VentureData {
   purpose: string;
@@ -25,6 +34,7 @@ interface VentureData {
 
 const VentureWizard: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
   const [businessDescriptionSubStep, setBusinessDescriptionSubStep] = useState(0); // 0: description, 1: type selection
   const [isLoadingAISuggestions, setIsLoadingAISuggestions] = useState(false);
@@ -32,6 +42,8 @@ const VentureWizard: React.FC = () => {
   const [isLoadingNameSuggestions, setIsLoadingNameSuggestions] = useState(false);
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
   const [showNameSuggestions, setShowNameSuggestions] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [ventureData, setVentureData] = useState<VentureData>({
     purpose: '',
     country: '',
@@ -43,45 +55,53 @@ const VentureWizard: React.FC = () => {
     authMethod: '',
   });
 
+  const countries: Country[] = countryData as Country[];
+
+  const filteredCountries = countries.filter(country =>
+    country.name.toLowerCase().includes(countrySearch.toLowerCase())
+  );
+
+  const selectedCountry = countries.find(c => c.code === ventureData.country);
+
   const steps = [
     {
       id: 'purpose',
-      question: 'Why are you creating a business plan?',
-      description: 'The option you choose will not alter the structure of your plan; it just helps us to better understand your goals.',
+      question: t('Why are you creating a business plan?'),
+      description: t('The option you choose will not alter the structure of your plan; it just helps us to better understand your goals.'),
       type: 'choice'
     },
     {
       id: 'location',
-      question: 'Where will the business be based?',
-      description: 'If the business will operate internationally select the country that the head office will be situated in.',
+      question: t('Where will the business be based?'),
+      description: t('If the business will operate internationally select the country that the head office will be situated in.'),
       type: 'country'
     },
     {
       id: 'business-description',
       question: businessDescriptionSubStep === 0 
-        ? 'What will the business do?' 
-        : 'Please choose the options that most accurately describe the business:',
+        ? t('What will the business do?')
+        : t('Please choose the options that most accurately describe the business:'),
       description: businessDescriptionSubStep === 0 
-        ? 'This will not appear in your plan, it just helps us understand the business. Below are a few examples:' 
-        : 'If none of the suggestions accurately describe your business, click the \'Manual\' button to search for other options.',
+        ? t('This will not appear in your plan, it just helps us understand the business. Below are a few examples:')
+        : t('If none of the suggestions accurately describe your business, click the \'Manual\' button to search for other options.'),
       type: businessDescriptionSubStep === 0 ? 'textarea' : 'business-type-selection'
     },
     {
       id: 'business-name',
-      question: 'What will the business be called?',
-      description: 'If you haven\'t chosen a name, enter a temporary one and change it later in the Business Settings.',
+      question: t('What will the business be called?'),
+      description: t('If you haven\'t chosen a name, enter a temporary one and change it later in the Business Settings.'),
       type: 'text'
     },
     {
       id: 'user-info',
-      question: 'What is your name and role?',
-      description: 'Please provide your full name and describe your position or affiliation with the business.',
+      question: t('What is your name and role?'),
+      description: t('Please provide your full name and describe your position or affiliation with the business.'),
       type: 'user-details'
     },
     {
       id: 'auth-method',
-      question: 'Register with Google or set username & password?',
-      description: 'You can use Google to sign in and out of your account or you can manually set a username.',
+      question: t('Register with Google or set username & password?'),
+      description: t('You can use Google to sign in and out of your account or you can manually set a username.'),
       type: 'auth'
     }
   ];
@@ -89,18 +109,18 @@ const VentureWizard: React.FC = () => {
   const purposeOptions = [
     {
       value: 'validate-idea',
-      title: 'Validate Idea',
-      description: 'To transform a business concept or idea into a structured plan, ensuring that the venture is both feasible and profitable'
+      title: t('Validate Idea'),
+      description: t('To transform a business concept or idea into a structured plan, ensuring that the venture is both feasible and profitable')
     },
     {
       value: 'launch-startup',
-      title: 'Launch Startup',
-      description: 'To create a roadmap for launching, scaling or funding a new business, including detailed objectives, strategies and forecasts.'
+      title: t('Launch Startup'),
+      description: t('To create a roadmap for launching, scaling or funding a new business, including detailed objectives, strategies and forecasts.')
     },
     {
       value: 'drive-growth',
-      title: 'Drive Growth',
-      description: 'To develop strategies for expanding operations, entering new markets, or optimising resources for success and increased profitability.'
+      title: t('Drive Growth'),
+      description: t('To develop strategies for expanding operations, entering new markets, or optimising resources for success and increased profitability.')
     }
   ];
 
@@ -203,6 +223,12 @@ const VentureWizard: React.FC = () => {
     setShowNameSuggestions(false);
   };
 
+  const selectCountry = (country: Country) => {
+    updateVentureData('country', country.code);
+    setCountrySearch(country.name);
+    setShowCountryDropdown(false);
+  };
+
   const handleNext = () => {
     // Special handling for business description step
     if (currentStep === 2 && businessDescriptionSubStep === 0) {
@@ -293,22 +319,22 @@ const VentureWizard: React.FC = () => {
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                {/* Selected indicator */}
-                {ventureData.purpose === option.value && (
-                  <div className="absolute top-3 right-3 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                )}
-                <h3 className={`font-semibold text-lg mb-2 ${
-                  ventureData.purpose === option.value ? 'text-yellow-800' : 'text-gray-900'
-                }`}>
-                  {option.title}
-                </h3>
-                <p className={`text-sm ${
-                  ventureData.purpose === option.value ? 'text-yellow-700' : 'text-gray-600'
-                }`}>
+                                 {/* Selected indicator */}
+                 {ventureData.purpose === option.value && (
+                   <div className="absolute top-3 right-3 w-6 h-6 bg-yellow rounded-full flex items-center justify-center">
+                     <svg className="w-4 h-4 text-dark" fill="currentColor" viewBox="0 0 20 20">
+                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                     </svg>
+                   </div>
+                 )}
+                 <h3 className={`font-semibold text-lg mb-2 ${
+                   ventureData.purpose === option.value ? 'text-dark' : 'text-gray-900'
+                 }`}>
+                   {option.title}
+                 </h3>
+                 <p className={`text-sm ${
+                   ventureData.purpose === option.value ? 'text-dark/70' : 'text-gray-600'
+                 }`}>
                   {option.description}
                 </p>
               </button>
@@ -319,18 +345,69 @@ const VentureWizard: React.FC = () => {
       case 'country':
         return (
           <div className="space-y-4">
-            <Select value={ventureData.country} onValueChange={(value) => updateVentureData('country', value)}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Please Select" />
-              </SelectTrigger>
-              <SelectContent>
-                {countryData.map((country) => (
-                  <SelectItem key={country.code} value={country.name}>
-                    {country.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="relative">
+              <Label htmlFor="country" className="text-sm font-medium text-dark">
+                {t('Select Country')}
+              </Label>
+              <div className="relative mt-2">
+                <div
+                  className="w-full p-3 border-2 border-gray-200 rounded-lg bg-white cursor-pointer hover:border-lightBlue/50 transition-colors"
+                  onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {selectedCountry && (
+                        <div 
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: selectedCountry.color }}
+                        />
+                      )}
+                      <span className={selectedCountry ? 'text-dark' : 'text-gray-400'}>
+                        {selectedCountry ? selectedCountry.name : t('Select Country')}
+                      </span>
+                    </div>
+                    <ChevronRight className={`w-4 h-4 transition-transform ${showCountryDropdown ? 'rotate-90' : ''}`} />
+                  </div>
+                </div>
+                
+                {showCountryDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-hidden">
+                    <div className="p-3 border-b border-gray-200">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          type="text"
+                          placeholder={t('Search countries...')}
+                          value={countrySearch}
+                          onChange={(e) => setCountrySearch(e.target.value)}
+                          className="pl-10 border-gray-300 focus:border-lightBlue"
+                        />
+                      </div>
+                    </div>
+                    <div className="max-h-40 overflow-y-auto">
+                      {filteredCountries.map((country) => (
+                        <div
+                          key={country.code}
+                          className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                          onClick={() => selectCountry(country)}
+                        >
+                          <div 
+                            className="w-4 h-4 rounded-full"
+                            style={{ backgroundColor: country.color }}
+                          />
+                          <span className="text-dark">{country.name}</span>
+                        </div>
+                      ))}
+                      {filteredCountries.length === 0 && (
+                        <div className="p-3 text-gray-500 text-center">
+                          {t('No countries found')}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         );
 
@@ -362,15 +439,15 @@ const VentureWizard: React.FC = () => {
             {/* AI Suggestions Section */}
             {aiSuggestions.length > 0 && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-gray-900">AI Suggestions</h3>
+                                 <div className="flex items-center justify-between">
+                   <h3 className="font-medium text-gray-900">{t('Load AI Suggestions')}</h3>
                   {ventureData.businessTypes.length > 0 && (
                     <button
                       onClick={clearBusinessTypes}
-                      className="text-sm text-red-500 hover:text-red-700"
-                    >
-                      Clear Options
-                    </button>
+                                         className="text-sm text-red-500 hover:text-red-700"
+                 >
+                   {t('Clear All')}
+                 </button>
                   )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -378,11 +455,11 @@ const VentureWizard: React.FC = () => {
                     <button
                       key={index}
                       onClick={() => toggleBusinessType(suggestion)}
-                      className={`p-4 text-left rounded-lg border-2 transition-all ${
-                        ventureData.businessTypes.includes(suggestion)
-                          ? 'border-teal-400 bg-teal-50 text-teal-800'
-                          : 'border-gray-200 hover:border-gray-300 bg-white'
-                      }`}
+                                             className={`p-4 text-left rounded-lg border-2 transition-all ${
+                         ventureData.businessTypes.includes(suggestion)
+                           ? 'border-lightBlue bg-lightBlue/10 text-lightBlue'
+                           : 'border-gray-200 hover:border-gray-300 bg-white'
+                       }`}
                     >
                       <span className="font-medium">{suggestion}</span>
                     </button>
@@ -397,7 +474,7 @@ const VentureWizard: React.FC = () => {
                 <button
                   onClick={generateAISuggestions}
                   disabled={isLoadingAISuggestions || !ventureData.businessDescription.trim()}
-                  className="inline-flex items-center space-x-2 px-6 py-3 border-2 border-dashed border-yellow-400 text-yellow-600 rounded-lg hover:bg-yellow-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                     className="inline-flex items-center space-x-2 px-6 py-3 border-2 border-dashed border-yellow text-dark rounded-lg hover:bg-yellow/10 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoadingAISuggestions ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -405,22 +482,22 @@ const VentureWizard: React.FC = () => {
                     <Sparkles className="w-5 h-5" />
                   )}
                   <span>
-                    {isLoadingAISuggestions ? 'Loading AI Suggestions...' : 'Load AI Suggestions'}
+                                         {isLoadingAISuggestions ? t('Loading') + '...' : t('Load AI Suggestions')}
                   </span>
                 </button>
               </div>
             )}
 
             {/* Manual Selection Section */}
-            <div className="space-y-4">
-              <h3 className="font-medium text-gray-900">Manually select the business classification(s):</h3>
-              <p className="text-sm text-gray-600">
-                Note that you can search the list or type your own and then click on it to select it. It is also possible to select multiple options.
-              </p>
+                         <div className="space-y-4">
+               <h3 className="font-medium text-gray-900">{t('Manual')}</h3>
+               <p className="text-sm text-gray-600">
+                 {t('If none of the suggestions accurately describe your business, click the \'Manual\' button to search for other options.')}
+               </p>
               
               <Select onValueChange={(value) => toggleBusinessType(value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Please Select" />
+                                 <SelectTrigger className="w-full">
+                   <SelectValue placeholder={t('Manual')} />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
                   {predefinedBusinessTypes.map((type, index) => (
@@ -437,17 +514,17 @@ const VentureWizard: React.FC = () => {
               {/* Selected Business Types Display */}
               {ventureData.businessTypes.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700">Selected Classifications:</h4>
+                                     <h4 className="text-sm font-medium text-gray-700">{t('Selected Types:')}</h4>
                   <div className="flex flex-wrap gap-2">
                     {ventureData.businessTypes.map((type, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center space-x-1 px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-sm"
+                                                 className="inline-flex items-center space-x-1 px-3 py-1 bg-lightBlue/10 text-lightBlue rounded-full text-sm"
                       >
                         <span>{type}</span>
                         <button
                           onClick={() => toggleBusinessType(type)}
-                          className="text-teal-600 hover:text-teal-800"
+                                                     className="text-lightBlue hover:text-lightBlue/80"
                         >
                           ×
                         </button>
@@ -477,12 +554,12 @@ const VentureWizard: React.FC = () => {
                   size="sm"
                   onClick={generateNameSuggestions}
                   disabled={isLoadingNameSuggestions || !ventureData.businessDescription.trim()}
-                  className="bg-yellow-400 hover:bg-yellow-500 text-black border-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                                     className="bg-yellow hover:bg-yellow/90 text-dark border-yellow disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoadingNameSuggestions ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
-                    'Suggest Names'
+                                         t('Suggest Names')
                   )}
                 </Button>
               </div>
@@ -491,25 +568,25 @@ const VentureWizard: React.FC = () => {
             {/* Name Suggestions */}
             {showNameSuggestions && nameSuggestions.length > 0 && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-gray-900">AI Name Suggestions</h3>
-                  <button
-                    onClick={() => setShowNameSuggestions(false)}
-                    className="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    Hide Suggestions
-                  </button>
-                </div>
+                                 <div className="flex items-center justify-between">
+                   <h3 className="font-medium text-gray-900">{t('Suggest Names')}</h3>
+                   <button
+                     onClick={() => setShowNameSuggestions(false)}
+                     className="text-sm text-gray-500 hover:text-gray-700"
+                   >
+                     {t('Hide Suggestions')}
+                   </button>
+                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                   {nameSuggestions.map((name, index) => (
                     <button
                       key={index}
                       onClick={() => selectBusinessName(name)}
-                      className={`p-3 text-center rounded-lg border-2 transition-all ${
-                        ventureData.businessName === name
-                          ? 'border-yellow-400 bg-yellow-50 text-yellow-800'
-                          : 'border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50'
-                      }`}
+                                             className={`p-3 text-center rounded-lg border-2 transition-all ${
+                         ventureData.businessName === name
+                           ? 'border-yellow bg-yellow/10 text-dark'
+                           : 'border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50'
+                       }`}
                     >
                       <span className="font-medium">{name}</span>
                     </button>
@@ -521,10 +598,10 @@ const VentureWizard: React.FC = () => {
             {/* Loading state for AI suggestions */}
             {isLoadingNameSuggestions && (
               <div className="text-center py-4">
-                <div className="inline-flex items-center space-x-2 text-yellow-600">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Getting AI Options...</span>
-                </div>
+                                 <div className="inline-flex items-center space-x-2 text-lightBlue">
+                   <Loader2 className="w-5 h-5 animate-spin" />
+                   <span>Getting AI Options...</span>
+                 </div>
               </div>
             )}
           </div>
@@ -538,13 +615,13 @@ const VentureWizard: React.FC = () => {
                 <Input
                   value={ventureData.userName}
                   onChange={(e) => updateVentureData('userName', e.target.value)}
-                  placeholder="e.g. Joe Bloggs"
+                                     placeholder={t('Full Name')}
                 />
               </div>
               <div>
                 <Select value={ventureData.userRole} onValueChange={(value) => updateVentureData('userRole', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Please Select" />
+                                     <SelectTrigger>
+                     <SelectValue placeholder={t('Your Role')} />
                   </SelectTrigger>
                   <SelectContent>
                     {roleOptions.map((role) => (
@@ -562,26 +639,26 @@ const VentureWizard: React.FC = () => {
       case 'auth':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Button
-                onClick={handleGoogleSignIn}
-                className="h-16 bg-white border-2 border-gray-300 hover:bg-gray-50 text-gray-700 flex items-center justify-center space-x-3"
-              >
-                <svg className="w-6 h-6" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                <span>Register with Google</span>
-              </Button>
-              <Button
-                onClick={() => updateVentureData('authMethod', 'username')}
-                className="h-16 bg-gray-100 hover:bg-gray-200 text-gray-700 border-2 border-gray-300"
-              >
-                Create Username
-              </Button>
-            </div>
+                         <div className="grid grid-cols-2 gap-4">
+               <Button
+                 onClick={handleGoogleSignIn}
+                 className="h-16 bg-white border-2 border-lightBlue hover:bg-lightBlue/5 text-lightBlue flex items-center justify-center space-x-3"
+               >
+                 <svg className="w-6 h-6" viewBox="0 0 24 24">
+                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                 </svg>
+                 <span>{t('Register with Google')}</span>
+               </Button>
+               <Button
+                 onClick={() => updateVentureData('authMethod', 'username')}
+                 className="h-16 bg-lightGreen/20 hover:bg-lightGreen/30 text-dark border-2 border-lightGreen"
+               >
+                 {t('Set Username & Password')}
+               </Button>
+             </div>
           </div>
         );
 
@@ -593,69 +670,68 @@ const VentureWizard: React.FC = () => {
   const currentStepData = steps[currentStep];
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-gradient-to-br from-lightGreen/20 to-lightBlue/20 flex">
       {/* Sidebar */}
-      <div className="w-1/3 bg-gradient-to-b from-teal-600 to-teal-800 text-white p-8 relative overflow-hidden">
+      <div className="w-1/3 bg-gradient-to-b from-lightBlue to-lightBlue/90 text-white p-8 relative overflow-hidden">
         <div className="relative z-10">
           <div className="mb-8">
             <div className="flex items-center space-x-2 mb-2">
-              <div className="w-8 h-8 bg-white rounded text-teal-600 flex items-center justify-center font-bold">
-                V
+              <div className="w-8 h-8 bg-white rounded text-lightBlue flex items-center justify-center font-bold">
+                B
               </div>
-              <span className="text-2xl font-bold">Venture</span>
+              <span className="text-2xl font-bold">{t('BOMOKO FUND')}</span>
             </div>
-            <span className="text-2xl font-bold text-yellow-400">Planner</span>
           </div>
 
           <div className="space-y-8">
             <div className="flex items-center space-x-2 mb-4">
-              <span className="text-sm bg-teal-700 px-3 py-1 rounded-full">Pricing</span>
-              <span className="text-sm bg-white text-teal-600 px-3 py-1 rounded-full">Benefits</span>
+              <span className="text-sm bg-lightBlue/20 px-3 py-1 rounded-full">{t('Funding')}</span>
+              <span className="text-sm bg-white text-lightBlue px-3 py-1 rounded-full">{t('Benefits')}</span>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2">5 Reasons to use Venture Planner</h3>
-              <p className="text-sm text-teal-100">for creating your business plan.</p>
+              <h3 className="text-lg font-semibold mb-2">{t('Benefits of using BOMOKO FUND')}</h3>
+              <p className="text-sm text-lightBlue/80">{t('for creating your business plan.')}</p>
             </div>
 
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-teal-400 opacity-50">01</div>
+                <div className="text-4xl font-bold text-yellow opacity-75">01</div>
                 <div>
-                  <h4 className="font-semibold mb-2">Quick & Easy</h4>
-                  <p className="text-sm text-teal-100">Create a professional quality business plan in no time, just answer our multiple-choice questions and let Venture Planner do the rest.</p>
+                  <h4 className="font-semibold mb-2">{t('AI-powered business planning')}</h4>
+                  <p className="text-sm text-lightBlue/80">{t('Create a professional quality business plan in no time, just answer our multiple-choice questions and let BOMOKO FUND do the rest.')}</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-teal-400 opacity-50">02</div>
+                <div className="text-4xl font-bold text-yellow opacity-75">02</div>
                 <div>
-                  <h4 className="font-semibold mb-2">Avoid Failure</h4>
-                  <p className="text-sm text-teal-100">Reduce the risk failure with our thorough risk assessments and expert guidance to identify and overcome potential pitfalls.</p>
+                  <h4 className="font-semibold mb-2">{t('Access to funding opportunities')}</h4>
+                  <p className="text-sm text-lightBlue/80">{t('Connect with investors and funding opportunities specifically designed for African entrepreneurs and high-potential projects.')}</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow-400 opacity-75">03</div>
+                <div className="text-4xl font-bold text-yellow opacity-75">03</div>
                 <div>
-                  <h4 className="font-semibold mb-2">Powerful Forecasting</h4>
-                  <p className="text-sm text-teal-100">Our platform generates all your financial projections, tables, and charts, ensuring your business plan is financially viable.</p>
+                  <h4 className="font-semibold mb-2">{t('Community of entrepreneurs')}</h4>
+                  <p className="text-sm text-lightBlue/80">{t('Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.')}</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-pink-400 opacity-75">04</div>
+                <div className="text-4xl font-bold text-yellow opacity-75">04</div>
                 <div>
-                  <h4 className="font-semibold mb-2">Your Vision, Enhanced</h4>
-                  <p className="text-sm text-teal-100">Venture Planner uses thousands of data points to tailor your plan to your ideas, goals, and vision without you having to type a single word.</p>
+                  <h4 className="font-semibold mb-2">{t('Expert guidance and mentorship')}</h4>
+                  <p className="text-sm text-lightBlue/80">{t('Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.')}</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-red-400 opacity-75">05</div>
+                <div className="text-4xl font-bold text-yellow opacity-75">05</div>
                 <div>
-                  <h4 className="font-semibold mb-2">Expert Guidance</h4>
-                  <p className="text-sm text-teal-100">Our AI will guide you through every decision and provide strategy recommendations to help ensure the best chance success.</p>
+                  <h4 className="font-semibold mb-2">{t('Comprehensive business tools')}</h4>
+                  <p className="text-sm text-lightBlue/80">{t('Focus on high-potential projects that address critical social and economic needs across African communities.')}</p>
                 </div>
               </div>
             </div>
@@ -667,24 +743,24 @@ const VentureWizard: React.FC = () => {
       <div className="flex-1 p-8">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <div className="inline-block px-4 py-2 bg-yellow-200 text-yellow-800 rounded-full text-sm font-medium mb-4">
-              FREE TRIAL
+            <div className="inline-block px-4 py-2 bg-yellow text-dark rounded-full text-sm font-medium mb-4">
+              {t('FREE TRIAL')}
             </div>
-            <h1 className="text-5xl font-bold mb-2">
-              Create <span className="text-black">Business Plan</span>
+            <h1 className="text-5xl font-bold mb-2 text-dark">
+              {t('Create')} <span className="text-lightBlue">{t('Business Plan')}</span>
             </h1>
             <div className="text-right text-sm text-gray-500 mt-8">
-              <span>Already have an account? </span>
-              <button className="text-blue-600 hover:text-blue-800">Click Here</button>
+              <span>{t('Already have an account?')} </span>
+              <button className="text-lightBlue hover:text-lightBlue/80">{t('Log In')}</button>
             </div>
           </div>
 
           <div className="mb-8">
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold">
+              <div className="w-8 h-8 bg-lightBlue rounded-full flex items-center justify-center text-white font-bold">
                 ✓
               </div>
-              <h2 className="text-2xl font-bold">{currentStepData.question}</h2>
+              <h2 className="text-2xl font-bold text-dark">{currentStepData.question}</h2>
             </div>
             <p className="text-gray-600 mb-6">{currentStepData.description}</p>
           </div>
@@ -709,7 +785,7 @@ const VentureWizard: React.FC = () => {
               className="flex items-center space-x-2"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span>Back</span>
+              <span>{t('Back')}</span>
             </Button>
 
             <div className="flex space-x-2">
@@ -718,9 +794,9 @@ const VentureWizard: React.FC = () => {
                   key={index}
                   className={`w-3 h-3 rounded-full transition-colors ${
                     index === currentStep
-                      ? 'bg-teal-600'
+                      ? 'bg-lightBlue'
                       : index < currentStep
-                      ? 'bg-green-500'
+                      ? 'bg-yellow'
                       : 'bg-gray-300'
                   }`}
                 />
@@ -730,9 +806,9 @@ const VentureWizard: React.FC = () => {
             <Button
               onClick={handleNext}
               disabled={!isStepComplete(currentStepData.id)}
-              className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-700"
+              className="flex items-center space-x-2 bg-lightBlue hover:bg-lightBlue/90 text-white"
             >
-              <span>{currentStep === steps.length - 1 ? 'Complete' : 'Next'}</span>
+              <span>{currentStep === steps.length - 1 ? t('Complete Setup') : t('Continue')}</span>
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
