@@ -128,6 +128,13 @@ function HomePage() {
               {t("Create Business Plan")}
               <MdOutlineArrowOutward size={24} color="white" />
             </Button>
+            <Button
+              onClick={() => navigate("/venture")}
+              className="flex items-center space-x-3 bg-teal-600  h-[40px] md:h-[52px] rounded-[100px] hover:bg-teal-700"
+            >
+              {t("Create Venture")}
+              <MdOutlineArrowOutward size={24} color="white" />
+            </Button>
           </div>
         </div>
         <div className="relative w-full h-[384px]">
