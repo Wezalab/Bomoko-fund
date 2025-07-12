@@ -1,5 +1,5 @@
 import {BrowserRouter as Router,Routes,Route}  from 'react-router-dom'
-import { ContactLayout, HomeLayout, ProjectLayout, WorkLayout } from '../pages'
+import { ContactLayout, HomeLayout, ProjectLayout, WorkLayout, VentureLayout } from '../pages'
 import SingleProjectLayout from '@/pages/SingleProjectLayout'
 import FaqLayout from '@/pages/FaqLayout'
 import PrivacyPolicyLayout from '@/pages/PrivacyPolicyLayout'
@@ -25,6 +25,7 @@ function RootNavigation() {
             <Route path="/projects/create" element={<CreateProjectLayout />} />
             <Route path="/business-plan" element={<BusinessPlanLayout />} />
             <Route path="/business-plan/editor" element={<BusinessPlanEditorLayout />} />
+            <Route path="/venture" element={<VentureLayout />} />
             <Route path="/faq" element={<FaqLayout />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyLayout />} />
             <Route path="/profile" element={<ProfileLayout />} />
