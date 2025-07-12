@@ -8,7 +8,7 @@ import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import countryData from '../constants/countries.json';
-import { generateBusinessTypeSuggestions } from '../lib/groqService';
+import { generateBusinessTypeSuggestions, generateBusinessNameSuggestions } from '../lib/groqService';
 
 interface VentureData {
   purpose: string;
@@ -29,6 +29,9 @@ const VentureWizard: React.FC = () => {
   const [businessDescriptionSubStep, setBusinessDescriptionSubStep] = useState(0); // 0: description, 1: type selection
   const [isLoadingAISuggestions, setIsLoadingAISuggestions] = useState(false);
   const [aiSuggestions, setAISuggestions] = useState<string[]>([]);
+  const [isLoadingNameSuggestions, setIsLoadingNameSuggestions] = useState(false);
+  const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
+  const [showNameSuggestions, setShowNameSuggestions] = useState(false);
   const [ventureData, setVentureData] = useState<VentureData>({
     purpose: '',
     country: '',
@@ -177,6 +180,29 @@ const VentureWizard: React.FC = () => {
     updateVentureData('businessTypes', []);
   };
 
+  const generateNameSuggestions = async () => {
+    if (!ventureData.businessDescription.trim()) return;
+    
+    setIsLoadingNameSuggestions(true);
+    try {
+      const suggestions = await generateBusinessNameSuggestions(
+        ventureData.businessDescription, 
+        ventureData.businessTypes
+      );
+      setNameSuggestions(suggestions);
+      setShowNameSuggestions(true);
+    } catch (error) {
+      console.error('Error generating name suggestions:', error);
+    } finally {
+      setIsLoadingNameSuggestions(false);
+    }
+  };
+
+  const selectBusinessName = (name: string) => {
+    updateVentureData('businessName', name);
+    setShowNameSuggestions(false);
+  };
+
   const handleNext = () => {
     // Special handling for business description step
     if (currentStep === 2 && businessDescriptionSubStep === 0) {
@@ -261,14 +287,30 @@ const VentureWizard: React.FC = () => {
               <button
                 key={option.value}
                 onClick={() => updateVentureData('purpose', option.value)}
-                className={`w-full p-6 text-left rounded-lg border-2 transition-all ${
+                className={`w-full p-6 text-left rounded-lg border-2 transition-all relative ${
                   ventureData.purpose === option.value
-                    ? 'border-yellow-400 bg-yellow-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-yellow-400 bg-yellow-50 shadow-lg transform scale-[1.02]'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <h3 className="font-semibold text-lg mb-2">{option.title}</h3>
-                <p className="text-gray-600 text-sm">{option.description}</p>
+                {/* Selected indicator */}
+                {ventureData.purpose === option.value && (
+                  <div className="absolute top-3 right-3 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+                <h3 className={`font-semibold text-lg mb-2 ${
+                  ventureData.purpose === option.value ? 'text-yellow-800' : 'text-gray-900'
+                }`}>
+                  {option.title}
+                </h3>
+                <p className={`text-sm ${
+                  ventureData.purpose === option.value ? 'text-yellow-700' : 'text-gray-600'
+                }`}>
+                  {option.description}
+                </p>
               </button>
             ))}
           </div>
@@ -376,7 +418,7 @@ const VentureWizard: React.FC = () => {
                 Note that you can search the list or type your own and then click on it to select it. It is also possible to select multiple options.
               </p>
               
-              <Select>
+              <Select onValueChange={(value) => toggleBusinessType(value)}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Please Select" />
                 </SelectTrigger>
@@ -385,7 +427,6 @@ const VentureWizard: React.FC = () => {
                     <SelectItem 
                       key={index} 
                       value={type}
-                      onClick={() => toggleBusinessType(type)}
                     >
                       {type}
                     </SelectItem>
@@ -434,12 +475,58 @@ const VentureWizard: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-yellow-400 hover:bg-yellow-500 text-black border-yellow-400"
+                  onClick={generateNameSuggestions}
+                  disabled={isLoadingNameSuggestions || !ventureData.businessDescription.trim()}
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black border-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Suggest Names
+                  {isLoadingNameSuggestions ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    'Suggest Names'
+                  )}
                 </Button>
               </div>
             </div>
+
+            {/* Name Suggestions */}
+            {showNameSuggestions && nameSuggestions.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-gray-900">AI Name Suggestions</h3>
+                  <button
+                    onClick={() => setShowNameSuggestions(false)}
+                    className="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    Hide Suggestions
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {nameSuggestions.map((name, index) => (
+                    <button
+                      key={index}
+                      onClick={() => selectBusinessName(name)}
+                      className={`p-3 text-center rounded-lg border-2 transition-all ${
+                        ventureData.businessName === name
+                          ? 'border-yellow-400 bg-yellow-50 text-yellow-800'
+                          : 'border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="font-medium">{name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Loading state for AI suggestions */}
+            {isLoadingNameSuggestions && (
+              <div className="text-center py-4">
+                <div className="inline-flex items-center space-x-2 text-yellow-600">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Getting AI Options...</span>
+                </div>
+              </div>
+            )}
           </div>
         );
 

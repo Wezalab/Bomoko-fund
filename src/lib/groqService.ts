@@ -263,4 +263,47 @@ Examples of good business types: "Software Company", "E-commerce Platform", "Con
     console.error('Error generating business type suggestions:', error);
     return [];
   }
+};
+
+export const generateBusinessNameSuggestions = async (businessDescription: string, businessTypes: string[]) => {
+  const typesText = businessTypes.length > 0 ? ` The business types include: ${businessTypes.join(', ')}.` : '';
+  
+  const prompt = `Based on the following business description, suggest 6-9 creative and professional business names:
+
+Business Description: "${businessDescription}"${typesText}
+
+Please return ONLY a JSON array of business name suggestions in this exact format:
+["Business Name 1", "Business Name 2", "Business Name 3", ...]
+
+The suggestions should be:
+- Creative and memorable
+- Professional and brandable
+- Related to the business description and types
+- Easy to pronounce and spell
+- Suitable for various markets including African markets
+- Mix of different naming styles (descriptive, abstract, compound words)
+
+Examples of good business names: "TechTribe", "InnovateCorp", "AppVibe", "CongoCode", "DevDynamo", "WebifyPro", etc.`;
+
+  try {
+    const response = await getGroqChatCompletion(prompt);
+    const content = response.choices[0]?.message?.content || '';
+    
+    // Extract the JSON from the content
+    const jsonMatch = content.match(/\[(.*?)\]/s);
+    if (jsonMatch) {
+      try {
+        const suggestions = JSON.parse(jsonMatch[0]);
+        return Array.isArray(suggestions) ? suggestions : [];
+      } catch (e) {
+        console.error('Error parsing JSON name suggestions:', e);
+        return [];
+      }
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error generating business name suggestions:', error);
+    return [];
+  }
 }; 
