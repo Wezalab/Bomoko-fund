@@ -672,66 +672,66 @@ const VentureWizard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-lightGreen/20 to-lightBlue/20 flex">
       {/* Sidebar */}
-      <div className="w-1/3 bg-gradient-to-b from-lightBlue to-lightBlue/90 text-white p-8 relative overflow-hidden">
+      <div className="w-1/3 bg-gradient-to-b from-[#02093d] to-[#0a1854] text-white p-8 relative overflow-hidden">
         <div className="relative z-10">
           <div className="mb-8">
             <div className="flex items-center space-x-2 mb-2">
-              <div className="w-8 h-8 bg-white rounded text-lightBlue flex items-center justify-center font-bold">
+              <div className="w-8 h-8 bg-white rounded text-[#02093d] flex items-center justify-center font-bold">
                 B
               </div>
-              <span className="text-2xl font-bold">{t('BOMOKO FUND')}</span>
+              <span className="text-2xl font-bold text-white">{t('BOMOKO FUND')}</span>
             </div>
           </div>
 
           <div className="space-y-8">
             <div className="flex items-center space-x-2 mb-4">
-              <span className="text-sm bg-lightBlue/20 px-3 py-1 rounded-full">{t('Funding')}</span>
-              <span className="text-sm bg-white text-lightBlue px-3 py-1 rounded-full">{t('Benefits')}</span>
+              <span className="text-sm bg-white/10 px-3 py-1 rounded-full text-gray-200">{t('Funding')}</span>
+              <span className="text-sm bg-white text-[#02093d] px-3 py-1 rounded-full">{t('Benefits')}</span>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2">{t('Benefits of using BOMOKO FUND')}</h3>
-              <p className="text-sm text-lightBlue/80">{t('for creating your business plan.')}</p>
+              <h3 className="text-lg font-semibold mb-2 text-white">{t('Benefits of using BOMOKO FUND')}</h3>
+              <p className="text-sm text-gray-300">{t('for creating your business plan.')}</p>
             </div>
 
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow opacity-75">01</div>
+                <div className="text-4xl font-bold text-yellow opacity-90">01</div>
                 <div>
-                  <h4 className="font-semibold mb-2">{t('AI-powered business planning')}</h4>
-                  <p className="text-sm text-lightBlue/80">{t('Create a professional quality business plan in no time, just answer our multiple-choice questions and let BOMOKO FUND do the rest.')}</p>
+                  <h4 className="font-semibold mb-2 text-white">{t('AI-powered business planning')}</h4>
+                  <p className="text-sm text-gray-300">{t('Create a professional quality business plan in no time, just answer our multiple-choice questions and let BOMOKO FUND do the rest.')}</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow opacity-75">02</div>
+                <div className="text-4xl font-bold text-yellow opacity-90">02</div>
                 <div>
-                  <h4 className="font-semibold mb-2">{t('Access to funding opportunities')}</h4>
-                  <p className="text-sm text-lightBlue/80">{t('Connect with investors and funding opportunities specifically designed for African entrepreneurs and high-potential projects.')}</p>
+                  <h4 className="font-semibold mb-2 text-white">{t('Access to funding opportunities')}</h4>
+                  <p className="text-sm text-gray-300">{t('Connect with investors and funding opportunities specifically designed for African entrepreneurs and high-potential projects.')}</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow opacity-75">03</div>
+                <div className="text-4xl font-bold text-yellow opacity-90">03</div>
                 <div>
-                  <h4 className="font-semibold mb-2">{t('Community of entrepreneurs')}</h4>
-                  <p className="text-sm text-lightBlue/80">{t('Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.')}</p>
+                  <h4 className="font-semibold mb-2 text-white">{t('Community of entrepreneurs')}</h4>
+                  <p className="text-sm text-gray-300">{t('Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.')}</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow opacity-75">04</div>
+                <div className="text-4xl font-bold text-yellow opacity-90">04</div>
                 <div>
-                  <h4 className="font-semibold mb-2">{t('Expert guidance and mentorship')}</h4>
-                  <p className="text-sm text-lightBlue/80">{t('Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.')}</p>
+                  <h4 className="font-semibold mb-2 text-white">{t('Expert guidance and mentorship')}</h4>
+                  <p className="text-sm text-gray-300">{t('Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.')}</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="text-4xl font-bold text-yellow opacity-75">05</div>
+                <div className="text-4xl font-bold text-yellow opacity-90">05</div>
                 <div>
-                  <h4 className="font-semibold mb-2">{t('Comprehensive business tools')}</h4>
-                  <p className="text-sm text-lightBlue/80">{t('Focus on high-potential projects that address critical social and economic needs across African communities.')}</p>
+                  <h4 className="font-semibold mb-2 text-white">{t('Comprehensive business tools')}</h4>
+                  <p className="text-sm text-gray-300">{t('Focus on high-potential projects that address critical social and economic needs across African communities.')}</p>
                 </div>
               </div>
             </div>
