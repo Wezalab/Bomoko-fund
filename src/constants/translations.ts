@@ -208,6 +208,21 @@ export const translations: Translations = {
     "Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.": "Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.",
     "Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.": "Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.",
     "Focus on high-potential projects that address critical social and economic needs across African communities.": "Focus on high-potential projects that address critical social and economic needs across African communities.",
+    
+    // Funding Process
+    "Funding Process": "Funding Process",
+    "How funding works on BOMOKO FUND": "How funding works on BOMOKO FUND",
+    "Step-by-step guide to get funded.": "Step-by-step guide to get funded.",
+    "Create Your Business Plan": "Create Your Business Plan",
+    "Build a comprehensive business plan using our AI-powered tools and templates specifically designed for African entrepreneurs.": "Build a comprehensive business plan using our AI-powered tools and templates specifically designed for African entrepreneurs.",
+    "Submit for Review": "Submit for Review",
+    "Our expert team reviews your business plan to ensure it meets funding requirements and provides feedback for improvement.": "Our expert team reviews your business plan to ensure it meets funding requirements and provides feedback for improvement.",
+    "Get Matched with Investors": "Get Matched with Investors",
+    "Connect with impact-driven investors who are specifically interested in funding high-potential African ventures and projects.": "Connect with impact-driven investors who are specifically interested in funding high-potential African ventures and projects.",
+    "Receive Funding": "Receive Funding",
+    "Once matched, receive funding through our secure platform and start building your business with ongoing support and mentorship.": "Once matched, receive funding through our secure platform and start building your business with ongoing support and mentorship.",
+    "Launch & Scale": "Launch & Scale",
+    "Launch your business with confidence and access our network of resources, mentors, and partners to scale your impact across Africa.": "Launch your business with confidence and access our network of resources, mentors, and partners to scale your impact across Africa.",
   },
   fr: {
     // Navbar
@@ -410,5 +425,20 @@ export const translations: Translations = {
     "Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.": "Rejoignez un écosystème prospère de propriétaires d'entreprises visionnaires, d'investisseurs axés sur l'impact et de supporters à travers l'Afrique.",
     "Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.": "Obtenez des conseils d'entrepreneurs expérimentés et d'experts en affaires qui comprennent le paysage du marché africain.",
     "Focus on high-potential projects that address critical social and economic needs across African communities.": "Concentrez-vous sur des projets à fort potentiel qui répondent aux besoins sociaux et économiques critiques des communautés africaines.",
+    
+    // Funding Process
+    "Funding Process": "Processus de financement",
+    "How funding works on BOMOKO FUND": "Comment fonctionne le financement sur BOMOKO FUND",
+    "Step-by-step guide to get funded.": "Guide étape par étape pour obtenir un financement.",
+    "Create Your Business Plan": "Créez votre plan d'affaires",
+    "Build a comprehensive business plan using our AI-powered tools and templates specifically designed for African entrepreneurs.": "Créez un plan d'affaires complet en utilisant nos outils et modèles alimentés par l'IA spécialement conçus pour les entrepreneurs africains.",
+    "Submit for Review": "Soumettez pour révision",
+    "Our expert team reviews your business plan to ensure it meets funding requirements and provides feedback for improvement.": "Notre équipe d'experts examine votre plan d'affaires pour s'assurer qu'il répond aux exigences de financement et fournit des commentaires pour l'amélioration.",
+    "Get Matched with Investors": "Jumelage avec des investisseurs",
+    "Connect with impact-driven investors who are specifically interested in funding high-potential African ventures and projects.": "Connectez-vous avec des investisseurs axés sur l'impact qui sont spécifiquement intéressés par le financement d'entreprises et de projets africains à fort potentiel.",
+    "Receive Funding": "Recevez le financement",
+    "Once matched, receive funding through our secure platform and start building your business with ongoing support and mentorship.": "Une fois jumelé, recevez le financement via notre plateforme sécurisée et commencez à construire votre entreprise avec un soutien et un mentorat continus.",
+    "Launch & Scale": "Lancez et développez",
+    "Launch your business with confidence and access our network of resources, mentors, and partners to scale your impact across Africa.": "Lancez votre entreprise avec confiance et accédez à notre réseau de ressources, mentors et partenaires pour étendre votre impact à travers l'Afrique.",
   }
 } 
