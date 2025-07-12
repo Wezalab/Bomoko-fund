@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -8,11 +8,13 @@ import { Label } from "./ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import countryData from '../constants/countries.json';
+import { generateBusinessTypeSuggestions } from '../lib/groqService';
 
 interface VentureData {
   purpose: string;
   country: string;
   businessDescription: string;
+  businessTypes: string[];
   businessName: string;
   userName: string;
   userRole: string;
@@ -24,10 +26,14 @@ interface VentureData {
 const VentureWizard: React.FC = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
+  const [businessDescriptionSubStep, setBusinessDescriptionSubStep] = useState(0); // 0: description, 1: type selection
+  const [isLoadingAISuggestions, setIsLoadingAISuggestions] = useState(false);
+  const [aiSuggestions, setAISuggestions] = useState<string[]>([]);
   const [ventureData, setVentureData] = useState<VentureData>({
     purpose: '',
     country: '',
     businessDescription: '',
+    businessTypes: [],
     businessName: '',
     userName: '',
     userRole: '',
@@ -49,9 +55,13 @@ const VentureWizard: React.FC = () => {
     },
     {
       id: 'business-description',
-      question: 'What will the business do?',
-      description: 'This will not appear in your plan, it just helps us understand the business. Below are a few examples:',
-      type: 'textarea'
+      question: businessDescriptionSubStep === 0 
+        ? 'What will the business do?' 
+        : 'Please choose the options that most accurately describe the business:',
+      description: businessDescriptionSubStep === 0 
+        ? 'This will not appear in your plan, it just helps us understand the business. Below are a few examples:' 
+        : 'If none of the suggestions accurately describe your business, click the \'Manual\' button to search for other options.',
+      type: businessDescriptionSubStep === 0 ? 'textarea' : 'business-type-selection'
     },
     {
       id: 'business-name',
@@ -102,11 +112,84 @@ const VentureWizard: React.FC = () => {
     'Other'
   ];
 
+  const predefinedBusinessTypes = [
+    'Software Company',
+    'Mobile App Developer',
+    'Website Designer',
+    'E-commerce Platform',
+    'Digital Marketing Agency',
+    'Consulting Firm',
+    'Manufacturing Business',
+    'Restaurant',
+    'Retail Store',
+    'Healthcare Services',
+    'Educational Services',
+    'Financial Services',
+    'Real Estate',
+    'Construction Company',
+    'Transportation Services',
+    'Agriculture Business',
+    'Tech Startup',
+    'SaaS Company',
+    'Online Marketplace',
+    'Content Creation',
+    'Event Planning',
+    'Fitness & Wellness',
+    'Beauty & Cosmetics',
+    'Fashion & Apparel',
+    'Food & Beverage',
+    'Travel & Tourism',
+    'Legal Services',
+    'Accounting Services',
+    'Photography Services',
+    'Marketing Consultancy'
+  ];
+
   const updateVentureData = (key: keyof VentureData, value: any) => {
     setVentureData(prev => ({ ...prev, [key]: value }));
   };
 
+  const generateAISuggestions = async () => {
+    if (!ventureData.businessDescription.trim()) return;
+    
+    setIsLoadingAISuggestions(true);
+    try {
+      const suggestions = await generateBusinessTypeSuggestions(ventureData.businessDescription);
+      setAISuggestions(suggestions);
+      setBusinessDescriptionSubStep(1);
+    } catch (error) {
+      console.error('Error generating AI suggestions:', error);
+    } finally {
+      setIsLoadingAISuggestions(false);
+    }
+  };
+
+  const toggleBusinessType = (businessType: string) => {
+    const currentTypes = ventureData.businessTypes;
+    if (currentTypes.includes(businessType)) {
+      updateVentureData('businessTypes', currentTypes.filter(type => type !== businessType));
+    } else {
+      updateVentureData('businessTypes', [...currentTypes, businessType]);
+    }
+  };
+
+  const clearBusinessTypes = () => {
+    updateVentureData('businessTypes', []);
+  };
+
   const handleNext = () => {
+    // Special handling for business description step
+    if (currentStep === 2 && businessDescriptionSubStep === 0) {
+      // Move to business type selection substep
+      setBusinessDescriptionSubStep(1);
+      return;
+    }
+
+    // Reset business description substep when moving to next step
+    if (currentStep === 2) {
+      setBusinessDescriptionSubStep(0);
+    }
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -116,8 +199,19 @@ const VentureWizard: React.FC = () => {
   };
 
   const handlePrev = () => {
+    // Special handling for business description step
+    if (currentStep === 2 && businessDescriptionSubStep === 1) {
+      // Move back to business description substep
+      setBusinessDescriptionSubStep(0);
+      return;
+    }
+
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+      // Reset business description substep when moving to previous step
+      if (currentStep === 3) {
+        setBusinessDescriptionSubStep(0);
+      }
     }
   };
 
@@ -140,7 +234,11 @@ const VentureWizard: React.FC = () => {
       case 'location':
         return ventureData.country !== '';
       case 'business-description':
-        return ventureData.businessDescription !== '';
+        if (businessDescriptionSubStep === 0) {
+          return ventureData.businessDescription !== '';
+        } else {
+          return ventureData.businessTypes.length > 0;
+        }
       case 'business-name':
         return ventureData.businessName !== '';
       case 'user-info':
@@ -213,6 +311,111 @@ const VentureWizard: React.FC = () => {
               placeholder="e.g. We are a supplier of specialist glass for use in commercial buildings, we specialise in high-end laptops."
               className="min-h-[120px] resize-none"
             />
+          </div>
+        );
+
+      case 'business-type-selection':
+        return (
+          <div className="space-y-6">
+            {/* AI Suggestions Section */}
+            {aiSuggestions.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium text-gray-900">AI Suggestions</h3>
+                  {ventureData.businessTypes.length > 0 && (
+                    <button
+                      onClick={clearBusinessTypes}
+                      className="text-sm text-red-500 hover:text-red-700"
+                    >
+                      Clear Options
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {aiSuggestions.map((suggestion, index) => (
+                    <button
+                      key={index}
+                      onClick={() => toggleBusinessType(suggestion)}
+                      className={`p-4 text-left rounded-lg border-2 transition-all ${
+                        ventureData.businessTypes.includes(suggestion)
+                          ? 'border-teal-400 bg-teal-50 text-teal-800'
+                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                      }`}
+                    >
+                      <span className="font-medium">{suggestion}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Load AI Suggestions Button */}
+            {aiSuggestions.length === 0 && (
+              <div className="text-center">
+                <button
+                  onClick={generateAISuggestions}
+                  disabled={isLoadingAISuggestions || !ventureData.businessDescription.trim()}
+                  className="inline-flex items-center space-x-2 px-6 py-3 border-2 border-dashed border-yellow-400 text-yellow-600 rounded-lg hover:bg-yellow-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoadingAISuggestions ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-5 h-5" />
+                  )}
+                  <span>
+                    {isLoadingAISuggestions ? 'Loading AI Suggestions...' : 'Load AI Suggestions'}
+                  </span>
+                </button>
+              </div>
+            )}
+
+            {/* Manual Selection Section */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-gray-900">Manually select the business classification(s):</h3>
+              <p className="text-sm text-gray-600">
+                Note that you can search the list or type your own and then click on it to select it. It is also possible to select multiple options.
+              </p>
+              
+              <Select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Please Select" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60">
+                  {predefinedBusinessTypes.map((type, index) => (
+                    <SelectItem 
+                      key={index} 
+                      value={type}
+                      onClick={() => toggleBusinessType(type)}
+                    >
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Selected Business Types Display */}
+              {ventureData.businessTypes.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-gray-700">Selected Classifications:</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {ventureData.businessTypes.map((type, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center space-x-1 px-3 py-1 bg-teal-100 text-teal-800 rounded-full text-sm"
+                      >
+                        <span>{type}</span>
+                        <button
+                          onClick={() => toggleBusinessType(type)}
+                          className="text-teal-600 hover:text-teal-800"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         );
 

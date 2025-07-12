@@ -225,3 +225,42 @@ export const generateSectionQuestions = async (
     return [];
   }
 }; 
+
+export const generateBusinessTypeSuggestions = async (businessDescription: string) => {
+  const prompt = `Based on the following business description, suggest 4-6 relevant business types or classifications that most accurately describe this business:
+
+Business Description: "${businessDescription}"
+
+Please return ONLY a JSON array of business type suggestions in this exact format:
+["Business Type 1", "Business Type 2", "Business Type 3", ...]
+
+The suggestions should be:
+- Specific and relevant to the described business
+- Professional business categories/classifications
+- Suitable for business plan categorization
+- Clear and concise (2-4 words each)
+
+Examples of good business types: "Software Company", "E-commerce Platform", "Consulting Firm", "Manufacturing Business", "Digital Marketing Agency", etc.`;
+
+  try {
+    const response = await getGroqChatCompletion(prompt);
+    const content = response.choices[0]?.message?.content || '';
+    
+    // Extract the JSON from the content
+    const jsonMatch = content.match(/\[(.*?)\]/s);
+    if (jsonMatch) {
+      try {
+        const suggestions = JSON.parse(jsonMatch[0]);
+        return Array.isArray(suggestions) ? suggestions : [];
+      } catch (e) {
+        console.error('Error parsing JSON suggestions:', e);
+        return [];
+      }
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Error generating business type suggestions:', error);
+    return [];
+  }
+}; 
