@@ -266,44 +266,63 @@ Examples of good business types: "Software Company", "E-commerce Platform", "Con
 };
 
 export const generateBusinessNameSuggestions = async (businessDescription: string, businessTypes: string[]) => {
-  const typesText = businessTypes.length > 0 ? ` The business types include: ${businessTypes.join(', ')}.` : '';
-  
-  const prompt = `Based on the following business description, suggest 6-9 creative and professional business names:
+  try {
+    const prompt = `Generate 6-9 creative, professional business names for a business described as: "${businessDescription}"
+Business types: ${businessTypes.join(', ')}
 
-Business Description: "${businessDescription}"${typesText}
+Please include names in multiple languages reflecting the Democratic Republic of Congo's linguistic diversity:
+- French (official language)
+- Lingala 
+- Swahili
+- Kikongo
+- Tshiluba
+
+Create names that are:
+1. Professional and memorable
+2. Appropriate for the business type
+3. Culturally relevant to DRC and Africa
+4. Easy to pronounce and remember
+5. Suitable for international markets
 
 Please return ONLY a JSON array of business name suggestions in this exact format:
 ["Business Name 1", "Business Name 2", "Business Name 3", ...]
 
-The suggestions should be:
-- Creative and memorable
-- Professional and brandable
-- Related to the business description and types
-- Easy to pronounce and spell
-- Suitable for various markets including African markets
-- Mix of different naming styles (descriptive, abstract, compound words)
+Do not include any explanations or additional text.`;
 
-Examples of good business names: "TechTribe", "InnovateCorp", "AppVibe", "CongoCode", "DevDynamo", "WebifyPro", etc.`;
+    const response = await groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "llama3-8b-8192",
+      temperature: 0.8,
+      max_tokens: 300,
+    });
 
-  try {
-    const response = await getGroqChatCompletion(prompt);
-    const content = response.choices[0]?.message?.content || '';
-    
-    // Extract the JSON from the content
-    const jsonMatch = content.match(/\[(.*?)\]/s);
-    if (jsonMatch) {
-      try {
-        const suggestions = JSON.parse(jsonMatch[0]);
-        return Array.isArray(suggestions) ? suggestions : [];
-      } catch (e) {
-        console.error('Error parsing JSON name suggestions:', e);
-        return [];
-      }
+    const content = response.choices[0]?.message?.content?.trim();
+    if (!content) {
+      throw new Error('No content received from AI');
     }
+
+    // Parse the JSON response
+    const suggestions = JSON.parse(content);
     
-    return [];
+    // Validate that it's an array
+    if (!Array.isArray(suggestions)) {
+      throw new Error('AI response is not an array');
+    }
+
+    return suggestions.slice(0, 9); // Limit to 9 suggestions
   } catch (error) {
     console.error('Error generating business name suggestions:', error);
-    return [];
+    // Return fallback suggestions in multiple DRC languages
+    return [
+      'BOMOKO Solutions',
+      'Kinshasa Enterprises',
+      'Mokili Business', // Lingala: "world"
+      'Dunia Ventures', // Swahili: "world"
+      'Kongo Innovations',
+      'Lumumba Group',
+      'Bandundu Holdings',
+      'Matadi Commerce',
+      'Lubumbashi Industries'
+    ];
   }
 }; 
