@@ -19,6 +19,7 @@ import EditProject from "./EditProject";
 import MediaUpload from "./MediaUpload";
 import LoadingComponent from "./LoadingComponent";
 import MapComponent from "./MapComponent";
+import VentureWizard from "./VentureWizard";
 
 export {
     HomePage,
@@ -41,5 +42,6 @@ export {
     EditProject,
     MediaUpload,
     LoadingComponent,
-    MapComponent
+    MapComponent,
+    VentureWizard
 }
