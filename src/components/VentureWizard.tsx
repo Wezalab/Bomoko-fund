@@ -10,6 +10,7 @@ import { Textarea } from "./ui/textarea";
 import countryData from '../constants/countries.json';
 import { generateBusinessTypeSuggestions, generateBusinessNameSuggestions } from '../lib/groqService';
 import { useTranslation } from '../lib/TranslationContext';
+import { useGoogleLogin } from '@react-oauth/google';
 import logoLight from '../assets/logoLight.webp';
 import logoDark from '../assets/logoDark.webp';
 
@@ -32,6 +33,12 @@ interface VentureData {
   currency: string;
   username?: string;
   password?: string;
+  googleUser?: {
+    email: string;
+    name: string;
+    picture: string;
+    access_token: string;
+  };
 }
 
 const VentureWizard: React.FC = () => {
@@ -278,10 +285,39 @@ const VentureWizard: React.FC = () => {
     navigate('/business-plan/editor');
   };
 
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        // Get user info using the access token
+        const userInfoResponse = await fetch(
+          `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
+        );
+        const userInfo = await userInfoResponse.json();
+        
+        // Update venture data with Google user info
+        updateVentureData('authMethod', 'google');
+        updateVentureData('userName', userInfo.name || '');
+        updateVentureData('googleUser', {
+          email: userInfo.email,
+          name: userInfo.name,
+          picture: userInfo.picture,
+          access_token: tokenResponse.access_token
+        });
+        
+        console.log('Google sign-in successful:', userInfo);
+        // Auto-complete since we have all the necessary info
+        handleComplete();
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    },
+    onError: (error) => {
+      console.error('Google sign-in failed:', error);
+    },
+  });
+
   const handleGoogleSignIn = () => {
-    // Handle Google sign in
-    updateVentureData('authMethod', 'google');
-    handleComplete();
+    googleLogin();
   };
 
   const isStepComplete = (stepId: string) => {
@@ -302,7 +338,7 @@ const VentureWizard: React.FC = () => {
         return ventureData.userName !== '' && ventureData.userRole !== '';
       case 'auth-method':
         if (ventureData.authMethod === 'google') {
-          return true;
+          return ventureData.googleUser !== undefined;
         } else if (ventureData.authMethod === 'username') {
           return ventureData.username !== '' && ventureData.password !== '';
         }
@@ -712,6 +748,26 @@ const VentureWizard: React.FC = () => {
                 {t('Set Username & Password')}
               </Button>
             </div>
+            
+            {/* Google user info when Google auth is selected */}
+            {ventureData.authMethod === 'google' && ventureData.googleUser && (
+              <div className="space-y-4 mt-6">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-3">
+                    <img 
+                      src={ventureData.googleUser.picture} 
+                      alt="Profile" 
+                      className="w-12 h-12 rounded-full"
+                    />
+                    <div>
+                      <h3 className="font-medium text-green-800">{t('Successfully signed in with Google')}</h3>
+                      <p className="text-sm text-green-600">{ventureData.googleUser.name}</p>
+                      <p className="text-sm text-green-600">{ventureData.googleUser.email}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Username and Password fields when username auth method is selected */}
             {ventureData.authMethod === 'username' && (
