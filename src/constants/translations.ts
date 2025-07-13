@@ -223,6 +223,11 @@ export const translations: Translations = {
     "Once matched, receive funding through our secure platform and start building your business with ongoing support and mentorship.": "Once matched, receive funding through our secure platform and start building your business with ongoing support and mentorship.",
     "Launch & Scale": "Launch & Scale",
     "Launch your business with confidence and access our network of resources, mentors, and partners to scale your impact across Africa.": "Launch your business with confidence and access our network of resources, mentors, and partners to scale your impact across Africa.",
+    
+    // New placeholders
+    "e.g. We are a marketing agency specialising in TikTok and YouTube for small businesses.": "e.g. We are a marketing agency specialising in TikTok and YouTube for small businesses.",
+    "e.g. BOMOKO Solutions": "e.g. BOMOKO Solutions",
+    "AI Suggestions": "AI Suggestions",
   },
   fr: {
     // Navbar
@@ -440,5 +445,10 @@ export const translations: Translations = {
     "Once matched, receive funding through our secure platform and start building your business with ongoing support and mentorship.": "Une fois jumelé, recevez le financement via notre plateforme sécurisée et commencez à construire votre entreprise avec un soutien et un mentorat continus.",
     "Launch & Scale": "Lancez et développez",
     "Launch your business with confidence and access our network of resources, mentors, and partners to scale your impact across Africa.": "Lancez votre entreprise avec confiance et accédez à notre réseau de ressources, mentors et partenaires pour étendre votre impact à travers l'Afrique.",
+    
+    // New placeholders
+    "e.g. We are a marketing agency specialising in TikTok and YouTube for small businesses.": "ex. Nous sommes une agence de marketing spécialisée dans TikTok et YouTube pour les petites entreprises.",
+    "e.g. BOMOKO Solutions": "ex. BOMOKO Solutions",
+    "AI Suggestions": "Suggestions IA",
   }
 } 
