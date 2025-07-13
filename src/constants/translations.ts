@@ -244,6 +244,12 @@ export const translations: Translations = {
     "Enter username": "Enter username",
     "Enter password": "Enter password",
     "Successfully signed in with Google": "Successfully signed in with Google",
+    "Welcome back!": "Welcome back!",
+    "Google Account": "Google Account",
+    "BOMOKO Account": "BOMOKO Account",
+    // "Go to Dashboard": "Go to Dashboard",
+    "Continue with Business Plan": "Continue with Business Plan",
+    "You are logged in and ready to create your business plan!": "You are logged in and ready to create your business plan!",
   },
   fr: {
     // Navbar
@@ -482,5 +488,11 @@ export const translations: Translations = {
     "Enter username": "Entrer nom d'utilisateur",
     "Enter password": "Entrer mot de passe",
     "Successfully signed in with Google": "Connecté avec succès avec Google",
+    "Welcome back!": "Bon retour !",
+    "Google Account": "Compte Google",
+    "BOMOKO Account": "Compte BOMOKO",
+    // "Go to Dashboard": "Aller au tableau de bord",
+    "Continue with Business Plan": "Continuer avec le plan d'affaires",
+    "You are logged in and ready to create your business plan!": "Vous êtes connecté et prêt à créer votre plan d'affaires !",
   }
 } 
