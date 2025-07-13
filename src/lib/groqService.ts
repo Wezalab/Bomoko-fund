@@ -274,8 +274,6 @@ Please include names in multiple languages reflecting the Democratic Republic of
 - French (official language)
 - Lingala 
 - Swahili
-- Kikongo
-- Tshiluba
 
 Create names that are:
 1. Professional and memorable
