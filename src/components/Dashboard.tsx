@@ -90,28 +90,68 @@ const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser) as unknown as ExtendedUser;
 
-  // Mock business data from ventures - in real app, this would come from Redux store or API
-  const [selectedBusiness, setSelectedBusiness] = useState<BusinessData | null>({
-    id: '1',
-    name: 'TechTribe',
-    description: 'Technology solutions for African entrepreneurs',
-    location: 'Uganda',
-    createdAt: '2025-07-12',
-    businessTypes: ['Technology', 'Software Development', 'E-commerce'],
-    purpose: 'create_business',
-    country: 'UG'
-  });
+  // Mock businesses array - in real app, this would come from Redux store or API
+  const [businesses, setBusinesses] = useState<BusinessData[]>([
+    {
+      id: '1',
+      name: 'TechTribe',
+      description: 'Technology solutions for African entrepreneurs',
+      location: 'Uganda',
+      createdAt: '2025-07-12',
+      businessTypes: ['Technology', 'Software Development', 'E-commerce'],
+      purpose: 'create_business',
+      country: 'UG'
+    },
+    {
+      id: '2',
+      name: 'AgriVenture',
+      description: 'Sustainable agriculture and farming solutions',
+      location: 'Kenya',
+      createdAt: '2025-06-15',
+      businessTypes: ['Agriculture', 'Sustainability', 'Food Production'],
+      purpose: 'create_business',
+      country: 'KE'
+    }
+  ]);
 
-  // Mock plan data from ventures - in real app, this would come from Redux store or API
-  const [selectedPlan, setSelectedPlan] = useState<PlanData | null>({
-    id: '1',
-    name: 'Business Plan Plan 1',
-    businessId: '1',
-    createdAt: '2025-07-12',
-    type: 'Not Setup',
-    status: 'not_setup',
-    description: 'Initial business plan for TechTribe venture'
-  });
+  // Mock plans array - in real app, this would come from Redux store or API
+  const [plans, setPlans] = useState<PlanData[]>([
+    {
+      id: '1',
+      name: 'Business Plan Plan 1',
+      businessId: '1',
+      createdAt: '2025-07-12',
+      type: 'Technology Startup',
+      status: 'not_setup',
+      description: 'Initial business plan for TechTribe venture'
+    },
+    {
+      id: '2',
+      name: 'Agriculture Expansion Plan',
+      businessId: '2',
+      createdAt: '2025-06-15',
+      type: 'Growth Strategy',
+      status: 'setup',
+      description: 'Expansion plan for AgriVenture into new markets'
+    },
+    {
+      id: '3',
+      name: 'Tech Product Launch',
+      businessId: '1',
+      createdAt: '2025-07-10',
+      type: 'Product Launch',
+      status: 'completed',
+      description: 'Product launch strategy for TechTribe mobile app'
+    }
+  ]);
+
+  // Selected items
+  const [selectedBusinessId, setSelectedBusinessId] = useState<string>('1');
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('1');
+
+  // Get selected business and plan
+  const selectedBusiness = businesses.find(b => b.id === selectedBusinessId) || null;
+  const selectedPlan = plans.find(p => p.id === selectedPlanId) || null;
 
   // Function to handle Google profile image URLs
   const getOptimizedImageUrl = (url: string) => {
@@ -154,16 +194,27 @@ const Dashboard: React.FC = () => {
     navigate(path);
   };
 
-  const handleDeleteBusiness = () => {
+  const handleDeleteBusiness = (businessId: string) => {
     if (window.confirm('Are you sure you want to delete this business? This action cannot be undone.')) {
-      setSelectedBusiness(null);
-      setSelectedPlan(null); // Also remove associated plan
+      setBusinesses(businesses.filter(b => b.id !== businessId));
+      // Also remove associated plans
+      setPlans(plans.filter(p => p.businessId !== businessId));
+      // If deleted business was selected, select first remaining business or none
+      if (selectedBusinessId === businessId) {
+        const remainingBusinesses = businesses.filter(b => b.id !== businessId);
+        setSelectedBusinessId(remainingBusinesses.length > 0 ? remainingBusinesses[0].id : '');
+      }
     }
   };
 
-  const handleDeletePlan = () => {
+  const handleDeletePlan = (planId: string) => {
     if (window.confirm('Are you sure you want to delete this plan? This action cannot be undone.')) {
-      setSelectedPlan(null);
+      setPlans(plans.filter(p => p.id !== planId));
+      // If deleted plan was selected, select first remaining plan or none
+      if (selectedPlanId === planId) {
+        const remainingPlans = plans.filter(p => p.id !== planId);
+        setSelectedPlanId(remainingPlans.length > 0 ? remainingPlans[0].id : '');
+      }
     }
   };
 
@@ -180,7 +231,7 @@ const Dashboard: React.FC = () => {
       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <Building className="w-8 h-8 text-gray-400" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Business Selected</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Business Created</h3>
       <p className="text-gray-600 mb-6">Create your first business to get started with your entrepreneurial journey.</p>
       <button
         onClick={() => handleNavigation('/venture-wizard')}
@@ -197,7 +248,7 @@ const Dashboard: React.FC = () => {
       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <FileText className="w-8 h-8 text-gray-400" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Plan Selected</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Plans Created</h3>
       <p className="text-gray-600 mb-6">Create a business plan to organize your ideas and attract investors.</p>
       <button
         onClick={() => handleNavigation('/business-plan-editor')}
@@ -259,7 +310,7 @@ const Dashboard: React.FC = () => {
           
           <button
             onClick={() => handleNavigation('/users')}
-            className="w-full flex items-center space-x-3 px-4 py-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
+            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <Users className="w-5 h-5" />
             <span className="font-medium">Users</span>
@@ -373,107 +424,126 @@ const Dashboard: React.FC = () => {
         <div className="p-6 space-y-6">
           {/* Top Section - Business and Plan Selection */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Selected Business */}
+            {/* Businesses Section */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-dark">Selected Business</h2>
-                {selectedBusiness && (
-                  <button
-                    onClick={handleDeleteBusiness}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                    title="Delete Business"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                )}
+                <h2 className="text-xl font-bold text-dark">My Businesses ({businesses.length})</h2>
+                <button
+                  onClick={() => handleNavigation('/venture-wizard')}
+                  className="bg-lightBlue hover:bg-lightBlue/90 text-white p-2 rounded-lg transition-colors"
+                  title="Create New Business"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
               </div>
               
-              {selectedBusiness ? (
-                <div>
-                  <h3 className="text-2xl font-bold text-dark mb-2">{selectedBusiness.name}</h3>
-                  <p className="text-gray-600 text-sm mb-4">{selectedBusiness.description}</p>
-                  <div className="text-sm text-gray-600 mb-4">
-                    <span>Created: {formatDate(selectedBusiness.createdAt)}</span>
-                    <span className="ml-4">Location: {selectedBusiness.location}</span>
-                  </div>
-                  <div className="mb-6">
-                    <div className="flex flex-wrap gap-2">
-                      {selectedBusiness.businessTypes.map((type, index) => (
-                        <span key={index} className="bg-lightBlue/10 text-lightBlue px-2 py-1 rounded-full text-xs font-medium">
-                          {type}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-gray-600 mb-6">
-                    Click below to change business or create a new business. Remember one business can have multiple plans.
-                  </p>
-                  <div className="flex space-x-3">
-                    <button className="bg-dark text-white hover:bg-dark/90 px-6 py-2 rounded font-medium transition-colors">
-                      {selectedBusiness.name}
-                    </button>
-                    <button 
-                      onClick={() => handleNavigation('/venture-wizard')}
-                      className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded transition-colors"
+              {businesses.length > 0 ? (
+                <div className="space-y-4 max-h-80 overflow-y-auto">
+                  {businesses.map((business) => (
+                    <div 
+                      key={business.id} 
+                      className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                        selectedBusinessId === business.id 
+                          ? 'border-lightBlue bg-lightBlue/5' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => setSelectedBusinessId(business.id)}
                     >
-                      + New Business
-                    </button>
-                  </div>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-dark mb-1">{business.name}</h3>
+                          <p className="text-gray-600 text-sm mb-2">{business.description}</p>
+                          <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
+                            <span>Created: {formatDate(business.createdAt)}</span>
+                            <span>{business.location}</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {business.businessTypes.slice(0, 2).map((type, index) => (
+                              <span key={index} className="bg-lightBlue/10 text-lightBlue px-2 py-1 rounded-full text-xs">
+                                {type}
+                              </span>
+                            ))}
+                            {business.businessTypes.length > 2 && (
+                              <span className="text-xs text-gray-500">+{business.businessTypes.length - 2} more</span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteBusiness(business.id);
+                          }}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
+                          title="Delete Business"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <EmptyBusinessState />
               )}
             </div>
 
-            {/* Selected Plan */}
+            {/* Plans Section */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-dark">Selected Plan</h2>
-                {selectedPlan && (
-                  <button
-                    onClick={handleDeletePlan}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                    title="Delete Plan"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                )}
+                <h2 className="text-xl font-bold text-dark">My Plans ({plans.length})</h2>
+                <button
+                  onClick={() => handleNavigation('/business-plan-editor')}
+                  className="bg-lightBlue hover:bg-lightBlue/90 text-white p-2 rounded-lg transition-colors"
+                  title="Create New Plan"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
               </div>
               
-              {selectedPlan ? (
-                <div>
-                  <h3 className="text-2xl font-bold text-dark mb-2">{selectedPlan.name}</h3>
-                  <p className="text-gray-600 text-sm mb-4">{selectedPlan.description}</p>
-                  <div className="text-sm text-gray-600 mb-4">
-                    <span>Created: {formatDate(selectedPlan.createdAt)}</span>
-                    <span className="ml-4">Type: {selectedPlan.type}</span>
-                  </div>
-                  <div className="mb-6">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      selectedPlan.status === 'completed' 
-                        ? 'bg-green-100 text-green-800' 
-                        : selectedPlan.status === 'setup'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {selectedPlan.status === 'completed' ? 'Completed' : 
-                       selectedPlan.status === 'setup' ? 'In Progress' : 'Not Started'}
-                    </span>
-                  </div>
-                  <p className="text-gray-600 mb-6">
-                    Click below to change plan or create a new plan. Remember one business can have multiple business plans if necessary.
-                  </p>
-                  <div className="flex space-x-3">
-                    <button className="bg-lightBlue text-white hover:bg-lightBlue/90 px-6 py-2 rounded font-medium transition-colors">
-                      {selectedPlan.name}
-                    </button>
-                    <button 
-                      onClick={() => handleNavigation('/business-plan-editor')}
-                      className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded transition-colors"
+              {plans.length > 0 ? (
+                <div className="space-y-4 max-h-80 overflow-y-auto">
+                  {plans.map((plan) => (
+                    <div 
+                      key={plan.id} 
+                      className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                        selectedPlanId === plan.id 
+                          ? 'border-lightBlue bg-lightBlue/5' 
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      onClick={() => setSelectedPlanId(plan.id)}
                     >
-                      + New Plan
-                    </button>
-                  </div>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-dark mb-1">{plan.name}</h3>
+                          <p className="text-gray-600 text-sm mb-2">{plan.description}</p>
+                          <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
+                            <span>Created: {formatDate(plan.createdAt)}</span>
+                            <span>Type: {plan.type}</span>
+                          </div>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            plan.status === 'completed' 
+                              ? 'bg-green-100 text-green-800' 
+                              : plan.status === 'setup'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {plan.status === 'completed' ? 'Completed' : 
+                             plan.status === 'setup' ? 'In Progress' : 'Not Started'}
+                          </span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeletePlan(plan.id);
+                          }}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
+                          title="Delete Plan"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <EmptyPlanState />
