@@ -29,3 +29,4 @@ dist-ssr
 .netlify
 .qodo
 img-test/
+GOOGLE_OAUTH_SETUP.md
