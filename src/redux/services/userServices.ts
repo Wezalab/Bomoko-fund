@@ -108,6 +108,25 @@ export const userService=splitApi.injectEndpoints({
                     
                 }
             }
+        }),
+        // Google OAuth integration
+        googleAuth:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/google/callback",
+                    method:"POST",
+                    body:data
+                }
+            }
+        }),
+        checkGoogleUser:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/google/check",
+                    method:"POST",
+                    body:data
+                }
+            }
         })
     }),
     overrideExisting:true
@@ -126,5 +145,7 @@ export const {
     useGetProfileMutation,
     useRegisterEmailMutation,
     useLoginPhoneMutation,
-    useRegisterMutation
+    useRegisterMutation,
+    useGoogleAuthMutation,
+    useCheckGoogleUserMutation
 }=userService
