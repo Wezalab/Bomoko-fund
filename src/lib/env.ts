@@ -7,11 +7,17 @@ const llmProvider = import.meta.env.VITE_LLM_PROVIDER || 'chatgpt';
 const chatgptApiKey = import.meta.env.VITE_CHATGPT_API_KEY;
 const chatgptModel = import.meta.env.VITE_CHATGPT_MODEL || 'gpt-4o';
 
+// Google OAuth Configuration
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const googleClientSecret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
+
 export {
     apiUrl,
     payementToken,
     groqApiKey,
     llmProvider,
     chatgptApiKey,
-    chatgptModel
+    chatgptModel,
+    googleClientId,
+    googleClientSecret
 }
