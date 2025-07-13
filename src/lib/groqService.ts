@@ -1,30 +1,58 @@
 import Groq from 'groq-sdk';
-import { groqApiKey } from './env';
+import OpenAI from 'openai';
+import { groqApiKey, llmProvider, chatgptApiKey, chatgptModel } from './env';
 
+// Initialize providers
 const groq = new Groq({
   apiKey: groqApiKey,
   dangerouslyAllowBrowser: true
 });
 
-export const getGroqChatCompletion = async (message: string) => {
+const openai = new OpenAI({
+  apiKey: chatgptApiKey,
+  dangerouslyAllowBrowser: true
+});
+
+// Generic chat completion function that uses the configured provider
+export const getChatCompletion = async (message: string) => {
   try {
-    const response = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "user",
-          content: message,
-        },
-      ],
-      model: "llama3-8b-8192",
-      temperature: 0.7,
-      max_tokens: 2048,
-    });
-    return response;
-  } catch (error) {
-    console.error('Error in getGroqChatCompletion:', error);
-    throw error;
-  }
+    if (llmProvider === 'groq') {
+      // Use Groq
+      const response = await groq.chat.completions.create({
+        messages: [
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+        model: "llama3-8b-8192",
+        temperature: 0.7,
+        max_tokens: 2048,
+      });
+      return response;
+    } else {
+      // Default to ChatGPT
+      const response = await openai.chat.completions.create({
+        messages: [
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+        model: chatgptModel,
+        temperature: 0.7,
+        max_tokens: 2048,
+      });
+      return response;
+    }
+      } catch (error) {
+      console.error(`Error in getChatCompletion with ${llmProvider || 'chatgpt (default)'}:`, error);
+      throw error;
+    }
 };
+
+// Keep the old function for backwards compatibility
+export const getGroqChatCompletion = getChatCompletion;
 
 export const generateBusinessPlanContent = async (
   section: string, 
@@ -78,7 +106,7 @@ export const generateBusinessPlanContent = async (
   const prompt = prompts[section as keyof typeof prompts] || `Rédigez un contenu professionnel de plan d'affaires pour la section ${section} de ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Utilisez un langage professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français et adapté au contexte entrepreneurial africain.`;
   
   try {
-    const response = await getGroqChatCompletion(prompt);
+    const response = await getChatCompletion(prompt);
     return response.choices[0]?.message?.content || '';
   } catch (error) {
     console.error(`Error generating content for ${section}:`, error);
@@ -90,7 +118,7 @@ export const enhanceContent = async (currentContent: string, instructions: strin
   const prompt = `Veuillez améliorer le contenu suivant de plan d'affaires basé sur ces instructions: "${instructions}"\n\nContenu actuel:\n${currentContent}\n\nFournissez la version améliorée entièrement en français et adaptée au contexte africain francophone:`;
   
   try {
-    const response = await getGroqChatCompletion(prompt);
+    const response = await getChatCompletion(prompt);
     return response.choices[0]?.message?.content || currentContent;
   } catch (error) {
     console.error('Error enhancing content:', error);
@@ -149,7 +177,7 @@ export const generateDomainSpecificOptions = async (
     `Générez des options appropriées pour "${questionLabel}" dans le domaine "${businessDomain}". Retournez un tableau JSON simple.`;
   
   try {
-    const response = await getGroqChatCompletion(prompt);
+    const response = await getChatCompletion(prompt);
     const content = response.choices[0]?.message?.content || '';
     
     // Extraire le JSON du contenu
@@ -204,7 +232,7 @@ export const generateSectionQuestions = async (
   - Pratiques et actionables`;
   
   try {
-    const response = await getGroqChatCompletion(prompt);
+    const response = await getChatCompletion(prompt);
     const content = response.choices[0]?.message?.content || '';
     
     // Extraire le JSON du contenu
@@ -243,7 +271,7 @@ The suggestions should be:
 Examples of good business types: "Software Company", "E-commerce Platform", "Consulting Firm", "Manufacturing Business", "Digital Marketing Agency", etc.`;
 
   try {
-    const response = await getGroqChatCompletion(prompt);
+    const response = await getChatCompletion(prompt);
     const content = response.choices[0]?.message?.content || '';
     
     // Extract the JSON from the content
@@ -287,12 +315,7 @@ Please return ONLY a JSON array of business name suggestions in this exact forma
 
 Do not include any explanations or additional text.`;
 
-    const response = await groq.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "llama3-8b-8192",
-      temperature: 0.8,
-      max_tokens: 300,
-    });
+    const response = await getChatCompletion(prompt);
 
     const content = response.choices[0]?.message?.content?.trim();
     if (!content) {
