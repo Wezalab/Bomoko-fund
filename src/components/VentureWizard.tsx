@@ -61,6 +61,15 @@ const VentureWizard: React.FC = () => {
   const { authenticateWithGoogle } = useGoogleAuthIntegration();
   const [isLoadingNameSuggestions, setIsLoadingNameSuggestions] = useState(false);
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
+  
+  // Define colors for numbers
+  const numberColors = [
+    'text-yellow', // 01 - Yellow
+    'text-green-400', // 02 - Green
+    'text-blue-400', // 03 - Blue
+    'text-purple-400', // 04 - Purple
+    'text-red-400', // 05 - Red
+  ];
   const [showNameSuggestions, setShowNameSuggestions] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
@@ -897,15 +906,6 @@ const VentureWizard: React.FC = () => {
   };
 
   const currentStepData = steps[currentStep];
-
-  // Define colors for numbers
-  const numberColors = [
-    'text-yellow', // 01 - Yellow
-    'text-green-400', // 02 - Green
-    'text-blue-400', // 03 - Blue
-    'text-purple-400', // 04 - Purple
-    'text-red-400', // 05 - Red
-  ];
 
   const renderSidebarContent = () => {
     if (sidebarView === 'benefits') {
