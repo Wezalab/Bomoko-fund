@@ -1,7 +1,8 @@
 import { useAppDispatch } from "@/redux/hooks";
 import { setToken, setUser } from "@/redux/slices/userSlice";
-import { useGoogleAuthMutation, useCheckGoogleUserMutation } from "@/redux/services/userServices";
+import { useGoogleAuthCallbackMutation, useCheckGoogleUserMutation, useCheckGoogleUserWithTokenMutation } from "@/redux/services/userServices";
 import toast from "react-hot-toast";
+import { apiUrl } from "@/lib/env";
 
 export interface GoogleUserInfo {
   email: string;
@@ -24,71 +25,62 @@ export interface GoogleAuthResponse {
 
 export const useGoogleAuthIntegration = () => {
   const dispatch = useAppDispatch();
-  const [googleAuth] = useGoogleAuthMutation();
+  const [googleAuthCallback] = useGoogleAuthCallbackMutation();
   const [checkGoogleUser] = useCheckGoogleUserMutation();
+  const [checkGoogleUserWithToken] = useCheckGoogleUserWithTokenMutation();
 
-  const authenticateWithGoogle = async (googleUserInfo: GoogleUserInfo): Promise<GoogleAuthResponse | null> => {
+  // Method 1: Check auth status after OAuth redirect and get token if available
+  const checkAuthAfterRedirect = async (): Promise<GoogleAuthResponse | null> => {
     try {
-      console.log('Starting Google authentication process...');
+      console.log('Checking auth status after Google OAuth redirect...');
       
-      // First, check if user exists
-      const checkResponse = await checkGoogleUser({
-        email: googleUserInfo.email,
-        googleId: googleUserInfo.sub
-      }).unwrap();
+      // Check if user is authenticated and get user data
+      const authResponse = await googleAuthCallback({}).unwrap();
 
-      console.log('User check response:', checkResponse);
+      console.log('Google auth status response:', authResponse);
 
-      let authResponse: GoogleAuthResponse;
+      // If authenticated, we should have received the token from the redirect
+      // The backend smart callback would have set the session/token
+      if (authResponse.authenticated && authResponse.user) {
+        // Create a response-like object for consistency
+        const response: GoogleAuthResponse = {
+          success: true,
+          isNewUser: authResponse.isNewUser || false,
+          user: authResponse.user,
+          token: authResponse.token || '',
+          message: 'Successfully authenticated with Google'
+        };
 
-      if (checkResponse.userExists) {
-        // User exists, sign them in
-        console.log('User exists, signing in...');
-        authResponse = await googleAuth({
-          email: googleUserInfo.email,
-          name: googleUserInfo.name,
-          picture: googleUserInfo.picture,
-          googleId: googleUserInfo.sub,
-          access_token: googleUserInfo.access_token,
-          action: 'signin'
-        }).unwrap();
+        // Update Redux store with user data and token
+        if (response.token) {
+          dispatch(setToken(response.token));
+        }
         
-        toast.success('Welcome back! Signed in successfully.');
-      } else {
-        // User doesn't exist, create new account
-        console.log('User does not exist, creating new account...');
-        authResponse = await googleAuth({
-          email: googleUserInfo.email,
-          name: googleUserInfo.name,
-          picture: googleUserInfo.picture,
-          googleId: googleUserInfo.sub,
-          access_token: googleUserInfo.access_token,
-          action: 'signup'
-        }).unwrap();
-        
-        toast.success('Account created successfully! Welcome to BOMOKO FUND.');
-      }
-
-      // Update Redux store with user data and token
-      if (authResponse.success) {
-        dispatch(setToken(authResponse.token));
         dispatch(setUser({
-          _id: authResponse.user._id,
-          email: authResponse.user.email,
-          name: authResponse.user.name,
-          phone_number: authResponse.user.phone_number || '',
-          bio: authResponse.user.bio || '',
-          location: authResponse.user.location || '',
+          _id: response.user._id,
+          email: response.user.email,
+          name: response.user.name,
+          phone_number: response.user.phone_number || '',
+          bio: response.user.bio || '',
+          location: response.user.location || '',
           isGoogleUser: true,
-          profile: authResponse.user.avatar || authResponse.user.picture,
-          projects: authResponse.user.projects || [],
-          cryptoWallet: authResponse.user.cryptoWallet || []
+          profile: response.user.avatar || response.user.picture,
+          projects: response.user.projects || [],
+          cryptoWallet: response.user.cryptoWallet || []
         }));
+
+        if (response.isNewUser) {
+          toast.success('Account created successfully! Welcome to BOMOKO FUND.');
+        } else {
+          toast.success('Welcome back! Signed in successfully.');
+        }
+
+        return response;
       }
 
-      return authResponse;
+      return null;
     } catch (error: any) {
-      console.error('Google authentication error:', error);
+      console.error('Google authentication check error:', error);
       
       if (error.data?.message) {
         toast.error(error.data.message);
@@ -100,7 +92,40 @@ export const useGoogleAuthIntegration = () => {
     }
   };
 
+  // Method 2: Check authentication status without token
+  const checkAuthStatus = async (): Promise<any> => {
+    try {
+      const response = await checkGoogleUser({}).unwrap();
+      console.log('Auth status check:', response);
+      return response;
+    } catch (error: any) {
+      console.error('Auth status check error:', error);
+      return { authenticated: false };
+    }
+  };
+
+  // Method 3: Check authentication with token
+  const checkAuthWithToken = async (): Promise<any> => {
+    try {
+      const response = await checkGoogleUserWithToken({}).unwrap();
+      console.log('Auth check with token:', response);
+      return response;
+    } catch (error: any) {
+      console.error('Auth check with token error:', error);
+      return { success: false };
+    }
+  };
+
+  // Method 4: Redirect to Google OAuth with API format
+  const redirectToGoogleAuth = () => {
+    console.log('Redirecting to Google OAuth with API format...');
+    window.location.href = `${apiUrl}/auth/google?format=api`;
+  };
+
   return {
-    authenticateWithGoogle
+    checkAuthAfterRedirect,
+    checkAuthStatus,
+    checkAuthWithToken,
+    redirectToGoogleAuth
   };
 }; 

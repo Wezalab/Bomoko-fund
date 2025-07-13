@@ -18,18 +18,18 @@ export const getChatCompletion = async (message: string) => {
   try {
     if (llmProvider === 'groq') {
       // Use Groq
-      const response = await groq.chat.completions.create({
-        messages: [
-          {
-            role: "user",
-            content: message,
-          },
-        ],
-        model: "llama3-8b-8192",
-        temperature: 0.7,
-        max_tokens: 2048,
-      });
-      return response;
+    const response = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+      model: "llama3-8b-8192",
+      temperature: 0.7,
+      max_tokens: 2048,
+    });
+    return response;
     } else {
       // Default to ChatGPT
       const response = await openai.chat.completions.create({
@@ -45,10 +45,10 @@ export const getChatCompletion = async (message: string) => {
       });
       return response;
     }
-      } catch (error) {
+  } catch (error) {
       console.error(`Error in getChatCompletion with ${llmProvider || 'chatgpt (default)'}:`, error);
-      throw error;
-    }
+    throw error;
+  }
 };
 
 // Keep the old function for backwards compatibility

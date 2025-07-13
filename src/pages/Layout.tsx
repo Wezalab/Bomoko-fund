@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Footer, Navbar, ResetPassword, SignIn, SignUp } from '../components'
 import ChangePassword from '@/components/ChangePassword'
 import NotificationModal from '@/components/NotificationModal'
-import { Sheet, SheetContent, SheetOverlay } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetOverlay, SheetTitle, VisuallyHidden } from '@/components/ui/sheet'
 
 
 function Layout({children}:{children:React.ReactNode}) {
@@ -17,6 +17,9 @@ function Layout({children}:{children:React.ReactNode}) {
       <Sheet open={resetPassword} onOpenChange={setResetPassword}>
         <SheetOverlay className="bg-black/50" />
         <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+          <VisuallyHidden>
+            <SheetTitle>Reset Password</SheetTitle>
+          </VisuallyHidden>
           <ResetPassword 
             setSignIn={setSignIn}
             onClose={()=>setResetPassword(false)} 
@@ -33,6 +36,9 @@ function Layout({children}:{children:React.ReactNode}) {
       <Sheet open={changePassword} onOpenChange={setChangePassword}>
         <SheetOverlay className="bg-black/50" />
         <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+          <VisuallyHidden>
+            <SheetTitle>Change Password</SheetTitle>
+          </VisuallyHidden>
           <ChangePassword onClose={()=>setChangePassword(false)} />
         </SheetContent>
       </Sheet>
@@ -41,6 +47,9 @@ function Layout({children}:{children:React.ReactNode}) {
       <Sheet open={notification} onOpenChange={setNotification}>
         <SheetOverlay className="bg-black/50" />
         <SheetContent side="top" className="w-[90%] md:w-[50%] lg:w-[25%] h-auto p-0 border-none rounded-b-2xl right-0 left-auto ml-auto">
+          <VisuallyHidden>
+            <SheetTitle>Notifications</SheetTitle>
+          </VisuallyHidden>
           <NotificationModal onClose={()=>setNotification(false)} />
         </SheetContent>
       </Sheet>
@@ -49,6 +58,9 @@ function Layout({children}:{children:React.ReactNode}) {
       <Sheet open={signIn} onOpenChange={setSignIn}>
         <SheetOverlay className="bg-black/50" />
         <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[30%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+          <VisuallyHidden>
+            <SheetTitle>Sign In</SheetTitle>
+          </VisuallyHidden>
           <SignIn 
             resetPassword={resetPassword}
             setResetPassword={setResetPassword}
@@ -63,6 +75,9 @@ function Layout({children}:{children:React.ReactNode}) {
       <Sheet open={signUp} onOpenChange={setSignUp}>
         <SheetOverlay className="bg-black/50" />
         <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[30%] h-auto max-h-[80vh] p-0 border-none rounded-b-2xl mx-auto overflow-y-auto">
+          <VisuallyHidden>
+            <SheetTitle>Sign Up</SheetTitle>
+          </VisuallyHidden>
           <SignUp 
             onClose={()=>setSignUp(false)}
             signIn={signIn}
