@@ -300,9 +300,9 @@ const VentureWizard: React.FC = () => {
   };
 
   const handleComplete = () => {
-    // Store venture data and navigate to business plan editor
+    // Store venture data and navigate to dashboard
     localStorage.setItem('ventureWizardData', JSON.stringify(ventureData));
-    navigate('/business-plan/editor');
+    navigate('/dashboard');
   };
 
   const googleLogin = useGoogleLogin({
