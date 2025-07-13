@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Sparkles, Loader2, Search, X, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, Loader2, Search, X, Check, User, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -11,6 +11,9 @@ import countryData from '../constants/countries.json';
 import { generateBusinessTypeSuggestions, generateBusinessNameSuggestions } from '../lib/groqService';
 import { useTranslation } from '../lib/TranslationContext';
 import { useGoogleLogin } from '@react-oauth/google';
+import { useAppSelector } from '@/redux/hooks';
+import { selectUser, selectToken } from '@/redux/slices/userSlice';
+import { useGoogleAuthIntegration } from '@/lib/googleAuth';
 import logoLight from '../assets/logoLight.webp';
 import logoDark from '../assets/logoDark.webp';
 
@@ -48,6 +51,14 @@ const VentureWizard: React.FC = () => {
   const [businessDescriptionSubStep, setBusinessDescriptionSubStep] = useState(0); // 0: description, 1: type selection
   const [isLoadingAISuggestions, setIsLoadingAISuggestions] = useState(false);
   const [aiSuggestions, setAISuggestions] = useState<string[]>([]);
+  
+  // Authentication state
+  const currentUser = useAppSelector(selectUser);
+  const token = useAppSelector(selectToken);
+  const isLoggedIn = !!(currentUser?.email || currentUser?.phone_number) && !!token;
+  
+  // Google Auth integration
+  const { authenticateWithGoogle } = useGoogleAuthIntegration();
   const [isLoadingNameSuggestions, setIsLoadingNameSuggestions] = useState(false);
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
   const [showNameSuggestions, setShowNameSuggestions] = useState(false);
