@@ -78,13 +78,40 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
     const navigate=useNavigate()
     const dispatch=useAppDispatch()
 
+    // Function to handle Google profile image URLs
+    const getOptimizedImageUrl = (url: string) => {
+        if (!url) return profileImage;
+        
+        // If it's a Google profile image, ensure it's high quality and accessible
+        if (url.includes('googleusercontent.com')) {
+            // Remove size restrictions and ensure we get a good quality image
+            return url.replace(/=s\d+-c/, '=s200-c').replace(/\/photo\.jpg$/, '');
+        }
+        
+        return url;
+    };
+
     // Use user's profile picture from Redux if available, otherwise use default profile image
     // Priority: user.profile (Google profile picture) > user.avatar (uploaded avatar) > default profileImage
-    const userAvatar = user?.profile ? user.profile : (user?.avatar ? user.avatar : profileImage);
+    let userAvatar = profileImage;
+    
+    if (user?.profile) {
+        userAvatar = getOptimizedImageUrl(user.profile);
+    } else if (user?.avatar) {
+        userAvatar = getOptimizedImageUrl(user.avatar);
+    }
+    
+    // Debug logging
+    console.log("[DEBUG] Navbar - User object:", user);
+    console.log("[DEBUG] Navbar - user.profile:", user?.profile);
+    console.log("[DEBUG] Navbar - user.avatar:", user?.avatar);
+    console.log("[DEBUG] Navbar - userAvatar:", userAvatar);
+    console.log("[DEBUG] Navbar - isGoogleUser:", user?.isGoogleUser);
     
     // Function to handle image load errors
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
         console.log("[DEBUG] Avatar image failed to load, using fallback");
+        console.log("[DEBUG] Failed image src:", e.currentTarget.src);
         e.currentTarget.src = profileImage;
     };
 
@@ -114,6 +141,8 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                                 className='w-full h-full object-cover'
                                 alt='user-profile'
                                 onError={handleImageError}
+                                crossOrigin="anonymous"
+                                referrerPolicy="no-referrer"
                             />
                         </div>
                     )
@@ -253,6 +282,8 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                                     className='w-[39px] h-[39px] rounded-full'
                                     alt='profile-image'
                                     onError={handleImageError}
+                                    crossOrigin="anonymous"
+                                    referrerPolicy="no-referrer"
                                 />
                                 <GoChevronDown 
                                     className="font-bold hover:text-white"
@@ -268,6 +299,8 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                                     className='w-[30px] h-[30px] rounded-full'
                                     alt='profile-image'
                                     onError={handleImageError}
+                                    crossOrigin="anonymous"
+                                    referrerPolicy="no-referrer"
                                 />
                                 <div className='flex flex-col'>
                                     <span className='text-black font-semibold text-sm'>{user?.email?.split("@")[0]}</span>
