@@ -458,10 +458,25 @@ const VentureWizard: React.FC = () => {
       case 'textarea':
         return (
           <div className="space-y-4">
+            {/* Description Examples */}
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h4 className="font-medium text-gray-900 mb-3">{t('Examples:')}</h4>
+              <div className="space-y-2 text-sm text-gray-700">
+                <div className="flex items-start gap-2">
+                  <span className="text-lightBlue">•</span>
+                  <span>{t('We are a marketing agency specialising in TikTok and YouTube for small businesses.')}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-lightBlue">•</span>
+                  <span>{t('A fintech startup developing mobile payment solutions for rural communities in Africa.')}</span>
+                </div>
+              </div>
+            </div>
+            
             <Textarea
               value={ventureData.businessDescription}
               onChange={(e) => updateVentureData('businessDescription', e.target.value)}
-              placeholder={t('e.g. We are a marketing agency specialising in TikTok and YouTube for small businesses.')}
+              placeholder={t('Describe your business here...')}
               className="min-h-[100px] resize-none"
             />
           </div>
@@ -485,10 +500,7 @@ const VentureWizard: React.FC = () => {
                           : 'border-gray-200 hover:border-gray-300 bg-white'
                       }`}
                     >
-                      <div className="flex items-center justify-center space-x-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          ventureData.businessTypes.includes(suggestion) ? 'bg-lightBlue' : 'bg-gray-300'
-                        }`} />
+                      <div className="flex items-center justify-center">
                         <span className="font-medium">{suggestion}</span>
                       </div>
                     </button>
@@ -627,10 +639,7 @@ const VentureWizard: React.FC = () => {
                           : 'border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50'
                       }`}
                     >
-                      <div className="flex items-center justify-center space-x-2">
-                        <div className={`w-2 h-2 rounded-full ${
-                          ventureData.businessName === name ? 'bg-lightBlue' : 'bg-gray-300'
-                        }`} />
+                      <div className="flex items-center justify-center">
                         <span className="font-medium">{name}</span>
                       </div>
                     </button>
@@ -964,7 +973,7 @@ const VentureWizard: React.FC = () => {
                     index === currentStep
                       ? 'bg-lightBlue'
                       : index < currentStep
-                      ? 'bg-yellow'
+                      ? 'bg-dark'
                       : 'bg-gray-300'
                   }`}
                 />
