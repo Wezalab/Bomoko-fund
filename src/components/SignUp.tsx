@@ -13,10 +13,11 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import toast from "react-hot-toast"
-import { initialState, selectSignUpData, setSignUpData } from "@/redux/slices/userSlice"
+import { initialState, selectSignUpData, setSignUpData, setToken, setUser } from "@/redux/slices/userSlice"
 import LoadingComponent from "./LoadingComponent"
 import { apiUrl } from "@/lib/env"
 import { handleRTKQueryError } from "@/redux/errorHandler";
+import { useGoogleLogin } from '@react-oauth/google';
 
 interface signUpProps{
   onClose:any 
@@ -68,8 +69,48 @@ function SignUp({
       const [stepsWithPhone,setStepsWithPhone]=useState<number>(1)
       const [stepsWithEmail,setStepsWithEmail]=useState<number>(1)
       
-      const dispatch=useAppDispatch()
-      const signUpData=useAppSelector(selectSignUpData)
+          const dispatch=useAppDispatch()
+    const signUpData=useAppSelector(selectSignUpData)
+    
+    const googleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            try {
+                // Get user info using the access token
+                const userInfoResponse = await fetch(
+                    `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
+                );
+                const userInfo = await userInfoResponse.json();
+                
+                // Create user object for Redux store
+                const userData = {
+                    _id: userInfo.sub,
+                    email: userInfo.email,
+                    name: userInfo.name,
+                    phone_number: '',
+                    bio: '',
+                    location: '',
+                    isGoogleUser: true,
+                    profile: userInfo.picture,
+                    projects: [],
+                    cryptoWallet: []
+                };
+
+                // Update Redux store
+                dispatch(setUser(userData));
+                dispatch(setToken(tokenResponse.access_token));
+                
+                toast.success('Successfully signed up with Google!');
+                onClose();
+            } catch (error) {
+                console.error('Error during Google authentication:', error);
+                toast.error('Google authentication failed. Please try again.');
+            }
+        },
+        onError: (error) => {
+            console.error('Google sign-up failed:', error);
+            toast.error('Google sign-up failed. Please try again.');
+        },
+    });
 
 
       const {
@@ -261,9 +302,9 @@ function SignUp({
       })
     }
 
-    const handleGoogleAuth=()=>{
-      window.open(apiUrl+"/auth/google","_self")
-    }
+    const handleGoogleSignup = () => {
+        googleLogin();
+    };
 
     useEffect(()=>{
       if(signUpData.phone  && !signUpData.isVerified){
@@ -302,7 +343,7 @@ function SignUp({
                               <IoCall className="" />
                               <span className="font-semibold">Sign up with a phone number</span>
                           </div>
-                          <button disabled onClick={handleGoogleAuth} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
+                          <button onClick={handleGoogleSignup} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200 w-full">
                               <FcGoogle className="" />
                               <span className="font-semibold">Sign up with Google</span>
                           </button>
