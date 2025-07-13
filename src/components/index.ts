@@ -20,6 +20,7 @@ import MediaUpload from "./MediaUpload";
 import LoadingComponent from "./LoadingComponent";
 import MapComponent from "./MapComponent";
 import VentureWizard from "./VentureWizard";
+import Dashboard from "./Dashboard";
 
 export {
     HomePage,
@@ -43,5 +44,6 @@ export {
     MediaUpload,
     LoadingComponent,
     MapComponent,
-    VentureWizard
+    VentureWizard,
+    Dashboard
 }
