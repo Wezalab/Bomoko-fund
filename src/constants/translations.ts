@@ -243,6 +243,7 @@ export const translations: Translations = {
     "Describe your business here...": "Describe your business here...",
     "Enter username": "Enter username",
     "Enter password": "Enter password",
+    "Successfully signed in with Google": "Successfully signed in with Google",
   },
   fr: {
     // Navbar
@@ -480,5 +481,6 @@ export const translations: Translations = {
     "Describe your business here...": "Décrivez votre entreprise ici...",
     "Enter username": "Entrer nom d'utilisateur",
     "Enter password": "Entrer mot de passe",
+    "Successfully signed in with Google": "Connecté avec succès avec Google",
   }
 } 
