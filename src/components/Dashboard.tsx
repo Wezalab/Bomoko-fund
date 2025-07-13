@@ -427,7 +427,7 @@ const Dashboard: React.FC = () => {
             {/* Businesses Section */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-dark">My Businesses ({businesses.length})</h2>
+                <h2 className="text-xl font-bold text-dark">My Ventures ({businesses.length})</h2>
                 <button
                   onClick={() => handleNavigation('/venture-wizard')}
                   className="bg-lightBlue hover:bg-lightBlue/90 text-white p-2 rounded-lg transition-colors"
@@ -490,7 +490,7 @@ const Dashboard: React.FC = () => {
             {/* Plans Section */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-dark">My Plans ({plans.length})</h2>
+                <h2 className="text-xl font-bold text-dark">Mes plan d'affaires ({plans.length})</h2>
                 <button
                   onClick={() => handleNavigation('/business-plan-editor')}
                   className="bg-lightBlue hover:bg-lightBlue/90 text-white p-2 rounded-lg transition-colors"
