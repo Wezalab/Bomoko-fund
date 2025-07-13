@@ -11,9 +11,9 @@ import countryData from '../constants/countries.json';
 import { generateBusinessTypeSuggestions, generateBusinessNameSuggestions } from '../lib/groqService';
 import { useTranslation } from '../lib/TranslationContext';
 import { useGoogleLogin } from '@react-oauth/google';
-import { useAppSelector } from '@/redux/hooks';
-import { selectUser, selectToken } from '@/redux/slices/userSlice';
-import { useGoogleAuthIntegration } from '@/lib/googleAuth';
+import toast from 'react-hot-toast';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { selectUser, selectToken, setToken, setUser } from '@/redux/slices/userSlice';
 import logoLight from '../assets/logoLight.webp';
 import logoDark from '../assets/logoDark.webp';
 
@@ -57,8 +57,8 @@ const VentureWizard: React.FC = () => {
   const token = useAppSelector(selectToken);
   const isLoggedIn = !!(currentUser?.email || currentUser?.phone_number) && !!token;
   
-  // Google Auth integration
-  const { authenticateWithGoogle } = useGoogleAuthIntegration();
+  // Redux dispatch for authentication
+  const dispatch = useAppDispatch();
   const [isLoadingNameSuggestions, setIsLoadingNameSuggestions] = useState(false);
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
   
@@ -314,30 +314,38 @@ const VentureWizard: React.FC = () => {
         );
         const userInfo = await userInfoResponse.json();
         
-        // Authenticate with integrated system
-        const authResult = await authenticateWithGoogle({
+        // Create user object for Redux store
+        const userData = {
+          _id: userInfo.sub,
+          email: userInfo.email,
+          name: userInfo.name,
+          phone_number: '',
+          bio: '',
+          location: '',
+          isGoogleUser: true,
+          profile: userInfo.picture,
+          projects: [],
+          cryptoWallet: []
+        };
+
+        // Update Redux store
+        dispatch(setUser(userData));
+        dispatch(setToken(tokenResponse.access_token));
+        
+        // Update venture data with Google user info
+        updateVentureData('authMethod', 'google');
+        updateVentureData('userName', userInfo.name || '');
+        updateVentureData('googleUser', {
           email: userInfo.email,
           name: userInfo.name,
           picture: userInfo.picture,
-          access_token: tokenResponse.access_token,
-          sub: userInfo.sub
+          access_token: tokenResponse.access_token
         });
         
-        if (authResult?.success) {
-          // Update venture data with Google user info
-          updateVentureData('authMethod', 'google');
-          updateVentureData('userName', userInfo.name || '');
-          updateVentureData('googleUser', {
-            email: userInfo.email,
-            name: userInfo.name,
-            picture: userInfo.picture,
-            access_token: tokenResponse.access_token
-          });
-          
-          console.log('Google authentication successful:', userInfo);
-          // Auto-complete since we have all the necessary info
-          handleComplete();
-        }
+        console.log('Google authentication successful:', userInfo);
+        toast.success('Successfully signed in with Google!');
+        // Auto-complete since we have all the necessary info
+        handleComplete();
       } catch (error) {
         console.error('Error during Google authentication:', error);
       }
