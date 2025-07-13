@@ -78,8 +78,9 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
     const navigate=useNavigate()
     const dispatch=useAppDispatch()
 
-    // Use user's avatar from Redux if available, otherwise use default profile image
-    const userAvatar = user?.avatar ? user.avatar : profileImage;
+    // Use user's profile picture from Redux if available, otherwise use default profile image
+    // Priority: user.profile (Google profile picture) > user.avatar (uploaded avatar) > default profileImage
+    const userAvatar = user?.profile ? user.profile : (user?.avatar ? user.avatar : profileImage);
     
     // Function to handle image load errors
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
