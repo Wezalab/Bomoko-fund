@@ -26,7 +26,7 @@ import { useFilterProjectsMutation, useGetAllProjectsQuery, useUsersProjectsQuer
 import SignIn from './SignIn';
 import Donate from './Donate';
 import Cashout from './Cashout';
-import { Sheet, SheetContent, SheetOverlay } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetOverlay, SheetTitle, VisuallyHidden } from '@/components/ui/sheet'
 
 
 interface FilterDatasProps{
@@ -208,6 +208,9 @@ function ProjectPage() {
         <Sheet open={login} onOpenChange={setLogin}>
           <SheetOverlay className="bg-black/50" />
           <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+            <VisuallyHidden>
+              <SheetTitle>Login</SheetTitle>
+            </VisuallyHidden>
             <SignIn onClose={() => setLogin(false)} />
           </SheetContent>
         </Sheet>
@@ -216,6 +219,9 @@ function ProjectPage() {
         <Sheet open={donate} onOpenChange={setDonate}>
           <SheetOverlay className="bg-black/50" />
           <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+            <VisuallyHidden>
+              <SheetTitle>Donate</SheetTitle>
+            </VisuallyHidden>
             <Donate projectId={selectedProject?._id} onClose={() => setDonate(false)} />
           </SheetContent>
         </Sheet>
@@ -224,6 +230,9 @@ function ProjectPage() {
         <Sheet open={cashout} onOpenChange={setCashout}>
           <SheetOverlay className="bg-black/50" />
           <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+            <VisuallyHidden>
+              <SheetTitle>Cashout</SheetTitle>
+            </VisuallyHidden>
             <Cashout projectId={selectedProject?._id} onClose={() => setCashout(false)} />
           </SheetContent>
         </Sheet>
@@ -232,6 +241,9 @@ function ProjectPage() {
         <Sheet open={viewProjectSecurity && (!user.email && !user.phone_number)} onOpenChange={setViewProjectSecurity}>
           <SheetOverlay className="bg-black/50" />
           <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+            <VisuallyHidden>
+              <SheetTitle>View Project Security</SheetTitle>
+            </VisuallyHidden>
             <ViewProjectChecker 
               onClose={() => setViewProjectSecurity(false)} 
               next={() => {
@@ -246,6 +258,9 @@ function ProjectPage() {
         <Sheet open={openFilter} onOpenChange={setOpenFilter}>
           <SheetOverlay className="bg-black/50" />
           <SheetContent side="top" className="w-[90%] md:w-3/4 lg:w-[40%] h-auto p-0 border-none rounded-b-2xl mx-auto">
+            <VisuallyHidden>
+              <SheetTitle>Filter Projects</SheetTitle>
+            </VisuallyHidden>
             <FilterModal 
               setFilterProject={() => setFilterProject(true)} 
               setFilterData={setFilterDatas} 
