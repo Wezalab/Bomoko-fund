@@ -1,197 +1,210 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from '@/lib/TranslationContext';
 import { useAppSelector } from '@/redux/hooks';
 import { selectUser } from '@/redux/slices/userSlice';
-import { ChevronRight, Lock, Users } from 'lucide-react';
-import { Button } from './ui/button';
-import logoLight from '../assets/logoLight.webp';
+import { 
+  Home, 
+  Edit, 
+  Eye, 
+  DollarSign, 
+  Users, 
+  Settings, 
+  User,
+  ArrowUpRight,
+  Crown
+} from 'lucide-react';
 
-interface DashboardProps {}
-
-const Dashboard: React.FC<DashboardProps> = () => {
-  const { t } = useTranslation();
+const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const user = useAppSelector(selectUser);
-  const [selectedBusiness, setSelectedBusiness] = useState('TechTribe');
-  const [selectedPlan, setSelectedPlan] = useState('Business Plan Plan 1');
 
-  const sidebarItems = [
-    { name: 'Home', icon: '🏠', path: '/dashboard', active: true },
-    { name: 'Edit Plan', icon: '📝', path: '/business-plan/editor', active: false },
-    { name: 'View Plan', icon: '👁️', path: '/business-plan', active: false },
-    { name: 'Financials', icon: '💰', path: '/financials', active: false },
-    { name: 'Users', icon: '👥', path: '/users', active: false },
-  ];
-
-  const formatDate = () => {
-    const now = new Date();
-    return now.toLocaleDateString('en-GB', { 
-      day: '2-digit', 
-      month: '2-digit',
-      year: '2-digit'
-    }).replace(/\//g, '.');
+  const handleNavigation = (path: string) => {
+    navigate(path);
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-lightGreen/20 to-lightBlue/20 flex">
       {/* Left Sidebar */}
-      <div className="w-64 bg-[#0D4A4A] text-white flex flex-col">
+      <div className="w-80 bg-gradient-to-b from-[#02093d] to-[#0a1854] text-white flex flex-col">
         {/* Logo Section */}
-        <div className="p-4 border-b border-[#1A5A5A]">
-          <div className="flex items-center space-x-2">
-            <img src={logoLight} alt="VenturePlanner" className="h-8 w-auto" />
-            <span className="font-bold text-lg text-yellow-400">VenturePlanner</span>
+        <div className="p-6 border-b border-white/10">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-white rounded text-[#02093d] flex items-center justify-center font-bold text-lg">
+              B
+            </div>
+            <span className="text-2xl font-bold text-white">BOMOKO FUND</span>
           </div>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="flex-1 py-4">
-          {sidebarItems.map((item) => (
+        {/* Navigation */}
+        <div className="flex-1 p-6">
+          <nav className="space-y-2">
             <button
-              key={item.name}
-              onClick={() => navigate(item.path)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-[#1A5A5A] transition-colors ${
-                item.active ? 'bg-[#1A5A5A] border-r-2 border-yellow-400' : ''
-              }`}
+              onClick={() => handleNavigation('/dashboard')}
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors"
             >
-              <span className="text-lg">{item.icon}</span>
-              <span className="font-medium">{item.name}</span>
+              <Home className="w-5 h-5" />
+              <span>Home</span>
             </button>
-          ))}
-        </nav>
+            
+            <button
+              onClick={() => handleNavigation('/business-plan-editor')}
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-200 transition-colors"
+            >
+              <Edit className="w-5 h-5" />
+              <span>Edit Plan</span>
+            </button>
+            
+            <button
+              onClick={() => handleNavigation('/business-plan')}
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-200 transition-colors"
+            >
+              <Eye className="w-5 h-5" />
+              <span>View Plan</span>
+            </button>
+            
+            <button
+              onClick={() => handleNavigation('/financials')}
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-200 transition-colors"
+            >
+              <DollarSign className="w-5 h-5" />
+              <span>Financials</span>
+            </button>
+            
+            <button
+              onClick={() => handleNavigation('/users')}
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-white/10 text-gray-200 transition-colors"
+            >
+              <Users className="w-5 h-5" />
+              <span>Users</span>
+            </button>
+          </nav>
+        </div>
 
         {/* Upgrade Section */}
-        <div className="p-4 border-t border-[#1A5A5A]">
-          <div className="bg-[#1A5A5A] rounded-lg p-4 text-center">
-            <Lock className="mx-auto mb-2 h-8 w-8 text-yellow-400" />
-            <p className="text-sm text-gray-300 mb-3">
-              Upgrade to unlock more features and sections.
-            </p>
-            <Button className="w-full bg-yellow-400 text-black hover:bg-yellow-500 font-semibold">
-              Upgrade
-            </Button>
+        <div className="p-6 border-t border-white/10">
+          <div className="bg-white/10 rounded-lg p-4 text-center">
+            <Crown className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+            <h3 className="font-semibold text-white mb-1">Upgrade to Pro</h3>
+            <p className="text-sm text-gray-300 mb-3">Get advanced features and priority support</p>
+            <button className="w-full bg-lightBlue hover:bg-lightBlue/90 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+              Upgrade Now
+            </button>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="bg-white shadow-sm border-b p-6">
-          <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-            <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full font-medium">
-              HOME
-            </span>
+        <div className="bg-white border-b border-gray-200 px-8 py-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-dark">Welcome {user?.name || 'User'}</h1>
+              <p className="text-gray-600">HOME</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => handleNavigation('/profile')}
+                className="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-lg transition-colors"
+              >
+                <User className="w-5 h-5 text-gray-600" />
+                <span className="text-gray-700">Profile</span>
+              </button>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome {user?.name || 'User'}
-          </h1>
         </div>
 
-        {/* Main Dashboard Content */}
-        <div className="p-6 space-y-6">
-          {/* Top Section - Business and Plan Selection */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Selected Business */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Selected Business</h2>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">{selectedBusiness}</h3>
-              <div className="text-sm text-gray-600 mb-4">
-                <span>Created: {formatDate()}</span>
-                <span className="ml-4">Location: Afghanistan</span>
-              </div>
-              <p className="text-gray-600 mb-6">
-                Click below to change business or create a new business. Remember one business can have multiple plans.
-              </p>
-              <div className="flex space-x-3">
-                <Button className="bg-black text-white hover:bg-gray-800 px-6">
-                  {selectedBusiness}
-                </Button>
-                <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-4">
-                  + New Business
-                </Button>
+        {/* Dashboard Content */}
+        <div className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Selected Business Section */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+              <h2 className="text-lg font-semibold text-dark mb-4">Selected Business</h2>
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-lightBlue rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">T</span>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-dark">TechTribe</h3>
+                  <p className="text-gray-600 text-sm">Created on Dec 28, 2024</p>
+                  <p className="text-gray-600 text-sm">📍 Afghanistan</p>
+                </div>
               </div>
             </div>
 
-            {/* Selected Plan */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Selected Plan</h2>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">{selectedPlan}</h3>
-              <div className="text-sm text-gray-600 mb-4">
-                <span>Created: {formatDate()}</span>
-                <span className="ml-4">Type: Not Setup</span>
-              </div>
-              <p className="text-gray-600 mb-6">
-                Click below to change plan or create a new plan. Remember one business can have multiple business plans if necessary.
-              </p>
-              <div className="flex space-x-3">
-                <Button className="bg-[#0D4A4A] text-white hover:bg-[#1A5A5A] px-6">
-                  {selectedPlan}
-                </Button>
-                <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-4">
-                  + New Plan
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Business Settings */}
-            <div className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900">Business Settings</h3>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              </div>
-              <p className="text-gray-600 text-sm">
-                Modify the fundamental details about {selectedBusiness}, such as name, location and language.
-              </p>
-            </div>
-
-            {/* User Access */}
-            <div className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow cursor-pointer">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900">User Access</h3>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
-              </div>
-              <p className="text-gray-600 text-sm mb-4">
-                Manage access for users associated with {selectedBusiness}.
-              </p>
-              <div className="flex items-center space-x-2">
-                <Users className="h-4 w-4 text-gray-400" />
-                <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
-                  0 Collaborators
-                </span>
+            {/* Selected Plan Section */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+              <h2 className="text-lg font-semibold text-dark mb-4">Selected Plan</h2>
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Settings className="w-6 h-6 text-gray-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-dark">Business Plan Plan 1</h3>
+                  <p className="text-gray-600 text-sm">Created on Dec 28, 2024</p>
+                  <p className="text-gray-600 text-sm">Type: Not Setup</p>
+                </div>
               </div>
             </div>
 
-            {/* Plan Editor */}
-            <div 
-              className="bg-[#0D4A4A] text-white rounded-lg p-6 hover:bg-[#1A5A5A] transition-colors cursor-pointer"
-              onClick={() => navigate('/business-plan/editor')}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold">Plan Editor</h3>
-                <ChevronRight className="h-5 w-5 text-white" />
+            {/* Action Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div
+                onClick={() => handleNavigation('/business-settings')}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer group"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-lightBlue/10 rounded-lg flex items-center justify-center">
+                    <Settings className="w-6 h-6 text-lightBlue" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-gray-400 group-hover:text-lightBlue transition-colors" />
+                </div>
+                <h3 className="font-semibold text-dark mb-2">Business Settings</h3>
+                <p className="text-gray-600 text-sm">Configure your business information and preferences</p>
               </div>
-              <p className="text-gray-200 text-sm">
-                Continue working on the currently selected plan using the plan editor interface.
-              </p>
-            </div>
 
-            {/* Plan Viewer */}
-            <div 
-              className="bg-[#0D4A4A] text-white rounded-lg p-6 hover:bg-[#1A5A5A] transition-colors cursor-pointer"
-              onClick={() => navigate('/business-plan')}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold">Plan Viewer</h3>
-                <ChevronRight className="h-5 w-5 text-white" />
+              <div
+                onClick={() => handleNavigation('/user-access')}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer group"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-lightBlue/10 rounded-lg flex items-center justify-center">
+                    <Users className="w-6 h-6 text-lightBlue" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-gray-400 group-hover:text-lightBlue transition-colors" />
+                </div>
+                <h3 className="font-semibold text-dark mb-2">User Access</h3>
+                <p className="text-gray-600 text-sm">Manage user permissions and access levels</p>
               </div>
-              <p className="text-gray-200 text-sm">
-                View or download the currently selected plan. Note that you cannot edit the plan in the plan viewer.
-              </p>
+
+              <div
+                onClick={() => handleNavigation('/business-plan-editor')}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer group"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-lightBlue/10 rounded-lg flex items-center justify-center">
+                    <Edit className="w-6 h-6 text-lightBlue" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-gray-400 group-hover:text-lightBlue transition-colors" />
+                </div>
+                <h3 className="font-semibold text-dark mb-2">Plan Editor</h3>
+                <p className="text-gray-600 text-sm">Create and edit your business plan</p>
+              </div>
+
+              <div
+                onClick={() => handleNavigation('/business-plan')}
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow cursor-pointer group"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-lightBlue/10 rounded-lg flex items-center justify-center">
+                    <Eye className="w-6 h-6 text-lightBlue" />
+                  </div>
+                  <ArrowUpRight className="w-5 h-5 text-gray-400 group-hover:text-lightBlue transition-colors" />
+                </div>
+                <h3 className="font-semibold text-dark mb-2">Plan Viewer</h3>
+                <p className="text-gray-600 text-sm">View and share your completed business plan</p>
+              </div>
             </div>
           </div>
         </div>
