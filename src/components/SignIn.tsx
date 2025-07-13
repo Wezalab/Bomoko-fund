@@ -19,6 +19,7 @@ import LoadingComponent from "./LoadingComponent";
 import { apiUrl } from "@/lib/env";
 import { handleRTKQueryError } from "@/redux/errorHandler";
 import { showSnackbar } from "@/lib/snackbar";
+import { useGoogleLogin } from '@react-oauth/google';
 
 interface signInProps{
     onClose?:any,
@@ -64,6 +65,7 @@ function SignIn({
     const [signWithEmail,setSignWithEmail]=useState(false)
     const [showPassword,setShowPassword]=useState(false)
     const dispatch=useAppDispatch()
+    
     const [
         Login,
         {
@@ -200,9 +202,49 @@ function SignIn({
         })
     }
 
-    const handleGoogleAuth=()=>{
-        window.location.href = "http://localhost:7007/api/auth/google";
-    }   
+    const googleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            try {
+                // Get user info using the access token
+                const userInfoResponse = await fetch(
+                    `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
+                );
+                const userInfo = await userInfoResponse.json();
+                
+                // Create user object for Redux store
+                const userData = {
+                    _id: userInfo.sub,
+                    email: userInfo.email,
+                    name: userInfo.name,
+                    phone_number: '',
+                    bio: '',
+                    location: '',
+                    isGoogleUser: true,
+                    profile: userInfo.picture,
+                    projects: [],
+                    cryptoWallet: []
+                };
+
+                // Update Redux store
+                dispatch(setUser(userData));
+                dispatch(setToken(tokenResponse.access_token));
+                
+                toast.success('Successfully signed in with Google!');
+                onClose();
+            } catch (error) {
+                console.error('Error during Google authentication:', error);
+                toast.error('Google authentication failed. Please try again.');
+            }
+        },
+        onError: (error) => {
+            console.error('Google sign-in failed:', error);
+            toast.error('Google sign-in failed. Please try again.');
+        },
+    });
+
+    const handleGoogleLogin = () => {
+        googleLogin();
+    };
   return (
     <div className="px-5 pb-8 pt-10 bg-white shadow-md rounded-2xl">
         {/* Remove the absolute positioned close button since SheetContent provides a close button */}
@@ -228,7 +270,7 @@ function SignIn({
                             <IoCall className="" />
                             <span className="font-semibold">Sign in with a phone number</span>
                         </div>
-                        <button disabled onClick={handleGoogleAuth} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
+                        <button onClick={handleGoogleLogin} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200 w-full">
                             <FcGoogle className="" />
                             <span className="font-semibold">Sign in with Google</span>
                         </button>
@@ -257,13 +299,7 @@ function SignIn({
                             <div className="relative">
                                 <MdOutlinePhone className="absolute top-4 left-3" size={18} />
                                 <Input 
-                                {...loginWithPhone("phone",{
-                                    required:"Phone Number is required",
-                                    pattern:{
-                                        value: /^\+\d{1,3}[- ]?\d{3}[- ]?\d{4}$/,
-                                        message: "Invalid phone number format. Example: +1 555 123 4567"
-                                    }
-                                })}
+                                {...loginWithPhone("phone")}
                                 className="h-12 rounded-xl indent-8 text-black lg:text-md"
                                 placeholder="Phone Number"
                                 />
@@ -281,13 +317,7 @@ function SignIn({
                                 }
                                 <Input 
                                     type={showPassword? "text":"password"}
-                                    {...loginWithPhone("password",{
-                                        required:"Password is required",
-                                        minLength:{
-                                            value:6,
-                                            message:"Password must be at least 6 charaters"
-                                        }
-                                    })}
+                                    {...loginWithPhone("password")}
                                     className="h-12 rounded-xl indent-8 text-black lg:text-md"
                                     placeholder="Password"
                                 />
@@ -296,7 +326,7 @@ function SignIn({
                         </div>
                         {/* Error message for phone login */}
                         { typeof loginWithPhoneError === 'object' && loginWithPhoneError !== null && 'data' in loginWithPhoneError && loginWithPhoneError.data && typeof loginWithPhoneError.data === 'object' && 'message' in loginWithPhoneError.data && typeof loginWithPhoneError.data.message === 'string' && (
-                            <p className="text-red-500 text-sm">{loginWithPhoneError.data.message as string}</p>
+                            <p className="text-red-500 text-sm">{String(loginWithPhoneError.data.message)}</p>
                         )}
                         <Button
                             disabled={loginWithPhoneIsLoading}
@@ -337,13 +367,7 @@ function SignIn({
                                 <IoMdMail className="absolute top-4 left-3" size={18} />
                                 <Input 
                                     type="email"
-                                    {...loginWithEmail("email",{
-                                        required:"Email is Required",
-                                        pattern:{
-                                            value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                            message:"Invalid email"
-                                        }
-                                    })}
+                                    {...loginWithEmail("email")}
                                     className="h-12 rounded-xl indent-8 text-black lg:text-md"
                                     placeholder="Email"
                                 />
@@ -361,13 +385,7 @@ function SignIn({
                                 }
                                 <Input 
                                     type={showPassword? "text":"password"}
-                                    {...loginWithEmail("password",{
-                                        required:"Password is required",
-                                        minLength:{
-                                            value:6,
-                                            message:"Password must be at least 6 charaters"
-                                        }
-                                    })}
+                                    {...loginWithEmail("password")}
                                     className="h-12 rounded-xl indent-8 text-black lg:text-md"
                                     placeholder="Password"
                                 />
@@ -377,7 +395,7 @@ function SignIn({
                         </div>
                         {/* Error message for email login */}
                         { typeof loginError === 'object' && loginError !== null && 'data' in loginError && loginError.data && typeof loginError.data === 'object' && 'message' in loginError.data && typeof loginError.data.message === 'string' && (
-                            <p className="text-red-500 text-sm">{loginError.data.message as string}</p>
+                            <p className="text-red-500 text-sm">{String(loginError.data.message)}</p>
                         )}
 
                         <Button
