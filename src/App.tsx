@@ -10,14 +10,14 @@ import { googleClientId } from "./lib/env"
 function App() {
   return (
     <GoogleOAuthProvider clientId={googleClientId}>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <TranslationProvider>
-            <RootNavigation />
-            <Toaster />
-          </TranslationProvider>
-        </PersistGate>
-      </Provider>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <TranslationProvider>
+          <RootNavigation />
+          <Toaster />
+        </TranslationProvider>
+      </PersistGate>
+    </Provider>
     </GoogleOAuthProvider>
   )
 }
