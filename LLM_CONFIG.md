@@ -20,6 +20,10 @@ VITE_GROQ_API_KEY=your-groq-api-key-here
 VITE_CHATGPT_API_KEY=your-chatgpt-api-key-here
 VITE_CHATGPT_MODEL=gpt-4o
 
+# Google OAuth Configuration
+VITE_GOOGLE_CLIENT_ID=your-google-client-id
+VITE_GOOGLE_CLIENT_SECRET=your-google-client-secret
+
 # Other existing configuration
 VITE_BOMOKO_SERVER=your-server-url
 VITE_PAYMENT_TOKEN=your-payment-token
@@ -67,4 +71,26 @@ VITE_GROQ_API_KEY=gsk_your_actual_groq_api_key_here
 - If no provider is specified, the system defaults to ChatGPT
 - Make sure to keep your API keys secure and never commit them to version control
 - The `.env` file is already included in `.gitignore`
-- Restart your development server after changing environment variables 
+- Restart your development server after changing environment variables
+
+## Google OAuth Setup
+
+The application includes Google OAuth authentication for user sign-in in the VentureWizard.
+
+### Configuration:
+- **Client ID**: Set `VITE_GOOGLE_CLIENT_ID` 
+- **Client Secret**: Set `VITE_GOOGLE_CLIENT_SECRET`
+
+### Features:
+- One-click Google sign-in
+- Automatic user profile information retrieval
+- Secure OAuth 2.0 flow
+- User profile picture and email integration
+
+### Setup Steps:
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create or select a project
+3. Enable Google+ API or Google Identity Services
+4. Create OAuth 2.0 credentials
+5. Add your domain to authorized origins
+6. Copy Client ID and Client Secret to your `.env` file 
