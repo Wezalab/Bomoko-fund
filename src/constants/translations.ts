@@ -228,6 +228,17 @@ export const translations: Translations = {
     "e.g. We are a marketing agency specialising in TikTok and YouTube for small businesses.": "e.g. We are a marketing agency specialising in TikTok and YouTube for small businesses.",
     "e.g. BOMOKO Solutions": "e.g. BOMOKO Solutions",
     "AI Suggestions": "AI Suggestions",
+    
+    // Language and Currency Selection
+    "What language will you use for your business plan?": "What language will you use for your business plan?",
+    "Select the language in which you will write your business plan.": "Select the language in which you will write your business plan.",
+    "What currency will you use for your business plan?": "What currency will you use for your business plan?",
+    "Select the currency that will be used in your financial projections.": "Select the currency that will be used in your financial projections.",
+    "Select Language": "Select Language",
+    "Select Currency": "Select Currency",
+    "Select your country, language, and currency for your business plan.": "Select your country, language, and currency for your business plan.",
+    "Enter username": "Enter username",
+    "Enter password": "Enter password",
   },
   fr: {
     // Navbar
@@ -450,5 +461,16 @@ export const translations: Translations = {
     "e.g. We are a marketing agency specialising in TikTok and YouTube for small businesses.": "ex. Nous sommes une agence de marketing spécialisée dans TikTok et YouTube pour les petites entreprises.",
     "e.g. BOMOKO Solutions": "ex. BOMOKO Solutions",
     "AI Suggestions": "Suggestions IA",
+    
+    // Language and Currency Selection
+    "What language will you use for your business plan?": "Quelle langue utiliserez-vous pour votre plan d'affaires ?",
+    "Select the language in which you will write your business plan.": "Sélectionnez la langue dans laquelle vous écrirez votre plan d'affaires.",
+    "What currency will you use for your business plan?": "Quelle devise utiliserez-vous pour votre plan d'affaires ?",
+    "Select the currency that will be used in your financial projections.": "Sélectionnez la devise qui sera utilisée dans vos projections financières.",
+    "Select Language": "Sélectionner la langue",
+    "Select Currency": "Sélectionner la devise",
+    "Select your country, language, and currency for your business plan.": "Sélectionnez votre pays, langue et devise pour votre plan d'affaires.",
+    "Enter username": "Entrer nom d'utilisateur",
+    "Enter password": "Entrer mot de passe",
   }
 } 
