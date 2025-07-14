@@ -301,6 +301,14 @@ const Dashboard: React.FC = () => {
           </button>
           
           <button
+            onClick={() => handleNavigation('/business-plan/wizard')}
+            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
+          >
+            <FileText className="w-5 h-5" />
+            <span className="font-medium">Add Plan</span>
+          </button>
+          
+          <button
             onClick={() => handleNavigation('/financials')}
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
@@ -492,7 +500,7 @@ const Dashboard: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-dark">Mes plan d'affaires ({plans.length})</h2>
                 <button
-                  onClick={() => handleNavigation('/business-plan-editor')}
+                  onClick={() => handleNavigation('/business-plan/wizard')}
                   className="bg-lightBlue hover:bg-lightBlue/90 text-white p-2 rounded-lg transition-colors"
                   title="Create New Plan"
                 >
