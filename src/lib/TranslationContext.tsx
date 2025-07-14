@@ -24,16 +24,16 @@ interface TranslationProviderProps {
 }
 
 export const TranslationProvider: React.FC<TranslationProviderProps> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('fr');
 
   const t = (key: string): string => {
     if (translations[language] && translations[language][key]) {
       return translations[language][key];
     }
     
-    // Fallback to English if the translation is not found
-    if (translations.en && translations.en[key]) {
-      return translations.en[key];
+    // Fallback to French if the translation is not found
+    if (translations.fr && translations.fr[key]) {
+      return translations.fr[key];
     }
     
     // Return the key itself if no translation is found
