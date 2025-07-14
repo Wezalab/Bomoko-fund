@@ -42,6 +42,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useTranslation } from '@/lib/TranslationContext';
 
 interface ExtendedUser {
   _id: string;
@@ -84,6 +85,7 @@ const BusinessPlanWizard: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser) as ExtendedUser;
+  const { t } = useTranslation();
   
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({});
@@ -386,7 +388,7 @@ const BusinessPlanWizard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <Home className="w-5 h-5" />
-            <span className="font-medium">Home</span>
+            <span className="font-medium">{t('Home')}</span>
           </button>
           
           <button
@@ -394,7 +396,7 @@ const BusinessPlanWizard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <Edit className="w-5 h-5" />
-            <span className="font-medium">Edit Plan</span>
+            <span className="font-medium">{t('Edit Plan')}</span>
           </button>
           
           <button
@@ -402,7 +404,7 @@ const BusinessPlanWizard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <Eye className="w-5 h-5" />
-            <span className="font-medium">View Plan</span>
+            <span className="font-medium">{t('View Plan')}</span>
           </button>
           
           <button
@@ -410,7 +412,7 @@ const BusinessPlanWizard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left bg-white/10 text-white hover:bg-white/20 transition-colors"
           >
             <FileText className="w-5 h-5" />
-            <span className="font-medium">Add Plan</span>
+            <span className="font-medium">{t('Add Plan')}</span>
           </button>
           
           <button
@@ -418,7 +420,7 @@ const BusinessPlanWizard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <DollarSign className="w-5 h-5" />
-            <span className="font-medium">Financials</span>
+            <span className="font-medium">{t('Financials')}</span>
           </button>
           
           <button
@@ -426,7 +428,7 @@ const BusinessPlanWizard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <Users className="w-5 h-5" />
-            <span className="font-medium">Users</span>
+            <span className="font-medium">{t('Users')}</span>
           </button>
         </nav>
 
@@ -435,11 +437,11 @@ const BusinessPlanWizard: React.FC = () => {
           <div className="bg-white/10 rounded-lg p-4 text-center">
             <Lock className="mx-auto mb-2 h-8 w-8 text-yellow-400" />
             <p className="text-sm text-gray-300 mb-3">
-              Upgrade to unlock more features and sections.
+              {t('Upgrade to unlock more features and sections.')}
             </p>
             <button className="w-full bg-yellow text-dark px-4 py-2 rounded-lg font-medium hover:bg-yellow/90 transition-colors">
               <Crown className="w-4 h-4 inline mr-2" />
-              Upgrade Now
+              {t('Upgrade Now')}
             </button>
           </div>
         </div>
@@ -451,11 +453,11 @@ const BusinessPlanWizard: React.FC = () => {
         <div className="bg-white shadow-sm border-b px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-dark">Welcome {user?.name || 'User'}</h1>
+              <h1 className="text-2xl font-bold text-dark">{t('Welcome')} {user?.name || 'User'}</h1>
               <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <span>HOME</span>
+                <span>{t('Home')}</span>
                 <span>/</span>
-                <span>ADD PLAN</span>
+                <span>{t('Add Plan')}</span>
               </div>
             </div>
             
@@ -481,26 +483,26 @@ const BusinessPlanWizard: React.FC = () => {
                       <DropdownMenuItem className='p-3 cursor-pointer'>
                         <div onClick={() => handleNavigation('/profile')} className='flex items-center space-x-2'>
                           <User className="w-4 h-4" />
-                          <span className='text-sm'>Profile</span>
+                          <span className='text-sm'>{t('Profile')}</span>
                         </div>
                       </DropdownMenuItem>
                       <DropdownMenuItem className='p-3 cursor-pointer'>
                         <div onClick={() => handleNavigation('/projects')} className='flex items-center space-x-2'>
                           <Building className="w-4 h-4" />
-                          <span className='text-sm'>Projects</span>
+                          <span className='text-sm'>{t('Projects')}</span>
                         </div>
                       </DropdownMenuItem>
                       <DropdownMenuItem className='p-3 cursor-pointer'>
                         <div onClick={() => handleNavigation('/settings')} className='flex items-center space-x-2'>
                           <Settings className="w-4 h-4" />
-                          <span className='text-sm'>Settings</span>
+                          <span className='text-sm'>{t('Settings')}</span>
                         </div>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className='p-3 cursor-pointer'>
                         <div onClick={handleLogout} className='flex items-center space-x-2'>
                           <LogOut className="w-4 h-4 text-red-600" />
-                          <span className='text-sm text-red-600'>Logout</span>
+                          <span className='text-sm text-red-600'>{t('Logout')}</span>
                         </div>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
@@ -517,8 +519,8 @@ const BusinessPlanWizard: React.FC = () => {
             {/* Main Form Content */}
             <div className="lg:w-2/3">
               <div className="bg-white rounded-lg shadow-lg p-6">
-                <h1 className="text-3xl font-bold text-dark mb-2">Initial Plan Setup</h1>
-                <p className="text-gray-600 mb-8">Answer the questions to setup your plan.</p>
+                <h1 className="text-3xl font-bold text-dark mb-2">{t('initialPlanSetup')}</h1>
+                <p className="text-gray-600 mb-8">{t('answerQuestionsToSetup')}</p>
                 
                 <div className="question-wrapper">
                   <div className="question mb-6">
@@ -549,7 +551,7 @@ const BusinessPlanWizard: React.FC = () => {
                     className="flex items-center px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft className="w-4 h-4 mr-2" />
-                    Back
+                    {t('back')}
                   </button>
                   
                   {currentStep === questions.length - 1 ? (
@@ -557,14 +559,14 @@ const BusinessPlanWizard: React.FC = () => {
                       onClick={handleFinish}
                       className="px-6 py-2 bg-lightBlue text-white rounded-lg hover:bg-lightBlue/90"
                     >
-                      Finish
+                      {t('finish')}
                     </button>
                   ) : (
                     <button
                       onClick={handleNext}
                       className="px-6 py-2 bg-lightBlue text-white rounded-lg hover:bg-lightBlue/90"
                     >
-                      Next
+                      {t('next')}
                     </button>
                   )}
                 </div>
@@ -634,11 +636,11 @@ const BusinessPlanWizard: React.FC = () => {
                   <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-dark">{questions.length}</div>
-                      <div className="text-sm text-gray-600">QUESTIONS</div>
+                      <div className="text-sm text-gray-600">{t('questions')}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-lightBlue">{completionPercentage}%</div>
-                      <div className="text-sm text-gray-600">COMPLETE</div>
+                      <div className="text-sm text-gray-600">{t('complete')}</div>
                     </div>
                     <button
                       onClick={() => navigate('/dashboard')}

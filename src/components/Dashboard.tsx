@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { selectUser, setUser, setToken, initialState } from '@/redux/slices/userSlice';
 import { ProjectInitialState, setProject } from '@/redux/slices/projectSlice';
+import { useTranslation } from '@/lib/TranslationContext';
 import { 
   Home, 
   Edit, 
@@ -89,6 +90,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser) as unknown as ExtendedUser;
+  const { t } = useTranslation();
 
   // Mock businesses array - in real app, this would come from Redux store or API
   const [businesses, setBusinesses] = useState<BusinessData[]>([
@@ -231,14 +233,14 @@ const Dashboard: React.FC = () => {
       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <Building className="w-8 h-8 text-gray-400" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Business Created</h3>
-      <p className="text-gray-600 mb-6">Create your first business to get started with your entrepreneurial journey.</p>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('noBusinessCreated')}</h3>
+      <p className="text-gray-600 mb-6">{t('createBusinessMessage')}</p>
       <button
         onClick={() => handleNavigation('/venture-wizard')}
         className="bg-lightBlue hover:bg-lightBlue/90 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center space-x-2"
       >
         <Plus className="w-5 h-5" />
-        <span>Create New Business</span>
+        <span>{t('createNewBusiness')}</span>
       </button>
     </div>
   );
@@ -248,14 +250,14 @@ const Dashboard: React.FC = () => {
       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <FileText className="w-8 h-8 text-gray-400" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">No Plans Created</h3>
-      <p className="text-gray-600 mb-6">Create a business plan to organize your ideas and attract investors.</p>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('noPlansCreated')}</h3>
+      <p className="text-gray-600 mb-6">{t('createPlanMessage')}</p>
       <button
         onClick={() => handleNavigation('/business-plan-editor')}
         className="bg-lightBlue hover:bg-lightBlue/90 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center space-x-2"
       >
         <Plus className="w-5 h-5" />
-        <span>Create New Plan</span>
+        <span>{t('createNewPlan')}</span>
       </button>
     </div>
   );
@@ -281,7 +283,7 @@ const Dashboard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left bg-white/10 text-white hover:bg-white/20 transition-colors"
           >
             <Home className="w-5 h-5" />
-            <span className="font-medium">Home</span>
+            <span className="font-medium">{t('home')}</span>
           </button>
           
           <button
@@ -289,7 +291,7 @@ const Dashboard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <Edit className="w-5 h-5" />
-            <span className="font-medium">Edit Plan</span>
+            <span className="font-medium">{t('editPlan')}</span>
           </button>
           
           <button
@@ -297,7 +299,7 @@ const Dashboard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <Eye className="w-5 h-5" />
-            <span className="font-medium">View Plan</span>
+            <span className="font-medium">{t('viewPlan')}</span>
           </button>
           
           <button
@@ -305,7 +307,7 @@ const Dashboard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <FileText className="w-5 h-5" />
-            <span className="font-medium">Add Plan</span>
+            <span className="font-medium">{t('addPlan')}</span>
           </button>
           
           <button
@@ -313,7 +315,7 @@ const Dashboard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <DollarSign className="w-5 h-5" />
-            <span className="font-medium">Financials</span>
+            <span className="font-medium">{t('financials')}</span>
           </button>
           
           <button
@@ -321,7 +323,7 @@ const Dashboard: React.FC = () => {
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <Users className="w-5 h-5" />
-            <span className="font-medium">Users</span>
+            <span className="font-medium">{t('users')}</span>
           </button>
         </nav>
 
@@ -330,10 +332,10 @@ const Dashboard: React.FC = () => {
           <div className="bg-white/10 rounded-lg p-4 text-center">
             <Lock className="mx-auto mb-2 h-8 w-8 text-yellow-400" />
             <p className="text-sm text-gray-300 mb-3">
-              Upgrade to unlock more features and sections.
+              {t('upgradeMessage')}
             </p>
             <button className="w-full bg-yellow-400 text-dark hover:bg-yellow-500 font-semibold py-2 px-4 rounded transition-colors">
-              Upgrade
+              {t('upgrade')}
             </button>
           </div>
         </div>
@@ -347,11 +349,11 @@ const Dashboard: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
                 <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full font-medium">
-                  HOME
+                  {t('home')}
                 </span>
               </div>
               <h1 className="text-3xl font-bold text-dark">
-                Welcome {user?.name || user?.email?.split('@')[0] || 'User'}
+                {t('Welcome')} {user?.name || user?.email?.split('@')[0] || 'User'}
               </h1>
             </div>
             <div className="flex items-center space-x-4">
@@ -398,26 +400,26 @@ const Dashboard: React.FC = () => {
                       <DropdownMenuItem className='p-3 cursor-pointer'>
                         <div onClick={() => handleNavigation('/profile')} className='flex items-center space-x-2'>
                           <User className="w-4 h-4" />
-                          <span className='text-sm'>Profile</span>
+                          <span className='text-sm'>{t('profile')}</span>
                         </div>
                       </DropdownMenuItem>
                       <DropdownMenuItem className='p-3 cursor-pointer'>
                         <div onClick={() => handleNavigation('/projects')} className='flex items-center space-x-2'>
                           <Building className="w-4 h-4" />
-                          <span className='text-sm'>Projects</span>
+                          <span className='text-sm'>{t('projects')}</span>
                         </div>
                       </DropdownMenuItem>
                       <DropdownMenuItem className='p-3 cursor-pointer'>
                         <div onClick={() => handleNavigation('/settings')} className='flex items-center space-x-2'>
                           <Settings className="w-4 h-4" />
-                          <span className='text-sm'>Settings</span>
+                          <span className='text-sm'>{t('settings')}</span>
                         </div>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className='p-3 cursor-pointer'>
                         <div onClick={handleLogout} className='flex items-center space-x-2'>
                           <LogOut className="w-4 h-4 text-red-600" />
-                          <span className='text-sm text-red-600'>Logout</span>
+                          <span className='text-sm text-red-600'>{t('logout')}</span>
                         </div>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
@@ -435,11 +437,11 @@ const Dashboard: React.FC = () => {
             {/* Businesses Section */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-dark">My Ventures ({businesses.length})</h2>
+                <h2 className="text-xl font-bold text-dark">{t('myVentures')} ({businesses.length})</h2>
                 <button
                   onClick={() => handleNavigation('/venture-wizard')}
                   className="bg-lightBlue hover:bg-lightBlue/90 text-white p-2 rounded-lg transition-colors"
-                  title="Create New Business"
+                  title={t('createNewBusiness')}
                 >
                   <Plus className="w-5 h-5" />
                 </button>
@@ -462,7 +464,7 @@ const Dashboard: React.FC = () => {
                           <h3 className="font-semibold text-dark mb-1">{business.name}</h3>
                           <p className="text-gray-600 text-sm mb-2">{business.description}</p>
                           <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
-                            <span>Created: {formatDate(business.createdAt)}</span>
+                            <span>{t('createdAt')} {formatDate(business.createdAt)}</span>
                             <span>{business.location}</span>
                           </div>
                           <div className="flex flex-wrap gap-1">
@@ -472,7 +474,7 @@ const Dashboard: React.FC = () => {
                               </span>
                             ))}
                             {business.businessTypes.length > 2 && (
-                              <span className="text-xs text-gray-500">+{business.businessTypes.length - 2} more</span>
+                              <span className="text-xs text-gray-500">+{business.businessTypes.length - 2} {t('more')}</span>
                             )}
                           </div>
                         </div>
@@ -482,7 +484,7 @@ const Dashboard: React.FC = () => {
                             handleDeleteBusiness(business.id);
                           }}
                           className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
-                          title="Delete Business"
+                          title={t('deleteBusiness')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -498,11 +500,11 @@ const Dashboard: React.FC = () => {
             {/* Plans Section */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-dark">Mes plan d'affaires ({plans.length})</h2>
+                <h2 className="text-xl font-bold text-dark">{t('myBusinessPlans')} ({plans.length})</h2>
                 <button
                   onClick={() => handleNavigation('/business-plan/wizard')}
                   className="bg-lightBlue hover:bg-lightBlue/90 text-white p-2 rounded-lg transition-colors"
-                  title="Create New Plan"
+                  title={t('createNewPlan')}
                 >
                   <Plus className="w-5 h-5" />
                 </button>
@@ -525,8 +527,8 @@ const Dashboard: React.FC = () => {
                           <h3 className="font-semibold text-dark mb-1">{plan.name}</h3>
                           <p className="text-gray-600 text-sm mb-2">{plan.description}</p>
                           <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
-                            <span>Created: {formatDate(plan.createdAt)}</span>
-                            <span>Type: {plan.type}</span>
+                            <span>{t('createdAt')} {formatDate(plan.createdAt)}</span>
+                            <span>{t('type')} {plan.type}</span>
                           </div>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                             plan.status === 'completed' 
@@ -535,8 +537,8 @@ const Dashboard: React.FC = () => {
                               ? 'bg-blue-100 text-blue-800'
                               : 'bg-yellow-100 text-yellow-800'
                           }`}>
-                            {plan.status === 'completed' ? 'Completed' : 
-                             plan.status === 'setup' ? 'In Progress' : 'Not Started'}
+                            {plan.status === 'completed' ? t('completed') : 
+                             plan.status === 'setup' ? t('inProgress') : t('notStarted')}
                           </span>
                         </div>
                         <button
@@ -545,7 +547,7 @@ const Dashboard: React.FC = () => {
                             handleDeletePlan(plan.id);
                           }}
                           className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
-                          title="Delete Plan"
+                          title={t('deletePlan')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -570,11 +572,11 @@ const Dashboard: React.FC = () => {
                   onClick={() => handleNavigation('/business-settings')}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-dark">Business Settings</h3>
+                    <h3 className="text-lg font-bold text-dark">{t('businessSettings')}</h3>
                     <ArrowUpRight className="h-5 w-5 text-gray-400" />
                   </div>
                   <p className="text-gray-600 text-sm">
-                    Modify the fundamental details about {selectedBusiness.name}, such as name, location and language.
+                    {t('modifyBusinessDetails')}
                   </p>
                 </div>
 
@@ -584,16 +586,16 @@ const Dashboard: React.FC = () => {
                   onClick={() => handleNavigation('/user-access')}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-dark">User Access</h3>
+                    <h3 className="text-lg font-bold text-dark">{t('userAccess')}</h3>
                     <ArrowUpRight className="h-5 w-5 text-gray-400" />
                   </div>
                   <p className="text-gray-600 text-sm mb-4">
-                    Manage access for users associated with {selectedBusiness.name}.
+                    {t('manageUserAccess')}
                   </p>
                   <div className="flex items-center space-x-2">
                     <Users className="h-4 w-4 text-gray-400" />
                     <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">
-                      0 Collaborators
+                      {t('noCollaborators')}
                     </span>
                   </div>
                 </div>
@@ -604,11 +606,11 @@ const Dashboard: React.FC = () => {
                   onClick={() => handleNavigation('/business-plan-editor')}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold">Plan Editor</h3>
+                    <h3 className="text-lg font-bold">{t('planEditor')}</h3>
                     <ArrowUpRight className="h-5 w-5 text-white" />
                   </div>
                   <p className="text-gray-100 text-sm">
-                    Continue working on the currently selected plan using the plan editor interface.
+                    {t('continueWorkingOnPlan')}
                   </p>
                 </div>
 
@@ -618,11 +620,11 @@ const Dashboard: React.FC = () => {
                   onClick={() => handleNavigation('/business-plan')}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold">Plan Viewer</h3>
+                    <h3 className="text-lg font-bold">{t('planViewer')}</h3>
                     <ArrowUpRight className="h-5 w-5 text-white" />
                   </div>
                   <p className="text-gray-100 text-sm">
-                    View or download the currently selected plan. Note that you cannot edit the plan in the plan viewer.
+                    {t('viewOrDownloadPlan')}
                   </p>
                 </div>
               </div>
@@ -635,11 +637,11 @@ const Dashboard: React.FC = () => {
                   onClick={() => handleNavigation('/account-settings')}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-dark">Account Settings</h3>
+                    <h3 className="text-lg font-bold text-dark">{t('accountSettings')}</h3>
                     <ArrowUpRight className="h-5 w-5 text-gray-400" />
                   </div>
                   <p className="text-gray-600 text-sm">
-                    Manage your user profile, account and billing details.
+                    {t('manageUserProfileAccountBilling')}
                   </p>
                 </div>
 
@@ -649,11 +651,11 @@ const Dashboard: React.FC = () => {
                   onClick={() => handleNavigation('/faq')}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-dark">Frequent Questions</h3>
+                    <h3 className="text-lg font-bold text-dark">{t('frequentQuestions')}</h3>
                     <ArrowUpRight className="h-5 w-5 text-gray-400" />
                   </div>
                   <p className="text-gray-600 text-sm">
-                    Find answers to common questions and watch tutorial videos.
+                    {t('findAnswersTutorialVideos')}
                   </p>
                 </div>
 
@@ -663,11 +665,11 @@ const Dashboard: React.FC = () => {
                   onClick={() => handleNavigation('/support')}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-dark">Request Support</h3>
+                    <h3 className="text-lg font-bold text-dark">{t('requestSupport')}</h3>
                     <ArrowUpRight className="h-5 w-5 text-gray-400" />
                   </div>
                   <p className="text-gray-600 text-sm">
-                    Get in touch with our support team for technical or account related assistance.
+                    {t('getInTouchSupportTeam')}
                   </p>
                 </div>
 
@@ -676,11 +678,11 @@ const Dashboard: React.FC = () => {
                   className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow cursor-pointer opacity-60"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold text-dark">Partner Program</h3>
+                    <h3 className="text-lg font-bold text-dark">{t('partnerProgram')}</h3>
                     <ArrowUpRight className="h-5 w-5 text-gray-400" />
                   </div>
                   <p className="text-gray-600 text-sm">
-                    Earn rewards by referring new customers to our services.
+                    {t('earnRewardsReferNewCustomers')}
                   </p>
                 </div>
               </div>
@@ -690,10 +692,10 @@ const Dashboard: React.FC = () => {
           {/* Quote Section */}
           <div className="text-center py-12">
             <h2 className="text-3xl font-bold text-dark mb-4">
-              "A goal without a plan is just a wish"
+              {t('quoteMessage')}
             </h2>
             <p className="text-yellow-600 font-medium">
-              Antoine de Saint-Exupéry
+              {t('quoteAuthor')}
             </p>
           </div>
 
@@ -701,7 +703,7 @@ const Dashboard: React.FC = () => {
           <div className="border-t pt-8 pb-4">
             <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
               <div className="flex items-center space-x-4">
-                <span className="text-gray-600 font-medium">Find us on Social Media</span>
+                <span className="text-gray-600 font-medium">{t('findUsOnSocialMedia')}</span>
                 <div className="flex space-x-3">
                   <button className="text-gray-600 hover:text-red-600">
                     <Youtube className="w-5 h-5" />
@@ -726,15 +728,15 @@ const Dashboard: React.FC = () => {
                   <span className="text-xl font-bold text-dark">BOMOKO FUND</span>
                 </div>
                 <div className="text-right">
-                  <p className="text-dark font-bold">Be Unstoppable.</p>
-                  <p className="text-gray-600 text-sm">AI-Driven Planning.</p>
+                  <p className="text-dark font-bold">{t('beUnstoppable')}</p>
+                  <p className="text-gray-600 text-sm">{t('aiDrivenPlanning')}</p>
                 </div>
               </div>
             </div>
             
             <div className="text-center mt-6 text-gray-600 text-sm">
-              <p>You are on our <strong>Free Trial</strong> with limited functionality.</p>
-              <p>Crafting strategies to make entrepreneurs <strong>unstoppable</strong>.</p>
+              <p>{t('freeTrialMessage')}</p>
+              <p>{t('craftingStrategies')}</p>
             </div>
           </div>
         </div>
