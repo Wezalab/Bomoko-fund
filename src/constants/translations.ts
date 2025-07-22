@@ -388,8 +388,8 @@ export const translations: Translations = {
     // Common options
     "yes": "Yes",
     "no": "No",
-    "fullBusinessPlan": "Full Business Plan",
-    "basicBusinessPlan": "Basic Business Plan",
+    "fullBusinessPlan": "Full Business plan",
+    "basicBusinessPlan": "Basic Business plan",
     "soleProprietorship": "Sole Proprietorship",
     "partnership": "Partnership",
     "llp": "Limited Liability Partnership",
@@ -784,8 +784,8 @@ export const translations: Translations = {
     // Common options for BusinessPlanWizard
     "yes": "Oui",
     "no": "Non",
-    "fullBusinessPlan": "Plan d'Affaires Complet",
-    "basicBusinessPlan": "Plan d'Affaires de Base",
+    "fullBusinessPlan": "Plan d'affaires complet",
+    "basicBusinessPlan": "Plan d'affaires de base",
     "soleProprietorship": "Entreprise individuelle",
     "partnership": "Partenariat",
     "llp": "Société à responsabilité limitée",

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { selectUser, setUser, setToken, initialState } from '@/redux/slices/userSlice';
@@ -227,8 +227,47 @@ const BusinessPlanWizard: React.FC = () => {
     }
   ];
 
-  const completedQuestions = questions.filter(q => formData[q.id] !== undefined && formData[q.id] !== '').length;
-  const completionPercentage = Math.round((completedQuestions / questions.length) * 100);
+  // Helper function to check if a question should be shown based on previous answers
+  const shouldShowQuestion = (questionIndex: number): boolean => {
+    const question = questions[questionIndex];
+    
+    // Q2: Only show if Q1 answer is "No"
+    if (question.id === 'established_anticipated') {
+      return formData['established_yn'] === t('no');
+    }
+    
+    // Q6: Only show if Q5 answer is "No"  
+    if (question.id === 'staff_future') {
+      return formData['staff'] === t('no');
+    }
+    
+    return true; // Show all other questions
+  };
+
+  // Get the next valid question index
+  const getNextValidStep = (currentIndex: number): number => {
+    for (let i = currentIndex + 1; i < questions.length; i++) {
+      if (shouldShowQuestion(i)) {
+        return i;
+      }
+    }
+    return questions.length - 1; // If no valid next question, go to last
+  };
+
+  // Get the previous valid question index
+  const getPreviousValidStep = (currentIndex: number): number => {
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      if (shouldShowQuestion(i)) {
+        return i;
+      }
+    }
+    return 0; // If no valid previous question, go to first
+  };
+
+  // Calculate completion percentage based on visible questions only
+  const visibleQuestions = questions.filter((_, index) => shouldShowQuestion(index));
+  const completedVisibleQuestions = visibleQuestions.filter(q => formData[q.id] !== undefined && formData[q.id] !== '').length;
+  const completionPercentage = Math.round((completedVisibleQuestions / visibleQuestions.length) * 100);
 
   const handleInputChange = (questionId: string, value: string | number) => {
     setFormData(prev => ({
@@ -238,14 +277,16 @@ const BusinessPlanWizard: React.FC = () => {
   };
 
   const handleNext = () => {
-    if (currentStep < questions.length - 1) {
-      setCurrentStep(currentStep + 1);
+    const nextStep = getNextValidStep(currentStep);
+    if (nextStep > currentStep) {
+      setCurrentStep(nextStep);
     }
   };
 
   const handlePrev = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+    const prevStep = getPreviousValidStep(currentStep);
+    if (prevStep < currentStep) {
+      setCurrentStep(prevStep);
     }
   };
 
@@ -366,6 +407,25 @@ const BusinessPlanWizard: React.FC = () => {
   };
 
   const currentQuestion = questions[currentStep];
+
+  // Auto-navigate to valid question if current question becomes hidden
+  useEffect(() => {
+    if (!shouldShowQuestion(currentStep)) {
+      // Find the nearest valid question
+      const nextValid = getNextValidStep(currentStep - 1);
+      const prevValid = getPreviousValidStep(currentStep + 1);
+      
+      // Choose the closer one, or go to next if equal distance
+      if (nextValid < questions.length && (prevValid === 0 || (currentStep - prevValid) > (nextValid - currentStep))) {
+        setCurrentStep(nextValid);
+      } else if (prevValid >= 0) {
+        setCurrentStep(prevValid);
+      } else {
+        // Fallback to first question
+        setCurrentStep(0);
+      }
+    }
+  }, [formData, currentStep]);
 
   return (
     <div className="business-plan-wizard min-h-screen bg-gradient-to-br from-lightGreen/20 to-lightBlue/20 flex">
@@ -589,53 +649,59 @@ const BusinessPlanWizard: React.FC = () => {
                 {/* Progress Grid */}
                 <div className={`${showMobileSteps ? 'block' : 'hidden'} lg:block`}>
                   <div className="grid grid-cols-5 gap-2 mb-6">
-                    {questions.slice(0, 15).map((question, index) => (
-                      <button
-                        key={question.id}
-                        onClick={() => setCurrentStep(index)}
-                        className={`w-12 h-12 rounded-lg border-2 flex items-center justify-center text-sm font-semibold transition-all ${
-                          index === currentStep
-                            ? 'bg-lightBlue text-white border-lightBlue'
-                            : formData[question.id] !== undefined && formData[question.id] !== ''
-                            ? 'bg-lightBlue/20 text-lightBlue border-lightBlue'
-                            : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        {question.number.replace('Q', '')}
-                      </button>
-                    ))}
+                    {questions.slice(0, 15).filter((_, index) => shouldShowQuestion(index)).map((question, visibleIndex) => {
+                      const originalIndex = questions.findIndex(q => q.id === question.id);
+                      return (
+                        <button
+                          key={question.id}
+                          onClick={() => setCurrentStep(originalIndex)}
+                          className={`w-12 h-12 rounded-lg border-2 flex items-center justify-center text-sm font-semibold transition-all ${
+                            originalIndex === currentStep
+                              ? 'bg-lightBlue text-white border-lightBlue'
+                              : formData[question.id] !== undefined && formData[question.id] !== ''
+                              ? 'bg-lightBlue/20 text-lightBlue border-lightBlue'
+                              : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          {question.number.replace('Q', '')}
+                        </button>
+                      );
+                    })}
                   </div>
                   
                   {/* Question List */}
                   <div className="max-h-96 overflow-y-auto space-y-2 mb-6">
-                    {questions.map((question, index) => (
-                      <div
-                        key={question.id}
-                        className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                          index === currentStep
-                            ? 'bg-lightBlue/10 border-lightBlue'
-                            : formData[question.id] !== undefined && formData[question.id] !== ''
-                            ? 'bg-lightBlue/5 border-lightBlue/20'
-                            : 'bg-gray-50 border-gray-200 hover:border-gray-300'
-                        }`}
-                        onClick={() => setCurrentStep(index)}
-                      >
-                        <div className="flex items-start">
-                          <div className="w-6 h-6 bg-lightBlue text-white rounded-full flex items-center justify-center text-xs font-semibold mr-3 mt-1">
-                            {question.number.replace('Q', '')}
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-dark">{question.text}</p>
+                    {questions.filter((_, index) => shouldShowQuestion(index)).map((question, visibleIndex) => {
+                      const originalIndex = questions.findIndex(q => q.id === question.id);
+                      return (
+                        <div
+                          key={question.id}
+                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                            originalIndex === currentStep
+                              ? 'bg-lightBlue/10 border-lightBlue'
+                              : formData[question.id] !== undefined && formData[question.id] !== ''
+                              ? 'bg-lightBlue/5 border-lightBlue/20'
+                              : 'bg-gray-50 border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => setCurrentStep(originalIndex)}
+                        >
+                          <div className="flex items-start">
+                            <div className="w-6 h-6 bg-lightBlue text-white rounded-full flex items-center justify-center text-xs font-semibold mr-3 mt-1">
+                              {question.number.replace('Q', '')}
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-dark">{question.text}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   
                   {/* Stats */}
                   <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-dark">{questions.length}</div>
+                      <div className="text-2xl font-bold text-dark">{visibleQuestions.length}</div>
                       <div className="text-sm text-gray-600">{t('questions')}</div>
                     </div>
                     <div className="text-center">
