@@ -14,6 +14,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectUser, selectToken, setToken, setUser } from '@/redux/slices/userSlice';
+import { useCreateVentureMutation } from '@/redux/services/ventureServices';
 
 interface Country {
   code: string;
@@ -58,6 +59,9 @@ const VentureWizard: React.FC = () => {
   const [isLoadingNameSuggestions, setIsLoadingNameSuggestions] = useState(false);
   const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
   
+  // Venture API hooks
+  const [createVenture, { isLoading: isCreatingVenture }] = useCreateVentureMutation();
+  
   // Define colors for numbers
   const numberColors = [
     'text-yellow', // 01 - Yellow
@@ -70,6 +74,9 @@ const VentureWizard: React.FC = () => {
   const [countrySearch, setCountrySearch] = useState('');
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [sidebarView, setSidebarView] = useState<'benefits' | 'funding'>('benefits');
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [resultModalType, setResultModalType] = useState<'success' | 'error'>('success');
+  const [resultModalMessage, setResultModalMessage] = useState('');
   const [ventureData, setVentureData] = useState<VentureData>({
     purpose: '',
     country: '',
@@ -295,10 +302,98 @@ const VentureWizard: React.FC = () => {
     }
   };
 
-  const handleComplete = () => {
-    // Store venture data and navigate to dashboard
-    localStorage.setItem('ventureWizardData', JSON.stringify(ventureData));
-    navigate('/dashboard');
+  const handleComplete = async () => {
+    try {
+      // Show loading state
+      console.log('🚀 Starting venture creation...');
+      
+      // Prepare venture data for API
+      const venturePayload = {
+        purpose: ventureData.purpose,
+        country: ventureData.country,
+        businessDescription: ventureData.businessDescription,
+        businessTypes: ventureData.businessTypes,
+        businessName: ventureData.businessName,
+        userName: ventureData.userName,
+        userRole: ventureData.userRole,
+        authMethod: ventureData.authMethod,
+        language: ventureData.language,
+        currency: ventureData.currency,
+        ...(ventureData.googleUser && { googleUser: ventureData.googleUser })
+      };
+
+      console.log('📋 Venture payload prepared:', venturePayload);
+      
+      // Create venture via API
+      const result = await createVenture(venturePayload).unwrap();
+      
+      console.log('✅ Venture created successfully:', result);
+      
+      // Show success modal
+      setResultModalType('success');
+      setResultModalMessage(
+        `${t('Business plan created successfully!')} "${ventureData.businessName}" ${t('has been saved to your dashboard.')}`
+      );
+      setShowResultModal(true);
+      
+      // Show success toast as well
+      toast.success(`🎉 ${t('Business plan created successfully!')}`, {
+        duration: 3000,
+        style: {
+          background: '#10B981',
+          color: 'white',
+        }
+      });
+      
+      // Clear local storage
+      localStorage.removeItem('ventureWizardData');
+      
+    } catch (error: any) {
+      console.error('❌ Error creating venture:', error);
+      
+      // Show detailed error message
+      let errorMessage = t('Failed to create business plan. Please try again.');
+      
+      if (error?.data?.message) {
+        errorMessage = error.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.status) {
+        errorMessage = `${t('Server error')}: ${error.status}`;
+      }
+      
+      // Show error modal
+      setResultModalType('error');
+      setResultModalMessage(errorMessage);
+      setShowResultModal(true);
+      
+      // Show error toast as well
+      toast.error(`❌ ${errorMessage}`, {
+        duration: 4000,
+        style: {
+          background: '#EF4444',
+          color: 'white',
+        }
+      });
+      
+      // Show additional debugging info in console
+      console.error('💡 Debug info:', {
+        errorType: typeof error,
+        errorKeys: Object.keys(error || {}),
+        errorStatus: error?.status,
+        errorData: error?.data,
+        sentPayload: {
+          purpose: ventureData.purpose,
+          country: ventureData.country,
+          businessName: ventureData.businessName
+        }
+      });
+      
+      // Fallback: store data locally if API fails
+      localStorage.setItem('ventureWizardData', JSON.stringify(ventureData));
+      
+      // Don't navigate on error, let user try again
+    }
   };
 
   const googleLogin = useGoogleLogin({
@@ -1065,15 +1160,85 @@ const VentureWizard: React.FC = () => {
 
             <Button
               onClick={handleNext}
-              disabled={!isStepComplete(currentStepData.id)}
+              disabled={!isStepComplete(currentStepData.id) || isCreatingVenture}
               className="flex items-center space-x-2 bg-lightBlue hover:bg-lightBlue/90 text-white"
             >
-              <span>{currentStep === steps.length - 1 ? t('Complete Setup') : t('Continue')}</span>
-              <ChevronRight className="w-4 h-4" />
+              {isCreatingVenture ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>{t('Creating...')}</span>
+                </>
+              ) : (
+                <>
+                  <span>{currentStep === steps.length - 1 ? t('Complete Setup') : t('Continue')}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              )}
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Result Modal */}
+      {showResultModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 relative">
+            <div className="text-center">
+              {resultModalType === 'success' ? (
+                <>
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-green-800 mb-2">{t('Success!')}</h3>
+                  <p className="text-gray-600 mb-6">{resultModalMessage}</p>
+                  <div className="flex space-x-3">
+                    <Button
+                      onClick={() => navigate('/dashboard')}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      {t('Go to Dashboard')}
+                    </Button>
+                    <Button
+                      onClick={() => setShowResultModal(false)}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      {t('Close')}
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-semibold text-red-800 mb-2">{t('Error!')}</h3>
+                  <p className="text-gray-600 mb-6">{resultModalMessage}</p>
+                  <div className="flex space-x-3">
+                    <Button
+                      onClick={() => setShowResultModal(false)}
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      {t('Try Again')}
+                    </Button>
+                    <Button
+                      onClick={() => navigate('/dashboard')}
+                      variant="outline"
+                      className="flex-1"
+                    >
+                      {t('Go to Dashboard')}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

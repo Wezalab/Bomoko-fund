@@ -408,6 +408,14 @@ export const translations: Translations = {
     "Create New Plan": "Create New Plan",
     "Browse Projects": "Browse Projects",
     "Create New Venture": "Create New Venture",
+    "Business plan created successfully!": "Business plan created successfully!",
+    "Failed to create business plan. Please try again.": "Failed to create business plan. Please try again.",
+    "Server error": "Server error",
+    "has been saved to your dashboard.": "has been saved to your dashboard.",
+    "Success!": "Success!",
+    "Error!": "Error!",
+    "Try Again": "Try Again",
+    "Close": "Close",
 
   },
   fr: {
@@ -811,6 +819,14 @@ export const translations: Translations = {
     "Create New Plan": "Créer un nouveau plan",
     "Browse Projects": "Parcourir les projets",
     "Create New Venture": "Créer une nouvelle entreprise",
+    "Business plan created successfully!": "Plan d'affaires créé avec succès !",
+    "Failed to create business plan. Please try again.": "Échec de la création du plan d'affaires. Veuillez réessayer.",
+    "Server error": "Erreur du serveur",
+    "has been saved to your dashboard.": "a été sauvegardé dans votre tableau de bord.",
+    "Success!": "Succès !",
+    "Error!": "Erreur !",
+    "Try Again": "Réessayer",
+    "Close": "Fermer",
 
   }
 } 
