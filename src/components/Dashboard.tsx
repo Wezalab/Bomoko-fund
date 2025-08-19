@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { selectUser, setUser, setToken, initialState } from '@/redux/slices/userSlice';
 import { ProjectInitialState, setProject } from '@/redux/slices/projectSlice';
@@ -88,9 +88,28 @@ interface PlanData {
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser) as unknown as ExtendedUser;
   const { t } = useTranslation();
+
+  // Function to check if a menu item is active
+  const isActiveRoute = (path: string) => {
+    // Handle exact matches first
+    if (location.pathname === path) return true;
+    
+    // Handle special cases for nested routes
+    if (path === '/business-plan' && location.pathname.startsWith('/business-plan/')) {
+      // Don't highlight "View Plan" when on wizard or other nested routes
+      return false;
+    }
+    
+    if (path === '/business-plan/wizard' && location.pathname === '/business-plan/wizard') {
+      return true;
+    }
+    
+    return false;
+  };
 
   // Mock businesses array - in real app, this would come from Redux store or API
   const [businesses, setBusinesses] = useState<BusinessData[]>([
@@ -280,7 +299,11 @@ const Dashboard: React.FC = () => {
         <nav className="flex-1 py-4">
           <button
             onClick={() => handleNavigation('/dashboard')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left bg-white/10 text-white hover:bg-white/20 transition-colors"
+            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+              isActiveRoute('/dashboard') 
+                ? 'bg-white/10 text-white hover:bg-white/20' 
+                : 'hover:bg-white/10 text-gray-200'
+            }`}
           >
             <Home className="w-5 h-5" />
             <span className="font-medium">{t('home')}</span>
@@ -288,15 +311,23 @@ const Dashboard: React.FC = () => {
           
           <button
             onClick={() => handleNavigation('/business-plan-editor')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
+            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+              isActiveRoute('/business-plan-editor') 
+                ? 'bg-white/10 text-white hover:bg-white/20' 
+                : 'hover:bg-white/10 text-gray-200'
+            }`}
           >
             <Edit className="w-5 h-5" />
             <span className="font-medium">{t('editPlan')}</span>
           </button>
           
           <button
-            onClick={() => handleNavigation('/business-plan')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
+            // onClick={() => handleNavigation('/business-plan')}
+            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+              isActiveRoute('/business-plan') 
+                ? 'bg-white/10 text-white hover:bg-white/20' 
+                : 'hover:bg-white/10 text-gray-200'
+            }`}
           >
             <Eye className="w-5 h-5" />
             <span className="font-medium">{t('viewPlan')}</span>
@@ -304,7 +335,11 @@ const Dashboard: React.FC = () => {
           
           <button
             onClick={() => handleNavigation('/business-plan/wizard')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
+            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+              isActiveRoute('/business-plan/wizard') 
+                ? 'bg-white/10 text-white hover:bg-white/20' 
+                : 'hover:bg-white/10 text-gray-200'
+            }`}
           >
             <FileText className="w-5 h-5" />
             <span className="font-medium">{t('addPlan')}</span>
@@ -312,7 +347,11 @@ const Dashboard: React.FC = () => {
           
           <button
             onClick={() => handleNavigation('/financials')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
+            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+              isActiveRoute('/financials') 
+                ? 'bg-white/10 text-white hover:bg-white/20' 
+                : 'hover:bg-white/10 text-gray-200'
+            }`}
           >
             <DollarSign className="w-5 h-5" />
             <span className="font-medium">{t('financials')}</span>
@@ -320,7 +359,11 @@ const Dashboard: React.FC = () => {
           
           <button
             onClick={() => handleNavigation('/users')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
+            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+              isActiveRoute('/users') 
+                ? 'bg-white/10 text-white hover:bg-white/20' 
+                : 'hover:bg-white/10 text-gray-200'
+            }`}
           >
             <Users className="w-5 h-5" />
             <span className="font-medium">{t('users')}</span>

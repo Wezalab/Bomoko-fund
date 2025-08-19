@@ -460,7 +460,7 @@ const BusinessPlanWizard: React.FC = () => {
           </button>
           
           <button
-            onClick={() => handleNavigation('/business-plan')}
+            // onClick={() => handleNavigation('/business-plan')}
             className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
           >
             <Eye className="w-5 h-5" />
