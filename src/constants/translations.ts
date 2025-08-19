@@ -401,6 +401,13 @@ export const translations: Translations = {
     "international": "International",
     "other": "Other",
 
+    // New translations for recent changes
+    "Creating...": "Creating...",
+    "You are logged in and ready to continue with your business plan!": "You are logged in and ready to continue with your business plan!",
+    "You have existing business plans. You can go to your dashboard or create a new one.": "You have existing business plans. You can go to your dashboard or create a new one.",
+    "Create New Plan": "Create New Plan",
+    "Browse Projects": "Browse Projects",
+    "Create New Venture": "Create New Venture",
 
   },
   fr: {
@@ -796,6 +803,14 @@ export const translations: Translations = {
     "national": "National",
     "international": "International",
     "other": "Autre",
+
+    // New translations for recent changes
+    "Creating...": "Création en cours...",
+    "You are logged in and ready to continue with your business plan!": "Vous êtes connecté et prêt à continuer avec votre plan d'affaires !",
+    "You have existing business plans. You can go to your dashboard or create a new one.": "Vous avez des plans d'affaires existants. Vous pouvez aller à votre tableau de bord ou en créer un nouveau.",
+    "Create New Plan": "Créer un nouveau plan",
+    "Browse Projects": "Parcourir les projets",
+    "Create New Venture": "Créer une nouvelle entreprise",
 
   }
 } 
