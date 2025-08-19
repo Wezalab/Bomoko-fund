@@ -135,6 +135,26 @@ export const userService=splitApi.injectEndpoints({
                     method:"GET"
                 }
             }
+        }),
+        // Exchange Google OAuth token for backend JWT token
+        exchangeGoogleToken: builder.mutation({
+            query: (googleToken) => ({
+                url: '/auth/exchange-google-token',
+                method: 'POST',
+                body: { googleToken }
+            }),
+            transformResponse: (response: any) => {
+                console.log('✅ Google token exchange successful:', { 
+                    hasToken: !!response.token, 
+                    hasUser: !!response.user,
+                    userName: response.user?.name 
+                });
+                return response;
+            },
+            transformErrorResponse: (response: any) => {
+                console.error('❌ Google token exchange failed:', response);
+                return response;
+            }
         })
     }),
     overrideExisting:true
@@ -156,5 +176,6 @@ export const {
     useRegisterMutation,
     useGoogleAuthCallbackMutation,
     useCheckGoogleUserMutation,
-    useCheckGoogleUserWithTokenMutation
+    useCheckGoogleUserWithTokenMutation,
+    useExchangeGoogleTokenMutation
 }=userService

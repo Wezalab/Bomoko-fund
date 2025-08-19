@@ -14,12 +14,13 @@ import { setToken, setUser } from "@/redux/slices/userSlice";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useLoginMutation, useLoginPhoneMutation } from "@/redux/services/userServices";
+import { useLoginMutation, useLoginPhoneMutation, useExchangeGoogleTokenMutation } from "@/redux/services/userServices";
 import LoadingComponent from "./LoadingComponent";
 import { apiUrl } from "@/lib/env";
 import { handleRTKQueryError } from "@/redux/errorHandler";
 import { showSnackbar } from "@/lib/snackbar";
 import { useGoogleLogin } from '@react-oauth/google';
+import { useTranslation } from '@/lib/TranslationContext';
 
 interface signInProps{
     onClose?:any,
@@ -202,43 +203,63 @@ function SignIn({
         })
     }
 
+    const { t } = useTranslation();
+
+    // Google token exchange hook
+    const [exchangeGoogleToken, { isLoading: isExchangingToken }] = useExchangeGoogleTokenMutation();
+
     const googleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
-                // Get user info using the access token
-                const userInfoResponse = await fetch(
-                    `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
-                );
-                const userInfo = await userInfoResponse.json();
+                console.log('🚀 SignIn: Starting Google token exchange...');
                 
-                // Create user object for Redux store
-                const userData = {
-                    _id: userInfo.sub,
-                    email: userInfo.email,
-                    name: userInfo.name,
-                    phone_number: '',
-                    bio: '',
-                    location: '',
-                    isGoogleUser: true,
-                    profile: userInfo.picture,
-                    projects: [],
-                    cryptoWallet: []
-                };
-
-                // Update Redux store
-                dispatch(setUser(userData));
-                dispatch(setToken(tokenResponse.access_token));
+                // ✅ Exchange Google token for backend JWT token
+                const result = await exchangeGoogleToken(tokenResponse.access_token).unwrap();
                 
-                toast.success('Successfully signed in with Google!');
+                console.log('✅ SignIn: Token exchange successful');
+                
+                // Update Redux store with backend JWT token
+                dispatch(setUser(result.user));
+                dispatch(setToken(result.token));
+                
+                toast.success(t('Successfully signed in with Google!'), {
+                    duration: 3000,
+                    style: {
+                        background: '#10B981',
+                        color: 'white',
+                    }
+                });
                 onClose();
-            } catch (error) {
-                console.error('Error during Google authentication:', error);
-                toast.error('Google authentication failed. Please try again.');
+            } catch (error: any) {
+                console.error('❌ SignIn: Google token exchange failed:', error);
+                
+                let errorMessage = t('Google authentication failed. Please try again.');
+                if (error?.status === 400) {
+                    errorMessage = t('Invalid Google account. Please try again.');
+                } else if (error?.status === 409) {
+                    errorMessage = t('Account already exists. Please sign in instead.');
+                } else if (error?.data?.message) {
+                    errorMessage = error.data.message;
+                }
+                
+                toast.error(errorMessage, {
+                    duration: 4000,
+                    style: {
+                        background: '#EF4444',
+                        color: 'white',
+                    }
+                });
             }
         },
         onError: (error) => {
-            console.error('Google sign-in failed:', error);
-            toast.error('Google sign-in failed. Please try again.');
+            console.error('❌ SignIn: Google OAuth failed:', error);
+            toast.error(t('Google sign-in failed. Please try again.'), {
+                duration: 4000,
+                style: {
+                    background: '#EF4444',
+                    color: 'white',
+                }
+            });
         },
     });
 
@@ -270,9 +291,22 @@ function SignIn({
                             <IoCall className="" />
                             <span className="font-semibold">Sign in with a phone number</span>
                         </div>
-                        <button onClick={handleGoogleLogin} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200 w-full">
-                            <FcGoogle className="" />
-                            <span className="font-semibold">Sign in with Google</span>
+                        <button 
+                            onClick={handleGoogleLogin} 
+                            disabled={isExchangingToken}
+                            className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {isExchangingToken ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                                    <span className="font-semibold">{t('Signing in...')}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <FcGoogle className="" />
+                                    <span className="font-semibold">Sign in with Google</span>
+                                </>
+                            )}
                         </button>
                         <div onClick={()=>setSignWithEmail(true)} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
                             <IoMdMail className="" />

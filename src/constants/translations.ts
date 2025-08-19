@@ -827,6 +827,17 @@ export const translations: Translations = {
     "Error!": "Erreur !",
     "Try Again": "Réessayer",
     "Close": "Fermer",
+    
+    // Google Authentication Messages
+    "Signing in...": "Connexion en cours...",
+    "Signing up...": "Inscription en cours...",
+    "Successfully signed in with Google!": "Connexion Google réussie!",
+    "Successfully signed up with Google!": "Inscription Google réussie!",
+    "Google authentication failed. Please try again.": "Échec de l'authentification Google. Veuillez réessayer.",
+    "Google sign-in failed. Please try again.": "Échec de la connexion Google. Veuillez réessayer.",
+    "Google sign-up failed. Please try again.": "Échec de l'inscription Google. Veuillez réessayer.",
+    "Invalid Google account. Please try again.": "Compte Google invalide. Veuillez réessayer.",
+    "Account already exists. Please sign in instead.": "Le compte existe déjà. Veuillez vous connecter.",
 
   }
 } 
