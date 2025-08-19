@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { FcGoogle } from "react-icons/fc"
 import { IoMdArrowRoundBack, IoMdMail } from "react-icons/io"
 import { IoCall } from "react-icons/io5"
-import { MdCancel,  MdOutlinePhone,  } from "react-icons/md"
+import { MdOutlinePhone,  } from "react-icons/md"
 import { Button } from "./ui/button"
 import { useForm } from "react-hook-form"
 import { Input } from "./ui/input"
@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import toast from "react-hot-toast"
 import { initialState, selectSignUpData, setSignUpData, setToken, setUser } from "@/redux/slices/userSlice"
 import LoadingComponent from "./LoadingComponent"
-import { apiUrl } from "@/lib/env"
+
 import { handleRTKQueryError } from "@/redux/errorHandler";
 import { useGoogleLogin } from '@react-oauth/google';
 import { useTranslation } from '@/lib/TranslationContext';
@@ -58,14 +58,10 @@ type StepThreeData =z.infer<typeof stepThreeSchema>
 
 function SignUp({
   onClose,
-  signIn,
   setSignIn
 }:signUpProps) {
   const [signWithPhone,setSignWithPhone]=useState(false)
-      const [signWithGoogle,setSignWithGoogle]=useState(false)
       const [signWithEmail,setSignWithEmail]=useState(false)
-      const [verifyEmail,setVerifyEmail]=useState(false)
-      const [newPassword,setNewPassword]=useState(false)
       const [showPassword,setShowPassword]=useState(false)
       const [stepsWithPhone,setStepsWithPhone]=useState<number>(1)
       const [stepsWithEmail,setStepsWithEmail]=useState<number>(1)
@@ -326,10 +322,6 @@ function SignUp({
       })
     }
 
-    const handleGoogleSignup = () => {
-        googleLogin();
-    };
-
     useEffect(()=>{
       if(signUpData.phone  && !signUpData.isVerified){
         setStepsWithPhone(1)
@@ -353,12 +345,12 @@ function SignUp({
           )
         }
         {
-          (!signWithGoogle && !signWithPhone && !signWithEmail)&&(
+          (!signWithPhone && !signWithEmail)&&(
                   <div className="">
                       <div className="mt-10 flex flex-col space-y-2 mx-5">
                           <span className="font-bold text-[20px]">Set up your account</span>
                           {
-                              (!signWithGoogle && !signWithPhone && !signWithEmail)&&
+                              (!signWithPhone && !signWithEmail)&&
                               <span className="text-lightGray">Create your account for a better experience</span>
                           }
                       </div>
