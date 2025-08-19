@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Sparkles, Loader2, Search, X, Check, User, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, Loader2, Search, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -14,8 +14,6 @@ import { useGoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectUser, selectToken, setToken, setUser } from '@/redux/slices/userSlice';
-import logoLight from '../assets/logoLight.webp';
-import logoDark from '../assets/logoDark.webp';
 
 interface Country {
   code: string;
@@ -31,11 +29,9 @@ interface VentureData {
   businessName: string;
   userName: string;
   userRole: string;
-  authMethod: 'google' | 'username' | '';
+  authMethod: 'google' | '';
   language: string;
   currency: string;
-  username?: string;
-  password?: string;
   googleUser?: {
     email: string;
     name: string;
@@ -97,6 +93,12 @@ const VentureWizard: React.FC = () => {
 
   const steps = [
     {
+      id: 'auth-method',
+      question: t('Register with Google or set username & password?'),
+      description: t('You can use Google to sign in and out of your account or you can manually set a username.'),
+      type: 'auth'
+    },
+    {
       id: 'purpose',
       question: t('Why are you creating a business plan?'),
       description: t('The option you choose will not alter the structure of your plan; it just helps us to better understand your goals.'),
@@ -129,12 +131,6 @@ const VentureWizard: React.FC = () => {
       question: t('What is your name and role?'),
       description: t('Please provide your full name and describe your position or affiliation with the business.'),
       type: 'user-details'
-    },
-    {
-      id: 'auth-method',
-      question: t('Register with Google or set username & password?'),
-      description: t('You can use Google to sign in and out of your account or you can manually set a username.'),
-      type: 'auth'
     }
   ];
 
@@ -262,15 +258,15 @@ const VentureWizard: React.FC = () => {
   };
 
   const handleNext = () => {
-    // Special handling for business description step (now at index 2)
-    if (currentStep === 2 && businessDescriptionSubStep === 0) {
+    // Special handling for business description step (now at index 3)
+    if (currentStep === 3 && businessDescriptionSubStep === 0) {
       // Move to business type selection substep
       setBusinessDescriptionSubStep(1);
       return;
     }
 
     // Reset business description substep when moving to next step
-    if (currentStep === 2) {
+    if (currentStep === 3) {
       setBusinessDescriptionSubStep(0);
     }
 
@@ -283,8 +279,8 @@ const VentureWizard: React.FC = () => {
   };
 
   const handlePrev = () => {
-    // Special handling for business description step (now at index 2)
-    if (currentStep === 2 && businessDescriptionSubStep === 1) {
+    // Special handling for business description step (now at index 3)
+    if (currentStep === 3 && businessDescriptionSubStep === 1) {
       // Move back to business description substep
       setBusinessDescriptionSubStep(0);
       return;
@@ -293,7 +289,7 @@ const VentureWizard: React.FC = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
       // Reset business description substep when moving to previous step
-      if (currentStep === 3) {
+      if (currentStep === 4) {
         setBusinessDescriptionSubStep(0);
       }
     }
@@ -344,8 +340,7 @@ const VentureWizard: React.FC = () => {
         
         console.log('Google authentication successful:', userInfo);
         toast.success('Successfully signed in with Google!');
-        // Auto-complete since we have all the necessary info
-        handleComplete();
+        // Don't auto-complete, let user continue through the wizard
       } catch (error) {
         console.error('Error during Google authentication:', error);
       }
@@ -361,6 +356,10 @@ const VentureWizard: React.FC = () => {
 
   const isStepComplete = (stepId: string) => {
     switch (stepId) {
+      case 'auth-method':
+        // If user is already logged in (from Redux), consider step complete
+        // Or if they just signed in through the wizard (ventureData.googleUser)
+        return isLoggedIn || (ventureData.authMethod === 'google' && ventureData.googleUser !== undefined);
       case 'purpose':
         return ventureData.purpose !== '';
       case 'location':
@@ -375,13 +374,6 @@ const VentureWizard: React.FC = () => {
         return ventureData.businessName !== '';
       case 'user-info':
         return ventureData.userName !== '' && ventureData.userRole !== '';
-      case 'auth-method':
-        if (ventureData.authMethod === 'google') {
-          return ventureData.googleUser !== undefined;
-        } else if (ventureData.authMethod === 'username') {
-          return ventureData.username !== '' && ventureData.password !== '';
-        }
-        return false;
 
       default:
         return false;
@@ -792,45 +784,28 @@ const VentureWizard: React.FC = () => {
                     </div>
                     <div className="text-right">
                       <div className="bg-white/20 rounded-lg px-3 py-1 text-xs">
-                        {currentUser?.isGoogleUser ? 'Google Account' : 'BOMOKO Account'}
+                        Google Account
                       </div>
                     </div>
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <Button
-                    onClick={() => navigate('/projects')}
-                    className="h-16 bg-lightGreen hover:bg-lightGreen/80 text-darkBlue font-semibold flex items-center justify-center space-x-3"
-                  >
-                    <ArrowRight className="w-5 h-5" />
-                    <span>{t('Go to Dashboard')}</span>
-                  </Button>
-                  <Button
-                    onClick={handleComplete}
-                    className="h-16 bg-darkBlue hover:bg-darkBlue/80 text-white font-semibold flex items-center justify-center space-x-3"
-                  >
-                    <Sparkles className="w-5 h-5" />
-                    <span>{t('Continue with Business Plan')}</span>
-                  </Button>
                 </div>
                 
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
                     <p className="text-sm text-yellow-800">
-                      {t('You are logged in and ready to create your business plan!')}
+                      {t('You are logged in and ready to continue with your business plan!')}
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
               <>
-                {/* Show authentication options for non-logged-in users */}
-                <div className="grid grid-cols-2 gap-4">
+                {/* Show only Google authentication for non-logged-in users */}
+                <div className="flex justify-center">
                   <Button
                     onClick={handleGoogleSignIn}
-                    className="h-16 bg-white border-2 border-lightBlue hover:bg-lightBlue/5 text-lightBlue flex items-center justify-center space-x-3"
+                    className="h-16 w-full max-w-md bg-white border-2 border-lightBlue hover:bg-lightBlue/5 text-lightBlue flex items-center justify-center space-x-3"
                   >
                     <svg className="w-6 h-6" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -838,17 +813,11 @@ const VentureWizard: React.FC = () => {
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
-                    <span>{t('Register with Google')}</span>
-                  </Button>
-                  <Button
-                    onClick={() => updateVentureData('authMethod', 'username')}
-                    className="h-16 bg-lightGreen/20 hover:bg-lightGreen/30 text-dark border-2 border-lightGreen"
-                  >
-                    {t('Set Username & Password')}
+                    <span>{t('Sign in with Google')}</span>
                   </Button>
                 </div>
                 
-                {/* Google user info when Google auth is selected */}
+                {/* Google user info when Google auth is successful */}
                 {ventureData.authMethod === 'google' && ventureData.googleUser && (
                   <div className="space-y-4 mt-6">
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -863,40 +832,6 @@ const VentureWizard: React.FC = () => {
                           <p className="text-sm text-green-600">{ventureData.googleUser.name}</p>
                           <p className="text-sm text-green-600">{ventureData.googleUser.email}</p>
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Username and Password fields when username auth method is selected */}
-                {ventureData.authMethod === 'username' && (
-                  <div className="space-y-4 mt-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="username" className="text-sm font-medium text-dark">
-                          {t('Username')}
-                        </Label>
-                        <Input
-                          id="username"
-                          type="text"
-                          value={ventureData.username || ''}
-                          onChange={(e) => updateVentureData('username', e.target.value)}
-                          placeholder={t('Enter username')}
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="password" className="text-sm font-medium text-dark">
-                          {t('Password')}
-                        </Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          value={ventureData.password || ''}
-                          onChange={(e) => updateVentureData('password', e.target.value)}
-                          placeholder={t('Enter password')}
-                          className="mt-1"
-                        />
                       </div>
                     </div>
                   </div>
