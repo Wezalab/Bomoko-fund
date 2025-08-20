@@ -1,4 +1,4 @@
-import { MdCancel, MdOutlinePhone } from "react-icons/md"
+import { MdOutlinePhone } from "react-icons/md"
 import { IoCall } from "react-icons/io5";
 import { FcGoogle } from "react-icons/fc";
 import { IoMdMail } from "react-icons/io";
@@ -14,20 +14,16 @@ import { setToken, setUser } from "@/redux/slices/userSlice";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useLoginMutation, useLoginPhoneMutation, useExchangeGoogleTokenMutation } from "@/redux/services/userServices";
+import { useLoginMutation, useLoginPhoneMutation } from "@/redux/services/userServices";
 import LoadingComponent from "./LoadingComponent";
-import { apiUrl } from "@/lib/env";
 import { handleRTKQueryError } from "@/redux/errorHandler";
-import { showSnackbar } from "@/lib/snackbar";
+
 import { useGoogleLogin } from '@react-oauth/google';
-import { useTranslation } from '@/lib/TranslationContext';
 
 interface signInProps{
     onClose?:any,
-    resetPassword?:boolean
     setResetPassword?:any
     setSignUp?:any 
-    signUp?:boolean
 }
 
 interface FormDataPhone{
@@ -56,13 +52,10 @@ const formSchemaWithEmail=z.object({
 
 function SignIn({
     onClose,
-    resetPassword,
     setResetPassword,
-    setSignUp,
-    signUp
+    setSignUp
 }:signInProps) {
     const [signWithPhone,setSignWithPhone]=useState(false)
-    const [signWithGoogle,setSignWithGoogle]=useState(false)
     const [signWithEmail,setSignWithEmail]=useState(false)
     const [showPassword,setShowPassword]=useState(false)
     const dispatch=useAppDispatch()
@@ -119,11 +112,11 @@ function SignIn({
 
     useEffect(()=>{
         if(loginIsSuccess && loginData){
-            //console.log("login data:",loginData)
+            console.log("login data:",loginData)
             toast.success(loginData?.message)
-            dispatch(setToken(loginData?.token))
+            dispatch(setToken(loginData?.token || loginData?.jwtToken))
             dispatch(setUser({
-                _id:loginData?.userDetails?._id,
+                _id:loginData?.userDetails?._id || loginData?.userId,
                 email:loginData?.userDetails?.email,
                 phone_number:loginData?.userDetails?.phone,
                 name:loginData?.userDetails?.name,
@@ -132,7 +125,7 @@ function SignIn({
             }))
             onClose()
             resetWithEmail()
-            //console.log("login success",loginData)
+            console.log("login success with userId:",loginData?.userId)
         }
         if(loginIsError){
             console.log("cannot login", loginError)
@@ -158,11 +151,11 @@ function SignIn({
 
     useEffect(()=>{
         if(loginWithPhoneData && loginWithPhoneIsSuccess){
-            // console.log("login with phone Data:",loginWithPhoneData)
+            console.log("login with phone Data:",loginWithPhoneData)
             toast.success(loginWithPhoneData?.message)
-            dispatch(setToken(loginWithPhoneData?.token))
+            dispatch(setToken(loginWithPhoneData?.token || loginWithPhoneData?.jwtToken))
             dispatch(setUser({
-                _id:loginWithPhoneData.userDetails._id,
+                _id:loginWithPhoneData.userDetails._id || loginWithPhoneData?.userId,
                 email:loginWithPhoneData?.userDetails?.email,
                 phone_number:loginWithPhoneData?.userDetails?.phone,
                 name:loginWithPhoneData?.userDetails?.name,
@@ -171,6 +164,7 @@ function SignIn({
             }))
             onClose()
             resetWithPhone()
+            console.log("phone login success with userId:",loginWithPhoneData?.userId)
         }
         if(loginWithPhoneIsError){
             console.log("error while login with phone number", loginWithPhoneError)
@@ -203,63 +197,48 @@ function SignIn({
         })
     }
 
-    const { t } = useTranslation();
-
-    // Google token exchange hook
-    const [exchangeGoogleToken, { isLoading: isExchangingToken }] = useExchangeGoogleTokenMutation();
-
     const googleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
-                console.log('🚀 SignIn: Starting Google token exchange...');
+                console.log("Google token response:", tokenResponse);
                 
-                // ✅ Exchange Google token for backend JWT token
-                const result = await exchangeGoogleToken(tokenResponse.access_token).unwrap();
+                // Get user info using the access token (same approach as SignUp)
+                const userInfoResponse = await fetch(
+                    `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
+                );
+                const userInfo = await userInfoResponse.json();
+                console.log("Google user info:", userInfo);
                 
-                console.log('✅ SignIn: Token exchange successful');
+                // Create user object for Redux store
+                const userData = {
+                    _id: userInfo.sub || userInfo.id,
+                    email: userInfo.email,
+                    name: userInfo.name,
+                    phone_number: '',
+                    bio: '',
+                    location: '',
+                    isGoogleUser: true,
+                    profile: userInfo.picture,
+                    projects: [],
+                    cryptoWallet: []
+                };
+
+                // Update Redux store
+                dispatch(setUser(userData));
+                dispatch(setToken(tokenResponse.access_token));
                 
-                // Update Redux store with backend JWT token
-                dispatch(setUser(result.user));
-                dispatch(setToken(result.token));
-                
-                toast.success(t('Successfully signed in with Google!'), {
-                    duration: 3000,
-                    style: {
-                        background: '#10B981',
-                        color: 'white',
-                    }
-                });
+                toast.success('Successfully signed in with Google!');
+                console.log("Google sign-in success with userId:", userInfo.sub || userInfo.id);
+                console.log("Google userInfo full object:", userInfo);
                 onClose();
-            } catch (error: any) {
-                console.error('❌ SignIn: Google token exchange failed:', error);
-                
-                let errorMessage = t('Google authentication failed. Please try again.');
-                if (error?.status === 400) {
-                    errorMessage = t('Invalid Google account. Please try again.');
-                } else if (error?.status === 409) {
-                    errorMessage = t('Account already exists. Please sign in instead.');
-                } else if (error?.data?.message) {
-                    errorMessage = error.data.message;
-                }
-                
-                toast.error(errorMessage, {
-                    duration: 4000,
-                    style: {
-                        background: '#EF4444',
-                        color: 'white',
-                    }
-                });
+            } catch (error) {
+                console.error('Error during Google authentication:', error);
+                toast.error('Google authentication failed. Please try again.');
             }
         },
         onError: (error) => {
-            console.error('❌ SignIn: Google OAuth failed:', error);
-            toast.error(t('Google sign-in failed. Please try again.'), {
-                duration: 4000,
-                style: {
-                    background: '#EF4444',
-                    color: 'white',
-                }
-            });
+            console.error('Google sign-in failed:', error);
+            toast.error('Google sign-in failed. Please try again.');
         },
     });
 
@@ -277,12 +256,12 @@ function SignIn({
             signWithEmail ? <IoMdArrowRoundBack size={28} onClick={()=>setSignWithEmail(false)} className="mb-4 cursor-pointer" /> : null
         }
         {
-            (!signWithGoogle && !signWithPhone && !signWithEmail)&&(
+            (!signWithPhone && !signWithEmail)&&(
                 <div className="">
                     <div className="flex flex-col space-y-2 mx-5">
                         <span className="font-bold text-[20px]">Sign into your account</span>
                         {
-                            (!signWithGoogle && !signWithPhone && !signWithEmail)&&
+                            (!signWithPhone && !signWithEmail)&&
                             <span className="text-lightGray">Sign in for a better experience</span>
                         }
                     </div>
@@ -291,22 +270,9 @@ function SignIn({
                             <IoCall className="" />
                             <span className="font-semibold">Sign in with a phone number</span>
                         </div>
-                        <button 
-                            onClick={handleGoogleLogin} 
-                            disabled={isExchangingToken}
-                            className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200 w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isExchangingToken ? (
-                                <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                                    <span className="font-semibold">{t('Signing in...')}</span>
-                                </>
-                            ) : (
-                                <>
-                                    <FcGoogle className="" />
-                                    <span className="font-semibold">Sign in with Google</span>
-                                </>
-                            )}
+                        <button onClick={handleGoogleLogin} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200 w-full">
+                            <FcGoogle className="" />
+                            <span className="font-semibold">Sign in with Google</span>
                         </button>
                         <div onClick={()=>setSignWithEmail(true)} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
                             <IoMdMail className="" />
@@ -338,7 +304,7 @@ function SignIn({
                                 placeholder="Phone Number"
                                 />
                             </div>
-                            {errorsWithPhone.phone && <p className="text-red-500 text-sm">{errorsWithPhone.phone?.message}</p>}
+                            {errorsWithPhone.phone && <p className="text-red-500 text-sm">{String(errorsWithPhone.phone?.message)}</p>}
                         </div>
                         <div className="flex flex-col space-y-1 my-5">
                             <label className="font-semibold">Password</label>
@@ -356,11 +322,10 @@ function SignIn({
                                     placeholder="Password"
                                 />
                             </div>
-                            {errorsWithPhone.password && <p className="text-red-500 text-sm">{errorsWithPhone.password.message}</p>}
+                            {errorsWithPhone.password && <p className="text-red-500 text-sm">{String(errorsWithPhone.password.message)}</p>}
                         </div>
-                        {/* Error message for phone login */}
-                        { typeof loginWithPhoneError === 'object' && loginWithPhoneError !== null && 'data' in loginWithPhoneError && loginWithPhoneError.data && typeof loginWithPhoneError.data === 'object' && 'message' in loginWithPhoneError.data && typeof loginWithPhoneError.data.message === 'string' && (
-                            <p className="text-red-500 text-sm">{String(loginWithPhoneError.data.message)}</p>
+                        {loginWithPhoneError && (
+                            <p className="text-red-500 text-sm">Login failed. Please try again.</p>
                         )}
                         <Button
                             disabled={loginWithPhoneIsLoading}
@@ -372,7 +337,6 @@ function SignIn({
                         <div className="flex items-center justify-between my-5">
                             <div className="flex items-center space-x-2">
                                 <Input 
-                                    checked
                                     type="checkbox"
                                     {...loginWithPhone("rememberMe")}
                                     className="w-4 h-4 bg-lightBlue"
@@ -406,7 +370,7 @@ function SignIn({
                                     placeholder="Email"
                                 />
                             </div>
-                            {errorsWithEmail.email && <p className="text-red-500 text-sm">{errorsWithEmail.email?.message}</p>}
+                            {errorsWithEmail.email && <p className="text-red-500 text-sm">{String(errorsWithEmail.email?.message)}</p>}
                         </div>
                         <div className="flex flex-col space-y-1 my-5">
                             <label className="font-semibold">Password</label>
@@ -424,12 +388,11 @@ function SignIn({
                                     placeholder="Password"
                                 />
                             </div>
-                            {errorsWithEmail.password && <p className="text-red-500 text-sm">{errorsWithEmail.password.message}</p>}
+                            {errorsWithEmail.password && <p className="text-red-500 text-sm">{String(errorsWithEmail.password.message)}</p>}
 
                         </div>
-                        {/* Error message for email login */}
-                        { typeof loginError === 'object' && loginError !== null && 'data' in loginError && loginError.data && typeof loginError.data === 'object' && 'message' in loginError.data && typeof loginError.data.message === 'string' && (
-                            <p className="text-red-500 text-sm">{String(loginError.data.message)}</p>
+                        {loginError && (
+                            <p className="text-red-500 text-sm">Login failed. Please try again.</p>
                         )}
 
                         <Button
@@ -442,7 +405,6 @@ function SignIn({
                         <div className="flex items-center justify-between my-5">
                             <div className="flex items-center space-x-2">
                                 <Input 
-                                    checked
                                     type="checkbox"
                                     {...loginWithEmail("rememberMe")}
                                     className="w-4 h-4 bg-lightBlue"
