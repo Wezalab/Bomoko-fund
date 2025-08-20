@@ -356,14 +356,41 @@ const VentureWizard: React.FC = () => {
       
       // Additional debugging for Google users
       if (currentUser?.isGoogleUser) {
+        const isGoogleId = /^\d{18,}$/.test(currentUser._id);
+        const isBackendId = /^[a-f\d]{24}$/i.test(currentUser._id);
+        
         console.log('🔍 Google User Debug Details:', {
           _id: currentUser._id,
           isGoogleUser: currentUser.isGoogleUser,
           profile: currentUser.profile,
-          isGoogleId: /^\d{18,}$/.test(currentUser._id), // Google IDs are long numbers
-          isBackendId: /^[a-f\d]{24}$/i.test(currentUser._id), // MongoDB ObjectIds are 24 hex chars
+          isGoogleId,
+          isBackendId,
           allUserProperties: currentUser
         });
+        
+        // If user has Google ID instead of backend ID, clear session and show message
+        if (isGoogleId && !isBackendId) {
+          console.warn('⚠️ User has old Google ID session, clearing session to force re-authentication');
+          
+          // Clear the old session
+          dispatch(setUser({
+            _id: "",
+            profile: "",
+            email: "",
+            bio: "",
+            phone_number: "",
+            password: "",
+            projects: [],
+            cryptoWallet: [],
+            name: '',
+            location: "",
+            isGoogleUser: false
+          }));
+          dispatch(setToken(""));
+          
+          toast.error('Your session is outdated. Please sign in again with Google to continue.');
+          throw new Error('Outdated session detected. Please sign in again with Google to create ventures.');
+        }
       }
       
       // Check if user is authenticated - improved logic with multiple fallbacks
@@ -625,6 +652,16 @@ const VentureWizard: React.FC = () => {
           hasApiToken: !!authData.token,
           hasGoogleToken: !!authData.googleToken
         });
+        
+        // Force a small delay to ensure Redux state is updated
+        setTimeout(() => {
+          console.log('🔄 Verifying user state after authentication:', {
+            currentUserId: currentUser?._id,
+            newUserId: userId,
+            stateUpdated: currentUser?._id === userId
+          });
+        }, 100);
+        
         toast.success(authData.message || 'Successfully signed in with Google!');
         // Don't auto-complete, let user continue through the wizard
       } else {
