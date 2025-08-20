@@ -383,7 +383,7 @@ const VentureWizard: React.FC = () => {
                      
       const hasValidAuth = !!(userId && token) || !!(ventureData.authMethod === 'google' && ventureData.googleUser);
       
-      if (!hasValidAuth) {
+      if (!hasValidAuth || !userId) {
         console.error('❌ Authentication failed:', {
           hasUserId: !!userId,
           hasToken: !!token,
@@ -396,9 +396,12 @@ const VentureWizard: React.FC = () => {
       
       console.log('✅ Authentication validated with userId:', userId);
       
+      // Ensure userId is a string (TypeScript requirement)
+      const validUserId: string = userId;
+      
       // Prepare venture data for API
       const venturePayload = {
-        userId: userId, // ✅ Add required userId
+        userId: validUserId, // ✅ Add required userId
         purpose: ventureData.purpose,
         country: ventureData.country,
         businessDescription: ventureData.businessDescription,
@@ -413,7 +416,7 @@ const VentureWizard: React.FC = () => {
       };
 
       console.log('📋 Venture payload prepared:', venturePayload);
-      console.log('👤 User ID included:', userId);
+      console.log('👤 User ID included:', validUserId);
       
       // Create venture via API
       const result = await createVenture(venturePayload).unwrap();
@@ -507,55 +510,11 @@ const VentureWizard: React.FC = () => {
         });
 
         if (!backendResponse.ok) {
-          console.warn('Backend authentication failed, falling back to client-side authentication');
+          console.error('❌ Backend authentication failed:', backendResponse.status, backendResponse.statusText);
+          const errorText = await backendResponse.text();
+          console.error('❌ Backend error response:', errorText);
           
-          // Fallback to client-side Google authentication
-          const userInfoResponse = await fetch(
-            `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
-          );
-          const userInfo = await userInfoResponse.json();
-          console.log("Fallback Google user info:", userInfo);
-          console.log("Google userInfo keys:", Object.keys(userInfo));
-          console.log("Checking user ID fields:", {
-            sub: userInfo.sub,
-            id: userInfo.id,
-            userId: userInfo.userId,
-            user_id: userInfo.user_id
-          });
-          
-          // Create user object for Redux store (fallback method)
-          const fallbackUserId = userInfo.sub || userInfo.id || userInfo.userId || userInfo.user_id;
-          const userData = {
-            _id: fallbackUserId,
-            email: userInfo.email,
-            name: userInfo.name,
-            phone_number: '',
-            bio: '',
-            location: '',
-            isGoogleUser: true,
-            profile: userInfo.picture,
-            projects: [],
-            cryptoWallet: []
-          };
-
-          // Update Redux store with fallback data
-          dispatch(setUser(userData));
-          dispatch(setToken(tokenResponse.access_token));
-          
-          // Update venture data with Google user info
-          updateVentureData('authMethod', 'google');
-          updateVentureData('userName', userInfo.name || '');
-          updateVentureData('googleUser', {
-            email: userInfo.email,
-            name: userInfo.name,
-            picture: userInfo.picture,
-            access_token: tokenResponse.access_token,
-            user_id: fallbackUserId
-          });
-          
-          console.log('✅ Fallback Google authentication successful with userId:', fallbackUserId);
-          toast.success('Successfully signed in with Google!');
-          return;
+          throw new Error(`Backend authentication failed: ${backendResponse.status} - ${errorText || 'Unknown error'}. Please try again or contact support.`);
         }
 
         const authData = await backendResponse.json();
@@ -576,6 +535,15 @@ const VentureWizard: React.FC = () => {
           
           // Enhanced user ID handling for Google authentication
           const userId = authData.userId || authData.user._id || authData.user.id || authData.user.sub;
+          
+          console.log('🔍 Backend User ID Resolution:', {
+            backendUserId: authData.userId,
+            userDocId: authData.user._id,
+            userIdField: authData.user.id,
+            googleSub: authData.user.sub,
+            finalUserId: userId,
+            isBackendId: !!authData.userId
+          });
           
           dispatch(setUser({
             _id: userId,
