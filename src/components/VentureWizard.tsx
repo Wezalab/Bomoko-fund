@@ -11,7 +11,7 @@ import countryData from '../constants/countries.json';
 import { generateBusinessTypeSuggestions, generateBusinessNameSuggestions } from '../lib/groqService';
 import { useTranslation } from '../lib/TranslationContext';
 import { apiUrl } from '../lib/env';
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectUser, selectToken, setToken, setUser } from '@/redux/slices/userSlice';
@@ -538,110 +538,105 @@ const VentureWizard: React.FC = () => {
     }
   };
 
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        console.log("Google token response:", tokenResponse);
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      console.log("Google credential response:", credentialResponse);
+      
+      // Send ID token (credential) to backend for verification and user management
+      const backendResponse = await fetch(`${apiUrl}/auth/exchange-google-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          googleToken: credentialResponse.credential // ✅ Use credential (ID token), not access token
+        })
+      });
+
+      if (!backendResponse.ok) {
+        console.error('❌ Backend authentication failed:', backendResponse.status, backendResponse.statusText);
+        const errorText = await backendResponse.text();
+        console.error('❌ Backend error response:', errorText);
         
-        // Send token to backend for verification and user management
-        const backendResponse = await fetch(`${apiUrl}/auth/exchange-google-token`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            googleToken: tokenResponse.access_token
-          })
-        });
-
-        if (!backendResponse.ok) {
-          console.error('❌ Backend authentication failed:', backendResponse.status, backendResponse.statusText);
-          const errorText = await backendResponse.text();
-          console.error('❌ Backend error response:', errorText);
-          
-          throw new Error(`Backend authentication failed: ${backendResponse.status} - ${errorText || 'Unknown error'}. Please try again or contact support.`);
-        }
-
-        const authData = await backendResponse.json();
-        console.log("Backend auth response:", authData);
-
-        if (authData.success) {
-          // Enhanced logging for separate token data
-          console.log('🔑 Separated Auth Data:', {
-            userId: authData.userId,
-            token: authData.token,
-            jwtToken: authData.jwtToken,
-            googleToken: authData.googleToken
-          });
-          
-          // Update Redux store with backend-verified data
-          // Use jwtToken as primary token for API calls
-          dispatch(setToken(authData.jwtToken || authData.token));
-          
-          // Enhanced user ID handling for Google authentication
-          const userId = authData.userId || authData.user._id || authData.user.id || authData.user.sub;
-          
-          console.log('🔍 Backend User ID Resolution:', {
-            backendUserId: authData.userId,
-            userDocId: authData.user._id,
-            userIdField: authData.user.id,
-            googleSub: authData.user.sub,
-            finalUserId: userId,
-            isBackendId: !!authData.userId
-          });
-          
-          dispatch(setUser({
-            _id: userId,
-            email: authData.user.email,
-            name: authData.user.name,
-            phone_number: authData.user.phone || '',
-            bio: authData.user.bio || '',
-            location: authData.user.location || '',
-            isGoogleUser: true,
-            profile: authData.user.avatar || authData.user.picture,
-            projects: authData.user.projects || [],
-            cryptoWallet: authData.user.cryptoWallet || []
-          }));
-          
-          console.log('🔑 Redux User Set With ID:', userId);
-          
-          // Update venture data with Google user info - store all tokens separately
-          updateVentureData('authMethod', 'google');
-          updateVentureData('userName', authData.user.name || '');
-          updateVentureData('googleUser', {
-            email: authData.user.email,
-            name: authData.user.name,
-            picture: authData.user.avatar || authData.user.picture,
-            access_token: authData.googleToken, // Store original Google token
-            jwt_token: authData.jwtToken,       // Store JWT token separately
-            api_token: authData.token,          // Store API token separately
-            user_id: authData.userId            // Store userId separately
-          });
-          
-          console.log('✅ Google authentication successful with separated data:', {
-            userId: authData.userId,
-            hasJwtToken: !!authData.jwtToken,
-            hasApiToken: !!authData.token,
-            hasGoogleToken: !!authData.googleToken
-          });
-          toast.success(authData.message || 'Successfully signed in with Google!');
-          // Don't auto-complete, let user continue through the wizard
-        } else {
-          throw new Error(authData.message || 'Authentication failed');
-        }
-      } catch (error) {
-        console.error('Error during Google authentication:', error);
-        toast.error('Google authentication failed. Please try again.');
+        throw new Error(`Backend authentication failed: ${backendResponse.status} - ${errorText || 'Unknown error'}. Please try again or contact support.`);
       }
-    },
-    onError: (error) => {
-      console.error('Google sign-in failed:', error);
-      toast.error('Google sign-in failed. Please try again.');
-    },
-  });
 
-  const handleGoogleSignIn = () => {
-    googleLogin();
+      const authData = await backendResponse.json();
+      console.log("Backend auth response:", authData);
+
+      if (authData.success) {
+        // Enhanced logging for separate token data
+        console.log('🔑 Backend Auth Data:', {
+          userId: authData.userId,
+          token: authData.token,
+          jwtToken: authData.jwtToken,
+          googleToken: authData.googleToken
+        });
+        
+        // Update Redux store with backend-verified data
+        // Use jwtToken as primary token for API calls
+        dispatch(setToken(authData.jwtToken || authData.token));
+        
+        // Enhanced user ID handling for Google authentication
+        const userId = authData.userId || authData.user._id || authData.user.id || authData.user.sub;
+        
+        console.log('🔍 Backend User ID Resolution:', {
+          backendUserId: authData.userId,
+          userDocId: authData.user._id,
+          userIdField: authData.user.id,
+          googleSub: authData.user.sub,
+          finalUserId: userId,
+          isBackendId: !!authData.userId
+        });
+        
+        dispatch(setUser({
+          _id: userId,
+          email: authData.user.email,
+          name: authData.user.name,
+          phone_number: authData.user.phone || '',
+          bio: authData.user.bio || '',
+          location: authData.user.location || '',
+          isGoogleUser: true,
+          profile: authData.user.avatar || authData.user.picture,
+          projects: authData.user.projects || [],
+          cryptoWallet: authData.user.cryptoWallet || []
+        }));
+        
+        console.log('🔑 Redux User Set With ID:', userId);
+        
+        // Update venture data with Google user info - store all tokens separately
+        updateVentureData('authMethod', 'google');
+        updateVentureData('userName', authData.user.name || '');
+        updateVentureData('googleUser', {
+          email: authData.user.email,
+          name: authData.user.name,
+          picture: authData.user.avatar || authData.user.picture,
+          access_token: authData.googleToken, // Store original Google token
+          jwt_token: authData.jwtToken,       // Store JWT token separately
+          api_token: authData.token,          // Store API token separately
+          user_id: authData.userId            // Store userId separately
+        });
+        
+        console.log('✅ Google authentication successful with backend user ID:', {
+          userId: authData.userId,
+          hasJwtToken: !!authData.jwtToken,
+          hasApiToken: !!authData.token,
+          hasGoogleToken: !!authData.googleToken
+        });
+        toast.success(authData.message || 'Successfully signed in with Google!');
+        // Don't auto-complete, let user continue through the wizard
+      } else {
+        throw new Error(authData.message || 'Authentication failed');
+      }
+    } catch (error) {
+      console.error('Error during Google authentication:', error);
+      toast.error('Google authentication failed. Please try again.');
+    }
+  };
+
+  const handleGoogleError = () => {
+    console.error('Google sign-in failed');
+    toast.error('Google sign-in failed. Please try again.');
   };
 
   const isStepComplete = (stepId: string) => {
@@ -1108,18 +1103,16 @@ const VentureWizard: React.FC = () => {
               <>
                 {/* Show only Google authentication for non-logged-in users */}
                 <div className="flex justify-center">
-                  <Button
-                    onClick={handleGoogleSignIn}
-                    className="h-16 w-full max-w-md bg-white border-2 border-lightBlue hover:bg-lightBlue/5 text-lightBlue flex items-center justify-center space-x-3"
-                  >
-                    <svg className="w-6 h-6" viewBox="0 0 24 24">
-                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    <span>{t('Sign in with Google')}</span>
-                  </Button>
+                  <div className="w-full max-w-md">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={handleGoogleError}
+                      size="large"
+                      width="100%"
+                      text="signin_with"
+                      useOneTap={false}
+                    />
+                  </div>
                 </div>
                 
                 {/* Google user info when Google auth is successful */}
