@@ -10,11 +10,11 @@ import { Textarea } from "./ui/textarea";
 import countryData from '../constants/countries.json';
 import { generateBusinessTypeSuggestions, generateBusinessNameSuggestions } from '../lib/groqService';
 import { useTranslation } from '../lib/TranslationContext';
+import { apiUrl } from '../lib/env';
 import { useGoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectUser, selectToken, setToken, setUser } from '@/redux/slices/userSlice';
-import { useExchangeGoogleTokenMutation } from '@/redux/services/userServices';
 import { useCreateVentureMutation } from '@/redux/services/ventureServices';
 
 interface Country {
@@ -39,6 +39,9 @@ interface VentureData {
     name: string;
     picture: string;
     access_token: string;
+    jwt_token?: string;
+    api_token?: string;
+    user_id?: string;
   };
 }
 
@@ -55,6 +58,21 @@ const VentureWizard: React.FC = () => {
   const token = useAppSelector(selectToken);
   const isLoggedIn = !!(currentUser?.email || currentUser?.phone_number) && !!token;
   
+  // Debug: Log current authentication state
+  React.useEffect(() => {
+    console.log('🔐 VentureWizard Auth State Update:', {
+      currentUser,
+      hasUserId: !!currentUser?._id,
+      token,
+      hasToken: !!token,
+      isLoggedIn,
+      userEmail: currentUser?.email,
+      userPhone: currentUser?.phone_number
+    });
+  }, [currentUser, token, isLoggedIn]);
+
+
+  
   // Redux dispatch for authentication
   const dispatch = useAppDispatch();
   const [isLoadingNameSuggestions, setIsLoadingNameSuggestions] = useState(false);
@@ -62,9 +80,6 @@ const VentureWizard: React.FC = () => {
   
   // Venture API hooks
   const [createVenture, { isLoading: isCreatingVenture }] = useCreateVentureMutation();
-  
-  // Google token exchange hook
-  const [exchangeGoogleToken, { isLoading: isExchangingToken }] = useExchangeGoogleTokenMutation();
   
   // Define colors for numbers
   const numberColors = [
@@ -211,6 +226,22 @@ const VentureWizard: React.FC = () => {
     setVentureData(prev => ({ ...prev, [key]: value }));
   };
 
+  // Auto-set venture auth method if user is already authenticated via Google
+  React.useEffect(() => {
+    if (currentUser?.isGoogleUser && currentUser?.email && token && !ventureData.authMethod) {
+      console.log('🔄 Auto-setting venture auth method for existing Google user');
+      updateVentureData('authMethod', 'google');
+      updateVentureData('userName', currentUser.name || '');
+      updateVentureData('googleUser', {
+        email: currentUser.email,
+        name: currentUser.name || '',
+        picture: currentUser.profile || '',
+        access_token: token,
+        user_id: currentUser._id
+      });
+    }
+  }, [currentUser, token, ventureData.authMethod]);
+
   const generateAISuggestions = async () => {
     if (!ventureData.businessDescription.trim()) return;
     
@@ -311,8 +342,63 @@ const VentureWizard: React.FC = () => {
       // Show loading state
       console.log('🚀 Starting venture creation...');
       
+      // Enhanced debugging for authentication
+      console.log('🔍 Authentication check debug:', {
+        currentUser,
+        currentUserId: currentUser?._id,
+        currentUserKeys: currentUser ? Object.keys(currentUser) : [],
+        token,
+        isLoggedInCheck: isLoggedIn,
+        userEmail: currentUser?.email,
+        userPhone: currentUser?.phone_number,
+        hasToken: !!token
+      });
+      
+      // Additional debugging for Google users
+      if (currentUser?.isGoogleUser) {
+        console.log('🔍 Google User Debug Details:', {
+          _id: currentUser._id,
+          isGoogleUser: currentUser.isGoogleUser,
+          profile: currentUser.profile,
+          allUserProperties: currentUser
+        });
+      }
+      
+      // Check if user is authenticated - improved logic with multiple fallbacks
+      let userId = currentUser?._id || ventureData.googleUser?.user_id;
+      
+      // If no user ID but we have a Google user, generate one from the email
+      if (!userId && currentUser?.isGoogleUser && currentUser?.email) {
+        console.log('⚠️ No user ID found, generating from Google email for temporary use');
+        userId = `google_${btoa(currentUser.email).replace(/[^a-zA-Z0-9]/g, '').substring(0, 24)}`;
+        console.log('🔧 Generated temporary user ID:', userId);
+      }
+                     
+      console.log('🔍 User ID Resolution:', {
+        fromCurrentUser: currentUser?._id,
+        fromVentureData: ventureData.googleUser?.user_id,
+        generatedFromEmail: !currentUser?._id && !ventureData.googleUser?.user_id ? userId : null,
+        finalUserId: userId
+      });
+                     
+      const hasValidAuth = !!(userId && token) || !!(ventureData.authMethod === 'google' && ventureData.googleUser);
+      
+      if (!hasValidAuth) {
+        console.error('❌ Authentication failed:', {
+          hasUserId: !!userId,
+          hasToken: !!token,
+          currentUser,
+          ventureAuthMethod: ventureData.authMethod,
+          hasGoogleUser: !!ventureData.googleUser
+        });
+        throw new Error('User not authenticated. Please sign in to create a venture.');
+      }
+      
+      console.log('✅ Authentication validated with userId:', userId);
+      
       // Prepare venture data for API
       const venturePayload = {
+        userId: userId, // ✅ Add required userId
         purpose: ventureData.purpose,
         country: ventureData.country,
         businessDescription: ventureData.businessDescription,
@@ -327,6 +413,7 @@ const VentureWizard: React.FC = () => {
       };
 
       console.log('📋 Venture payload prepared:', venturePayload);
+      console.log('👤 User ID included:', userId);
       
       // Create venture via API
       const result = await createVenture(venturePayload).unwrap();
@@ -386,7 +473,10 @@ const VentureWizard: React.FC = () => {
         errorKeys: Object.keys(error || {}),
         errorStatus: error?.status,
         errorData: error?.data,
+        currentUser: currentUser,
+        userAuthenticated: !!currentUser?._id,
         sentPayload: {
+          userId: currentUser?._id,
           purpose: ventureData.purpose,
           country: ventureData.country,
           businessName: ventureData.businessName
@@ -403,67 +493,137 @@ const VentureWizard: React.FC = () => {
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        console.log('🚀 VentureWizard: Starting Google token exchange...');
+        console.log("Google token response:", tokenResponse);
         
-        // ✅ Exchange Google token for backend JWT token
-        const result = await exchangeGoogleToken(tokenResponse.access_token).unwrap();
-        
-        console.log('✅ VentureWizard: Token exchange successful');
-        
-        // Update Redux store with backend JWT token
-        dispatch(setUser(result.user));
-        dispatch(setToken(result.token));
-        
-        // Update venture data with Google user info
-        updateVentureData('authMethod', 'google');
-        updateVentureData('userName', result.user.name || '');
-        updateVentureData('googleUser', {
-          email: result.user.email,
-          name: result.user.name,
-          picture: result.user.profile || result.user.avatar,
-          access_token: result.token // Store the backend JWT, not Google token
+        // Send token to backend for verification and user management
+        const backendResponse = await fetch(`${apiUrl}api/auth/exchange-google-token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            googleToken: tokenResponse.access_token
+          })
         });
-        
-        console.log('✅ VentureWizard: Google authentication completed successfully');
-        toast.success(t('Successfully signed in with Google!'), {
-          duration: 3000,
-          style: {
-            background: '#10B981',
-            color: 'white',
-          }
-        });
-        
-        // Don't auto-complete, let user continue through the wizard
-      } catch (error: any) {
-        console.error('❌ VentureWizard: Google token exchange failed:', error);
-        
-        let errorMessage = t('Google authentication failed. Please try again.');
-        if (error?.status === 400) {
-          errorMessage = t('Invalid Google account. Please try again.');
-        } else if (error?.status === 409) {
-          errorMessage = t('Account already exists. Please sign in instead.');
-        } else if (error?.data?.message) {
-          errorMessage = error.data.message;
+
+        if (!backendResponse.ok) {
+          console.warn('Backend authentication failed, falling back to client-side authentication');
+          
+          // Fallback to client-side Google authentication
+          const userInfoResponse = await fetch(
+            `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
+          );
+          const userInfo = await userInfoResponse.json();
+          console.log("Fallback Google user info:", userInfo);
+          console.log("Google userInfo keys:", Object.keys(userInfo));
+          console.log("Checking user ID fields:", {
+            sub: userInfo.sub,
+            id: userInfo.id,
+            userId: userInfo.userId,
+            user_id: userInfo.user_id
+          });
+          
+          // Create user object for Redux store (fallback method)
+          const fallbackUserId = userInfo.sub || userInfo.id || userInfo.userId || userInfo.user_id;
+          const userData = {
+            _id: fallbackUserId,
+            email: userInfo.email,
+            name: userInfo.name,
+            phone_number: '',
+            bio: '',
+            location: '',
+            isGoogleUser: true,
+            profile: userInfo.picture,
+            projects: [],
+            cryptoWallet: []
+          };
+
+          // Update Redux store with fallback data
+          dispatch(setUser(userData));
+          dispatch(setToken(tokenResponse.access_token));
+          
+          // Update venture data with Google user info
+          updateVentureData('authMethod', 'google');
+          updateVentureData('userName', userInfo.name || '');
+          updateVentureData('googleUser', {
+            email: userInfo.email,
+            name: userInfo.name,
+            picture: userInfo.picture,
+            access_token: tokenResponse.access_token,
+            user_id: fallbackUserId
+          });
+          
+          console.log('✅ Fallback Google authentication successful with userId:', fallbackUserId);
+          toast.success('Successfully signed in with Google!');
+          return;
         }
-        
-        toast.error(errorMessage, {
-          duration: 4000,
-          style: {
-            background: '#EF4444',
-            color: 'white',
-          }
-        });
+
+        const authData = await backendResponse.json();
+        console.log("Backend auth response:", authData);
+
+        if (authData.success) {
+          // Enhanced logging for separate token data
+          console.log('🔑 Separated Auth Data:', {
+            userId: authData.userId,
+            token: authData.token,
+            jwtToken: authData.jwtToken,
+            googleToken: authData.googleToken
+          });
+          
+          // Update Redux store with backend-verified data
+          // Use jwtToken as primary token for API calls
+          dispatch(setToken(authData.jwtToken || authData.token));
+          
+          // Enhanced user ID handling for Google authentication
+          const userId = authData.userId || authData.user._id || authData.user.id || authData.user.sub;
+          
+          dispatch(setUser({
+            _id: userId,
+            email: authData.user.email,
+            name: authData.user.name,
+            phone_number: authData.user.phone || '',
+            bio: authData.user.bio || '',
+            location: authData.user.location || '',
+            isGoogleUser: true,
+            profile: authData.user.avatar || authData.user.picture,
+            projects: authData.user.projects || [],
+            cryptoWallet: authData.user.cryptoWallet || []
+          }));
+          
+          console.log('🔑 Redux User Set With ID:', userId);
+          
+          // Update venture data with Google user info - store all tokens separately
+          updateVentureData('authMethod', 'google');
+          updateVentureData('userName', authData.user.name || '');
+          updateVentureData('googleUser', {
+            email: authData.user.email,
+            name: authData.user.name,
+            picture: authData.user.avatar || authData.user.picture,
+            access_token: authData.googleToken, // Store original Google token
+            jwt_token: authData.jwtToken,       // Store JWT token separately
+            api_token: authData.token,          // Store API token separately
+            user_id: authData.userId            // Store userId separately
+          });
+          
+          console.log('✅ Google authentication successful with separated data:', {
+            userId: authData.userId,
+            hasJwtToken: !!authData.jwtToken,
+            hasApiToken: !!authData.token,
+            hasGoogleToken: !!authData.googleToken
+          });
+          toast.success(authData.message || 'Successfully signed in with Google!');
+          // Don't auto-complete, let user continue through the wizard
+        } else {
+          throw new Error(authData.message || 'Authentication failed');
+        }
+      } catch (error) {
+        console.error('Error during Google authentication:', error);
+        toast.error('Google authentication failed. Please try again.');
       }
     },
     onError: (error) => {
-      console.error('❌ VentureWizard: Google OAuth failed:', error);
-      toast.error(t('Google sign-in failed. Please try again.'), {
-        duration: 4000,
-        style: {
-          background: '#EF4444',
-          color: 'white',
-        }
-      });
+      console.error('Google sign-in failed:', error);
+      toast.error('Google sign-in failed. Please try again.');
     },
   });
 
@@ -476,7 +636,22 @@ const VentureWizard: React.FC = () => {
       case 'auth-method':
         // If user is already logged in (from Redux), consider step complete
         // Or if they just signed in through the wizard (ventureData.googleUser)
-        return isLoggedIn || (ventureData.authMethod === 'google' && ventureData.googleUser !== undefined);
+        const hasReduxAuth = !!currentUser?.email && !!token;
+        const hasGoogleReduxAuth = !!currentUser?.isGoogleUser && !!currentUser?.email && !!token;
+        const hasWizardAuth = ventureData.authMethod === 'google' && !!ventureData.googleUser;
+        
+        console.log('🔍 Auth Step Validation:', {
+          hasReduxAuth,
+          hasGoogleReduxAuth,
+          hasWizardAuth,
+          currentUserEmail: currentUser?.email,
+          currentUserIsGoogle: currentUser?.isGoogleUser,
+          hasToken: !!token,
+          ventureAuthMethod: ventureData.authMethod,
+          hasVentureGoogleUser: !!ventureData.googleUser
+        });
+        
+        return hasReduxAuth || hasGoogleReduxAuth || hasWizardAuth;
       case 'purpose':
         return ventureData.purpose !== '';
       case 'location':
@@ -922,25 +1097,15 @@ const VentureWizard: React.FC = () => {
                 <div className="flex justify-center">
                   <Button
                     onClick={handleGoogleSignIn}
-                    disabled={isExchangingToken}
-                    className="h-16 w-full max-w-md bg-white border-2 border-lightBlue hover:bg-lightBlue/5 text-lightBlue flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-16 w-full max-w-md bg-white border-2 border-lightBlue hover:bg-lightBlue/5 text-lightBlue flex items-center justify-center space-x-3"
                   >
-                    {isExchangingToken ? (
-                      <>
-                        <Loader2 className="w-6 h-6 animate-spin" />
-                        <span>{t('Signing in...')}</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-6 h-6" viewBox="0 0 24 24">
-                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                        </svg>
-                        <span>{t('Sign in with Google')}</span>
-                      </>
-                    )}
+                    <svg className="w-6 h-6" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    <span>{t('Sign in with Google')}</span>
                   </Button>
                 </div>
                 
