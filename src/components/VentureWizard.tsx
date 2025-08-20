@@ -496,7 +496,7 @@ const VentureWizard: React.FC = () => {
         console.log("Google token response:", tokenResponse);
         
         // Send token to backend for verification and user management
-        const backendResponse = await fetch(`${apiUrl}api/auth/exchange-google-token`, {
+        const backendResponse = await fetch(`${apiUrl}auth/exchange-google-token`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
