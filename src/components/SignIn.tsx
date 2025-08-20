@@ -1,6 +1,6 @@
 import { MdOutlinePhone } from "react-icons/md"
 import { IoCall } from "react-icons/io5";
-import { FcGoogle } from "react-icons/fc";
+
 import { IoMdMail } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { IoMdArrowRoundBack } from "react-icons/io";
@@ -18,7 +18,8 @@ import { useLoginMutation, useLoginPhoneMutation } from "@/redux/services/userSe
 import LoadingComponent from "./LoadingComponent";
 import { handleRTKQueryError } from "@/redux/errorHandler";
 
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
+import { apiUrl } from '@/lib/env';
 
 interface signInProps{
     onClose?:any,
@@ -197,54 +198,60 @@ function SignIn({
         })
     }
 
-    const googleLogin = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            try {
-                console.log("Google token response:", tokenResponse);
-                
-                // Get user info using the access token (same approach as SignUp)
-                const userInfoResponse = await fetch(
-                    `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
-                );
-                const userInfo = await userInfoResponse.json();
-                console.log("Google user info:", userInfo);
-                
-                // Create user object for Redux store
-                const userData = {
-                    _id: userInfo.sub || userInfo.id,
-                    email: userInfo.email,
-                    name: userInfo.name,
-                    phone_number: '',
-                    bio: '',
-                    location: '',
-                    isGoogleUser: true,
-                    profile: userInfo.picture,
-                    projects: [],
-                    cryptoWallet: []
-                };
+    const handleGoogleSuccess = async (credentialResponse: any) => {
+        try {
+            console.log("Google credential response:", credentialResponse);
+            
+            // Exchange Google ID token for backend user data
+            const backendResponse = await fetch(`${apiUrl}/auth/exchange-google-token`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ googleToken: credentialResponse.credential })
+            });
 
-                // Update Redux store
-                dispatch(setUser(userData));
-                dispatch(setToken(tokenResponse.access_token));
-                
-                toast.success('Successfully signed in with Google!');
-                console.log("Google sign-in success with userId:", userInfo.sub || userInfo.id);
-                console.log("Google userInfo full object:", userInfo);
-                onClose();
-            } catch (error) {
-                console.error('Error during Google authentication:', error);
-                toast.error('Google authentication failed. Please try again.');
+            if (!backendResponse.ok) {
+                throw new Error(`Backend responded with ${backendResponse.status}`);
             }
-        },
-        onError: (error) => {
-            console.error('Google sign-in failed:', error);
-            toast.error('Google sign-in failed. Please try again.');
-        },
-    });
 
-    const handleGoogleLogin = () => {
-        googleLogin();
+            const authData = await backendResponse.json();
+            console.log('✅ Google authentication successful:', authData);
+
+            if (authData.success && authData.userId) {
+                // Set user data in Redux with backend user ID
+                dispatch(setUser({
+                    _id: authData.userId, // Use backend user ID
+                    email: authData.user.email,
+                    name: authData.user.name,
+                    phone_number: authData.user.phone || '',
+                    bio: authData.user.bio || '',
+                    location: authData.user.location || '',
+                    isGoogleUser: true,
+                    profile: authData.user.avatar || authData.user.picture,
+                    projects: authData.user.projects || [],
+                    cryptoWallet: authData.user.cryptoWallet || []
+                }));
+
+                // Set JWT token
+                dispatch(setToken(authData.jwtToken || authData.token));
+                
+                toast.success(authData.message || "Logged in successfully!");
+                console.log("Google sign-in success with backend userId:", authData.userId);
+                onClose();
+            } else {
+                throw new Error(authData.message || 'Authentication failed');
+            }
+        } catch (error) {
+            console.error("Error during Google authentication:", error);
+            toast.error("Google sign-in failed. Please try again.");
+        }
     };
+
+    const handleGoogleError = () => {
+        console.error("Google OAuth error");
+        toast.error("Google sign-in failed. Please try again.");
+    };
+
+
   return (
     <div className="px-5 pb-8 pt-10 bg-white shadow-md rounded-2xl">
         {/* Remove the absolute positioned close button since SheetContent provides a close button */}
@@ -270,10 +277,16 @@ function SignIn({
                             <IoCall className="" />
                             <span className="font-semibold">Sign in with a phone number</span>
                         </div>
-                        <button onClick={handleGoogleLogin} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200 w-full">
-                            <FcGoogle className="" />
-                            <span className="font-semibold">Sign in with Google</span>
-                        </button>
+                        <div className="w-full">
+                            <GoogleLogin
+                                onSuccess={handleGoogleSuccess}
+                                onError={handleGoogleError}
+                                size="large"
+                                width="100%"
+                                text="signin_with"
+                                useOneTap={false}
+                            />
+                        </div>
                         <div onClick={()=>setSignWithEmail(true)} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
                             <IoMdMail className="" />
                             <span className="font-semibold">Sign in with email</span>
