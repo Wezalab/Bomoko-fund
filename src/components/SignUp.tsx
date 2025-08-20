@@ -2,23 +2,22 @@ import { useEffect, useState } from "react"
 import { FcGoogle } from "react-icons/fc"
 import { IoMdArrowRoundBack, IoMdMail } from "react-icons/io"
 import { IoCall } from "react-icons/io5"
-import { MdOutlinePhone,  } from "react-icons/md"
+import { MdCancel,  MdOutlinePhone,  } from "react-icons/md"
 import { Button } from "./ui/button"
 import { useForm } from "react-hook-form"
 import { Input } from "./ui/input"
 import { FaHashtag, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { CiLock } from "react-icons/ci"
-import { useFinalizeRegistrationMutation, useRegisterMutation, useRegisterOtpMutation, useVerifyOtpMutation, useExchangeGoogleTokenMutation } from "@/redux/services/userServices"
+import { useFinalizeRegistrationMutation, useRegisterMutation, useRegisterOtpMutation, useVerifyOtpMutation } from "@/redux/services/userServices"
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import toast from "react-hot-toast"
 import { initialState, selectSignUpData, setSignUpData, setToken, setUser } from "@/redux/slices/userSlice"
 import LoadingComponent from "./LoadingComponent"
-
+import { apiUrl } from "@/lib/env"
 import { handleRTKQueryError } from "@/redux/errorHandler";
 import { useGoogleLogin } from '@react-oauth/google';
-import { useTranslation } from '@/lib/TranslationContext';
 
 interface signUpProps{
   onClose:any 
@@ -58,79 +57,60 @@ type StepThreeData =z.infer<typeof stepThreeSchema>
 
 function SignUp({
   onClose,
+  signIn,
   setSignIn
 }:signUpProps) {
   const [signWithPhone,setSignWithPhone]=useState(false)
+      const [signWithGoogle,setSignWithGoogle]=useState(false)
       const [signWithEmail,setSignWithEmail]=useState(false)
+      const [verifyEmail,setVerifyEmail]=useState(false)
+      const [newPassword,setNewPassword]=useState(false)
       const [showPassword,setShowPassword]=useState(false)
       const [stepsWithPhone,setStepsWithPhone]=useState<number>(1)
       const [stepsWithEmail,setStepsWithEmail]=useState<number>(1)
       
           const dispatch=useAppDispatch()
     const signUpData=useAppSelector(selectSignUpData)
-    const { t } = useTranslation();
     
-    // Google token exchange hook
-    const [exchangeGoogleToken, { isLoading: isExchangingToken }] = useExchangeGoogleTokenMutation();
-
     const googleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
-                console.log('🚀 SignUp: Starting Google token exchange...');
+                // Get user info using the access token
+                const userInfoResponse = await fetch(
+                    `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
+                );
+                const userInfo = await userInfoResponse.json();
                 
-                // ✅ Exchange Google token for backend JWT token
-                const result = await exchangeGoogleToken(tokenResponse.access_token).unwrap();
+                // Create user object for Redux store
+                const userData = {
+                    _id: userInfo.sub,
+                    email: userInfo.email,
+                    name: userInfo.name,
+                    phone_number: '',
+                    bio: '',
+                    location: '',
+                    isGoogleUser: true,
+                    profile: userInfo.picture,
+                    projects: [],
+                    cryptoWallet: []
+                };
+
+                // Update Redux store
+                dispatch(setUser(userData));
+                dispatch(setToken(tokenResponse.access_token));
                 
-                console.log('✅ SignUp: Token exchange successful');
-                
-                // Update Redux store with backend JWT token
-                dispatch(setUser(result.user));
-                dispatch(setToken(result.token));
-                
-                toast.success(t('Successfully signed up with Google!'), {
-                    duration: 3000,
-                    style: {
-                        background: '#10B981',
-                        color: 'white',
-                    }
-                });
+                toast.success('Successfully signed up with Google!');
                 onClose();
-            } catch (error: any) {
-                console.error('❌ SignUp: Google token exchange failed:', error);
-                
-                let errorMessage = t('Google authentication failed. Please try again.');
-                if (error?.status === 400) {
-                    errorMessage = t('Invalid Google account. Please try again.');
-                } else if (error?.status === 409) {
-                    errorMessage = t('Account already exists. Please sign in instead.');
-                } else if (error?.data?.message) {
-                    errorMessage = error.data.message;
-                }
-                
-                toast.error(errorMessage, {
-                    duration: 4000,
-                    style: {
-                        background: '#EF4444',
-                        color: 'white',
-                    }
-                });
+            } catch (error) {
+                console.error('Error during Google authentication:', error);
+                toast.error('Google authentication failed. Please try again.');
             }
         },
         onError: (error) => {
-            console.error('❌ SignUp: Google OAuth failed:', error);
-            toast.error(t('Google sign-up failed. Please try again.'), {
-                duration: 4000,
-                style: {
-                    background: '#EF4444',
-                    color: 'white',
-                }
-            });
+            console.error('Google sign-up failed:', error);
+            toast.error('Google sign-up failed. Please try again.');
         },
     });
-
-    const handleGoogleSignup = () => {
-        googleLogin();
-    };
 
 
       const {
@@ -322,6 +302,10 @@ function SignUp({
       })
     }
 
+    const handleGoogleSignup = () => {
+        googleLogin();
+    };
+
     useEffect(()=>{
       if(signUpData.phone  && !signUpData.isVerified){
         setStepsWithPhone(1)
@@ -345,12 +329,12 @@ function SignUp({
           )
         }
         {
-          (!signWithPhone && !signWithEmail)&&(
+          (!signWithGoogle && !signWithPhone && !signWithEmail)&&(
                   <div className="">
                       <div className="mt-10 flex flex-col space-y-2 mx-5">
                           <span className="font-bold text-[20px]">Set up your account</span>
                           {
-                              (!signWithPhone && !signWithEmail)&&
+                              (!signWithGoogle && !signWithPhone && !signWithEmail)&&
                               <span className="text-lightGray">Create your account for a better experience</span>
                           }
                       </div>
@@ -359,22 +343,9 @@ function SignUp({
                               <IoCall className="" />
                               <span className="font-semibold">Sign up with a phone number</span>
                           </div>
-                          <button 
-                              onClick={handleGoogleSignup} 
-                              disabled={isExchangingToken}
-                              className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200 w-full disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                              {isExchangingToken ? (
-                                  <>
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
-                                      <span className="font-semibold">{t('Signing up...')}</span>
-                                  </>
-                              ) : (
-                                  <>
-                                      <FcGoogle className="" />
-                                      <span className="font-semibold">Sign up with Google</span>
-                                  </>
-                              )}
+                          <button onClick={handleGoogleSignup} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200 w-full">
+                              <FcGoogle className="" />
+                              <span className="font-semibold">Sign up with Google</span>
                           </button>
                           <div onClick={()=>setSignWithEmail(true)} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
                               <IoMdMail className="" />
