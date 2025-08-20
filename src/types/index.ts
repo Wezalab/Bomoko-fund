@@ -86,3 +86,30 @@ export type ProjectAttachment = {
     projects?: Project[];
     cryptoWallet?: CryptoWallet[];
   };
+
+  // Enhanced authentication response types
+  export type LoginResponse = {
+    message: string;
+    token: string;
+    jwtToken?: string;
+    userId?: string;
+    userDetails: User;
+  };
+
+  export type GoogleAuthResponse = {
+    success: boolean;
+    message: string;
+    token: string;
+    jwtToken?: string;
+    googleToken?: string;
+    userId?: string;
+    user: User;
+  };
+
+  export type PhoneLoginResponse = {
+    message: string;
+    token: string;
+    jwtToken?: string;
+    userId?: string;
+    userDetails: User;
+  };
