@@ -462,6 +462,8 @@ const VentureWizard: React.FC = () => {
 
       console.log('📋 Venture payload prepared:', venturePayload);
       console.log('👤 User ID included:', validUserId);
+      console.log('🔍 Final payload check - userId field present:', 'userId' in venturePayload);
+      console.log('🔍 Final payload userId value:', venturePayload.userId);
       
       // Create venture via API
       const result = await createVenture(venturePayload).unwrap();
