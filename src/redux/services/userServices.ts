@@ -111,7 +111,7 @@ export const userService=splitApi.injectEndpoints({
         }),
         // Google OAuth integration - Check auth status after OAuth callback
         googleAuthCallback:builder.mutation({
-            query(data){
+            query(){
                 return{
                     url:"/auth/google/status",
                     method:"GET",
@@ -120,7 +120,7 @@ export const userService=splitApi.injectEndpoints({
             }
         }),
         checkGoogleUser:builder.mutation({
-            query(data){
+            query(){
                 return{
                     url:"/auth/google/status",
                     method:"GET",
@@ -129,31 +129,20 @@ export const userService=splitApi.injectEndpoints({
             }
         }),
         checkGoogleUserWithToken:builder.mutation({
-            query(data){
+            query(){
                 return{
                     url:"/auth/google/check",
                     method:"GET"
                 }
             }
         }),
-        // Exchange Google OAuth token for backend JWT token
-        exchangeGoogleToken: builder.mutation({
-            query: (googleToken) => ({
-                url: '/auth/exchange-google-token',
-                method: 'POST',
-                body: { googleToken }
-            }),
-            transformResponse: (response: any) => {
-                console.log('✅ Google token exchange successful:', { 
-                    hasToken: !!response.token, 
-                    hasUser: !!response.user,
-                    userName: response.user?.name 
-                });
-                return response;
-            },
-            transformErrorResponse: (response: any) => {
-                console.error('❌ Google token exchange failed:', response);
-                return response;
+        exchangeGoogleToken:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/exchange-google-token",
+                    method:"POST",
+                    body:data
+                }
             }
         })
     }),
