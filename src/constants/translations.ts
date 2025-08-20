@@ -405,7 +405,7 @@ export const translations: Translations = {
     "Creating...": "Creating...",
     "You are logged in and ready to continue with your business plan!": "You are logged in and ready to continue with your business plan!",
     "You have existing business plans. You can go to your dashboard or create a new one.": "You have existing business plans. You can go to your dashboard or create a new one.",
-    "Create New Plan": "Create New Plan",
+    // "Create New Plan": "Create New Plan",
     "Browse Projects": "Browse Projects",
     "Create New Venture": "Create New Venture",
     "Business plan created successfully!": "Business plan created successfully!",
@@ -816,7 +816,7 @@ export const translations: Translations = {
     "Creating...": "Création en cours...",
     "You are logged in and ready to continue with your business plan!": "Vous êtes connecté et prêt à continuer avec votre plan d'affaires !",
     "You have existing business plans. You can go to your dashboard or create a new one.": "Vous avez des plans d'affaires existants. Vous pouvez aller à votre tableau de bord ou en créer un nouveau.",
-    "Create New Plan": "Créer un nouveau plan",
+    // "Create New Plan": "Créer un nouveau plan",
     "Browse Projects": "Parcourir les projets",
     "Create New Venture": "Créer une nouvelle entreprise",
     "Business plan created successfully!": "Plan d'affaires créé avec succès !",
@@ -827,17 +827,6 @@ export const translations: Translations = {
     "Error!": "Erreur !",
     "Try Again": "Réessayer",
     "Close": "Fermer",
-    
-    // Google Authentication Messages
-    "Signing in...": "Connexion en cours...",
-    "Signing up...": "Inscription en cours...",
-    "Successfully signed in with Google!": "Connexion Google réussie!",
-    "Successfully signed up with Google!": "Inscription Google réussie!",
-    "Google authentication failed. Please try again.": "Échec de l'authentification Google. Veuillez réessayer.",
-    "Google sign-in failed. Please try again.": "Échec de la connexion Google. Veuillez réessayer.",
-    "Google sign-up failed. Please try again.": "Échec de l'inscription Google. Veuillez réessayer.",
-    "Invalid Google account. Please try again.": "Compte Google invalide. Veuillez réessayer.",
-    "Account already exists. Please sign in instead.": "Le compte existe déjà. Veuillez vous connecter.",
 
   }
 } 
