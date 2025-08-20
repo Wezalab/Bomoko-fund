@@ -47,7 +47,7 @@ function HomePage() {
     isSuccess: userProjectIsSuccess,
     isError: userProjectIsError,
     isLoading: userProjectIsLoading
-  } = useUsersProjectsQuery(user._id)
+  } = useUsersProjectsQuery(user?._id, {skip: !user?._id})
 
 
   const {
