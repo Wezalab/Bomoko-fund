@@ -360,6 +360,8 @@ const VentureWizard: React.FC = () => {
           _id: currentUser._id,
           isGoogleUser: currentUser.isGoogleUser,
           profile: currentUser.profile,
+          isGoogleId: /^\d{18,}$/.test(currentUser._id), // Google IDs are long numbers
+          isBackendId: /^[a-f\d]{24}$/i.test(currentUser._id), // MongoDB ObjectIds are 24 hex chars
           allUserProperties: currentUser
         });
       }
@@ -367,11 +369,50 @@ const VentureWizard: React.FC = () => {
       // Check if user is authenticated - improved logic with multiple fallbacks
       let userId = currentUser?._id || ventureData.googleUser?.user_id;
       
-      // If no user ID but we have a Google user, generate one from the email
-      if (!userId && currentUser?.isGoogleUser && currentUser?.email) {
-        console.log('⚠️ No user ID found, generating from Google email for temporary use');
-        userId = `google_${btoa(currentUser.email).replace(/[^a-zA-Z0-9]/g, '').substring(0, 24)}`;
-        console.log('🔧 Generated temporary user ID:', userId);
+      // Check if current user has Google ID instead of backend ID
+      const hasGoogleId = userId && /^\d{18,}$/.test(userId);
+      const hasBackendId = userId && /^[a-f\d]{24}$/i.test(userId);
+      
+      if (hasGoogleId && !hasBackendId && token) {
+        console.warn('⚠️ User has Google ID instead of backend ID, attempting to exchange token for backend user ID');
+        
+        try {
+          // Try to exchange the current Google token for backend user data
+          const backendResponse = await fetch(`${apiUrl}api/auth/exchange-google-token`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              googleToken: token
+            })
+          });
+
+          if (backendResponse.ok) {
+            const authData = await backendResponse.json();
+            if (authData.success && authData.userId) {
+              console.log('✅ Successfully exchanged Google token for backend user ID:', authData.userId);
+              
+              // Update Redux store with backend user ID
+              dispatch(setUser({
+                ...currentUser,
+                _id: authData.userId
+              }));
+              dispatch(setToken(authData.jwtToken || authData.token));
+              
+              // Use the backend user ID
+              userId = authData.userId;
+              console.log('🔧 Updated userId to backend ID:', userId);
+            } else {
+              throw new Error('Backend token exchange failed');
+            }
+          } else {
+            throw new Error(`Backend responded with ${backendResponse.status}`);
+          }
+        } catch (error) {
+          console.error('❌ Failed to exchange token for backend user ID:', error);
+          throw new Error('Invalid user session. Please sign out and sign in again to get proper backend authentication.');
+        }
       }
                      
       console.log('🔍 User ID Resolution:', {
