@@ -378,7 +378,7 @@ const VentureWizard: React.FC = () => {
         
         try {
           // Try to exchange the current Google token for backend user data
-          const backendResponse = await fetch(`${apiUrl}api/auth/exchange-google-token`, {
+          const backendResponse = await fetch(`${apiUrl}auth/exchange-google-token`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
