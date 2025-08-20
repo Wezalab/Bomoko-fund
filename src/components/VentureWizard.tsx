@@ -411,7 +411,11 @@ const VentureWizard: React.FC = () => {
           }
         } catch (error) {
           console.error('❌ Failed to exchange token for backend user ID:', error);
-          throw new Error('Invalid user session. Please sign out and sign in again to get proper backend authentication.');
+          
+          // Provide user-friendly guidance
+          toast.error('Session expired. Please refresh the page and sign in again with Google.');
+          
+          throw new Error('Session expired. Please refresh the page and authenticate again with Google to continue.');
         }
       }
                      
