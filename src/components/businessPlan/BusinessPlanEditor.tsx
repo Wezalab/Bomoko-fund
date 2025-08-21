@@ -43,12 +43,14 @@ interface BusinessPlanSection {
 
 interface BusinessPlanEditorProps {
   onBack?: () => void;
+  onComplete?: () => void;
   companyName?: string;
   industry?: string;
 }
 
 const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({ 
   onBack, 
+  onComplete,
   companyName = "REST-DRC", 
   industry = "Restaurant" 
 }) => {
