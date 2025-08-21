@@ -471,9 +471,17 @@ const VentureWizard: React.FC = () => {
       // Ensure userId is a string (TypeScript requirement)
       const validUserId: string = userId;
       
-      // Prepare venture data for API
+      // Prepare venture data for API - PUT userId FIRST to make it priority
       const venturePayload = {
-        userId: validUserId, // ✅ Add required userId
+        // Multiple userId fields to ensure at least one gets through
+        userId: validUserId,
+        user_id: validUserId,
+        owner_id: validUserId,
+        creator_id: validUserId,
+        ownerUserId: validUserId,
+        ventureUserId: validUserId,
+        
+        // Original venture data
         purpose: ventureData.purpose,
         country: ventureData.country,
         businessDescription: ventureData.businessDescription,
