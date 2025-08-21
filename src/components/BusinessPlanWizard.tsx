@@ -11,24 +11,10 @@ import {
   Users, 
   Settings, 
   User,
-  ArrowUpRight,
-  Crown,
-  Trash2,
-  Plus,
   Building,
   FileText,
-  MapPin,
-  Calendar,
-  HelpCircle,
-  Mail,
-  UserCheck,
-  Youtube,
-  Facebook,
-  Linkedin,
-  Instagram,
   Lock,
   ChevronDown,
-  Bell,
   LogOut,
   ChevronLeft,
   X
@@ -428,81 +414,94 @@ const BusinessPlanWizard: React.FC = () => {
   }, [formData, currentStep]);
 
   return (
-    <div className="business-plan-wizard min-h-screen bg-gradient-to-br from-lightGreen/20 to-lightBlue/20 flex">
+    <div className="business-plan-wizard min-h-screen bg-gray-50 flex">
       {/* Left Sidebar */}
-      <div className="w-64 bg-gradient-to-b from-[#02093d] to-[#0a1854] text-white flex flex-col">
+      <div className="w-16 bg-teal-700 text-white flex flex-col items-center py-4">
         {/* Logo Section */}
-        <div className="p-4 border-b border-white/10">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-white rounded text-[#02093d] flex items-center justify-center font-bold">
-              B
-            </div>
-            <span className="text-xl font-bold text-white">BOMOKO FUND</span>
+        <div className="mb-8">
+          <div 
+            className="w-10 h-10 bg-white rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
+            onClick={() => handleNavigation('/dashboard')}
+          >
+            <Building className="w-6 h-6 text-teal-700" />
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 py-4">
+        {/* Navigation Icons */}
+        <nav className="flex flex-col space-y-4 flex-1">
           <button
             onClick={() => handleNavigation('/dashboard')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('Home')}
           >
             <Home className="w-5 h-5" />
-            <span className="font-medium">{t('Home')}</span>
-          </button>
-          
-          <button
-            onClick={() => handleNavigation('/business-plan-editor')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
-          >
-            <Edit className="w-5 h-5" />
-            <span className="font-medium">{t('Edit Plan')}</span>
-          </button>
-          
-          <button
-            // onClick={() => handleNavigation('/business-plan')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
-          >
-            <Eye className="w-5 h-5" />
-            <span className="font-medium">{t('View Plan')}</span>
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('Home')}
+            </div>
           </button>
           
           <button
             onClick={() => handleNavigation('/business-plan/wizard')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left bg-white/10 text-white hover:bg-white/20 transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-teal-600 text-white relative group"
+            title={t('Add Plan')}
           >
             <FileText className="w-5 h-5" />
-            <span className="font-medium">{t('Add Plan')}</span>
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('Add Plan')}
+            </div>
+          </button>
+          
+          <button
+            onClick={() => handleNavigation('/business-plan-editor')}
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('Edit Plan')}
+          >
+            <Edit className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('Edit Plan')}
+            </div>
+          </button>
+          
+          <button
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('View Plan')}
+          >
+            <Eye className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('View Plan')}
+            </div>
           </button>
           
           <button
             onClick={() => handleNavigation('/financials')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('Financials')}
           >
             <DollarSign className="w-5 h-5" />
-            <span className="font-medium">{t('Financials')}</span>
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('Financials')}
+            </div>
           </button>
           
           <button
             onClick={() => handleNavigation('/users')}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-white/10 text-gray-200 transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('Users')}
           >
             <Users className="w-5 h-5" />
-            <span className="font-medium">{t('Users')}</span>
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('Users')}
+            </div>
           </button>
         </nav>
 
-        {/* Upgrade Section */}
-        <div className="p-4 border-t border-white/10">
-          <div className="bg-white/10 rounded-lg p-4 text-center">
-            <Lock className="mx-auto mb-2 h-8 w-8 text-yellow-400" />
-            <p className="text-sm text-gray-300 mb-3">
-              {t('Upgrade to unlock more features and sections.')}
-            </p>
-            <button className="w-full bg-yellow text-dark px-4 py-2 rounded-lg font-medium hover:bg-yellow/90 transition-colors">
-              <Crown className="w-4 h-4 inline mr-2" />
+        {/* Bottom Upgrade Icon */}
+        <div className="mt-auto">
+          <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center cursor-pointer hover:bg-yellow-500 transition-colors group">
+            <Lock className="w-5 h-5 text-gray-800" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
               {t('Upgrade Now')}
-            </button>
+            </div>
           </div>
         </div>
       </div>
@@ -522,7 +521,6 @@ const BusinessPlanWizard: React.FC = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <Bell className="w-6 h-6 text-gray-600 cursor-pointer hover:text-gray-800" />
               
               {user && (
                 <DropdownMenu>
@@ -649,7 +647,7 @@ const BusinessPlanWizard: React.FC = () => {
                 {/* Progress Grid */}
                 <div className={`${showMobileSteps ? 'block' : 'hidden'} lg:block`}>
                   <div className="grid grid-cols-5 gap-2 mb-6">
-                    {questions.slice(0, 15).filter((_, index) => shouldShowQuestion(index)).map((question, visibleIndex) => {
+                    {questions.slice(0, 15).filter((_, index) => shouldShowQuestion(index)).map((question) => {
                       const originalIndex = questions.findIndex(q => q.id === question.id);
                       return (
                         <button
@@ -671,7 +669,7 @@ const BusinessPlanWizard: React.FC = () => {
                   
                   {/* Question List */}
                   <div className="max-h-96 overflow-y-auto space-y-2 mb-6">
-                    {questions.filter((_, index) => shouldShowQuestion(index)).map((question, visibleIndex) => {
+                    {questions.filter((_, index) => shouldShowQuestion(index)).map((question) => {
                       const originalIndex = questions.findIndex(q => q.id === question.id);
                       return (
                         <div

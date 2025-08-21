@@ -16,21 +16,14 @@ import {
   User,
   Building,
   LogOut,
-  Crown,
-  Bell,
   FileText,
   DollarSign,
-  BarChart3,
-  Target,
-  Lightbulb,
-  TrendingUp,
-  HelpCircle,
-  Archive,
-  Clipboard,
   Youtube,
   Facebook,
   Linkedin,
-  Instagram
+  Instagram,
+  Edit,
+  Eye
 } from 'lucide-react';
 import profileImage from '../../assets/profileImage.png';
 import {
@@ -89,8 +82,8 @@ const BusinessPlanOverview: React.FC = () => {
   const { t } = useTranslation();
 
   // Mock state for business plan progress - in real app this would come from API/Redux
-  const [initialSetupCompleted, setInitialSetupCompleted] = useState(false);
-  const [sections, setSections] = useState<BusinessPlanSection[]>([
+  const [initialSetupCompleted] = useState(false);
+  const [sections] = useState<BusinessPlanSection[]>([
     {
       id: 'business-description',
       title: t('businessDescription') || 'Business Description',
@@ -259,46 +252,104 @@ const BusinessPlanOverview: React.FC = () => {
       <div className="w-16 bg-teal-700 text-white flex flex-col items-center py-4">
         {/* Logo Section */}
         <div className="mb-8">
-          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-            <CheckCircle className="w-6 h-6 text-teal-700" />
+          <div 
+            className="w-10 h-10 bg-white rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
+            onClick={() => handleNavigation('/dashboard')}
+          >
+            <Building className="w-6 h-6 text-teal-700" />
           </div>
         </div>
 
         {/* Navigation Icons */}
-        <nav className="flex flex-col space-y-4">
+        <nav className="flex flex-col space-y-4 flex-1">
           <button
             onClick={() => handleNavigation('/dashboard')}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('home') || 'Home'}
           >
             <Home className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('home') || 'Home'}
+            </div>
           </button>
           
           <button
             onClick={() => handleNavigation('/business-plan/wizard')}
-            className="w-10 h-10 flex items-center justify-center rounded-lg bg-teal-600 text-white"
+            className="w-10 h-10 flex items-center justify-center rounded-lg bg-teal-600 text-white relative group"
+            title={t('plan') || 'Plan'}
           >
             <FileText className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('plan') || 'Plan'}
+            </div>
           </button>
           
           <button
-            onClick={() => handleNavigation('/support')}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors"
+            onClick={() => handleNavigation('/business-plan-editor')}
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('editPlan') || 'Edit Plan'}
           >
-            <HelpCircle className="w-5 h-5" />
+            <Edit className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('editPlan') || 'Edit Plan'}
+            </div>
+          </button>
+          
+          <button
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('viewPlan') || 'View Plan'}
+          >
+            <Eye className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('viewPlan') || 'View Plan'}
+            </div>
+          </button>
+          
+          <button
+            onClick={() => handleNavigation('/financials')}
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('financials') || 'Financials'}
+          >
+            <DollarSign className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('financials') || 'Financials'}
+            </div>
           </button>
           
           <button
             onClick={() => handleNavigation('/users')}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('users') || 'Users'}
           >
             <Users className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('users') || 'Users'}
+            </div>
+          </button>
+          
+          <button
+            onClick={() => handleNavigation('/settings')}
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            title={t('settings') || 'Settings'}
+          >
+            <Settings className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('settings') || 'Settings'}
+            </div>
           </button>
         </nav>
 
-        {/* Bottom Icon */}
+        {/* Bottom Upgrade Icon */}
         <div className="mt-auto">
-          <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center">
+          <div 
+            className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center cursor-pointer hover:bg-yellow-500 transition-colors group"
+            onClick={() => handleNavigation('/upgrade')}
+            title={t('upgrade') || 'Upgrade'}
+          >
             <Lock className="w-5 h-5 text-gray-800" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('upgrade') || 'Upgrade'}
+            </div>
           </div>
         </div>
       </div>

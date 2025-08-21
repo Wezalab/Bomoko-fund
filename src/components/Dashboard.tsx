@@ -257,104 +257,138 @@ const Dashboard: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-lightGreen/20 to-lightBlue/20 flex">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Left Sidebar */}
-      <div className="w-64 bg-gradient-to-b from-[#02093d] to-[#0a1854] text-white flex flex-col">
+      <div className="w-16 bg-teal-700 text-white flex flex-col items-center py-4">
         {/* Logo Section */}
-        <div className="p-4 border-b border-white/10">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-white rounded text-[#02093d] flex items-center justify-center font-bold">
-              B
-            </div>
-            <span className="text-xl font-bold text-white">BOMOKO FUND</span>
+        <div className="mb-8">
+          <div 
+            className="w-10 h-10 bg-white rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
+            onClick={() => handleNavigation('/dashboard')}
+          >
+            <Building className="w-6 h-6 text-teal-700" />
           </div>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 py-4">
+        {/* Navigation Icons */}
+        <nav className="flex flex-col space-y-4 flex-1">
           <button
             onClick={() => handleNavigation('/dashboard')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/dashboard') 
-                ? 'bg-white/10 text-white hover:bg-white/20' 
-                : 'hover:bg-white/10 text-gray-200'
+                ? 'bg-teal-600 text-white' 
+                : 'hover:bg-teal-600 text-white/80 hover:text-white'
             }`}
+            title={t('home')}
           >
             <Home className="w-5 h-5" />
-            <span className="font-medium">{t('home')}</span>
-          </button>
-          
-          <button
-            onClick={() => handleNavigation('/business-plan-editor')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
-              isActiveRoute('/business-plan-editor') 
-                ? 'bg-white/10 text-white hover:bg-white/20' 
-                : 'hover:bg-white/10 text-gray-200'
-            }`}
-          >
-            <Edit className="w-5 h-5" />
-            <span className="font-medium">{t('editPlan')}</span>
-          </button>
-          
-          <button
-            // onClick={() => handleNavigation('/business-plan')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
-              isActiveRoute('/business-plan') 
-                ? 'bg-white/10 text-white hover:bg-white/20' 
-                : 'hover:bg-white/10 text-gray-200'
-            }`}
-          >
-            <Eye className="w-5 h-5" />
-            <span className="font-medium">{t('viewPlan')}</span>
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('home')}
+            </div>
           </button>
           
           <button
             onClick={() => handleNavigation('/business-plan/wizard')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/business-plan/wizard') 
-                ? 'bg-white/10 text-white hover:bg-white/20' 
-                : 'hover:bg-white/10 text-gray-200'
+                ? 'bg-teal-600 text-white' 
+                : 'hover:bg-teal-600 text-white/80 hover:text-white'
             }`}
+            title={t('addPlan')}
           >
             <FileText className="w-5 h-5" />
-            <span className="font-medium">{t('addPlan')}</span>
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('addPlan')}
+            </div>
+          </button>
+          
+          <button
+            onClick={() => handleNavigation('/business-plan-editor')}
+            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
+              isActiveRoute('/business-plan-editor') 
+                ? 'bg-teal-600 text-white' 
+                : 'hover:bg-teal-600 text-white/80 hover:text-white'
+            }`}
+            title={t('editPlan')}
+          >
+            <Edit className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('editPlan')}
+            </div>
+          </button>
+          
+          <button
+            // onClick={() => handleNavigation('/business-plan')}
+            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
+              isActiveRoute('/business-plan') 
+                ? 'bg-teal-600 text-white' 
+                : 'hover:bg-teal-600 text-white/80 hover:text-white'
+            }`}
+            title={t('viewPlan')}
+          >
+            <Eye className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('viewPlan')}
+            </div>
           </button>
           
           <button
             onClick={() => handleNavigation('/financials')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/financials') 
-                ? 'bg-white/10 text-white hover:bg-white/20' 
-                : 'hover:bg-white/10 text-gray-200'
+                ? 'bg-teal-600 text-white' 
+                : 'hover:bg-teal-600 text-white/80 hover:text-white'
             }`}
+            title={t('financials')}
           >
             <DollarSign className="w-5 h-5" />
-            <span className="font-medium">{t('financials')}</span>
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('financials')}
+            </div>
           </button>
           
           <button
             onClick={() => handleNavigation('/users')}
-            className={`w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors ${
+            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/users') 
-                ? 'bg-white/10 text-white hover:bg-white/20' 
-                : 'hover:bg-white/10 text-gray-200'
+                ? 'bg-teal-600 text-white' 
+                : 'hover:bg-teal-600 text-white/80 hover:text-white'
             }`}
+            title={t('users')}
           >
             <Users className="w-5 h-5" />
-            <span className="font-medium">{t('users')}</span>
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('users')}
+            </div>
+          </button>
+          
+          <button
+            onClick={() => handleNavigation('/settings')}
+            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
+              isActiveRoute('/settings') 
+                ? 'bg-teal-600 text-white' 
+                : 'hover:bg-teal-600 text-white/80 hover:text-white'
+            }`}
+            title={t('settings')}
+          >
+            <Settings className="w-5 h-5" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              {t('settings')}
+            </div>
           </button>
         </nav>
 
-        {/* Upgrade Section */}
-        <div className="p-4 border-t border-white/10">
-          <div className="bg-white/10 rounded-lg p-4 text-center">
-            <Lock className="mx-auto mb-2 h-8 w-8 text-yellow-400" />
-            <p className="text-sm text-gray-300 mb-3">
-              {t('upgradeMessage')}
-            </p>
-            <button className="w-full bg-yellow-400 text-dark hover:bg-yellow-500 font-semibold py-2 px-4 rounded transition-colors">
+        {/* Bottom Upgrade Icon */}
+        <div className="mt-auto">
+          <div 
+            className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center cursor-pointer hover:bg-yellow-500 transition-colors group"
+            onClick={() => handleNavigation('/upgrade')}
+            title={t('upgrade')}
+          >
+            <Lock className="w-5 h-5 text-gray-800" />
+            <div className="absolute left-14 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
               {t('upgrade')}
-            </button>
+            </div>
           </div>
         </div>
       </div>
