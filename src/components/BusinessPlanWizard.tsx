@@ -104,6 +104,42 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
   const [newServiceGroup, setNewServiceGroup] = useState('');
   const [selectedServiceGroups, setSelectedServiceGroups] = useState<string[]>([]);
 
+  // Utility function to get venture business description and types
+  const getVentureBusinessData = () => {
+    let businessDescription = 'General business';
+    let businessTypes: string[] = [];
+    
+    try {
+      // Try to get venture data from localStorage first (primary source)
+      const ventureData = localStorage.getItem('ventureWizardData');
+      if (ventureData) {
+        const parsedVentureData = JSON.parse(ventureData);
+        businessDescription = parsedVentureData.businessDescription || businessDescription;
+        businessTypes = parsedVentureData.businessTypes || [];
+        
+        console.log('Using venture data:', { businessDescription, businessTypes });
+        return { businessDescription, businessTypes };
+      }
+      
+      // Fallback to form data or older localStorage method
+      businessDescription = (formData['business_description']?.toString()) || 
+        localStorage.getItem('businessDescription') || 
+        businessDescription;
+      businessTypes = formData['business_types'] || 
+        JSON.parse(localStorage.getItem('businessTypes') || '[]');
+        
+      console.log('Using fallback data:', { businessDescription, businessTypes });
+      return { businessDescription, businessTypes };
+    } catch (error) {
+      console.error('Error parsing venture data:', error);
+      // Final fallback
+      businessDescription = 'General business offering products and services';
+      businessTypes = [];
+      console.log('Using default fallback data:', { businessDescription, businessTypes });
+      return { businessDescription, businessTypes };
+    }
+  };
+
   const questions: Question[] = [
     {
       id: 'established_business',
@@ -342,20 +378,14 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
   };
 
   const generateProductSuggestions = async () => {
-    // Get business description from previous wizard or use a generic one
-    const businessDescription = formData['business_description'] || 
-      localStorage.getItem('businessDescription') || 
-      'General business offering products and services';
-    
-    const businessTypes = formData['business_types'] || 
-      JSON.parse(localStorage.getItem('businessTypes') || '[]');
+    const { businessDescription, businessTypes } = getVentureBusinessData();
       
     setIsLoadingProductSuggestions(true);
     try {
       const suggestions = await generateProductGroupSuggestions(
-      businessDescription.toString(), 
-      Array.isArray(businessTypes) ? businessTypes : []
-    );
+        businessDescription.toString(), 
+        Array.isArray(businessTypes) ? businessTypes : []
+      );
       setProductSuggestions(suggestions);
     } catch (error) {
       console.error('Error generating product suggestions:', error);
@@ -365,20 +395,14 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
   };
 
   const generateServiceSuggestions = async () => {
-    // Get business description from previous wizard or use a generic one
-    const businessDescription = formData['business_description'] || 
-      localStorage.getItem('businessDescription') || 
-      'General business offering services';
-    
-    const businessTypes = formData['business_types'] || 
-      JSON.parse(localStorage.getItem('businessTypes') || '[]');
+    const { businessDescription, businessTypes } = getVentureBusinessData();
       
     setIsLoadingServiceSuggestions(true);
     try {
       const suggestions = await generateServiceGroupSuggestions(
-      businessDescription.toString(), 
-      Array.isArray(businessTypes) ? businessTypes : []
-    );
+        businessDescription.toString(), 
+        Array.isArray(businessTypes) ? businessTypes : []
+      );
       setServiceSuggestions(suggestions);
     } catch (error) {
       console.error('Error generating service suggestions:', error);
