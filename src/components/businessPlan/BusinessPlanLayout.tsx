@@ -42,6 +42,17 @@ const BusinessPlanLayout: React.FC<BusinessPlanLayoutProps> = ({ onBack }) => {
           setPlanData(parsedData);
           console.log('BusinessPlanLayout - Loaded wizard data:', parsedData);
           
+          // Debug: Show the specific conditional values
+          console.log('=== BusinessPlanLayout Debug ===');
+          console.log('established_business:', parsedData.established_business);
+          console.log('staff:', parsedData.staff);
+          console.log('products_yn:', parsedData.products_yn);
+          console.log('services_yn:', parsedData.services_yn);
+          console.log('financial_model_required_yn:', parsedData.financial_model_required_yn);
+          console.log('product_grouping:', parsedData.product_grouping);
+          console.log('service_grouping:', parsedData.service_grouping);
+          console.log('================================');
+          
           // Simulate initial validation
           setTimeout(() => {
             setIsValidating(false);
@@ -197,6 +208,21 @@ const BusinessPlanLayout: React.FC<BusinessPlanLayoutProps> = ({ onBack }) => {
                     {t('planUnlocked') || 'Plan débloqué'}
                   </span>
                 </div>
+              )}
+
+              {/* Debug Button - Only show in development */}
+              {process.env.NODE_ENV === 'development' && planData && (
+                <button
+                  onClick={() => {
+                    console.log('=== Manual Debug ===');
+                    console.log('Current planData:', planData);
+                    console.log('validationResults:', validationResults);
+                    console.log('===================');
+                  }}
+                  className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200"
+                >
+                  Debug
+                </button>
               )}
             </div>
           </div>
