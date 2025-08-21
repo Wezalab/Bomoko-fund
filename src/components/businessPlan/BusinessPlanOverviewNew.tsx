@@ -407,60 +407,68 @@ const BusinessPlanOverviewNew: React.FC = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              {/* Business Settings Section */}
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">{t('businessSettings') || 'Business Settings'}</span>
-                <button 
-                  onClick={handleInitialSetup}
-                  className="bg-teal-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-teal-700 transition-colors"
-                >
-                  {t('initialSetup') || 'Initial Setup'}
-                  <br />
-                  <span className="text-xs opacity-90">{t('businessPlanAug25') || 'Business Plan Aug 25'}</span>
-                </button>
-                
+              {/* User Profile Dropdown - Same as Dashboard */}
+              {user?.email && (
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center space-x-2 cursor-pointer">
-                    <span className="text-sm font-medium">{t('bomokoFund') || 'Bomoko Fund'}</span>
-                    <ChevronDown className="w-4 h-4" />
+                  <DropdownMenuTrigger asChild>
+                    <button className='flex items-center bg-[#ECEFF3] py-[8px] rounded-full h-[50px] hover:bg-gray-200 space-x-2 px-3 transition-colors'>
+                      <img 
+                        src={userAvatar}
+                        className='w-[39px] h-[39px] rounded-full object-cover'
+                        alt='profile-image'
+                        onError={handleImageError}
+                        crossOrigin="anonymous"
+                        referrerPolicy="no-referrer"
+                      />
+                      <span className="text-sm font-medium text-gray-700">
+                        {user?.name || user?.email?.split('@')[0]}
+                      </span>
+                      <ChevronDown className="w-4 h-4 text-gray-600" />
+                    </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem>{t('settings') || 'Settings'}</DropdownMenuItem>
-                    <DropdownMenuItem>{t('switchBusiness') || 'Switch Business'}</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-                
-                <span className="text-sm text-gray-600">{t('startHere') || 'Start Here'}</span>
-              </div>
-
-              {/* User Dropdown */}
-              {user && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex items-center space-x-2 cursor-pointer">
-                    <img 
-                      src={userAvatar} 
-                      alt="User Avatar" 
-                      className="w-8 h-8 rounded-full object-cover"
-                      onError={handleImageError}
-                      crossOrigin="anonymous"
-                      referrerPolicy="no-referrer"
-                    />
-                    <ChevronDown className="w-4 h-4 text-gray-600" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
+                  <DropdownMenuContent className='p-3 w-64'>
+                    <div className='flex items-center space-x-3 mb-3'>
+                      <img 
+                        src={userAvatar}
+                        className='w-[40px] h-[40px] rounded-full object-cover'
+                        alt='profile-image'
+                        onError={handleImageError}
+                        crossOrigin="anonymous"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className='flex flex-col'>
+                        <span className='text-gray-900 font-semibold text-sm'>
+                          {user?.name || user?.email?.split('@')[0]}
+                        </span>
+                        <span className='text-gray-500 text-sm'>{user?.email}</span>
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
                     <DropdownMenuGroup>
-                      <DropdownMenuItem onClick={() => handleNavigation('/profile')}>
-                        <User className="w-4 h-4 mr-2" />
-                        <span>{t('profile') || 'Profile'}</span>
+                      <DropdownMenuItem className='p-3 cursor-pointer'>
+                        <div onClick={() => handleNavigation('/profile')} className='flex items-center space-x-2'>
+                          <User className="w-4 h-4" />
+                          <span className='text-sm'>{t('profile') || 'Profile'}</span>
+                        </div>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleNavigation('/settings')}>
-                        <Settings className="w-4 h-4 mr-2" />
-                        <span>{t('settings') || 'Settings'}</span>
+                      <DropdownMenuItem className='p-3 cursor-pointer'>
+                        <div onClick={() => handleNavigation('/projects')} className='flex items-center space-x-2'>
+                          <Building className="w-4 h-4" />
+                          <span className='text-sm'>{t('projects') || 'Projects'}</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className='p-3 cursor-pointer'>
+                        <div onClick={() => handleNavigation('/settings')} className='flex items-center space-x-2'>
+                          <Settings className="w-4 h-4" />
+                          <span className='text-sm'>{t('settings') || 'Settings'}</span>
+                        </div>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout}>
-                        <LogOut className="w-4 h-4 mr-2 text-red-600" />
-                        <span className="text-red-600">{t('logout') || 'Logout'}</span>
+                      <DropdownMenuItem className='p-3 cursor-pointer'>
+                        <div onClick={handleLogout} className='flex items-center space-x-2'>
+                          <LogOut className="w-4 h-4 text-red-600" />
+                          <span className='text-sm text-red-600'>{t('logout') || 'Logout'}</span>
+                        </div>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                   </DropdownMenuContent>
@@ -472,59 +480,6 @@ const BusinessPlanOverviewNew: React.FC = () => {
 
         {/* Main Dashboard Content */}
         <div className="p-8 max-w-4xl mx-auto">
-          {/* Initial Setup Section - At the top */}
-          <div className="mb-8">
-            <div className="space-y-4">
-              {/* Section Title */}
-              <div className="flex items-center space-x-4 mb-6">
-                <h2 className="text-3xl font-bold text-gray-800">Configuration initiale</h2>
-              </div>
-
-              {/* Initial Setup Item */}
-              <div className="space-y-3">
-                <div
-                  className="relative flex items-center p-4 rounded-2xl transition-all duration-300 hover:shadow-lg cursor-pointer transform hover:scale-[1.02] border border-gray-200 shadow-sm"
-                  style={{
-                    background: 'linear-gradient(90deg, #e0f2fe 0%, #e1f3fe 25%, #e2f4fe 50%, #e3f5fe 75%, #e4f6fe 100%)'
-                  }}
-                  onClick={handleInitialSetup}
-                >
-                  {/* Step Number Circle */}
-                  <div className="flex-shrink-0 mr-4">
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold bg-white text-gray-700 shadow-md border-2 border-gray-100">
-                      ⚙️
-                    </div>
-                  </div>
-
-                  {/* Item Content */}
-                  <div className="flex-1">
-                    <h3 className="text-lg font-bold text-gray-700">
-                      Configuration initiale
-                    </h3>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Plan d'affaires Aug 25
-                    </p>
-                  </div>
-
-                  {/* Time Indicator */}
-                  <div className="flex-shrink-0 ml-4 flex items-center">
-                    <span className="text-base font-semibold mr-3 text-gray-700">
-                      10 Min
-                    </span>
-                    <ChevronLeft className="w-5 h-5 rotate-180 text-gray-700" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Section Number Badge */}
-              <div className="flex justify-end mt-4">
-                <div className="text-6xl font-bold text-gray-300 opacity-60">
-                  0
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Business Plan Sections - Image-inspired Design */}
           <div className="space-y-8">
             {sections.map((section) => (
