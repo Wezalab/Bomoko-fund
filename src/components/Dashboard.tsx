@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { selectUser, setUser, setToken, initialState } from '@/redux/slices/userSlice';
 import { ProjectInitialState, setProject } from '@/redux/slices/projectSlice';
 import { useTranslation } from '@/lib/TranslationContext';
+import { useGetUserVenturesQuery } from '@/redux/services/ventureServices';
 import { 
   Home, 
   Edit, 
@@ -13,23 +14,16 @@ import {
   Settings, 
   User,
   ArrowUpRight,
-  Crown,
   Trash2,
   Plus,
   Building,
   FileText,
-  MapPin,
-  Calendar,
-  HelpCircle,
-  Mail,
-  UserCheck,
   Youtube,
   Facebook,
   Linkedin,
   Instagram,
   Lock,
   ChevronDown,
-  Bell,
   LogOut
 } from 'lucide-react';
 import profileImage from '../assets/profileImage.png';
@@ -65,16 +59,8 @@ interface ExtendedUser {
   cryptoWallet?: any[];
 }
 
-interface BusinessData {
-  id: string;
-  name: string;
-  description: string;
-  location: string;
-  createdAt: string;
-  businessTypes: string[];
-  purpose: string;
-  country: string;
-}
+// Using Venture interface from API instead of local BusinessData
+// interface BusinessData extends Venture {}
 
 interface PlanData {
   id: string;
@@ -111,29 +97,35 @@ const Dashboard: React.FC = () => {
     return false;
   };
 
-  // Mock businesses array - in real app, this would come from Redux store or API
-  const [businesses, setBusinesses] = useState<BusinessData[]>([
-    {
-      id: '1',
-      name: 'TechTribe',
-      description: 'Technology solutions for African entrepreneurs',
-      location: 'Uganda',
-      createdAt: '2025-07-12',
-      businessTypes: ['Technology', 'Software Development', 'E-commerce'],
-      purpose: 'create_business',
-      country: 'UG'
-    },
-    {
-      id: '2',
-      name: 'AgriVenture',
-      description: 'Sustainable agriculture and farming solutions',
-      location: 'Kenya',
-      createdAt: '2025-06-15',
-      businessTypes: ['Agriculture', 'Sustainability', 'Food Production'],
-      purpose: 'create_business',
-      country: 'KE'
-    }
-  ]);
+  // Fetch user ventures from API
+  const { 
+    data: venturesResponse, 
+    isLoading: isLoadingVentures, 
+    error: venturesError 
+  } = useGetUserVenturesQuery({ 
+    userId: user?._id || '', 
+    page: 1, 
+    limit: 50 
+  }, {
+    skip: !user?._id // Skip the query if user ID is not available
+  });
+
+  // Safely extract ventures array from response
+  const ventures = Array.isArray(venturesResponse) ? venturesResponse : 
+                   (venturesResponse && typeof venturesResponse === 'object' && 'data' in venturesResponse && Array.isArray((venturesResponse as any).data)) ? (venturesResponse as any).data : 
+                   [];
+
+  // Debug logging to understand API response structure
+  useEffect(() => {
+    console.log("[DEBUG] User ID:", user?._id);
+    console.log("[DEBUG] Ventures API Response:", venturesResponse);
+    console.log("[DEBUG] Extracted ventures array:", ventures);
+    console.log("[DEBUG] Is loading:", isLoadingVentures);
+    console.log("[DEBUG] Error:", venturesError);
+  }, [user?._id, venturesResponse, ventures, isLoadingVentures, venturesError]);
+
+  // Use real ventures data from API
+  const displayVentures = ventures;
 
   // Mock plans array - in real app, this would come from Redux store or API
   const [plans, setPlans] = useState<PlanData[]>([
@@ -167,12 +159,21 @@ const Dashboard: React.FC = () => {
   ]);
 
   // Selected items
-  const [selectedBusinessId, setSelectedBusinessId] = useState<string>('1');
+  const [selectedBusinessId, setSelectedBusinessId] = useState<string>('');
   const [selectedPlanId, setSelectedPlanId] = useState<string>('1');
 
+  // Set initial selected business when ventures load
+  useEffect(() => {
+    if (Array.isArray(displayVentures) && displayVentures.length > 0 && !selectedBusinessId) {
+      setSelectedBusinessId(displayVentures[0]._id);
+    }
+  }, [displayVentures, selectedBusinessId]);
+
   // Get selected business and plan
-  const selectedBusiness = businesses.find(b => b.id === selectedBusinessId) || null;
-  const selectedPlan = plans.find(p => p.id === selectedPlanId) || null;
+  const selectedBusiness = (Array.isArray(displayVentures) && displayVentures.find) ? 
+                          displayVentures.find(v => v._id === selectedBusinessId) || null : 
+                          null;
+  // const selectedPlan = plans.find(p => p.id === selectedPlanId) || null;
 
   // Function to handle Google profile image URLs
   const getOptimizedImageUrl = (url: string) => {
@@ -217,13 +218,12 @@ const Dashboard: React.FC = () => {
 
   const handleDeleteBusiness = (businessId: string) => {
     if (window.confirm('Are you sure you want to delete this business? This action cannot be undone.')) {
-      setBusinesses(businesses.filter(b => b.id !== businessId));
-      // Also remove associated plans
-      setPlans(plans.filter(p => p.businessId !== businessId));
-      // If deleted business was selected, select first remaining business or none
-      if (selectedBusinessId === businessId) {
-        const remainingBusinesses = businesses.filter(b => b.id !== businessId);
-        setSelectedBusinessId(remainingBusinesses.length > 0 ? remainingBusinesses[0].id : '');
+      // TODO: Implement actual delete API call
+      console.log('Delete venture:', businessId);
+      // For now, just deselect if it was selected
+      if (selectedBusinessId === businessId && Array.isArray(displayVentures)) {
+        const remainingVentures = displayVentures.filter(v => v._id !== businessId);
+        setSelectedBusinessId(remainingVentures.length > 0 ? remainingVentures[0]._id : '');
       }
     }
   };
@@ -477,10 +477,10 @@ const Dashboard: React.FC = () => {
         <div className="p-6 space-y-6">
           {/* Top Section - Business and Plan Selection */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Businesses Section */}
+            {/* Ventures Section */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-dark">{t('myVentures')} ({businesses.length})</h2>
+                <h2 className="text-xl font-bold text-dark">{t('myVentures')} ({Array.isArray(displayVentures) ? displayVentures.length : 0})</h2>
                 <button
                   onClick={() => handleNavigation('/venture-wizard')}
                   className="bg-lightBlue hover:bg-lightBlue/90 text-white p-2 rounded-lg transition-colors"
@@ -490,41 +490,76 @@ const Dashboard: React.FC = () => {
                 </button>
               </div>
               
-              {businesses.length > 0 ? (
+              {!user?._id ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Building className="w-8 h-8 text-yellow-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('userNotFound') || 'User not found'}</h3>
+                  <p className="text-gray-600 mb-6">{t('pleaseSignIn') || 'Please sign in to view your ventures'}</p>
+                </div>
+              ) : isLoadingVentures ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-lightBlue mx-auto mb-4"></div>
+                  <p className="text-gray-600">{t('loading') || 'Loading ventures...'}</p>
+                </div>
+              ) : venturesError ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Building className="w-8 h-8 text-red-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('errorLoadingVentures') || 'Error loading ventures'}</h3>
+                  <p className="text-gray-600 mb-6">{t('tryAgainLater') || 'Please try again later'}</p>
+                </div>
+              ) : Array.isArray(displayVentures) && displayVentures.length > 0 ? (
                 <div className="space-y-4 max-h-80 overflow-y-auto">
-                  {businesses.map((business) => (
+                  {displayVentures.map((venture) => (
                     <div 
-                      key={business.id} 
+                      key={venture._id} 
                       className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                        selectedBusinessId === business.id 
+                        selectedBusinessId === venture._id 
                           ? 'border-lightBlue bg-lightBlue/5' 
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
-                      onClick={() => setSelectedBusinessId(business.id)}
+                      onClick={() => setSelectedBusinessId(venture._id)}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-dark mb-1">{business.name}</h3>
-                          <p className="text-gray-600 text-sm mb-2">{business.description}</p>
+                          <h3 className="font-semibold text-dark mb-1">{venture.businessName}</h3>
+                          <p className="text-gray-600 text-sm mb-2">{venture.businessDescription}</p>
                           <div className="flex items-center space-x-4 text-xs text-gray-500 mb-2">
-                            <span>{t('createdAt')} {formatDate(business.createdAt)}</span>
-                            <span>{business.location}</span>
+                            <span>{t('createdAt')} {formatDate(venture.createdAt)}</span>
+                            <span>{venture.country}</span>
                           </div>
-                          <div className="flex flex-wrap gap-1">
-                            {business.businessTypes.slice(0, 2).map((type, index) => (
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {venture.businessTypes.slice(0, 2).map((type: string, index: number) => (
                               <span key={index} className="bg-lightBlue/10 text-lightBlue px-2 py-1 rounded-full text-xs">
                                 {type}
                               </span>
                             ))}
-                            {business.businessTypes.length > 2 && (
-                              <span className="text-xs text-gray-500">+{business.businessTypes.length - 2} {t('more')}</span>
+                            {venture.businessTypes.length > 2 && (
+                              <span className="text-xs text-gray-500">+{venture.businessTypes.length - 2} {t('more')}</span>
                             )}
                           </div>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            venture.status === 'completed' 
+                              ? 'bg-green-100 text-green-800' 
+                              : venture.status === 'in-progress'
+                              ? 'bg-blue-100 text-blue-800'
+                              : venture.status === 'published'
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {venture.status === 'completed' ? t('completed') : 
+                             venture.status === 'in-progress' ? t('inProgress') : 
+                             venture.status === 'published' ? t('published') || 'Published' :
+                             t('draft') || 'Draft'}
+                          </span>
                         </div>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteBusiness(business.id);
+                            handleDeleteBusiness(venture._id);
                           }}
                           className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
                           title={t('deleteBusiness')}

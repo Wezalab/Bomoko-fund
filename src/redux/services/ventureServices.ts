@@ -59,15 +59,22 @@ export const ventureService = splitApi.injectEndpoints({
         return response;
       }
     }),
-    getUserVentures: builder.query<Venture[], { page?: number; limit?: number; status?: string }>({
-      query: ({ page = 1, limit = 10, status } = {}) => {
+    getUserVentures: builder.query<Venture[], { userId: string; page?: number; limit?: number; status?: string; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc' }>({
+      query: ({ userId, page = 1, limit = 10, status, search, sortBy = 'createdAt', sortOrder = 'desc' } = { userId: '' }) => {
         const params = new URLSearchParams({
+          userId,
           page: page.toString(),
           limit: limit.toString(),
+          sortBy,
+          sortOrder,
         });
         
         if (status) {
           params.append('status', status);
+        }
+        
+        if (search) {
+          params.append('search', search);
         }
         
         console.log("[DEBUG API] Fetching user ventures with params:", params.toString());
@@ -75,7 +82,8 @@ export const ventureService = splitApi.injectEndpoints({
       },
       transformResponse: (response: any) => {
         console.log("[DEBUG API] Get user ventures response:", response);
-        return response;
+        // Based on the API specification, the response has a "ventures" property
+        return response?.ventures || response;
       },
       transformErrorResponse: (response: any) => {
         console.error("[DEBUG API ERROR] Get user ventures error:", response);

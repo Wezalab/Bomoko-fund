@@ -416,6 +416,13 @@ export const translations: Translations = {
     "Error!": "Error!",
     "Try Again": "Try Again",
     "Close": "Close",
+    "loading": "Loading...",
+    "errorLoadingVentures": "Error loading ventures",
+    "tryAgainLater": "Please try again later",
+    "published": "Published",
+    "draft": "Draft",
+    "userNotFound": "User not found",
+    "pleaseSignIn": "Please sign in to view your ventures",
 
   },
   fr: {
@@ -819,7 +826,7 @@ export const translations: Translations = {
     // "Create New Plan": "Créer un nouveau plan",
     "Browse Projects": "Parcourir les projets",
     "Create New Venture": "Créer une nouvelle entreprise",
-    "Business plan created successfully!": "Plan d'affaires créé avec succès !",
+    "Company created successfully!": "Entreprise créée avec succès !",
     "Failed to create business plan. Please try again.": "Échec de la création du plan d'affaires. Veuillez réessayer.",
     "Server error": "Erreur du serveur",
     "has been saved to your dashboard.": "a été sauvegardé dans votre tableau de bord.",
@@ -827,6 +834,13 @@ export const translations: Translations = {
     "Error!": "Erreur !",
     "Try Again": "Réessayer",
     "Close": "Fermer",
+    "loading": "Chargement...",
+    "errorLoadingVentures": "Erreur lors du chargement des entreprises",
+    "tryAgainLater": "Veuillez réessayer plus tard",
+    "published": "Publié",
+    "draft": "Brouillon",
+    "userNotFound": "Utilisateur non trouvé",
+    "pleaseSignIn": "Veuillez vous connecter pour voir vos entreprises",
 
   }
 } 
