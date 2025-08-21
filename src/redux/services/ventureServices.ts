@@ -35,14 +35,20 @@ export const ventureService = splitApi.injectEndpoints({
         console.log("[DEBUG API] Creating venture with data:", data);
         console.log("[DEBUG API] Data userId specifically:", data.userId);
         console.log("[DEBUG API] Data keys:", Object.keys(data));
-        return {
+        
+        const requestConfig = {
           url: "/ventures",
-          method: "POST",
+          method: "POST" as const,  // TypeScript const assertion
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(data)  // Explicitly stringify the body
-        }
+        };
+        
+        console.log("[DEBUG API] Final request config:", requestConfig);
+        console.log("[DEBUG API] Request config method:", requestConfig.method);
+        
+        return requestConfig;
       },
       transformResponse: (response: any) => {
         console.log("[DEBUG API] Create venture response:", response);
