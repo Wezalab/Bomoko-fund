@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTranslation } from '@/lib/TranslationContext';
 import { generateProductGroupSuggestions, generateServiceGroupSuggestions } from '@/lib/groqService';
+import { useGetUserVenturesQuery } from '@/redux/services/ventureServices';
 
 interface ExtendedUser {
   _id: string;
@@ -104,38 +105,106 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
   const [newServiceGroup, setNewServiceGroup] = useState('');
   const [selectedServiceGroups, setSelectedServiceGroups] = useState<string[]>([]);
 
+  // Fetch user ventures from API
+  const { 
+    data: venturesResponse, 
+    isLoading: isLoadingVentures, 
+    error: venturesError 
+  } = useGetUserVenturesQuery({ 
+    userId: user?._id || '', 
+    page: 1, 
+    limit: 50 
+  }, {
+    skip: !user?._id // Skip the query if user ID is not available
+  });
+
+  // Safely extract ventures array from response
+  const ventures = Array.isArray(venturesResponse) ? venturesResponse : 
+                   (venturesResponse && typeof venturesResponse === 'object' && 'data' in venturesResponse && Array.isArray((venturesResponse as any).data)) ? (venturesResponse as any).data : 
+                   [];
+
+  // Debug logging for ventures data
+  useEffect(() => {
+    console.log('🔍 BusinessPlanWizard - Ventures Debug:', {
+      userId: user?._id,
+      isLoadingVentures,
+      venturesError,
+      venturesResponse,
+      extractedVentures: ventures,
+      venturesCount: ventures.length
+    });
+    
+    if (ventures.length > 0) {
+      console.log('🎯 Current venture (most recent):', ventures[0]);
+    }
+  }, [user?._id, isLoadingVentures, venturesError, venturesResponse, ventures]);
+
   // Utility function to get venture business description and types
   const getVentureBusinessData = () => {
     let businessDescription = 'General business';
     let businessTypes: string[] = [];
     
     try {
-      // Try to get venture data from localStorage first (primary source)
+      // 1️⃣ PRIMARY: Real venture data from API
+      if (ventures && ventures.length > 0) {
+        // Check if there's a specific venture ID to use (from URL params or localStorage)
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedVentureId = urlParams.get('ventureId') || localStorage.getItem('selectedVentureId');
+        
+        let currentVenture;
+        if (selectedVentureId) {
+          // Find specific venture by ID
+          currentVenture = ventures.find((v: any) => v._id === selectedVentureId);
+          console.log('🎯 Looking for specific venture:', selectedVentureId, 'Found:', !!currentVenture);
+        }
+        
+        // Fallback to most recent venture if specific one not found
+        if (!currentVenture) {
+          currentVenture = ventures[0]; // Most recent (sorted by creation date desc)
+          console.log('📅 Using most recent venture as fallback');
+        }
+        
+        if (currentVenture?.businessDescription && currentVenture?.businessTypes) {
+          businessDescription = currentVenture.businessDescription;
+          businessTypes = currentVenture.businessTypes;
+          
+          console.log('✅ Using REAL venture data from API:', { 
+            ventureId: currentVenture._id,
+            businessName: currentVenture.businessName,
+            businessDescription, 
+            businessTypes,
+            source: selectedVentureId ? 'selected' : 'most-recent'
+          });
+          return { businessDescription, businessTypes };
+        }
+      }
+      
+      // 2️⃣ FALLBACK: Venture data from localStorage (from VentureWizard)
       const ventureData = localStorage.getItem('ventureWizardData');
       if (ventureData) {
         const parsedVentureData = JSON.parse(ventureData);
         businessDescription = parsedVentureData.businessDescription || businessDescription;
         businessTypes = parsedVentureData.businessTypes || [];
         
-        console.log('Using venture data:', { businessDescription, businessTypes });
+        console.log('⚠️ Using localStorage venture data:', { businessDescription, businessTypes });
         return { businessDescription, businessTypes };
       }
       
-      // Fallback to form data or older localStorage method
+      // 3️⃣ OLD FALLBACK: Form data or older localStorage method
       businessDescription = (formData['business_description']?.toString()) || 
         localStorage.getItem('businessDescription') || 
         businessDescription;
       businessTypes = formData['business_types'] || 
         JSON.parse(localStorage.getItem('businessTypes') || '[]');
         
-      console.log('Using fallback data:', { businessDescription, businessTypes });
+      console.log('⚠️ Using legacy fallback data:', { businessDescription, businessTypes });
       return { businessDescription, businessTypes };
     } catch (error) {
-      console.error('Error parsing venture data:', error);
+      console.error('❌ Error parsing venture data:', error);
       // Final fallback
       businessDescription = 'General business offering products and services';
       businessTypes = [];
-      console.log('Using default fallback data:', { businessDescription, businessTypes });
+      console.log('🔄 Using default fallback data:', { businessDescription, businessTypes });
       return { businessDescription, businessTypes };
     }
   };
