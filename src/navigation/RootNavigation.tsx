@@ -11,7 +11,7 @@ import BusinessPlanEditorLayout from '@/pages/BusinessPlanEditorLayout'
 import NotFound from '@/pages/NotFound'
 import AuthRedirect from '@/components/AuthRedirect'
 import BusinessPlanWizard from '@/components/BusinessPlanWizard'
-import BusinessPlanOverview from '@/components/businessPlan/BusinessPlanOverview'
+import BusinessPlanOverviewNew from '@/components/businessPlan/BusinessPlanOverviewNew'
 
 function RootNavigation() {
 
@@ -27,7 +27,7 @@ function RootNavigation() {
             <Route path="/projects/create" element={<CreateProjectLayout />} />
             <Route path="/business-plan" element={<BusinessPlanLayout />} />
             <Route path="/business-plan/editor" element={<BusinessPlanEditorLayout />} />
-            <Route path="/business-plan/wizard" element={<BusinessPlanOverview />} />
+            <Route path="/business-plan/wizard" element={<BusinessPlanOverviewNew />} />
             <Route path="/business-plan/initial-setup" element={<BusinessPlanWizard />} />
             <Route path="/venture" element={<VentureLayout />} />
             <Route path="/dashboard" element={<DashboardLayout />} />

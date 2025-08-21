@@ -494,6 +494,9 @@ export const translations: Translations = {
     "projectManagement": "Project Management",
     "aiAssistant": "AI Assistant",
     "planThemes": "Plan Themes",
+  "problemSolution": "Problem & Solution",
+  "achievements": "Achievements",
+  "structureOwnership": "Structure & Ownership",
 
   },
   fr: {
@@ -983,6 +986,9 @@ export const translations: Translations = {
     "projectManagement": "Gestion de projet",
     "aiAssistant": "Assistant IA",
     "planThemes": "Thèmes de plan",
+    "problemSolution": "Problème et Solution",
+    "achievements": "Réalisations",
+    "structureOwnership": "Structure et Propriété",
 
   }
 } 
