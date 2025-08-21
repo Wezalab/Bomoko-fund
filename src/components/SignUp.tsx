@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import { FcGoogle } from "react-icons/fc"
+
 import { IoMdArrowRoundBack, IoMdMail } from "react-icons/io"
 import { IoCall } from "react-icons/io5"
-import { MdCancel,  MdOutlinePhone,  } from "react-icons/md"
+import { MdOutlinePhone } from "react-icons/md"
 import { Button } from "./ui/button"
 import { useForm } from "react-hook-form"
 import { Input } from "./ui/input"
@@ -17,7 +17,7 @@ import { initialState, selectSignUpData, setSignUpData, setToken, setUser } from
 import LoadingComponent from "./LoadingComponent"
 import { apiUrl } from "@/lib/env"
 import { handleRTKQueryError } from "@/redux/errorHandler";
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 
 interface signUpProps{
   onClose:any 
@@ -72,45 +72,58 @@ function SignUp({
           const dispatch=useAppDispatch()
     const signUpData=useAppSelector(selectSignUpData)
     
-    const googleLogin = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            try {
-                // Get user info using the access token
-                const userInfoResponse = await fetch(
-                    `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
-                );
-                const userInfo = await userInfoResponse.json();
-                
-                // Create user object for Redux store
-                const userData = {
-                    _id: userInfo.sub,
-                    email: userInfo.email,
-                    name: userInfo.name,
-                    phone_number: '',
-                    bio: '',
-                    location: '',
-                    isGoogleUser: true,
-                    profile: userInfo.picture,
-                    projects: [],
-                    cryptoWallet: []
-                };
+    const handleGoogleSuccess = async (credentialResponse: any) => {
+        try {
+            console.log("Google credential response:", credentialResponse);
+            
+            // Exchange Google ID token for backend user data
+            const backendResponse = await fetch(`${apiUrl}/auth/exchange-google-token`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ googleToken: credentialResponse.credential })
+            });
 
-                // Update Redux store
-                dispatch(setUser(userData));
-                dispatch(setToken(tokenResponse.access_token));
-                
-                toast.success('Successfully signed up with Google!');
-                onClose();
-            } catch (error) {
-                console.error('Error during Google authentication:', error);
-                toast.error('Google authentication failed. Please try again.');
+            if (!backendResponse.ok) {
+                throw new Error(`Backend responded with ${backendResponse.status}`);
             }
-        },
-        onError: (error) => {
-            console.error('Google sign-up failed:', error);
-            toast.error('Google sign-up failed. Please try again.');
-        },
-    });
+
+            const authData = await backendResponse.json();
+            console.log('✅ Google authentication successful:', authData);
+
+            if (authData.success && authData.userId) {
+                // Set user data in Redux with backend user ID
+                dispatch(setUser({
+                    _id: authData.userId, // Use backend user ID
+                    email: authData.user.email,
+                    name: authData.user.name,
+                    phone_number: authData.user.phone || '',
+                    bio: authData.user.bio || '',
+                    location: authData.user.location || '',
+                    isGoogleUser: true,
+                    profile: authData.user.avatar || authData.user.picture,
+                    projects: authData.user.projects || [],
+                    cryptoWallet: authData.user.cryptoWallet || []
+                }));
+
+                // Set JWT token
+                dispatch(setToken(authData.jwtToken || authData.token));
+                
+                toast.success(authData.message || "Signed up successfully!");
+                console.log("Google sign-up success with backend userId:", authData.userId);
+                onClose();
+            } else {
+                throw new Error(authData.message || 'Authentication failed');
+            }
+        } catch (error) {
+            console.error("Error during Google signup:", error);
+            toast.error("Google sign-up failed. Please try again.");
+        }
+    };
+
+    const handleGoogleError = () => {
+        console.error("Google OAuth error");
+        toast.error("Google sign-up failed. Please try again.");
+    };
 
 
       const {
@@ -302,9 +315,7 @@ function SignUp({
       })
     }
 
-    const handleGoogleSignup = () => {
-        googleLogin();
-    };
+
 
     useEffect(()=>{
       if(signUpData.phone  && !signUpData.isVerified){
@@ -343,10 +354,16 @@ function SignUp({
                               <IoCall className="" />
                               <span className="font-semibold">Sign up with a phone number</span>
                           </div>
-                          <button onClick={handleGoogleSignup} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200 w-full">
-                              <FcGoogle className="" />
-                              <span className="font-semibold">Sign up with Google</span>
-                          </button>
+                          <div className="w-full">
+                              <GoogleLogin
+                                  onSuccess={handleGoogleSuccess}
+                                  onError={handleGoogleError}
+                                  size="large"
+                                  width="100%"
+                                  text="signup_with"
+                                  useOneTap={false}
+                              />
+                          </div>
                           <div onClick={()=>setSignWithEmail(true)} className="py-3 cursor-pointer hover:bg-lightBlue hover:text-white flex items-center justify-center space-x-5 rounded-xl border-[2px] border-gray-200">
                               <IoMdMail className="" />
                               <span className="font-semibold">Sign up with email</span>
