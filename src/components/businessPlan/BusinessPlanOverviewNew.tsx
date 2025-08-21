@@ -472,6 +472,59 @@ const BusinessPlanOverviewNew: React.FC = () => {
 
         {/* Main Dashboard Content */}
         <div className="p-8 max-w-4xl mx-auto">
+          {/* Initial Setup Section - At the top */}
+          <div className="mb-8">
+            <div className="space-y-4">
+              {/* Section Title */}
+              <div className="flex items-center space-x-4 mb-6">
+                <h2 className="text-3xl font-bold text-gray-800">Configuration initiale</h2>
+              </div>
+
+              {/* Initial Setup Item */}
+              <div className="space-y-3">
+                <div
+                  className="relative flex items-center p-4 rounded-2xl transition-all duration-300 hover:shadow-lg cursor-pointer transform hover:scale-[1.02] border border-gray-200 shadow-sm"
+                  style={{
+                    background: 'linear-gradient(90deg, #e0f2fe 0%, #e1f3fe 25%, #e2f4fe 50%, #e3f5fe 75%, #e4f6fe 100%)'
+                  }}
+                  onClick={handleInitialSetup}
+                >
+                  {/* Step Number Circle */}
+                  <div className="flex-shrink-0 mr-4">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold bg-white text-gray-700 shadow-md border-2 border-gray-100">
+                      ⚙️
+                    </div>
+                  </div>
+
+                  {/* Item Content */}
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-700">
+                      Configuration initiale
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Plan d'affaires Aug 25
+                    </p>
+                  </div>
+
+                  {/* Time Indicator */}
+                  <div className="flex-shrink-0 ml-4 flex items-center">
+                    <span className="text-base font-semibold mr-3 text-gray-700">
+                      10 Min
+                    </span>
+                    <ChevronLeft className="w-5 h-5 rotate-180 text-gray-700" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section Number Badge */}
+              <div className="flex justify-end mt-4">
+                <div className="text-6xl font-bold text-gray-300 opacity-60">
+                  0
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Business Plan Sections - Image-inspired Design */}
           <div className="space-y-8">
             {sections.map((section) => (
@@ -483,11 +536,11 @@ const BusinessPlanOverviewNew: React.FC = () => {
                 </div>
 
                 {/* Section Items with Exact Image Design */}
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {section.items.map((item) => (
                     <div
                       key={item.id}
-                      className={`relative flex items-center p-5 rounded-2xl transition-all duration-300 ${
+                      className={`relative flex items-center p-3 rounded-2xl transition-all duration-300 ${
                         section.locked 
                           ? 'bg-gray-100 opacity-50 cursor-not-allowed' 
                           : 'hover:shadow-lg cursor-pointer transform hover:scale-[1.02]'
@@ -511,9 +564,9 @@ const BusinessPlanOverviewNew: React.FC = () => {
                       }}
                       onClick={() => !section.locked && handleSectionClick(section)}
                     >
-                      {/* Step Number Circle - Exact match to image */}
-                      <div className="flex-shrink-0 mr-5">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold ${
+                      {/* Step Number Circle - Smaller size */}
+                      <div className="flex-shrink-0 mr-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${
                           section.locked 
                             ? 'bg-gray-300 text-gray-500' 
                             : item.completed 
@@ -521,9 +574,9 @@ const BusinessPlanOverviewNew: React.FC = () => {
                               : 'bg-white text-gray-700 shadow-md border-2 border-gray-100'
                         }`}>
                           {section.locked ? (
-                            <Lock className="w-6 h-6" />
+                            <Lock className="w-5 h-5" />
                           ) : item.completed ? (
-                            <CheckCircle className="w-7 h-7" />
+                            <CheckCircle className="w-6 h-6" />
                           ) : (
                             item.step || 1
                           )}
@@ -532,22 +585,22 @@ const BusinessPlanOverviewNew: React.FC = () => {
 
                       {/* Item Content */}
                       <div className="flex-1">
-                        <h3 className={`text-xl font-bold ${
+                        <h3 className={`text-lg font-bold ${
                           section.locked ? 'text-gray-400' : 'text-white'
                         }`}>
                           {item.title}
                         </h3>
                       </div>
 
-                      {/* Time Indicator - Exact match to image */}
+                      {/* Time Indicator - Smaller size */}
                       {item.time && (
                         <div className="flex-shrink-0 ml-4 flex items-center">
-                          <span className={`text-lg font-semibold mr-3 ${
+                          <span className={`text-base font-semibold mr-3 ${
                             section.locked ? 'text-gray-400' : 'text-white'
                           }`}>
                             {item.time}
                           </span>
-                          <ChevronLeft className={`w-6 h-6 rotate-180 ${
+                          <ChevronLeft className={`w-5 h-5 rotate-180 ${
                             section.locked ? 'text-gray-300' : 'text-white'
                           }`} />
                         </div>
