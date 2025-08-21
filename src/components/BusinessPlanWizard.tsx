@@ -67,7 +67,11 @@ interface FormData {
   [key: string]: string | number;
 }
 
-const BusinessPlanWizard: React.FC = () => {
+interface BusinessPlanWizardProps {
+  onComplete?: () => void;
+}
+
+const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser) as ExtendedUser;
@@ -279,7 +283,11 @@ const BusinessPlanWizard: React.FC = () => {
   const handleFinish = () => {
     // Handle form submission
     console.log('Form Data:', formData);
-    navigate('/dashboard');
+    if (onComplete) {
+      onComplete();
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   const handleNavigation = (path: string) => {
