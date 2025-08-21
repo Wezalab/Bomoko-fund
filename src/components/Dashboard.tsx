@@ -129,33 +129,7 @@ const Dashboard: React.FC = () => {
 
   // Mock plans array - in real app, this would come from Redux store or API
   const [plans, setPlans] = useState<PlanData[]>([
-    {
-      id: '1',
-      name: 'Business Plan Plan 1',
-      businessId: '1',
-      createdAt: '2025-07-12',
-      type: 'Technology Startup',
-      status: 'not_setup',
-      description: 'Initial business plan for TechTribe venture'
-    },
-    {
-      id: '2',
-      name: 'Agriculture Expansion Plan',
-      businessId: '2',
-      createdAt: '2025-06-15',
-      type: 'Growth Strategy',
-      status: 'setup',
-      description: 'Expansion plan for AgriVenture into new markets'
-    },
-    {
-      id: '3',
-      name: 'Tech Product Launch',
-      businessId: '1',
-      createdAt: '2025-07-10',
-      type: 'Product Launch',
-      status: 'completed',
-      description: 'Product launch strategy for TechTribe mobile app'
-    }
+    
   ]);
 
   // Selected items
@@ -272,7 +246,8 @@ const Dashboard: React.FC = () => {
       <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('noPlansCreated')}</h3>
       <p className="text-gray-600 mb-6">{t('createPlanMessage')}</p>
       <button
-        onClick={() => handleNavigation('/business-plan-editor')}
+        // onClick={() => handleNavigation('/business-plan-editor')}
+        onClick={() => handleNavigation('/business-plan/wizard')}
         className="bg-lightBlue hover:bg-lightBlue/90 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center space-x-2"
       >
         <Plus className="w-5 h-5" />
@@ -682,6 +657,7 @@ const Dashboard: React.FC = () => {
                 <div
                   className="bg-lightBlue text-white rounded-lg p-6 hover:bg-lightBlue/90 transition-colors cursor-pointer"
                   onClick={() => handleNavigation('/business-plan-editor')}
+                  // onClick={() => handleNavigation('/business-plan/wizard')}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold">{t('planEditor')}</h3>
