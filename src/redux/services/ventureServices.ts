@@ -30,7 +30,7 @@ export interface Venture extends VentureData {
 
 export const ventureService = splitApi.injectEndpoints({
   endpoints: builder => ({
-    createVenture: builder.mutation<Venture, VentureData & { userId: string }>({
+    createVenture: builder.mutation<Venture, VentureData & { user_id: string; userId?: string }>({
       query(data) {
         console.log("[DEBUG API] Creating venture with data:", data);
         console.log("[DEBUG API] Data userId specifically:", data.userId);

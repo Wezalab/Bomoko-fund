@@ -471,15 +471,12 @@ const VentureWizard: React.FC = () => {
       // Ensure userId is a string (TypeScript requirement)
       const validUserId: string = userId;
       
-      // Prepare venture data for API - PUT userId FIRST to make it priority
+      // Prepare venture data for API - Use user_id as primary since userId is filtered
       const venturePayload = {
-        // Multiple userId fields to ensure at least one gets through
-        userId: validUserId,
-        user_id: validUserId,
-        owner_id: validUserId,
-        creator_id: validUserId,
-        ownerUserId: validUserId,
-        ventureUserId: validUserId,
+        // Use user_id as primary field (userId is being filtered by backend)
+        user_id: validUserId,  // ✅ This field gets through to backend
+        userId: validUserId,   // ❌ This gets filtered but keep for compatibility  
+        owner_id: validUserId, // ✅ Backup field
         
         // Original venture data
         purpose: ventureData.purpose,
