@@ -588,7 +588,8 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
     if (onComplete) {
       onComplete();
     } else {
-      navigate('/dashboard');
+      // Redirect to business plan setup page after completing wizard
+      navigate('/business-plan/setup');
     }
   };
 
