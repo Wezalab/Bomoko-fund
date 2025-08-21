@@ -20,20 +20,20 @@ const BusinessPlanWorkflow: React.FC = () => {
   const steps: Step[] = [
     {
       number: 1,
-      title: 'Setup Business Plan',
-      subtitle: 'Complete the initial questionnaire to set up your business plan structure',
+      title: t('Setup Business Plan'),
+      subtitle: t('Complete the initial questionnaire to set up your business plan structure'),
       status: currentStep === 1 ? 'active' : currentStep > 1 ? 'completed' : 'pending'
     },
     {
       number: 2, 
-      title: 'Complete Business Plan',
-      subtitle: 'Fill in all sections and chapters of your business plan',
+      title: t('Complete Business Plan'),
+      subtitle: t('Fill in all sections and chapters of your business plan'),
       status: currentStep === 2 ? 'active' : currentStep > 2 ? 'completed' : 'pending'
     },
     {
       number: 3,
-      title: 'Download Business Plan',
-      subtitle: 'Export and download your completed business plan',
+      title: t('Download Business Plan'),
+      subtitle: t('Export and download your completed business plan'),
       status: currentStep === 3 ? 'active' : 'pending'
     }
   ];
@@ -62,24 +62,21 @@ const BusinessPlanWorkflow: React.FC = () => {
           <div className="space-y-8">
             <div className="text-center">
               <div className="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-medium mb-4">
-                STEP 1 - {isSetupCompleted ? 'COMPLETED' : 'IN PROGRESS'}
+                {isSetupCompleted ? t('STEP 1 - COMPLETED') : t('STEP 1 - IN PROGRESS')}
               </div>
               <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Setup <span className="text-gray-600">Business Plan</span>
+                {t('Setup')} <span className="text-gray-600">{t('Business Plan')}</span>
               </h1>
               <p className="text-gray-600 max-w-2xl mx-auto">
-                The type of business venture you're involved with on and the kind of business plan you 
-                intend to create dictate the chapters included. The system has selected the most 
-                appropriate chapters and sub-sections for you, but you have the option to modify, add, 
-                or remove chapters as necessary.
+                {t('The type of business venture you\'re involved with on and the kind of business plan you intend to create dictate the chapters included. The system has selected the most appropriate chapters and sub-sections for you, but you have the option to modify, add, or remove chapters as necessary.')}
               </p>
             </div>
 
             <div className="bg-white rounded-lg shadow-sm border p-6 space-y-4">
               <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                 <div>
-                  <h3 className="font-semibold text-gray-900">Business Settings</h3>
-                  <p className="text-sm text-gray-600">Modify fundamental details such as the business name, location and language.</p>
+                  <h3 className="font-semibold text-gray-900">{t('Business Settings')}</h3>
+                  <p className="text-sm text-gray-600">{t('Modify fundamental details such as the business name, location and language.')}</p>
                 </div>
                 <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm">
                   ⚙️
@@ -88,8 +85,8 @@ const BusinessPlanWorkflow: React.FC = () => {
               
               <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                 <div>
-                  <h3 className="font-semibold text-gray-900">Business Plan Setup</h3>
-                  <p className="text-sm text-gray-600">Altering your answers to the setup questions will modify the plan structure but no data will be lost.</p>
+                  <h3 className="font-semibold text-gray-900">{t('Business Plan Setup')}</h3>
+                  <p className="text-sm text-gray-600">{t('Altering your answers to the setup questions will modify the plan structure but no data will be lost.')}</p>
                 </div>
                 <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm">
                   📋
@@ -98,8 +95,8 @@ const BusinessPlanWorkflow: React.FC = () => {
               
               <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                 <div>
-                  <h3 className="font-semibold text-gray-900">New Plan / Business</h3>
-                  <p className="text-sm text-gray-600">You can create additional plans for this business or other businesses from the main menu.</p>
+                  <h3 className="font-semibold text-gray-900">{t('New Plan / Business')}</h3>
+                  <p className="text-sm text-gray-600">{t('You can create additional plans for this business or other businesses from the main menu.')}</p>
                 </div>
                 <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm">
                   ➕
@@ -116,13 +113,13 @@ const BusinessPlanWorkflow: React.FC = () => {
                 <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto text-2xl">
                   ✓
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">Setup Complete!</h3>
-                <p className="text-gray-600">Your business plan structure has been created.</p>
+                <h3 className="text-xl font-semibold text-gray-900">{t('Setup Complete!')}</h3>
+                <p className="text-gray-600">{t('Your business plan structure has been created.')}</p>
                 <button
                   onClick={() => setCurrentStep(2)}
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Continue to Complete Business Plan
+                  {t('Continue to Complete Business Plan')}
                 </button>
               </div>
             )}
@@ -134,15 +131,13 @@ const BusinessPlanWorkflow: React.FC = () => {
           <div className="space-y-8">
             <div className="text-center">
               <div className="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-medium mb-4">
-                STEP 2
+                {t('STEP 2')}
               </div>
               <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Complete <span className="text-gray-600">Business Plan</span>
+                {t('Complete')} <span className="text-gray-600">{t('Business Plan')}</span>
               </h1>
               <p className="text-gray-600 max-w-2xl mx-auto">
-                Each chapter in your business plan is listed below, every chapter has multiple sections. To finalise your 
-                business plan, enter each chapter and complete the sections within. The 'Executive Summary' chapter 
-                should be completed last. You can also select and modify the cover page.
+                {t('Each chapter in your business plan is listed below, every chapter has multiple sections. To finalise your business plan, enter each chapter and complete the sections within. The \'Executive Summary\' chapter should be completed last. You can also select and modify the cover page.')}
               </p>
             </div>
 
@@ -157,13 +152,13 @@ const BusinessPlanWorkflow: React.FC = () => {
           <div className="space-y-8">
             <div className="text-center">
               <div className="inline-flex items-center px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-medium mb-4">
-                STEP 3
+                {t('STEP 3')}
               </div>
               <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                Download <span className="text-gray-600">Business Plan</span>
+                {t('Download')} <span className="text-gray-600">{t('Business Plan')}</span>
               </h1>
               <p className="text-gray-600 max-w-2xl mx-auto">
-                After completing the chapters above, click below to download your business plan.
+                {t('After completing the chapters above, click below to download your business plan.')}
               </p>
             </div>
 
@@ -173,24 +168,24 @@ const BusinessPlanWorkflow: React.FC = () => {
               </div>
               
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Your Business Plan is Ready!</h3>
-                <p className="text-gray-600">Download your professionally formatted business plan document.</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">{t('Your Business Plan is Ready!')}</h3>
+                <p className="text-gray-600">{t('Download your professionally formatted business plan document.')}</p>
               </div>
 
               <div className="space-y-4">
                 <button className="w-full max-w-md px-6 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-lg">
-                  Download Business Plan (PDF)
+                  {t('Download Business Plan (PDF)')}
                 </button>
                 
                 <button className="w-full max-w-md px-6 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
-                  Upgrade Account
+                  {t('Upgrade Account')}
                 </button>
                 
                 <button 
                   onClick={() => navigate('/dashboard')}
                   className="w-full max-w-md px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 transition-colors font-semibold"
                 >
-                  Return to Dashboard
+                  {t('Return to Dashboard')}
                 </button>
               </div>
             </div>
@@ -215,7 +210,7 @@ const BusinessPlanWorkflow: React.FC = () => {
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Back
+              {t('back')}
             </button>
 
             {/* Step Progress */}
