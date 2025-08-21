@@ -30,6 +30,19 @@ const customFetch = (input: RequestInfo | URL, init?: RequestInit): Promise<Resp
     console.log("[DEBUG API] Request method:", init?.method || 'GET');
     console.log("[DEBUG API] Request headers:", init?.headers);
     
+    // Debug request body for POST requests
+    if (init?.method === 'POST' && init?.body) {
+        try {
+            const bodyContent = typeof init.body === 'string' ? init.body : JSON.stringify(init.body);
+            console.log("[DEBUG API] Request body:", bodyContent);
+            const bodyJson = JSON.parse(bodyContent);
+            console.log("[DEBUG API] Request body keys:", Object.keys(bodyJson));
+            console.log("[DEBUG API] Request body userId:", bodyJson.userId);
+        } catch (e) {
+            console.log("[DEBUG API] Request body (non-JSON):", init.body);
+        }
+    }
+    
     return fetch(input, init)
         .then(response => {
             console.log("[DEBUG API] Response status:", response.status);
