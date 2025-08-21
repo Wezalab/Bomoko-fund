@@ -246,6 +246,59 @@ const BusinessPlanOverviewNew: React.FC = () => {
     e.currentTarget.src = profileImage;
   };
 
+  // Function to get unique gradient for each item
+  const getItemGradient = (sectionIndex: number, itemIndex: number) => {
+    const gradients = [
+      // Green variations
+      'linear-gradient(90deg, #b8e6d6 0%, #c1e6d3 25%, #cae6d0 50%, #d3e6cd 75%, #dce6ca 100%)',
+      'linear-gradient(90deg, #a7f3d0 0%, #bbf7d0 25%, #c6f6d5 50%, #d1fae5 75%, #dcfce7 100%)',
+      'linear-gradient(90deg, #86efac 0%, #a3e635 25%, #bef264 50%, #d9f99d 75%, #ecfccb 100%)',
+      
+      // Teal variations  
+      'linear-gradient(90deg, #99f6e4 0%, #a7f3d0 25%, #bbf7d0 50%, #c6f6d5 75%, #d1fae5 100%)',
+      'linear-gradient(90deg, #7dd3fc 0%, #93c5fd 25%, #bfdbfe 50%, #dbeafe 75%, #eff6ff 100%)',
+      
+      // Blue variations
+      'linear-gradient(90deg, #bfdbfe 0%, #c8e1fd 25%, #d1e7fc 50%, #daedfc 75%, #e3f3fb 100%)',
+      'linear-gradient(90deg, #93c5fd 0%, #a5b4fc 25%, #c7d2fe 50%, #e0e7ff 75%, #f0f4ff 100%)',
+      
+      // Purple variations
+      'linear-gradient(90deg, #d8b4fe 0%, #e9d5ff 25%, #f3e8ff 50%, #faf5ff 75%, #fefcff 100%)',
+      'linear-gradient(90deg, #c084fc 0%, #d946ef 25%, #e879f9 50%, #f0abfc 75%, #f5d0fe 100%)',
+      
+      // Pink variations
+      'linear-gradient(90deg, #fce7f3 0%, #fce8f4 25%, #fde9f5 50%, #fdeaf6 75%, #feebf7 100%)',
+      'linear-gradient(90deg, #f9a8d4 0%, #fbb6ce 25%, #fcc2d7 50%, #fccee0 75%, #fdd9e9 100%)',
+      
+      // Yellow variations
+      'linear-gradient(90deg, #fef3c7 0%, #fdf4c9 25%, #fcf5cb 50%, #fbf6cd 75%, #faf7cf 100%)',
+      'linear-gradient(90deg, #fed7aa 0%, #fdba74 25%, #fb923c 50%, #f97316 75%, #ea580c 100%)',
+      
+      // Red variations
+      'linear-gradient(90deg, #fee2e2 0%, #fee3e3 25%, #fee4e4 50%, #fee5e5 75%, #fee6e6 100%)',
+      'linear-gradient(90deg, #fca5a5 0%, #f87171 25%, #ef4444 50%, #dc2626 75%, #b91c1c 100%)',
+      
+      // Additional unique gradients
+      'linear-gradient(90deg, #fde68a 0%, #fbbf24 25%, #f59e0b 50%, #d97706 75%, #b45309 100%)',
+      'linear-gradient(90deg, #a78bfa 0%, #8b5cf6 25%, #7c3aed 50%, #6d28d9 75%, #5b21b6 100%)',
+      'linear-gradient(90deg, #34d399 0%, #10b981 25%, #059669 50%, #047857 75%, #065f46 100%)',
+      'linear-gradient(90deg, #60a5fa 0%, #3b82f6 25%, #2563eb 50%, #1d4ed8 75%, #1e40af 100%)',
+      'linear-gradient(90deg, #f472b6 0%, #ec4899 25%, #db2777 50%, #be185d 75%, #9d174d 100%)',
+      'linear-gradient(90deg, #fb7185 0%, #f43f5e 25%, #e11d48 50%, #be123c 75%, #9f1239 100%)',
+      'linear-gradient(90deg, #facc15 0%, #eab308 25%, #ca8a04 50%, #a16207 75%, #854d0e 100%)',
+      'linear-gradient(90deg, #a3a3a3 0%, #737373 25%, #525252 50%, #404040 75%, #262626 100%)',
+      'linear-gradient(90deg, #67e8f9 0%, #22d3ee 25%, #06b6d4 50%, #0891b2 75%, #0e7490 100%)',
+      'linear-gradient(90deg, #fbbf24 0%, #f59e0b 25%, #d97706 50%, #b45309 75%, #92400e 100%)',
+      'linear-gradient(90deg, #a855f7 0%, #9333ea 25%, #7c3aed 50%, #6d28d9 75%, #5b21b6 100%)',
+      'linear-gradient(90deg, #f97316 0%, #ea580c 25%, #dc2626 50%, #b91c1c 75%, #991b1b 100%)',
+      'linear-gradient(90deg, #84cc16 0%, #65a30d 25%, #4d7c0f 50%, #365314 75%, #1a2e05 100%)'
+    ];
+    
+    // Calculate unique index based on section and item position
+    const uniqueIndex = (sectionIndex * 10 + itemIndex) % gradients.length;
+    return gradients[uniqueIndex];
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left Sidebar - Matching Design */}
@@ -480,6 +533,59 @@ const BusinessPlanOverviewNew: React.FC = () => {
 
         {/* Main Dashboard Content */}
         <div className="p-8 max-w-4xl mx-auto">
+          {/* Initial Setup Section - At the top */}
+          <div className="mb-8">
+            <div className="space-y-4">
+              {/* Section Title */}
+              <div className="flex items-center space-x-4 mb-6">
+                <h2 className="text-3xl font-bold text-gray-800">Configuration initiale</h2>
+              </div>
+
+              {/* Initial Setup Item */}
+              <div className="space-y-2">
+                <div
+                  className="relative flex items-center p-3 rounded-2xl transition-all duration-300 hover:shadow-lg cursor-pointer transform hover:scale-[1.02] border border-gray-200 shadow-sm"
+                  style={{
+                    background: 'linear-gradient(90deg, #e0f2fe 0%, #e1f3fe 25%, #e2f4fe 50%, #e3f5fe 75%, #e4f6fe 100%)'
+                  }}
+                  onClick={handleInitialSetup}
+                >
+                  {/* Step Number Circle */}
+                  <div className="flex-shrink-0 mr-4">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold bg-white text-gray-700 shadow-md border-2 border-gray-100">
+                      ⚙️
+                    </div>
+                  </div>
+
+                  {/* Item Content */}
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-700">
+                      Configuration initiale
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Plan d'affaires Aug 25
+                    </p>
+                  </div>
+
+                  {/* Time Indicator */}
+                  <div className="flex-shrink-0 ml-4 flex items-center">
+                    <span className="text-base font-semibold mr-3 text-gray-700">
+                      10 Min
+                    </span>
+                    <ChevronLeft className="w-5 h-5 rotate-180 text-gray-700" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section Number Badge */}
+              <div className="flex justify-end mt-4">
+                <div className="text-6xl font-bold text-gray-300 opacity-60">
+                  0
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Business Plan Sections - Image-inspired Design */}
           <div className="space-y-8">
             {sections.map((section) => (
@@ -492,7 +598,7 @@ const BusinessPlanOverviewNew: React.FC = () => {
 
                 {/* Section Items with Exact Image Design */}
                 <div className="space-y-2">
-                  {section.items.map((item) => (
+                  {section.items.map((item, itemIndex) => (
                     <div
                       key={item.id}
                       className={`relative flex items-center p-3 rounded-2xl transition-all duration-300 ${
@@ -503,19 +609,7 @@ const BusinessPlanOverviewNew: React.FC = () => {
                       style={{
                         background: section.locked 
                           ? '#f3f4f6' 
-                          : section.color === 'green' 
-                            ? 'linear-gradient(90deg, #b8e6d6 0%, #c1e6d3 25%, #cae6d0 50%, #d3e6cd 75%, #dce6ca 100%)'
-                            : section.color === 'teal'
-                              ? 'linear-gradient(90deg, #b8e6d6 0%, #c1e6d3 25%, #cae6d0 50%, #d3e6cd 75%, #dce6ca 100%)'
-                              : section.color === 'blue'
-                                ? 'linear-gradient(90deg, #bfdbfe 0%, #c8e1fd 25%, #d1e7fc 50%, #daedfc 75%, #e3f3fb 100%)'
-                                : section.color === 'yellow'
-                                  ? 'linear-gradient(90deg, #fef3c7 0%, #fdf4c9 25%, #fcf5cb 50%, #fbf6cd 75%, #faf7cf 100%)'
-                                  : section.color === 'pink'
-                                    ? 'linear-gradient(90deg, #fce7f3 0%, #fce8f4 25%, #fde9f5 50%, #fdeaf6 75%, #feebf7 100%)'
-                                    : section.color === 'red'
-                                      ? 'linear-gradient(90deg, #fee2e2 0%, #fee3e3 25%, #fee4e4 50%, #fee5e5 75%, #fee6e6 100%)'
-                                      : 'linear-gradient(90deg, #f3f4f6 0%, #f4f5f7 25%, #f5f6f8 50%, #f6f7f9 75%, #f7f8fa 100%)'
+                          : getItemGradient(sections.indexOf(section), itemIndex)
                       }}
                       onClick={() => !section.locked && handleSectionClick(section)}
                     >
