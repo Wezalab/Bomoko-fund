@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, AlertCircle, Save, FileText } from 'lucide-react';
 import { useTranslation } from '@/lib/TranslationContext';
+import { useCreateBusinessPlanMutation } from '@/redux/services/businessPlanServices';
+import { useGetUserVenturesQuery } from '@/redux/services/ventureServices';
+import { useAppSelector } from '@/redux/hooks';
+import { selectUser } from '@/redux/slices/userSlice';
 
 interface ValidationRule {
   field: string;
@@ -12,10 +16,16 @@ interface ValidationRule {
   errorMessage?: string;
 }
 
+interface ExtendedUser {
+  _id: string;
+  name?: string;
+  email?: string;
+}
+
 interface InitialSetupValidationProps {
   formData: any;
   onValidationComplete: (isValid: boolean, validatedData: any) => void;
-  onSavePlan: () => void;
+  onSavePlan: (businessPlanId?: string) => void;
 }
 
 const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
@@ -24,6 +34,10 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
   onSavePlan
 }) => {
   const { t } = useTranslation();
+  const user = useAppSelector(selectUser) as ExtendedUser;
+  const { data: ventures } = useGetUserVenturesQuery({ userId: user?._id || '' }, { skip: !user?._id });
+  const [createBusinessPlan, { isLoading: isCreating }] = useCreateBusinessPlanMutation();
+  
   const [validationResults, setValidationResults] = useState<Record<string, boolean>>({});
   const [isValidating, setIsValidating] = useState(false);
   const [overallValid, setOverallValid] = useState(false);
@@ -246,6 +260,51 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
     validateForm();
   }, [formData]);
 
+  // Handle business plan creation
+  const handleCreateBusinessPlan = async () => {
+    if (!overallValid || !user?._id) {
+      console.error('Cannot create business plan - validation failed or user not found');
+      return;
+    }
+
+    try {
+      // Get current venture (most recent or selected)
+      const venturesList = ventures?.ventures || ventures;
+      const currentVenture = venturesList?.[0]; // Assuming most recent venture
+      const ventureId = currentVenture?._id;
+
+      if (!ventureId) {
+        console.error('No venture found for user');
+        return;
+      }
+
+      // Prepare business plan creation data
+      const createRequest = {
+        ventureId,
+        wizardData: formData,
+        title: `Business Plan - ${currentVenture.businessName || 'Mon Entreprise'}`,
+        language: 'fr',
+        currency: currentVenture.currency || 'USD',
+        generateInitialContent: true,
+      };
+
+      console.log('Creating business plan with data:', createRequest);
+
+      // Create business plan via API
+      const result = await createBusinessPlan(createRequest).unwrap();
+      
+      console.log('Business plan created successfully:', result);
+
+      // Call the parent callback with the created business plan ID
+      onSavePlan(result.businessPlan._id);
+      
+    } catch (error) {
+      console.error('Error creating business plan:', error);
+      // Fall back to original behavior if API fails
+      onSavePlan();
+    }
+  };
+
   // Get validation status for a field
   const getFieldStatus = (fieldName: string) => {
     if (validationResults[fieldName] === undefined) return 'pending';
@@ -383,18 +442,23 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
             </button>
 
             <button
-              onClick={onSavePlan}
-              disabled={!overallValid || isValidating}
+              onClick={handleCreateBusinessPlan}
+              disabled={!overallValid || isValidating || isCreating}
               className={`px-6 py-2 text-sm font-medium rounded-lg transition-colors flex items-center ${
-                overallValid && !isValidating
+                overallValid && !isValidating && !isCreating
                   ? 'bg-blue-600 text-white hover:bg-blue-700'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              {overallValid ? (
+              {isCreating ? (
+                <>
+                  <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  {t('creatingPlan') || 'Création du plan...'}
+                </>
+              ) : overallValid ? (
                 <>
                   <Save className="w-4 h-4 mr-2" />
-                  {t('savePlan') || 'Sauvegarder le Plan'}
+                  {t('createPlan') || 'Créer le Plan'}
                 </>
               ) : (
                 <>

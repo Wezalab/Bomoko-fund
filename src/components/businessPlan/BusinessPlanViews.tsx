@@ -13,9 +13,11 @@ import {
   Settings,
   Plus,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  AlertCircle
 } from 'lucide-react';
 import { useTranslation } from '@/lib/TranslationContext';
+import { useGetBusinessPlanQuery, useUpdateSubsectionContentMutation } from '@/redux/services/businessPlanServices';
 import RichTextEditor from './RichTextEditor';
 
 interface BusinessPlanSection {
@@ -60,6 +62,7 @@ type ViewMode = 'structural' | 'document';
 
 interface BusinessPlanViewsProps {
   initialSetupComplete: boolean;
+  businessPlanId?: string | null;
   planData?: any;
   onSectionUpdate: (sectionId: string, content: string) => void;
   onSubsectionUpdate: (sectionId: string, subsectionId: string, content: string) => void;
@@ -67,6 +70,7 @@ interface BusinessPlanViewsProps {
 
 const BusinessPlanViews: React.FC<BusinessPlanViewsProps> = ({
   initialSetupComplete,
+  businessPlanId,
   planData,
   onSectionUpdate,
   onSubsectionUpdate
@@ -77,7 +81,83 @@ const BusinessPlanViews: React.FC<BusinessPlanViewsProps> = ({
   const [activeSubsection, setActiveSubsection] = useState<string>('');
   const [expandedChapters, setExpandedChapters] = useState<Record<number, boolean>>({});
 
-  // Mock data - this would come from API in real implementation
+  // API hooks
+  const { data: businessPlanData, isLoading: isLoadingPlan, error: planError } = useGetBusinessPlanQuery(
+    businessPlanId || '', 
+    { skip: !businessPlanId }
+  );
+  const [updateSubsectionContent] = useUpdateSubsectionContentMutation();
+
+  // Update sections when business plan data is loaded
+  useEffect(() => {
+    if (businessPlanData?.businessPlan?.sections) {
+      console.log('Loading business plan sections from API:', businessPlanData.businessPlan.sections);
+      
+      // Transform API data to match our component interface
+      const transformedSections = businessPlanData.businessPlan.sections.map((section: any, index: number) => ({
+        ...section,
+        chapter: index + 1,
+        order: index,
+        isLocked: !initialSetupComplete,
+        // Add UI colors based on category
+        bgColor: getCategoryBgColor(section.category),
+        borderColor: getCategoryBorderColor(section.category),
+        textColor: getCategoryTextColor(section.category),
+        // Transform subsections
+        subsections: section.subsections?.map((sub: any, subIndex: number) => ({
+          ...sub,
+          step: subIndex + 1
+        })) || []
+      }));
+      
+      setSections(transformedSections);
+    }
+  }, [businessPlanData, initialSetupComplete]);
+
+  // Helper functions for category colors
+  const getCategoryBgColor = (category: string) => {
+    const colorMap: Record<string, string> = {
+      'initial': 'bg-teal-50',
+      'business': 'bg-green-50',
+      'market': 'bg-blue-50',
+      'strategy': 'bg-yellow-50',
+      'operations': 'bg-purple-50',
+      'financial': 'bg-red-50',
+      'legal': 'bg-gray-50',
+      'appendix': 'bg-indigo-50'
+    };
+    return colorMap[category] || 'bg-gray-50';
+  };
+
+  const getCategoryBorderColor = (category: string) => {
+    const colorMap: Record<string, string> = {
+      'initial': 'border-teal-200',
+      'business': 'border-green-200',
+      'market': 'border-blue-200',
+      'strategy': 'border-yellow-200',
+      'operations': 'border-purple-200',
+      'financial': 'border-red-200',
+      'legal': 'border-gray-200',
+      'appendix': 'border-indigo-200'
+    };
+    return colorMap[category] || 'border-gray-200';
+  };
+
+  const getCategoryTextColor = (category: string) => {
+    const colorMap: Record<string, string> = {
+      'initial': 'text-teal-700',
+      'business': 'text-green-700',
+      'market': 'text-blue-700',
+      'strategy': 'text-yellow-700',
+      'operations': 'text-purple-700',
+      'financial': 'text-red-700',
+      'legal': 'text-gray-700',
+      'appendix': 'text-indigo-700'
+    };
+    return colorMap[category] || 'text-gray-700';
+  };
+
+  // Use real data from API or fallback to mock data
   const [sections, setSections] = useState<BusinessPlanSection[]>([
     // Chapter 1: Business Description
     {
@@ -519,11 +599,27 @@ const BusinessPlanViews: React.FC<BusinessPlanViewsProps> = ({
   };
 
   // Handle content updates
-  const handleContentUpdate = (content: string) => {
+  const handleContentUpdate = async (content: string) => {
     if (activeSection && activeSubsection) {
+      // Call parent callback for any additional logic
       onSubsectionUpdate(activeSection, activeSubsection, content);
       
-      // Update local state
+      // Update via API if business plan ID is available
+      if (businessPlanId) {
+        try {
+          await updateSubsectionContent({
+            businessPlanId,
+            sectionId: activeSection,
+            subsectionId: activeSubsection,
+            data: { content }
+          }).unwrap();
+          console.log('Content updated via API successfully');
+        } catch (error) {
+          console.error('Failed to update content via API:', error);
+        }
+      }
+      
+      // Update local state for immediate UI feedback
       setSections(prev => prev.map(section => 
         section.id === activeSection 
           ? {
@@ -770,6 +866,32 @@ const BusinessPlanViews: React.FC<BusinessPlanViewsProps> = ({
       </div>
     );
   };
+
+  // Show loading state while API data is loading
+  if (businessPlanId && isLoadingPlan) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">{t('loadingBusinessPlan') || 'Chargement du plan d\'affaires...'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if API call failed
+  if (businessPlanId && planError) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 mb-4">
+            <AlertCircle className="w-12 h-12 mx-auto mb-2" />
+          </div>
+          <p className="text-gray-600">{t('errorLoadingPlan') || 'Erreur lors du chargement du plan'}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col">

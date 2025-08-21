@@ -466,6 +466,8 @@ export const translations: Translations = {
     "validating": "Validating...",
     "revalidate": "Revalidate",
     "savePlan": "Save Plan",
+    "createPlan": "Create Plan",
+    "creatingPlan": "Creating plan...",
     "completeToContinue": "Complete to continue",
     
     // Business Plan Views
@@ -483,6 +485,8 @@ export const translations: Translations = {
     "planSaved": "Plan Saved",
     "planUnlocked": "Plan Unlocked",
     "loadingPlan": "Loading plan...",
+    "loadingBusinessPlan": "Loading business plan...",
+    "errorLoadingPlan": "Error loading plan",
     "savingPlan": "Saving plan...",
     "pleaseWait": "Please wait while we save your business plan.",
 
@@ -1106,6 +1110,8 @@ export const translations: Translations = {
     "validating": "Validation...",
     "revalidate": "Revalider",
     "savePlan": "Sauvegarder le Plan",
+    "createPlan": "Créer le Plan",
+    "creatingPlan": "Création du plan...",
     "completeToContinue": "Compléter pour continuer",
     
     // Business Plan Views
@@ -1123,6 +1129,8 @@ export const translations: Translations = {
     "planSaved": "Plan sauvegardé",
     "planUnlocked": "Plan débloqué",
     "loadingPlan": "Chargement du plan...",
+    "loadingBusinessPlan": "Chargement du plan d'affaires...",
+    "errorLoadingPlan": "Erreur lors du chargement du plan",
     "savingPlan": "Sauvegarde du plan...",
     "pleaseWait": "Veuillez patienter pendant que nous sauvegardons votre plan d'affaires.",
 

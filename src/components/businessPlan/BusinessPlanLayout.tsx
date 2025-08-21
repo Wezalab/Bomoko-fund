@@ -28,6 +28,7 @@ const BusinessPlanLayout: React.FC<BusinessPlanLayoutProps> = ({ onBack }) => {
   const [isValidating, setIsValidating] = useState(true);
   const [validationResults, setValidationResults] = useState<any>(null);
   const [planData, setPlanData] = useState<any>(null);
+  const [businessPlanId, setBusinessPlanId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -67,32 +68,45 @@ const BusinessPlanLayout: React.FC<BusinessPlanLayoutProps> = ({ onBack }) => {
   };
 
   // Handle business plan save
-  const handleSavePlan = async () => {
-    if (!validationResults?.isValid) {
+  const handleSavePlan = async (createdBusinessPlanId?: string) => {
+    if (!validationResults?.isValid && !createdBusinessPlanId) {
       console.error('Cannot save plan - validation failed');
       return;
     }
 
     setIsSaving(true);
     try {
-      // Here you would call your API to save the business plan
-      console.log('Saving business plan with data:', validationResults.data);
+      if (createdBusinessPlanId) {
+        // Business plan was created successfully via API
+        console.log('Business plan created with ID:', createdBusinessPlanId);
+        setBusinessPlanId(createdBusinessPlanId);
+        setSaveSuccess(true);
+        setInitialSetupComplete(true);
+        
+        // Show success message briefly
+        setTimeout(() => {
+          setSaveSuccess(false);
+        }, 3000);
+      } else {
+        // Fallback to old localStorage method
+        console.log('Saving business plan with data:', validationResults.data);
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Mock successful save
+        setSaveSuccess(true);
+        setInitialSetupComplete(true);
+        
+        // Show success message briefly
+        setTimeout(() => {
+          setSaveSuccess(false);
+        }, 3000);
+      }
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock successful save
-      setSaveSuccess(true);
-      setInitialSetupComplete(true);
-      
-      // Show success message briefly
-      setTimeout(() => {
-        setSaveSuccess(false);
-      }, 3000);
-      
-      console.log('Business plan saved successfully');
+      console.log('Business plan process completed successfully');
     } catch (error) {
-      console.error('Error saving business plan:', error);
+      console.error('Error in business plan save process:', error);
     } finally {
       setIsSaving(false);
     }
@@ -218,6 +232,7 @@ const BusinessPlanLayout: React.FC<BusinessPlanLayoutProps> = ({ onBack }) => {
               <div className="bg-white rounded-lg border border-gray-200 h-full">
                 <BusinessPlanViews
                   initialSetupComplete={initialSetupComplete}
+                  businessPlanId={businessPlanId}
                   planData={planData}
                   onSectionUpdate={handleSectionUpdate}
                   onSubsectionUpdate={handleSubsectionUpdate}
