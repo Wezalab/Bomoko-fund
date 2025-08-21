@@ -494,8 +494,42 @@ const VentureWizard: React.FC = () => {
       console.log('🔍 All payload keys:', Object.keys(venturePayload));
       console.log('🔍 Payload JSON:', JSON.stringify(venturePayload, null, 2));
       
-      // Create venture via API
-      const result = await createVenture(venturePayload).unwrap();
+      // Create venture via API - Try direct fetch to bypass RTK Query issues
+      console.log('🔧 Attempting direct fetch to bypass RTK Query...');
+      
+      let result;
+      
+      try {
+        const directResponse = await fetch(`${apiUrl}/ventures`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(venturePayload)
+        });
+        
+        console.log('🔧 Direct fetch response status:', directResponse.status);
+        console.log('🔧 Direct fetch response ok:', directResponse.ok);
+        
+        if (!directResponse.ok) {
+          const errorData = await directResponse.json();
+          console.log('🔧 Direct fetch error data:', errorData);
+          throw new Error(`Direct API call failed: ${directResponse.status}`);
+        }
+        
+        result = await directResponse.json();
+        console.log('✅ Direct fetch success:', result);
+        
+        // If direct fetch works, we know it's an RTK Query issue
+        
+      } catch (directError) {
+        console.error('❌ Direct fetch also failed:', directError);
+        
+        // Fallback to RTK Query if direct fetch fails
+        console.log('🔄 Falling back to RTK Query...');
+        result = await createVenture(venturePayload).unwrap();
+      }
       
       console.log('✅ Venture created successfully:', result);
       
