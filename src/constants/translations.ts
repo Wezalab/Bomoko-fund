@@ -390,6 +390,14 @@ export const translations: Translations = {
     "q17_subText": "When planning, we group related products rather than creating separate strategies for each individual item. For example, a clothing retailer might use categories like 'Outerwear,' 'Casual Wear,' and 'Accessories' instead of listing every type of jacket, shirt, or belt they sell.<br/><br/>• Focus on the main product lines that define your business<br/>• Identify natural groupings that align with how your customers shop<br/>• Aim for broader categories rather than numerous specific ones<br/>• You can add details of specific products within a group later<br/><br/>Below are suggested grouping options. Click on a suggestion to use that structure as a starting point. You can then refine these groups by adding, removing, or editing categories in the section below to best fit your specific product range.",
     "q18_text": "How should the services offered by the business be grouped?",
     "q18_subText": "When planning, we group related services rather than creating separate strategies for each individual offering. For instance, a fitness studio might use categories like 'Group Classes,' 'Personal Training,' and 'Nutrition Counselling' rather than listing out every type of class or training session they offer.<br/><br/>• Highlight the main service areas that define the business<br/>• Try to identify natural groupings that make sense from your customers' perspective<br/>• Aim for fewer, broader groups rather than numerous specific categories<br/>• You can add details of specific services within a group at a later stage<br/><br/>Below are suggested grouping options. Click on a suggestion to use that structure as a starting point. You can then refine these groups by adding, removing, or editing categories in the section below to best fit your specific offerings.",
+    "q19_text": "When will the forecast start?",
+    "q19_subText": "Select the month and year when your financial projections will begin. This is typically when you expect to start generating revenue or when your business operations will commence.",
+    "q20_text": "What will be the financial year end for forecasts?",
+    "q20_subText": "If the business has not yet set its financial year, you could align the financial year with the calendar year (i.e. choose December as the end date) or choose any other month.",
+    "q21_text": "How many years should the financial forecasts cover?",
+    "q21_subText": "Financial projections in a business plan usually span over a three-year period. This timeframe provides a reasonable snapshot of the company's future financial performance.",
+    "q22_text": "Would you like to include detailed inventory management in your financial forecast?",
+    "q22_subText": "Choosing 'Yes' will add complexity by requiring you to track stock levels, manage reorder points, and integrate inventory directly into your financial projections. Select 'No' for a simpler forecast that does not include these advanced inventory features.",
 
     // Common options
     "yes": "Yes",
@@ -441,6 +449,11 @@ export const translations: Translations = {
     "addServiceGroup": "Add Service Group",
     "enterServiceGroupName": "Enter service group name...",
     "serviceGroups": "Service Groups",
+    "oneYear": "1 Year",
+    "twoYears": "2 Years",
+    "threeYears": "3 Years",
+    "fourYears": "4 Years",
+    "fiveYears": "5 Years",
 
     // Product category examples for different industries
     "webApplication": "Web Application",
@@ -986,6 +999,14 @@ export const translations: Translations = {
     "q17_subText": "Lors de la planification, nous regroupons les produits apparentés plutôt que de créer des stratégies séparées pour chaque article individuel. Par exemple, un détaillant de vêtements pourrait utiliser des catégories comme 'Vêtements d'extérieur', 'Vêtements décontractés' et 'Accessoires' au lieu de lister chaque type de veste, chemise ou ceinture qu'il vend.<br/><br/>• Concentrez-vous sur les principales gammes de produits qui définissent votre entreprise<br/>• Identifiez les regroupements naturels qui s'alignent avec la façon dont vos clients achètent<br/>• Visez des catégories plus larges plutôt que de nombreuses catégories spécifiques<br/>• Vous pouvez ajouter des détails de produits spécifiques dans un groupe plus tard<br/><br/>Ci-dessous sont des options de regroupement suggérées. Cliquez sur une suggestion pour utiliser cette structure comme point de départ. Vous pouvez ensuite affiner ces groupes en ajoutant, supprimant ou modifiant les catégories dans la section ci-dessous pour mieux s'adapter à votre gamme de produits spécifique.",
     "q18_text": "Comment les services offerts par l'entreprise doivent-ils être regroupés ?",
     "q18_subText": "Lors de la planification, nous regroupons les services apparentés plutôt que de créer des stratégies séparées pour chaque offre individuelle. Par exemple, un studio de fitness pourrait utiliser des catégories comme 'Cours Collectifs', 'Entraînement Personnel' et 'Conseil Nutritionnel' plutôt que de lister chaque type de cours ou session d'entraînement qu'il offre.<br/><br/>• Mettez en évidence les principales zones de service qui définissent l'entreprise<br/>• Identifiez les regroupements naturels qui ont du sens du point de vue des clients<br/>• Visez moins de groupes plus larges plutôt que de nombreuses catégories spécifiques<br/>• Vous pouvez ajouter des détails de services spécifiques dans un groupe plus tard<br/><br/>Ci-dessous sont des options de regroupement suggérées. Cliquez sur une suggestion pour utiliser cette structure comme point de départ. Vous pouvez ensuite affiner ces groupes en ajoutant, supprimant ou modifiant les catégories dans la section ci-dessous pour mieux s'adapter à vos offres spécifiques.",
+    "q19_text": "Quand commenceront les prévisions ?",
+    "q19_subText": "Sélectionnez le mois et l'année où vos projections financières commenceront. Il s'agit généralement du moment où vous vous attendez à commencer à générer des revenus ou lorsque vos opérations commerciales commenceront.",
+    "q20_text": "Quelle sera la fin de l'exercice financier pour les prévisions ?",
+    "q20_subText": "Si l'entreprise n'a pas encore défini son exercice financier, vous pourriez aligner l'exercice financier avec l'année civile (c'est-à-dire choisir décembre comme date de fin) ou choisir tout autre mois.",
+    "q21_text": "Combien d'années les prévisions financières doivent-elles couvrir ?",
+    "q21_subText": "Les projections financières dans un plan d'affaires s'étendent généralement sur une période de trois ans. Cette période fournit un aperçu raisonnable de la performance financière future de l'entreprise.",
+    "q22_text": "Souhaitez-vous inclure une gestion détaillée des stocks dans vos prévisions financières ?",
+    "q22_subText": "Choisir 'Oui' ajoutera de la complexité en vous obligeant à suivre les niveaux de stock, gérer les points de réapprovisionnement et intégrer les stocks directement dans vos projections financières. Sélectionnez 'Non' pour une prévision plus simple qui n'inclut pas ces fonctionnalités avancées de gestion des stocks.",
 
     // Common options for BusinessPlanWizard
     "yes": "Oui",
@@ -1037,6 +1058,11 @@ export const translations: Translations = {
     "addServiceGroup": "Ajouter un Groupe de Services",
     "enterServiceGroupName": "Entrez le nom du groupe de services...",
     "serviceGroups": "Groupes de Services",
+    "oneYear": "1 An",
+    "twoYears": "2 Ans",
+    "threeYears": "3 Ans",
+    "fourYears": "4 Ans",
+    "fiveYears": "5 Ans",
 
     // Product category examples for different industries
     "webApplication": "Application web",

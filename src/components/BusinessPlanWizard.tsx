@@ -60,7 +60,7 @@ interface Question {
   number: string;
   text: string;
   subText?: string;
-  type: 'radio' | 'dropdown' | 'text' | 'slider' | 'checkbox' | 'month-year' | 'date-or-unknown' | 'product-grouping' | 'service-grouping';
+  type: 'radio' | 'dropdown' | 'text' | 'slider' | 'checkbox' | 'month-year' | 'date-or-unknown' | 'product-grouping' | 'service-grouping' | 'month-selector';
   options?: string[];
   required?: boolean;
   completed?: boolean;
@@ -272,8 +272,42 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
       required: false
     },
     {
-      id: 'finance_required',
+      id: 'forecast_start_date',
       number: 'Q16',
+      text: t('q19_text'),
+      subText: t('q19_subText'),
+      type: 'month-year',
+      required: false
+    },
+    {
+      id: 'financial_year_end',
+      number: 'Q17',
+      text: t('q20_text'),
+      subText: t('q20_subText'),
+      type: 'month-selector',
+      required: false
+    },
+    {
+      id: 'forecast_years',
+      number: 'Q18',
+      text: t('q21_text'),
+      subText: t('q21_subText'),
+      type: 'radio',
+      options: [t('oneYear'), t('twoYears'), t('threeYears'), t('fourYears'), t('fiveYears')],
+      required: false
+    },
+    {
+      id: 'inventory_management',
+      number: 'Q19',
+      text: t('q22_text'),
+      subText: t('q22_subText'),
+      type: 'radio',
+      options: [t('yes'), t('no')],
+      required: false
+    },
+    {
+      id: 'finance_required',
+      number: 'Q20',
       text: t('q14_text'),
       subText: t('q14_subText'),
       type: 'radio',
@@ -282,7 +316,7 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
     },
     {
       id: 'exit_planned',
-      number: 'Q17',
+      number: 'Q21',
       text: t('q15_text'),
       subText: t('q15_subText'),
       type: 'radio',
@@ -291,7 +325,7 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
     },
     {
       id: 'tone',
-      number: 'Q18',
+      number: 'Q22',
       text: t('q16_text'),
       subText: t('q16_subText'),
       type: 'slider',
@@ -326,6 +360,11 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
     // Q13: Only show if Q12 answer is "Yes" (provides services)
     if (question.id === 'service_grouping') {
       return formData['services_yn'] === t('yes');
+    }
+    
+    // Q16-Q19: Only show if Q15 answer is "Yes" (financial projections)
+    if (['forecast_start_date', 'financial_year_end', 'forecast_years', 'inventory_management'].includes(question.id)) {
+      return formData['financial_model_required_yn'] === t('yes');
     }
     
     return true; // Show all other questions
@@ -790,6 +829,31 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
                 </div>
               </div>
             )}
+          </div>
+        );
+
+      case 'month-selector':
+        const monthOptions = [
+          t('january'), t('february'), t('march'),
+          t('april'), t('may'), t('june'),
+          t('july'), t('august'), t('september'),
+          t('october'), t('november'), t('december')
+        ];
+        
+        return (
+          <div className="space-y-4">
+            <select
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData[question.id] || ''}
+              onChange={(e) => handleInputChange(question.id, e.target.value)}
+            >
+              <option value="">{t('selectMonth')}</option>
+              {monthOptions.map((month, index) => (
+                <option key={index} value={month}>
+                  {month}
+                </option>
+              ))}
+            </select>
           </div>
         );
 
