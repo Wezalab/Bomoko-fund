@@ -88,20 +88,114 @@ const BusinessPlanOverviewNew: React.FC = () => {
   const [sections] = useState<BusinessPlanSection[]>([
     {
       id: 'business-description',
-      title: t('businessDescription') || 'Business Description',
-      description: t('businessDescriptionDesc') || 'Define your business concept, products, and services',
+      title: 'Business Description',
+      description: 'Define your business concept, products, and services',
       completed: false,
       locked: !initialSetupCompleted,
-      color: 'sage',
+      color: 'green',
       bgColor: 'bg-green-50',
       borderColor: 'border-green-100',
       items: [
-        { id: 'overview', title: t('overview') || 'Overview', completed: false, time: '5 Min', step: 1 },
-        { id: 'problem-solution', title: t('problemSolution') || 'Problem & Solution', completed: false, time: '5 Min', step: 2 },
-        { id: 'mission-vision-values', title: t('missionVisionValues') || 'Mission, Vision & Values', completed: false, time: '5 Min', step: 3 },
-        { id: 'intellectual-property', title: t('intellectualProperty') || 'Intellectual Property', completed: false, time: '5 Min', step: 4 },
-        { id: 'achievements', title: t('achievements') || 'Achievements', completed: false, time: '5 Min', step: 5 },
-        { id: 'structure-ownership', title: t('structureOwnership') || 'Structure & Ownership', completed: false, time: '3 Min', step: 6 }
+        { id: 'overview', title: 'Overview', completed: false, time: '5 Min', step: 1 },
+        { id: 'problem-solution', title: 'Problem & Solution', completed: false, time: '5 Min', step: 2 },
+        { id: 'mission-vision-values', title: 'Mission, Vision & Values', completed: false, time: '5 Min', step: 3 },
+        { id: 'intellectual-property', title: 'Intellectual Property', completed: false, time: '5 Min', step: 4 },
+        { id: 'achievements', title: 'Achievements', completed: false, time: '5 Min', step: 5 },
+        { id: 'structure-ownership', title: 'Structure & Ownership', completed: false, time: '3 Min', step: 6 }
+      ]
+    },
+    {
+      id: 'situation-analysis',
+      title: 'Situation Analysis',
+      description: 'Analyze market conditions and competitive landscape',
+      completed: false,
+      locked: !initialSetupCompleted,
+      color: 'teal',
+      bgColor: 'bg-teal-50',
+      borderColor: 'border-teal-100',
+      items: [
+        { id: 'market-products', title: 'Market & Products', completed: false, time: '5 Min', step: 7 },
+        { id: 'market-segments', title: 'Market Segments', completed: false, time: '5 Min', step: 8 },
+        { id: 'buyer-personas', title: 'Buyer Personas', completed: false, time: '5 Min', step: 9 },
+        { id: 'competitors', title: 'Competitors', completed: false, time: '5 Min', step: 10 },
+        { id: 'swot', title: 'SWOT', completed: false, time: '5 Min', step: 11 }
+      ]
+    },
+    {
+      id: 'objectives',
+      title: 'Objectives',
+      description: 'Set clear business goals and targets',
+      completed: false,
+      locked: !initialSetupCompleted,
+      color: 'blue',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-100',
+      items: [
+        { id: 'corporate-objectives', title: 'Corporate Objectives', completed: false, time: '5 Min', step: 12 }
+      ]
+    },
+    {
+      id: 'business-strategy',
+      title: 'Business Strategy',
+      description: 'Define strategic approach and execution plan',
+      completed: false,
+      locked: !initialSetupCompleted,
+      color: 'yellow',
+      bgColor: 'bg-yellow-50',
+      borderColor: 'border-yellow-100',
+      items: [
+        { id: 'strategy-1', title: 'Strategy Item 1', completed: false, time: '5 Min', step: 13 },
+        { id: 'strategy-2', title: 'Strategy Item 2', completed: false, time: '5 Min', step: 14 },
+        { id: 'strategy-3', title: 'Strategy Item 3', completed: false, time: '5 Min', step: 15 },
+        { id: 'strategy-4', title: 'Strategy Item 4', completed: false, time: '5 Min', step: 16 },
+        { id: 'strategy-5', title: 'Strategy Item 5', completed: false, time: '5 Min', step: 17 },
+        { id: 'strategy-6', title: 'Strategy Item 6', completed: false, time: '5 Min', step: 18 }
+      ]
+    },
+    {
+      id: 'funding',
+      title: 'Funding',
+      description: 'Financial requirements and funding strategy',
+      completed: false,
+      locked: !initialSetupCompleted,
+      color: 'pink',
+      bgColor: 'bg-pink-50',
+      borderColor: 'border-pink-100',
+      items: [
+        { id: 'funding-1', title: 'Funding Item 1', completed: false, time: '5 Min', step: 19 },
+        { id: 'funding-2', title: 'Funding Item 2', completed: false, time: '5 Min', step: 20 }
+      ]
+    },
+    {
+      id: 'financial-projections',
+      title: 'Financial Projections',
+      description: 'Revenue, costs, and financial forecasts',
+      completed: false,
+      locked: !initialSetupCompleted,
+      color: 'red',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-100',
+      items: [
+        { id: 'financial-1', title: 'Financial Item 1', completed: false, time: '5 Min', step: 21 },
+        { id: 'financial-2', title: 'Financial Item 2', completed: false, time: '5 Min', step: 22 },
+        { id: 'financial-3', title: 'Financial Item 3', completed: false, time: '5 Min', step: 23 },
+        { id: 'financial-4', title: 'Financial Item 4', completed: false, time: '5 Min', step: 24 },
+        { id: 'financial-5', title: 'Financial Item 5', completed: false, time: '5 Min', step: 25 },
+        { id: 'financial-6', title: 'Financial Item 6', completed: false, time: '5 Min', step: 26 },
+        { id: 'financial-7', title: 'Financial Item 7', completed: false, time: '5 Min', step: 27 }
+      ]
+    },
+    {
+      id: 'executive-summary',
+      title: 'Executive Summary',
+      description: 'High-level overview and key highlights',
+      completed: false,
+      locked: !initialSetupCompleted,
+      color: 'gray',
+      bgColor: 'bg-gray-50',
+      borderColor: 'border-gray-100',
+      items: [
+        { id: 'executive-summary-1', title: 'Executive Summary', completed: false, time: '5 Min', step: 28 }
       ]
     }
   ]);
@@ -401,7 +495,19 @@ const BusinessPlanOverviewNew: React.FC = () => {
                       style={{
                         background: section.locked 
                           ? '#f3f4f6' 
-                          : 'linear-gradient(90deg, #b8e6d6 0%, #c1e6d3 25%, #cae6d0 50%, #d3e6cd 75%, #dce6ca 100%)'
+                          : section.color === 'green' 
+                            ? 'linear-gradient(90deg, #b8e6d6 0%, #c1e6d3 25%, #cae6d0 50%, #d3e6cd 75%, #dce6ca 100%)'
+                            : section.color === 'teal'
+                              ? 'linear-gradient(90deg, #b8e6d6 0%, #c1e6d3 25%, #cae6d0 50%, #d3e6cd 75%, #dce6ca 100%)'
+                              : section.color === 'blue'
+                                ? 'linear-gradient(90deg, #bfdbfe 0%, #c8e1fd 25%, #d1e7fc 50%, #daedfc 75%, #e3f3fb 100%)'
+                                : section.color === 'yellow'
+                                  ? 'linear-gradient(90deg, #fef3c7 0%, #fdf4c9 25%, #fcf5cb 50%, #fbf6cd 75%, #faf7cf 100%)'
+                                  : section.color === 'pink'
+                                    ? 'linear-gradient(90deg, #fce7f3 0%, #fce8f4 25%, #fde9f5 50%, #fdeaf6 75%, #feebf7 100%)'
+                                    : section.color === 'red'
+                                      ? 'linear-gradient(90deg, #fee2e2 0%, #fee3e3 25%, #fee4e4 50%, #fee5e5 75%, #fee6e6 100%)'
+                                      : 'linear-gradient(90deg, #f3f4f6 0%, #f4f5f7 25%, #f5f6f8 50%, #f6f7f9 75%, #f7f8fa 100%)'
                       }}
                       onClick={() => !section.locked && handleSectionClick(section)}
                     >
@@ -448,6 +554,13 @@ const BusinessPlanOverviewNew: React.FC = () => {
                       )}
                     </div>
                   ))}
+                </div>
+
+                {/* Section Number Badge - Like in the image */}
+                <div className="flex justify-end mt-4">
+                  <div className="text-6xl font-bold text-gray-300 opacity-60">
+                    {sections.indexOf(section) + 1}
+                  </div>
                 </div>
 
                 {/* Special overlay for locked sections */}
