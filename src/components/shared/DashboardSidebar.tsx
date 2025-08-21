@@ -89,14 +89,14 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className = "" }) =
   ];
 
   return (
-    <div className={`w-16 bg-teal-700 text-white flex flex-col items-center py-4 ${className}`}>
+    <div className={`w-16 text-white flex flex-col items-center py-4 ${className}`} style={{ backgroundColor: 'rgb(3, 10, 61)' }}>
       {/* Logo Section */}
       <div className="mb-8">
         <div 
           className="w-10 h-10 bg-white rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
           onClick={() => handleNavigation('/dashboard')}
         >
-          <CheckCircle className="w-6 h-6 text-teal-700" />
+          <CheckCircle className="w-6 h-6" style={{ color: 'rgb(3, 10, 61)' }} />
         </div>
       </div>
 
@@ -110,9 +110,24 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className = "" }) =
               onClick={() => handleNavigation(item.path)}
               className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
                 item.active 
-                  ? 'bg-teal-600 text-white' 
-                  : 'hover:bg-teal-600 text-white/80 hover:text-white'
+                  ? 'text-white' 
+                  : 'text-white/80 hover:text-white'
               }`}
+              style={{
+                backgroundColor: item.active 
+                  ? 'rgba(3, 10, 61, 0.8)' 
+                  : 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                if (!item.active) {
+                  e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!item.active) {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }
+              }}
               title={item.label}
             >
               <IconComponent className="w-5 h-5" />

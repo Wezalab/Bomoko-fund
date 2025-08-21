@@ -259,14 +259,14 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left Sidebar */}
-      <div className="w-16 bg-teal-700 text-white flex flex-col items-center py-4">
+      <div className="w-16 text-white flex flex-col items-center py-4" style={{ backgroundColor: 'rgb(3, 10, 61)' }}>
         {/* Logo Section */}
         <div className="mb-8">
           <div 
             className="w-10 h-10 bg-white rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
             onClick={() => handleNavigation('/dashboard')}
           >
-            <Building className="w-6 h-6 text-teal-700" />
+            <Building className="w-6 h-6" style={{ color: 'rgb(3, 10, 61)' }} />
           </div>
         </div>
 
@@ -276,9 +276,24 @@ const Dashboard: React.FC = () => {
             onClick={() => handleNavigation('/dashboard')}
             className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/dashboard') 
-                ? 'bg-teal-600 text-white' 
-                : 'hover:bg-teal-600 text-white/80 hover:text-white'
+                ? 'text-white' 
+                : 'text-white/80 hover:text-white'
             }`}
+            style={{
+              backgroundColor: isActiveRoute('/dashboard') 
+                ? 'rgba(3, 10, 61, 0.8)' 
+                : 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (!isActiveRoute('/dashboard')) {
+                e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActiveRoute('/dashboard')) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
             title={t('home')}
           >
             <Home className="w-5 h-5" />
@@ -291,9 +306,24 @@ const Dashboard: React.FC = () => {
             onClick={() => handleNavigation('/business-plan/wizard')}
             className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/business-plan/wizard') 
-                ? 'bg-teal-600 text-white' 
-                : 'hover:bg-teal-600 text-white/80 hover:text-white'
+                ? 'text-white' 
+                : 'text-white/80 hover:text-white'
             }`}
+            style={{
+              backgroundColor: isActiveRoute('/business-plan/wizard') 
+                ? 'rgba(3, 10, 61, 0.8)' 
+                : 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (!isActiveRoute('/business-plan/wizard')) {
+                e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActiveRoute('/business-plan/wizard')) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
             title={t('addPlan')}
           >
             <FileText className="w-5 h-5" />
@@ -306,9 +336,24 @@ const Dashboard: React.FC = () => {
             onClick={() => handleNavigation('/business-plan-editor')}
             className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/business-plan-editor') 
-                ? 'bg-teal-600 text-white' 
-                : 'hover:bg-teal-600 text-white/80 hover:text-white'
+                ? 'text-white' 
+                : 'text-white/80 hover:text-white'
             }`}
+            style={{
+              backgroundColor: isActiveRoute('/business-plan-editor') 
+                ? 'rgba(3, 10, 61, 0.8)' 
+                : 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (!isActiveRoute('/business-plan-editor')) {
+                e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActiveRoute('/business-plan-editor')) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
             title={t('editPlan')}
           >
             <Edit className="w-5 h-5" />
@@ -321,9 +366,24 @@ const Dashboard: React.FC = () => {
             // onClick={() => handleNavigation('/business-plan')}
             className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/business-plan') 
-                ? 'bg-teal-600 text-white' 
-                : 'hover:bg-teal-600 text-white/80 hover:text-white'
+                ? 'text-white' 
+                : 'text-white/80 hover:text-white'
             }`}
+            style={{
+              backgroundColor: isActiveRoute('/business-plan') 
+                ? 'rgba(3, 10, 61, 0.8)' 
+                : 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (!isActiveRoute('/business-plan')) {
+                e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActiveRoute('/business-plan')) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
             title={t('viewPlan')}
           >
             <Eye className="w-5 h-5" />
@@ -336,9 +396,24 @@ const Dashboard: React.FC = () => {
             onClick={() => handleNavigation('/financials')}
             className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/financials') 
-                ? 'bg-teal-600 text-white' 
-                : 'hover:bg-teal-600 text-white/80 hover:text-white'
+                ? 'text-white' 
+                : 'text-white/80 hover:text-white'
             }`}
+            style={{
+              backgroundColor: isActiveRoute('/financials') 
+                ? 'rgba(3, 10, 61, 0.8)' 
+                : 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (!isActiveRoute('/financials')) {
+                e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActiveRoute('/financials')) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
             title={t('financials')}
           >
             <DollarSign className="w-5 h-5" />
@@ -351,9 +426,24 @@ const Dashboard: React.FC = () => {
             onClick={() => handleNavigation('/users')}
             className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/users') 
-                ? 'bg-teal-600 text-white' 
-                : 'hover:bg-teal-600 text-white/80 hover:text-white'
+                ? 'text-white' 
+                : 'text-white/80 hover:text-white'
             }`}
+            style={{
+              backgroundColor: isActiveRoute('/users') 
+                ? 'rgba(3, 10, 61, 0.8)' 
+                : 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (!isActiveRoute('/users')) {
+                e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActiveRoute('/users')) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
             title={t('users')}
           >
             <Users className="w-5 h-5" />
@@ -366,9 +456,24 @@ const Dashboard: React.FC = () => {
             onClick={() => handleNavigation('/settings')}
             className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group ${
               isActiveRoute('/settings') 
-                ? 'bg-teal-600 text-white' 
-                : 'hover:bg-teal-600 text-white/80 hover:text-white'
+                ? 'text-white' 
+                : 'text-white/80 hover:text-white'
             }`}
+            style={{
+              backgroundColor: isActiveRoute('/settings') 
+                ? 'rgba(3, 10, 61, 0.8)' 
+                : 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              if (!isActiveRoute('/settings')) {
+                e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActiveRoute('/settings')) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
             title={t('settings')}
           >
             <Settings className="w-5 h-5" />

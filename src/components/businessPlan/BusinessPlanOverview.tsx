@@ -249,14 +249,14 @@ const BusinessPlanOverview: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Left Sidebar - Matching Design */}
-      <div className="w-16 bg-teal-700 text-white flex flex-col items-center py-4">
+      <div className="w-16 text-white flex flex-col items-center py-4" style={{ backgroundColor: 'rgb(3, 10, 61)' }}>
         {/* Logo Section */}
         <div className="mb-8">
           <div 
             className="w-10 h-10 bg-white rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors"
             onClick={() => handleNavigation('/dashboard')}
           >
-            <Building className="w-6 h-6 text-teal-700" />
+            <Building className="w-6 h-6" style={{ color: 'rgb(3, 10, 61)' }} />
           </div>
         </div>
 
@@ -264,7 +264,13 @@ const BusinessPlanOverview: React.FC = () => {
         <nav className="flex flex-col space-y-4 flex-1">
           <button
             onClick={() => handleNavigation('/dashboard')}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            className="w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group text-white/80 hover:text-white"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             title={t('home') || 'Home'}
           >
             <Home className="w-5 h-5" />
@@ -275,7 +281,8 @@ const BusinessPlanOverview: React.FC = () => {
           
           <button
             onClick={() => handleNavigation('/business-plan/wizard')}
-            className="w-10 h-10 flex items-center justify-center rounded-lg bg-teal-600 text-white relative group"
+            className="w-10 h-10 flex items-center justify-center rounded-lg text-white relative group"
+            style={{ backgroundColor: 'rgba(3, 10, 61, 0.8)' }}
             title={t('plan') || 'Plan'}
           >
             <FileText className="w-5 h-5" />
@@ -286,7 +293,13 @@ const BusinessPlanOverview: React.FC = () => {
           
           <button
             onClick={() => handleNavigation('/business-plan-editor')}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            className="w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group text-white/80 hover:text-white"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             title={t('editPlan') || 'Edit Plan'}
           >
             <Edit className="w-5 h-5" />
@@ -296,7 +309,13 @@ const BusinessPlanOverview: React.FC = () => {
           </button>
           
           <button
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            className="w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group text-white/80 hover:text-white"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             title={t('viewPlan') || 'View Plan'}
           >
             <Eye className="w-5 h-5" />
@@ -307,7 +326,13 @@ const BusinessPlanOverview: React.FC = () => {
           
           <button
             onClick={() => handleNavigation('/financials')}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            className="w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group text-white/80 hover:text-white"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             title={t('financials') || 'Financials'}
           >
             <DollarSign className="w-5 h-5" />
@@ -318,7 +343,13 @@ const BusinessPlanOverview: React.FC = () => {
           
           <button
             onClick={() => handleNavigation('/users')}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            className="w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group text-white/80 hover:text-white"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             title={t('users') || 'Users'}
           >
             <Users className="w-5 h-5" />
@@ -329,7 +360,13 @@ const BusinessPlanOverview: React.FC = () => {
           
           <button
             onClick={() => handleNavigation('/settings')}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-teal-600 transition-colors relative group"
+            className="w-10 h-10 flex items-center justify-center rounded-lg transition-colors relative group text-white/80 hover:text-white"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(3, 10, 61, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             title={t('settings') || 'Settings'}
           >
             <Settings className="w-5 h-5" />
