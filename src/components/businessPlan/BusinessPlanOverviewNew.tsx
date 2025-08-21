@@ -144,12 +144,12 @@ const BusinessPlanOverviewNew: React.FC = () => {
       bgColor: 'bg-yellow-50',
       borderColor: 'border-yellow-100',
       items: [
-        { id: 'strategy-1', title: 'Strategy Item 1', completed: false, time: '5 Min', step: 13 },
-        { id: 'strategy-2', title: 'Strategy Item 2', completed: false, time: '5 Min', step: 14 },
-        { id: 'strategy-3', title: 'Strategy Item 3', completed: false, time: '5 Min', step: 15 },
-        { id: 'strategy-4', title: 'Strategy Item 4', completed: false, time: '5 Min', step: 16 },
-        { id: 'strategy-5', title: 'Strategy Item 5', completed: false, time: '5 Min', step: 17 },
-        { id: 'strategy-6', title: 'Strategy Item 6', completed: false, time: '5 Min', step: 18 }
+        { id: 'marketing-strategy', title: t('marketingStrategy') || 'Marketing Strategy', completed: false, time: '5 Min', step: 13 },
+        { id: 'sales-strategy', title: t('salesStrategy') || 'Sales Strategy', completed: false, time: '5 Min', step: 14 },
+        { id: 'operational-plan', title: t('operationalPlan') || 'Operational Plan', completed: false, time: '5 Min', step: 15 },
+        { id: 'management-team', title: t('managementTeam') || 'Management Team', completed: false, time: '5 Min', step: 16 },
+        { id: 'risk-analysis', title: t('riskAnalysis') || 'Risk Analysis', completed: false, time: '5 Min', step: 17 },
+        { id: 'implementation-timeline', title: t('implementationTimeline') || 'Implementation Timeline', completed: false, time: '5 Min', step: 18 }
       ]
     },
     {
@@ -162,8 +162,8 @@ const BusinessPlanOverviewNew: React.FC = () => {
       bgColor: 'bg-pink-50',
       borderColor: 'border-pink-100',
       items: [
-        { id: 'funding-1', title: 'Funding Item 1', completed: false, time: '5 Min', step: 19 },
-        { id: 'funding-2', title: 'Funding Item 2', completed: false, time: '5 Min', step: 20 }
+        { id: 'funding-requirements', title: t('fundingRequirements') || 'Funding Requirements', completed: false, time: '5 Min', step: 19 },
+        { id: 'funding-sources', title: t('fundingSources') || 'Funding Sources', completed: false, time: '5 Min', step: 20 }
       ]
     },
     {
@@ -176,13 +176,13 @@ const BusinessPlanOverviewNew: React.FC = () => {
       bgColor: 'bg-red-50',
       borderColor: 'border-red-100',
       items: [
-        { id: 'financial-1', title: 'Financial Item 1', completed: false, time: '5 Min', step: 21 },
-        { id: 'financial-2', title: 'Financial Item 2', completed: false, time: '5 Min', step: 22 },
-        { id: 'financial-3', title: 'Financial Item 3', completed: false, time: '5 Min', step: 23 },
-        { id: 'financial-4', title: 'Financial Item 4', completed: false, time: '5 Min', step: 24 },
-        { id: 'financial-5', title: 'Financial Item 5', completed: false, time: '5 Min', step: 25 },
-        { id: 'financial-6', title: 'Financial Item 6', completed: false, time: '5 Min', step: 26 },
-        { id: 'financial-7', title: 'Financial Item 7', completed: false, time: '5 Min', step: 27 }
+        { id: 'revenue-model', title: t('revenueModel') || 'Revenue Model', completed: false, time: '5 Min', step: 21 },
+        { id: 'cost-structure', title: t('costStructure') || 'Cost Structure', completed: false, time: '5 Min', step: 22 },
+        { id: 'break-even-analysis', title: t('breakEvenAnalysis') || 'Break-even Analysis', completed: false, time: '5 Min', step: 23 },
+        { id: 'cash-flow-projections', title: t('cashFlowProjections') || 'Cash Flow Projections', completed: false, time: '5 Min', step: 24 },
+        { id: 'profit-loss-statement', title: t('profitLossStatement') || 'Profit & Loss Statement', completed: false, time: '5 Min', step: 25 },
+        { id: 'balance-sheet', title: t('balanceSheet') || 'Balance Sheet', completed: false, time: '5 Min', step: 26 },
+        { id: 'financial-ratios', title: t('financialRatios') || 'Financial Ratios', completed: false, time: '5 Min', step: 27 }
       ]
     },
     {
