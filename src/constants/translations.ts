@@ -386,8 +386,10 @@ export const translations: Translations = {
     "q15_subText": "An exit strategy is a plan for wrapping up your involvement in a business. For most people, that means readying the business for a change of owner.",
     "q16_text": "What writing style or tone would you prefer for the business plan?",
     "q16_subText": "The style and tone of your plan can impact how your business is viewed and can influence the decision-making of potential investors or partners. Generally, business plans should maintain a professional and formal tone.",
-    "q17_text": "How should the products/services offered by the business be grouped?",
+    "q17_text": "How should the products offered by the business be grouped?",
     "q17_subText": "When planning, we group related products rather than creating separate strategies for each individual item. For example, a clothing retailer might use categories like 'Outerwear,' 'Casual Wear,' and 'Accessories' instead of listing every type of jacket, shirt, or belt they sell.<br/><br/>• Focus on the main product lines that define your business<br/>• Identify natural groupings that align with how your customers shop<br/>• Aim for broader categories rather than numerous specific ones<br/>• You can add details of specific products within a group later<br/><br/>Below are suggested grouping options. Click on a suggestion to use that structure as a starting point. You can then refine these groups by adding, removing, or editing categories in the section below to best fit your specific product range.",
+    "q18_text": "How should the services offered by the business be grouped?",
+    "q18_subText": "When planning, we group related services rather than creating separate strategies for each individual offering. For instance, a fitness studio might use categories like 'Group Classes,' 'Personal Training,' and 'Nutrition Counselling' rather than listing out every type of class or training session they offer.<br/><br/>• Highlight the main service areas that define the business<br/>• Try to identify natural groupings that make sense from your customers' perspective<br/>• Aim for fewer, broader groups rather than numerous specific categories<br/>• You can add details of specific services within a group at a later stage<br/><br/>Below are suggested grouping options. Click on a suggestion to use that structure as a starting point. You can then refine these groups by adding, removing, or editing categories in the section below to best fit your specific offerings.",
 
     // Common options
     "yes": "Yes",
@@ -436,6 +438,9 @@ export const translations: Translations = {
     "add": "Add",
     "cancel": "Cancel",
     "productGroups": "Product Groups",
+    "addServiceGroup": "Add Service Group",
+    "enterServiceGroupName": "Enter service group name...",
+    "serviceGroups": "Service Groups",
 
     // Product category examples for different industries
     "webApplication": "Web Application",
@@ -977,8 +982,10 @@ export const translations: Translations = {
     "q15_subText": "Une stratégie de sortie est un plan pour terminer votre implication dans une entreprise. Pour la plupart des gens, cela signifie préparer l'entreprise pour un changement de propriétaire.",
     "q16_text": "Quel style d'écriture ou ton préféreriez-vous pour le plan d'affaires ?",
     "q16_subText": "Le style et le ton de votre plan peuvent impacter la façon dont votre entreprise est perçue et peuvent influencer la prise de décision des investisseurs ou partenaires potentiels. Généralement, les plans d'affaires devraient maintenir un ton professionnel et formel.",
-    "q17_text": "Comment les produits/services offerts par l'entreprise doivent-ils être regroupés ?",
+    "q17_text": "Comment les produits offerts par l'entreprise doivent-ils être regroupés ?",
     "q17_subText": "Lors de la planification, nous regroupons les produits apparentés plutôt que de créer des stratégies séparées pour chaque article individuel. Par exemple, un détaillant de vêtements pourrait utiliser des catégories comme 'Vêtements d'extérieur', 'Vêtements décontractés' et 'Accessoires' au lieu de lister chaque type de veste, chemise ou ceinture qu'il vend.<br/><br/>• Concentrez-vous sur les principales gammes de produits qui définissent votre entreprise<br/>• Identifiez les regroupements naturels qui s'alignent avec la façon dont vos clients achètent<br/>• Visez des catégories plus larges plutôt que de nombreuses catégories spécifiques<br/>• Vous pouvez ajouter des détails de produits spécifiques dans un groupe plus tard<br/><br/>Ci-dessous sont des options de regroupement suggérées. Cliquez sur une suggestion pour utiliser cette structure comme point de départ. Vous pouvez ensuite affiner ces groupes en ajoutant, supprimant ou modifiant les catégories dans la section ci-dessous pour mieux s'adapter à votre gamme de produits spécifique.",
+    "q18_text": "Comment les services offerts par l'entreprise doivent-ils être regroupés ?",
+    "q18_subText": "Lors de la planification, nous regroupons les services apparentés plutôt que de créer des stratégies séparées pour chaque offre individuelle. Par exemple, un studio de fitness pourrait utiliser des catégories comme 'Cours Collectifs', 'Entraînement Personnel' et 'Conseil Nutritionnel' plutôt que de lister chaque type de cours ou session d'entraînement qu'il offre.<br/><br/>• Mettez en évidence les principales zones de service qui définissent l'entreprise<br/>• Identifiez les regroupements naturels qui ont du sens du point de vue des clients<br/>• Visez moins de groupes plus larges plutôt que de nombreuses catégories spécifiques<br/>• Vous pouvez ajouter des détails de services spécifiques dans un groupe plus tard<br/><br/>Ci-dessous sont des options de regroupement suggérées. Cliquez sur une suggestion pour utiliser cette structure comme point de départ. Vous pouvez ensuite affiner ces groupes en ajoutant, supprimant ou modifiant les catégories dans la section ci-dessous pour mieux s'adapter à vos offres spécifiques.",
 
     // Common options for BusinessPlanWizard
     "yes": "Oui",
@@ -1027,6 +1034,9 @@ export const translations: Translations = {
     "add": "Ajouter",
     "cancel": "Annuler",
     "productGroups": "Groupes de Produits",
+    "addServiceGroup": "Ajouter un Groupe de Services",
+    "enterServiceGroupName": "Entrez le nom du groupe de services...",
+    "serviceGroups": "Groupes de Services",
 
     // Product category examples for different industries
     "webApplication": "Application web",

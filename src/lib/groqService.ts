@@ -353,7 +353,7 @@ export const generateProductGroupSuggestions = async (businessDescription: strin
     console.log('businessDescription', businessDescription);
     console.log('businessTypes', businessTypes);
     
-    const prompt = `Basé sur la description d'entreprise et les types d'activités suivants, générez 2 ensembles différents de suggestions de regroupement pour organiser les produits/services :
+    const prompt = `Basé sur la description d'entreprise et les types d'activités suivants, générez 2 ensembles différents de suggestions de regroupement pour organiser les produits :
 
 Description de l'entreprise : "${businessDescription}"
 Types d'activités : ${businessTypes.join(', ')}
@@ -362,14 +362,14 @@ CONTEXTE IMPORTANT :
 Lors de la planification, nous regroupons les produits apparentés plutôt que de créer des stratégies séparées pour chaque article individuel. Par exemple, un détaillant de vêtements pourrait utiliser des catégories comme 'Vêtements d'extérieur', 'Vêtements décontractés' et 'Accessoires' au lieu de lister chaque type de veste, chemise ou ceinture qu'il vend.
 
 DIRECTIVES :
-- Concentrez-vous sur les principales gammes de produits/services qui définissent cette entreprise
+- Concentrez-vous sur les principales gammes de produits qui définissent cette entreprise
 - Identifiez les regroupements naturels qui s'alignent avec la façon dont les clients achètent
 - Visez des catégories plus larges plutôt que de nombreuses catégories spécifiques
 - Adaptez au contexte africain francophone (RDC et région)
-- Considérez à la fois les produits physiques ET les services
+- Focalisez-vous UNIQUEMENT sur les produits physiques
 
 Générez 2 stratégies de regroupement différentes :
-1. Premier ensemble : 2-4 catégories principales basées sur la nature des produits/services
+1. Premier ensemble : 2-4 catégories principales basées sur la nature des produits
 2. Deuxième ensemble : 2-4 catégories alternatives basées sur les segments de clientèle ou usage
 
 Retournez UNIQUEMENT un objet JSON dans ce format exact :
@@ -384,7 +384,7 @@ Les catégories doivent être :
 - Professionnelles et claires
 - 2-5 mots maximum chacune
 - En français
-- Couvrir l'essentiel de l'offre sans être trop spécifiques
+- Couvrir l'essentiel de l'offre produit sans être trop spécifiques
 
 N'incluez aucune explication ou texte supplémentaire.`;
 
@@ -409,8 +409,75 @@ N'incluez aucune explication ou texte supplémentaire.`;
     console.error('Error generating product group suggestions:', error);
     // Return fallback suggestions in French for African context
     return {
-      suggestion1: ["Produits Principal", "Services de Base", "Accessoires"],
-      suggestion2: ["Solutions Standard", "Offres Premium", "Support Client"]
+      suggestion1: ["Produits Principal", "Accessoires", "Consommables"],
+      suggestion2: ["Gamme Standard", "Gamme Premium", "Éditions Limitées"]
+    };
+  }
+};
+
+export const generateServiceGroupSuggestions = async (businessDescription: string, businessTypes: string[]) => {
+  try {
+    console.log('businessDescription for services', businessDescription);
+    console.log('businessTypes for services', businessTypes);
+    
+    const prompt = `Basé sur la description d'entreprise et les types d'activités suivants, générez 2 ensembles différents de suggestions de regroupement pour organiser les services :
+
+Description de l'entreprise : "${businessDescription}"
+Types d'activités : ${businessTypes.join(', ')}
+
+CONTEXTE IMPORTANT :
+Lors de la planification, nous regroupons les services apparentés plutôt que de créer des stratégies séparées pour chaque offre individuelle. Par exemple, un studio de fitness pourrait utiliser des catégories comme 'Cours Collectifs', 'Entraînement Personnel' et 'Conseil Nutritionnel' plutôt que de lister chaque type de cours ou session d'entraînement qu'il offre.
+
+DIRECTIVES :
+- Mettez en évidence les principales zones de service qui définissent l'entreprise
+- Identifiez les regroupements naturels qui ont du sens du point de vue des clients
+- Visez moins de groupes plus larges plutôt que de nombreuses catégories spécifiques
+- Adaptez au contexte africain francophone (RDC et région)
+- Focalisez-vous UNIQUEMENT sur les services (actes, performances, usages)
+
+Générez 2 stratégies de regroupement différentes :
+1. Premier ensemble : 2-4 catégories principales basées sur la nature des services
+2. Deuxième ensemble : 2-4 catégories alternatives basées sur les segments de clientèle ou usage
+
+Retournez UNIQUEMENT un objet JSON dans ce format exact :
+{
+  "suggestion1": ["Catégorie 1", "Catégorie 2", "Catégorie 3"],
+  "suggestion2": ["Alternative 1", "Alternative 2", "Alternative 3"]
+}
+
+Les catégories doivent être :
+- Spécifiques et pertinentes pour l'entreprise décrite
+- Adaptées au marché africain francophone
+- Professionnelles et claires
+- 2-5 mots maximum chacune
+- En français
+- Couvrir l'essentiel des services sans être trop spécifiques
+
+N'incluez aucune explication ou texte supplémentaire.`;
+
+    const response = await getChatCompletion(prompt);
+
+    const content = response.choices[0]?.message?.content?.trim();
+    if (!content) {
+      throw new Error('No content received from AI');
+    }
+
+    // Parse the JSON response
+    const suggestions = JSON.parse(content);
+    
+    // Validate the structure
+    if (!suggestions.suggestion1 || !suggestions.suggestion2 || 
+        !Array.isArray(suggestions.suggestion1) || !Array.isArray(suggestions.suggestion2)) {
+      throw new Error('AI response structure is invalid');
+    }
+
+    return suggestions;
+  } catch (error) {
+    console.error('Error generating service group suggestions:', error);
+    // Return fallback suggestions in French for African context
+    return {
+      suggestion1: ["Conseil", "Formation", "Support"],
+      suggestion2: ["Services Basiques", "Services Premium", "Services Spécialisés"]
     };
   }
 }; 

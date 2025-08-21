@@ -17,7 +17,9 @@ import {
   ChevronDown,
   LogOut,
   ChevronLeft,
-  X
+  X,
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import profileImage from '../assets/profileImage.png';
 import {
@@ -29,6 +31,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTranslation } from '@/lib/TranslationContext';
+import { generateProductGroupSuggestions, generateServiceGroupSuggestions } from '@/lib/groqService';
 
 interface ExtendedUser {
   _id: string;
@@ -57,7 +60,7 @@ interface Question {
   number: string;
   text: string;
   subText?: string;
-  type: 'radio' | 'dropdown' | 'text' | 'slider' | 'checkbox';
+  type: 'radio' | 'dropdown' | 'text' | 'slider' | 'checkbox' | 'month-year' | 'date-or-unknown' | 'product-grouping' | 'service-grouping';
   options?: string[];
   required?: boolean;
   completed?: boolean;
@@ -80,10 +83,30 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>({});
   const [showMobileSteps, setShowMobileSteps] = useState(false);
+  
+  // Product grouping states
+  const [isLoadingProductSuggestions, setIsLoadingProductSuggestions] = useState(false);
+  const [productSuggestions, setProductSuggestions] = useState<{
+    suggestion1: string[];
+    suggestion2: string[];
+  } | null>(null);
+  const [showAddProductField, setShowAddProductField] = useState(false);
+  const [newProductGroup, setNewProductGroup] = useState('');
+  const [selectedProductGroups, setSelectedProductGroups] = useState<string[]>([]);
+
+  // Service grouping states
+  const [isLoadingServiceSuggestions, setIsLoadingServiceSuggestions] = useState(false);
+  const [serviceSuggestions, setServiceSuggestions] = useState<{
+    suggestion1: string[];
+    suggestion2: string[];
+  } | null>(null);
+  const [showAddServiceField, setShowAddServiceField] = useState(false);
+  const [newServiceGroup, setNewServiceGroup] = useState('');
+  const [selectedServiceGroups, setSelectedServiceGroups] = useState<string[]>([]);
 
   const questions: Question[] = [
     {
-      id: 'established_yn',
+      id: 'established_business',
       number: 'Q1',
       text: t('q1_text'),
       subText: t('q1_subText'),
@@ -92,78 +115,76 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
       required: true
     },
     {
-      id: 'established_anticipated',
+      id: 'business_established_date',
       number: 'Q2',
       text: t('q2_text'),
       subText: t('q2_subText'),
-      type: 'dropdown',
-      options: ['2024', '2025', '2026', '2027', '2028'],
+      type: 'month-year',
+      required: false
+    },
+    {
+      id: 'business_planned_date',
+      number: 'Q3',
+      text: t('q3_text'),
+      subText: t('q3_subText'),
+      type: 'date-or-unknown',
       required: false
     },
     {
       id: 'plan_type',
-      number: 'Q3',
-      text: t('q3_text'),
-      subText: t('q3_subText'),
+      number: 'Q4',
+      text: t('q4_text'),
+      subText: t('q4_subText'),
       type: 'radio',
       options: [t('fullBusinessPlan'), t('basicBusinessPlan')],
       required: true
     },
     {
       id: 'structure',
-      number: 'Q4',
-      text: t('q4_text'),
-      subText: t('q4_subText'),
+      number: 'Q5',
+      text: t('q5_text'),
+      subText: t('q5_subText'),
       type: 'radio',
       options: [t('soleProprietorship'), t('partnership'), t('llp'), t('trust'), t('corporation'), t('nonprofit')],
       required: true
     },
     {
       id: 'staff',
-      number: 'Q5',
-      text: t('q5_text'),
-      subText: t('q5_subText'),
+      number: 'Q6',
+      text: t('q6_text'),
+      subText: t('q6_subText'),
       type: 'radio',
       options: [t('yes'), t('no')],
       required: true
     },
     {
       id: 'staff_future',
-      number: 'Q6',
-      text: t('q6_text'),
-      subText: t('q6_subText'),
+      number: 'Q7',
+      text: t('q7_text'),
+      subText: t('q7_subText'),
       type: 'radio',
       options: [t('yes'), t('no')],
       required: false
     },
     {
       id: 'location',
-      number: 'Q7',
-      text: t('q7_text'),
-      subText: t('q7_subText'),
+      number: 'Q8',
+      text: t('q8_text'),
+      subText: t('q8_subText'),
       type: 'text',
       required: false
     },
     {
       id: 'area_served',
-      number: 'Q8',
-      text: t('q8_text'),
-      subText: t('q8_subText'),
+      number: 'Q9',
+      text: t('q9_text'),
+      subText: t('q9_subText'),
       type: 'radio',
       options: [t('localArea'), t('national'), t('international'), t('other')],
       required: false
     },
     {
       id: 'products_yn',
-      number: 'Q9',
-      text: t('q9_text'),
-      subText: t('q9_subText'),
-      type: 'radio',
-      options: [t('yes'), t('no')],
-      required: false
-    },
-    {
-      id: 'services_yn',
       number: 'Q10',
       text: t('q10_text'),
       subText: t('q10_subText'),
@@ -172,8 +193,16 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
       required: false
     },
     {
-      id: 'proprietary_IP',
+      id: 'product_grouping',
       number: 'Q11',
+      text: t('q17_text'),
+      subText: t('q17_subText'),
+      type: 'product-grouping',
+      required: false
+    },
+    {
+      id: 'services_yn',
+      number: 'Q12',
       text: t('q11_text'),
       subText: t('q11_subText'),
       type: 'radio',
@@ -181,26 +210,34 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
       required: false
     },
     {
-      id: 'financial_model_required_yn',
-      number: 'Q12',
+      id: 'service_grouping',
+      number: 'Q13',
+      text: t('q18_text'),
+      subText: t('q18_subText'),
+      type: 'service-grouping',
+      required: false
+    },
+    {
+      id: 'proprietary_IP',
+      number: 'Q14',
       text: t('q12_text'),
       subText: t('q12_subText'),
+      type: 'radio',
+      options: [t('yes'), t('no')],
+      required: false
+    },
+    {
+      id: 'financial_model_required_yn',
+      number: 'Q15',
+      text: t('q13_text'),
+      subText: t('q13_subText'),
       type: 'radio',
       options: [t('no'), t('yes')],
       required: false
     },
     {
       id: 'finance_required',
-      number: 'Q13',
-      text: t('q13_text'),
-      subText: t('q13_subText'),
-      type: 'radio',
-      options: [t('yes'), t('no')],
-      required: false
-    },
-    {
-      id: 'exit_planned',
-      number: 'Q14',
+      number: 'Q16',
       text: t('q14_text'),
       subText: t('q14_subText'),
       type: 'radio',
@@ -208,10 +245,19 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
       required: false
     },
     {
-      id: 'tone',
-      number: 'Q15',
+      id: 'exit_planned',
+      number: 'Q17',
       text: t('q15_text'),
       subText: t('q15_subText'),
+      type: 'radio',
+      options: [t('yes'), t('no')],
+      required: false
+    },
+    {
+      id: 'tone',
+      number: 'Q18',
+      text: t('q16_text'),
+      subText: t('q16_subText'),
       type: 'slider',
       required: false
     }
@@ -221,14 +267,29 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
   const shouldShowQuestion = (questionIndex: number): boolean => {
     const question = questions[questionIndex];
     
-    // Q2: Only show if Q1 answer is "No"
-    if (question.id === 'established_anticipated') {
-      return formData['established_yn'] === t('no');
+    // Q2: Only show if Q1 answer is "Yes" (established business)
+    if (question.id === 'business_established_date') {
+      return formData['established_business'] === t('yes');
     }
     
-    // Q6: Only show if Q5 answer is "No"  
+    // Q3: Only show if Q1 answer is "No" (not established business)
+    if (question.id === 'business_planned_date') {
+      return formData['established_business'] === t('no');
+    }
+    
+    // Q7: Only show if Q6 answer is "No"  
     if (question.id === 'staff_future') {
       return formData['staff'] === t('no');
+    }
+    
+    // Q11: Only show if Q10 answer is "Yes" (sells products)
+    if (question.id === 'product_grouping') {
+      return formData['products_yn'] === t('yes');
+    }
+    
+    // Q13: Only show if Q12 answer is "Yes" (provides services)
+    if (question.id === 'service_grouping') {
+      return formData['services_yn'] === t('yes');
     }
     
     return true; // Show all other questions
@@ -280,9 +341,103 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
     }
   };
 
+  const generateProductSuggestions = async () => {
+    // Get business description from previous wizard or use a generic one
+    const businessDescription = formData['business_description'] || 
+      localStorage.getItem('businessDescription') || 
+      'General business offering products and services';
+    
+    const businessTypes = formData['business_types'] || 
+      JSON.parse(localStorage.getItem('businessTypes') || '[]');
+      
+    setIsLoadingProductSuggestions(true);
+    try {
+      const suggestions = await generateProductGroupSuggestions(
+      businessDescription.toString(), 
+      Array.isArray(businessTypes) ? businessTypes : []
+    );
+      setProductSuggestions(suggestions);
+    } catch (error) {
+      console.error('Error generating product suggestions:', error);
+    } finally {
+      setIsLoadingProductSuggestions(false);
+    }
+  };
+
+  const generateServiceSuggestions = async () => {
+    // Get business description from previous wizard or use a generic one
+    const businessDescription = formData['business_description'] || 
+      localStorage.getItem('businessDescription') || 
+      'General business offering services';
+    
+    const businessTypes = formData['business_types'] || 
+      JSON.parse(localStorage.getItem('businessTypes') || '[]');
+      
+    setIsLoadingServiceSuggestions(true);
+    try {
+      const suggestions = await generateServiceGroupSuggestions(
+      businessDescription.toString(), 
+      Array.isArray(businessTypes) ? businessTypes : []
+    );
+      setServiceSuggestions(suggestions);
+    } catch (error) {
+      console.error('Error generating service suggestions:', error);
+    } finally {
+      setIsLoadingServiceSuggestions(false);
+    }
+  };
+
+  const selectProductGroup = (group: string) => {
+    if (!selectedProductGroups.includes(group)) {
+      setSelectedProductGroups([...selectedProductGroups, group]);
+    }
+  };
+
+  const selectAllFromSuggestion = (suggestionGroups: string[]) => {
+    const newGroups = suggestionGroups.filter(group => !selectedProductGroups.includes(group));
+    setSelectedProductGroups([...selectedProductGroups, ...newGroups]);
+  };
+
+  const addCustomProductGroup = () => {
+    if (newProductGroup.trim() && !selectedProductGroups.includes(newProductGroup.trim())) {
+      setSelectedProductGroups([...selectedProductGroups, newProductGroup.trim()]);
+      setNewProductGroup('');
+      setShowAddProductField(false);
+    }
+  };
+
+  const removeProductGroup = (group: string) => {
+    setSelectedProductGroups(selectedProductGroups.filter(g => g !== group));
+  };
+
+  const selectServiceGroup = (group: string) => {
+    if (!selectedServiceGroups.includes(group)) {
+      setSelectedServiceGroups([...selectedServiceGroups, group]);
+    }
+  };
+
+  const selectAllFromServiceSuggestion = (suggestionGroups: string[]) => {
+    const newGroups = suggestionGroups.filter(group => !selectedServiceGroups.includes(group));
+    setSelectedServiceGroups([...selectedServiceGroups, ...newGroups]);
+  };
+
+  const addCustomServiceGroup = () => {
+    if (newServiceGroup.trim() && !selectedServiceGroups.includes(newServiceGroup.trim())) {
+      setSelectedServiceGroups([...selectedServiceGroups, newServiceGroup.trim()]);
+      setNewServiceGroup('');
+      setShowAddServiceField(false);
+    }
+  };
+
+  const removeServiceGroup = (group: string) => {
+    setSelectedServiceGroups(selectedServiceGroups.filter(g => g !== group));
+  };
+
   const handleFinish = () => {
     // Handle form submission
     console.log('Form Data:', formData);
+    console.log('Selected Product Groups:', selectedProductGroups);
+    console.log('Selected Service Groups:', selectedServiceGroups);
     if (onComplete) {
       onComplete();
     } else {
@@ -331,6 +486,14 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
   };
 
   const renderQuestionInput = (question: Question) => {
+    const months = [
+      t('january'), t('february'), t('march'), t('april'), 
+      t('may'), t('june'), t('july'), t('august'),
+      t('september'), t('october'), t('november'), t('december')
+    ];
+    
+    const years = Array.from({length: 25}, (_, i) => 2000 + i);
+    
     switch (question.type) {
       case 'radio':
         return (
@@ -376,6 +539,76 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
           />
         );
       
+      case 'month-year':
+        return (
+          <div className="flex gap-4">
+            <select
+              className="form-control flex-1"
+              value={formData[question.id + '_month'] || ''}
+              onChange={(e) => handleInputChange(question.id + '_month', e.target.value)}
+            >
+              <option value="">{t('selectMonth')}</option>
+              {months.map((month, index) => (
+                <option key={index} value={month}>{month}</option>
+              ))}
+            </select>
+            <select
+              className="form-control flex-1"
+              value={formData[question.id + '_year'] || ''}
+              onChange={(e) => handleInputChange(question.id + '_year', e.target.value)}
+            >
+              <option value="">{t('selectYear')}</option>
+              {years.map(year => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+        );
+      
+      case 'date-or-unknown':
+        return (
+          <div className="space-y-4">
+            <div className="radio-options">
+              <label className={`radio ${formData[question.id] === t('unknown') ? 'active' : ''}`}>
+                <input
+                  type="radio"
+                  name={question.id}
+                  value={t('unknown')}
+                  checked={formData[question.id] === t('unknown')}
+                  onChange={(e) => handleInputChange(question.id, e.target.value)}
+                  className="hidden"
+                />
+                <div>{t('unknown')}</div>
+              </label>
+            </div>
+            <div className="text-sm text-gray-600 mb-2">{t('orSelectMonthYear')}</div>
+            <div className="flex gap-4">
+              <select
+                className="form-control flex-1"
+                value={formData[question.id + '_month'] || ''}
+                onChange={(e) => handleInputChange(question.id + '_month', e.target.value)}
+                disabled={formData[question.id] === t('unknown')}
+              >
+                <option value="">{t('selectMonth')}</option>
+                {months.map((month, index) => (
+                  <option key={index} value={month}>{month}</option>
+                ))}
+              </select>
+              <select
+                className="form-control flex-1"
+                value={formData[question.id + '_year'] || ''}
+                onChange={(e) => handleInputChange(question.id + '_year', e.target.value)}
+                disabled={formData[question.id] === t('unknown')}
+              >
+                <option value="">{t('selectYear')}</option>
+                {years.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        );
+      
       case 'slider':
         return (
           <div className="slider-container">
@@ -392,6 +625,288 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
               <small>Casual</small>
               <small>Formal</small>
             </div>
+          </div>
+        );
+        
+      case 'product-grouping':
+        const renderProductTags = (categories: string[], suggestionName: string) => (
+          <div className="space-y-3">
+            <div className="font-semibold text-gray-800">{suggestionName}</div>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category, index) => (
+                <button
+                  key={index}
+                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm border hover:bg-gray-200 transition-colors cursor-pointer"
+                  onClick={() => selectProductGroup(category)}
+                >
+                  {category}
+                </button>
+              ))}
+              <button 
+                className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm border hover:bg-gray-200 transition-colors flex items-center gap-1"
+                onClick={() => selectAllFromSuggestion(categories)}
+              >
+                + {t('all')}
+              </button>
+            </div>
+          </div>
+        );
+        
+        return (
+          <div className="space-y-6">
+            {/* Generate Suggestions Button */}
+            {!productSuggestions && !isLoadingProductSuggestions && (
+              <div className="text-center">
+                <button 
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto"
+                  onClick={generateProductSuggestions}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {t('generateAISuggestions')}
+                </button>
+              </div>
+            )}
+            
+            {/* Loading State */}
+            {isLoadingProductSuggestions && (
+              <div className="text-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-600" />
+                <p className="text-gray-600 mt-2">{t('generatingSuggestions')}</p>
+              </div>
+            )}
+            
+            {/* AI Suggestions */}
+            {productSuggestions && (
+              <>
+                {/* Suggestion 1 */}
+                <div className="p-4 border rounded-lg">
+                  {renderProductTags(productSuggestions.suggestion1, t('suggestion1'))}
+                </div>
+                
+                {/* Suggestion 2 */}
+                <div className="p-4 border rounded-lg">
+                  {renderProductTags(productSuggestions.suggestion2, t('suggestion2'))}
+                </div>
+                
+                {/* Suggest More Button */}
+                <div className="text-center">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 font-medium"
+                    onClick={generateProductSuggestions}
+                  >
+                    {t('suggestMore')}
+                  </button>
+                </div>
+              </>
+            )}
+            
+            {/* Manual Entry Section */}
+            <div className="p-4 border-2 border-blue-500 rounded-lg">
+              {!showAddProductField ? (
+                <button 
+                  className="w-full text-left"
+                  onClick={() => setShowAddProductField(true)}
+                >
+                  <div className="font-semibold text-blue-600 mb-2">{t('addProductGroup')}</div>
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <div className="font-semibold text-blue-600">{t('addProductGroup')}</div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder={t('enterProductGroupName')}
+                      value={newProductGroup}
+                      onChange={(e) => setNewProductGroup(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addCustomProductGroup()}
+                      autoFocus
+                    />
+                    <button
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      onClick={addCustomProductGroup}
+                    >
+                      {t('add')}
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                      onClick={() => {
+                        setShowAddProductField(false);
+                        setNewProductGroup('');
+                      }}
+                    >
+                      {t('cancel')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Selected Product Groups Display */}
+            {selectedProductGroups.length > 0 && (
+              <div className="mt-4 p-4 bg-yellow-50 rounded-lg">
+                <div className="text-sm text-gray-700 mb-3 font-semibold">
+                  {t('selected')} {t('productGroups')}:
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProductGroups.map((group, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-yellow-200 text-yellow-800 rounded-full text-sm flex items-center gap-2"
+                    >
+                      {group}
+                      <button
+                        onClick={() => removeProductGroup(group)}
+                        className="text-yellow-600 hover:text-yellow-800"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case 'service-grouping':
+        const renderServiceTags = (categories: string[], suggestionName: string) => (
+          <div className="space-y-3">
+            <div className="font-semibold text-gray-800">{suggestionName}</div>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category, index) => (
+                <button
+                  key={index}
+                  className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm border hover:bg-gray-200 transition-colors cursor-pointer"
+                  onClick={() => selectServiceGroup(category)}
+                >
+                  {category}
+                </button>
+              ))}
+              <button 
+                className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm border hover:bg-gray-200 transition-colors flex items-center gap-1"
+                onClick={() => selectAllFromServiceSuggestion(categories)}
+              >
+                + {t('all')}
+              </button>
+            </div>
+          </div>
+        );
+        
+        return (
+          <div className="space-y-6">
+            {/* Generate Suggestions Button */}
+            {!serviceSuggestions && !isLoadingServiceSuggestions && (
+              <div className="text-center">
+                <button 
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 mx-auto"
+                  onClick={generateServiceSuggestions}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {t('generateAISuggestions')}
+                </button>
+              </div>
+            )}
+            
+            {/* Loading State */}
+            {isLoadingServiceSuggestions && (
+              <div className="text-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-600" />
+                <p className="text-gray-600 mt-2">{t('generatingSuggestions')}</p>
+              </div>
+            )}
+            
+            {/* AI Suggestions */}
+            {serviceSuggestions && (
+              <>
+                {/* Suggestion 1 */}
+                <div className="p-4 border rounded-lg">
+                  {renderServiceTags(serviceSuggestions.suggestion1, t('suggestion1'))}
+                </div>
+                
+                {/* Suggestion 2 */}
+                <div className="p-4 border rounded-lg">
+                  {renderServiceTags(serviceSuggestions.suggestion2, t('suggestion2'))}
+                </div>
+                
+                {/* Suggest More Button */}
+                <div className="text-center">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 font-medium"
+                    onClick={generateServiceSuggestions}
+                  >
+                    {t('suggestMore')}
+                  </button>
+                </div>
+              </>
+            )}
+            
+            {/* Manual Entry Section */}
+            <div className="p-4 border-2 border-blue-500 rounded-lg">
+              {!showAddServiceField ? (
+                <button 
+                  className="w-full text-left"
+                  onClick={() => setShowAddServiceField(true)}
+                >
+                  <div className="font-semibold text-blue-600 mb-2">{t('addServiceGroup')}</div>
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <div className="font-semibold text-blue-600">{t('addServiceGroup')}</div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder={t('enterServiceGroupName')}
+                      value={newServiceGroup}
+                      onChange={(e) => setNewServiceGroup(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && addCustomServiceGroup()}
+                      autoFocus
+                    />
+                    <button
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      onClick={addCustomServiceGroup}
+                    >
+                      {t('add')}
+                    </button>
+                    <button
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                      onClick={() => {
+                        setShowAddServiceField(false);
+                        setNewServiceGroup('');
+                      }}
+                    >
+                      {t('cancel')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Selected Service Groups Display */}
+            {selectedServiceGroups.length > 0 && (
+              <div className="mt-4 p-4 bg-green-50 rounded-lg">
+                <div className="text-sm text-gray-700 mb-3 font-semibold">
+                  {t('selected')} {t('serviceGroups')}:
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {selectedServiceGroups.map((group, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm flex items-center gap-2"
+                    >
+                      {group}
+                      <button
+                        onClick={() => removeServiceGroup(group)}
+                        className="text-green-600 hover:text-green-800"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         );
       
