@@ -33,10 +33,15 @@ export const ventureService = splitApi.injectEndpoints({
     createVenture: builder.mutation<Venture, VentureData & { userId: string }>({
       query(data) {
         console.log("[DEBUG API] Creating venture with data:", data);
+        console.log("[DEBUG API] Data userId specifically:", data.userId);
+        console.log("[DEBUG API] Data keys:", Object.keys(data));
         return {
           url: "/ventures",
           method: "POST",
-          body: data
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)  // Explicitly stringify the body
         }
       },
       transformResponse: (response: any) => {
