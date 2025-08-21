@@ -88,56 +88,56 @@ const BusinessPlanOverviewNew: React.FC = () => {
   const [sections] = useState<BusinessPlanSection[]>([
     {
       id: 'business-description',
-      title: 'Business Description',
-      description: 'Define your business concept, products, and services',
+      title: t('businessDescription') || 'Business Description',
+      description: t('businessDescriptionDesc') || 'Define your business concept, products, and services',
       completed: false,
       locked: !initialSetupCompleted,
       color: 'green',
       bgColor: 'bg-green-50',
       borderColor: 'border-green-100',
       items: [
-        { id: 'overview', title: 'Overview', completed: false, time: '5 Min', step: 1 },
-        { id: 'problem-solution', title: 'Problem & Solution', completed: false, time: '5 Min', step: 2 },
-        { id: 'mission-vision-values', title: 'Mission, Vision & Values', completed: false, time: '5 Min', step: 3 },
-        { id: 'intellectual-property', title: 'Intellectual Property', completed: false, time: '5 Min', step: 4 },
-        { id: 'achievements', title: 'Achievements', completed: false, time: '5 Min', step: 5 },
-        { id: 'structure-ownership', title: 'Structure & Ownership', completed: false, time: '3 Min', step: 6 }
+        { id: 'overview', title: t('overview') || 'Overview', completed: false, time: '5 Min', step: 1 },
+        { id: 'problem-solution', title: t('problemSolution') || 'Problem & Solution', completed: false, time: '5 Min', step: 2 },
+        { id: 'mission-vision-values', title: t('missionVisionValues') || 'Mission, Vision & Values', completed: false, time: '5 Min', step: 3 },
+        { id: 'intellectual-property', title: t('intellectualProperty') || 'Intellectual Property', completed: false, time: '5 Min', step: 4 },
+        { id: 'achievements', title: t('achievements') || 'Achievements', completed: false, time: '5 Min', step: 5 },
+        { id: 'structure-ownership', title: t('structureOwnership') || 'Structure & Ownership', completed: false, time: '3 Min', step: 6 }
       ]
     },
     {
       id: 'situation-analysis',
-      title: 'Situation Analysis',
-      description: 'Analyze market conditions and competitive landscape',
+      title: t('situationAnalysis') || 'Situation Analysis',
+      description: t('situationAnalysisDesc') || 'Analyze market conditions and competitive landscape',
       completed: false,
       locked: !initialSetupCompleted,
       color: 'teal',
       bgColor: 'bg-teal-50',
       borderColor: 'border-teal-100',
       items: [
-        { id: 'market-products', title: 'Market & Products', completed: false, time: '5 Min', step: 7 },
-        { id: 'market-segments', title: 'Market Segments', completed: false, time: '5 Min', step: 8 },
-        { id: 'buyer-personas', title: 'Buyer Personas', completed: false, time: '5 Min', step: 9 },
-        { id: 'competitors', title: 'Competitors', completed: false, time: '5 Min', step: 10 },
-        { id: 'swot', title: 'SWOT', completed: false, time: '5 Min', step: 11 }
+        { id: 'market-products', title: t('marketProducts') || 'Market & Products', completed: false, time: '5 Min', step: 7 },
+        { id: 'market-segments', title: t('marketSegments') || 'Market Segments', completed: false, time: '5 Min', step: 8 },
+        { id: 'buyer-personas', title: t('buyerPersonas') || 'Buyer Personas', completed: false, time: '5 Min', step: 9 },
+        { id: 'competitors', title: t('competitors') || 'Competitors', completed: false, time: '5 Min', step: 10 },
+        { id: 'swot', title: t('swot') || 'SWOT', completed: false, time: '5 Min', step: 11 }
       ]
     },
     {
       id: 'objectives',
-      title: 'Objectives',
-      description: 'Set clear business goals and targets',
+      title: t('objectives') || 'Objectives',
+      description: t('objectivesDesc') || 'Set clear business goals and targets',
       completed: false,
       locked: !initialSetupCompleted,
       color: 'blue',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-100',
       items: [
-        { id: 'corporate-objectives', title: 'Corporate Objectives', completed: false, time: '5 Min', step: 12 }
+        { id: 'corporate-objectives', title: t('corporateObjectives') || 'Corporate Objectives', completed: false, time: '5 Min', step: 12 }
       ]
     },
     {
       id: 'business-strategy',
-      title: 'Business Strategy',
-      description: 'Define strategic approach and execution plan',
+      title: t('businessStrategy') || 'Business Strategy',
+      description: t('businessStrategyDesc') || 'Define strategic approach and execution plan',
       completed: false,
       locked: !initialSetupCompleted,
       color: 'yellow',
@@ -154,8 +154,8 @@ const BusinessPlanOverviewNew: React.FC = () => {
     },
     {
       id: 'funding',
-      title: 'Funding',
-      description: 'Financial requirements and funding strategy',
+      title: t('funding') || 'Funding',
+      description: t('fundingDesc') || 'Financial requirements and funding strategy',
       completed: false,
       locked: !initialSetupCompleted,
       color: 'pink',
@@ -168,8 +168,8 @@ const BusinessPlanOverviewNew: React.FC = () => {
     },
     {
       id: 'financial-projections',
-      title: 'Financial Projections',
-      description: 'Revenue, costs, and financial forecasts',
+      title: t('financialProjections') || 'Financial Projections',
+      description: t('financialProjectionsDesc') || 'Revenue, costs, and financial forecasts',
       completed: false,
       locked: !initialSetupCompleted,
       color: 'red',
@@ -187,15 +187,15 @@ const BusinessPlanOverviewNew: React.FC = () => {
     },
     {
       id: 'executive-summary',
-      title: 'Executive Summary',
-      description: 'High-level overview and key highlights',
+      title: t('executiveSummary') || 'Executive Summary',
+      description: t('executiveSummaryDesc') || 'High-level overview and key highlights',
       completed: false,
       locked: !initialSetupCompleted,
       color: 'gray',
       bgColor: 'bg-gray-50',
       borderColor: 'border-gray-100',
       items: [
-        { id: 'executive-summary-1', title: 'Executive Summary', completed: false, time: '5 Min', step: 28 }
+        { id: 'executive-summary-1', title: t('executiveSummary') || 'Executive Summary', completed: false, time: '5 Min', step: 28 }
       ]
     }
   ]);
