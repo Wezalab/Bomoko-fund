@@ -570,6 +570,21 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
     console.log('Form Data:', formData);
     console.log('Selected Product Groups:', selectedProductGroups);
     console.log('Selected Service Groups:', selectedServiceGroups);
+    
+    // Include selected groups in form data
+    const completeFormData = {
+      ...formData,
+      product_grouping: selectedProductGroups,
+      service_grouping: selectedServiceGroups,
+      completedAt: new Date().toISOString(),
+      userId: user?._id || null,
+      ventureName: ventures?.[0]?.businessName || 'Mon Entreprise'
+    };
+    
+    // Save to localStorage for business plan creation
+    localStorage.setItem('businessPlanWizardData', JSON.stringify(completeFormData));
+    console.log('Saved wizard data to localStorage:', completeFormData);
+    
     if (onComplete) {
       onComplete();
     } else {

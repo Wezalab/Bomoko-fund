@@ -8,6 +8,7 @@ import ProfileLayout from '@/pages/ProfileLayout'
 import CreateProjectLayout from '@/pages/CreateProjectLayout'
 import BusinessPlanLayout from '@/pages/BusinessPlanLayout'
 import BusinessPlanEditorLayout from '@/pages/BusinessPlanEditorLayout'
+import BusinessPlanSetupLayout from '@/pages/BusinessPlanSetupLayout'
 import NotFound from '@/pages/NotFound'
 import AuthRedirect from '@/components/AuthRedirect'
 import BusinessPlanWizard from '@/components/BusinessPlanWizard'
@@ -29,6 +30,7 @@ function RootNavigation() {
             <Route path="/business-plan/editor" element={<BusinessPlanEditorLayout />} />
             <Route path="/business-plan/wizard" element={<BusinessPlanOverviewNew />} />
             <Route path="/business-plan/initial-setup" element={<BusinessPlanWizard />} />
+            <Route path="/business-plan/setup" element={<BusinessPlanSetupLayout />} />
             <Route path="/venture" element={<VentureLayout />} />
             <Route path="/dashboard" element={<DashboardLayout />} />
             <Route path="/faq" element={<FaqLayout />} />

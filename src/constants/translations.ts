@@ -454,6 +454,37 @@ export const translations: Translations = {
     "threeYears": "3 Years",
     "fourYears": "4 Years",
     "fiveYears": "5 Years",
+    
+    // Initial Setup Validation
+    "validationInitialSetup": "Initial Setup Validation",
+    "completeAllRequiredFields": "Complete all required fields before saving your plan",
+    "fieldRequired": "This field is required",
+    "required": "Required",
+    "optional": "Optional",
+    "allFieldsComplete": "All required fields are completed",
+    "completeRequiredFields": "Please complete the required fields",
+    "validating": "Validating...",
+    "revalidate": "Revalidate",
+    "savePlan": "Save Plan",
+    "completeToContinue": "Complete to continue",
+    
+    // Business Plan Views
+    "locked": "Locked",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "selectSectionToEdit": "Select a section to edit",
+    "aiSuggestions": "AI Suggestions",
+    
+    // Business Plan Layout
+    "businessPlan": "Business Plan",
+    "initialSetup": "Initial Setup",
+    "editYourPlan": "Edit and customize your business plan",
+    "completeSetup": "Complete setup to unlock your plan",
+    "planSaved": "Plan Saved",
+    "planUnlocked": "Plan Unlocked",
+    "loadingPlan": "Loading plan...",
+    "savingPlan": "Saving plan...",
+    "pleaseWait": "Please wait while we save your business plan.",
 
     // Product category examples for different industries
     "webApplication": "Web Application",
@@ -1063,6 +1094,37 @@ export const translations: Translations = {
     "threeYears": "3 Ans",
     "fourYears": "4 Ans",
     "fiveYears": "5 Ans",
+    
+    // Initial Setup Validation
+    "validationInitialSetup": "Validation Configuration Initiale",
+    "completeAllRequiredFields": "Complétez tous les champs requis avant de sauvegarder votre plan",
+    "fieldRequired": "Ce champ est requis",
+    "required": "Requis",
+    "optional": "Optionnel",
+    "allFieldsComplete": "Tous les champs requis sont complétés",
+    "completeRequiredFields": "Veuillez compléter les champs requis",
+    "validating": "Validation...",
+    "revalidate": "Revalider",
+    "savePlan": "Sauvegarder le Plan",
+    "completeToContinue": "Compléter pour continuer",
+    
+    // Business Plan Views
+    "locked": "Verrouillé",
+    "completed": "Complété",
+    "inProgress": "En cours",
+    "selectSectionToEdit": "Sélectionnez une section à modifier",
+    "aiSuggestions": "Suggestions IA",
+    
+    // Business Plan Layout
+    "businessPlan": "Plan d'affaires",
+    "initialSetup": "Configuration initiale",
+    "editYourPlan": "Modifiez et personnalisez votre plan d'affaires",
+    "completeSetup": "Complétez la configuration pour débloquer votre plan",
+    "planSaved": "Plan sauvegardé",
+    "planUnlocked": "Plan débloqué",
+    "loadingPlan": "Chargement du plan...",
+    "savingPlan": "Sauvegarde du plan...",
+    "pleaseWait": "Veuillez patienter pendant que nous sauvegardons votre plan d'affaires.",
 
     // Product category examples for different industries
     "webApplication": "Application web",

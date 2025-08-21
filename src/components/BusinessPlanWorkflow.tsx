@@ -40,7 +40,8 @@ const BusinessPlanWorkflow: React.FC = () => {
 
   const handleSetupComplete = () => {
     setIsSetupCompleted(true);
-    setCurrentStep(2);
+    // Redirect to the business plan setup page
+    navigate('/business-plan/setup');
   };
 
   const handlePlanComplete = () => {
