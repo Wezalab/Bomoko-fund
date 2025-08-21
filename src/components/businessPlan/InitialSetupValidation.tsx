@@ -42,6 +42,19 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
   const [isValidating, setIsValidating] = useState(false);
   const [overallValid, setOverallValid] = useState(false);
 
+  // Helper function to normalize yes/no values
+  const isYesValue = (value: any) => {
+    if (!value) return false;
+    const normalized = value.toString().toLowerCase();
+    return normalized === 'yes' || normalized === 'oui' || normalized === t('yes').toLowerCase();
+  };
+
+  const isNoValue = (value: any) => {
+    if (!value) return false;
+    const normalized = value.toString().toLowerCase();
+    return normalized === 'no' || normalized === 'non' || normalized === t('no').toLowerCase();
+  };
+
   // Définition des règles de validation
   const validationRules: ValidationRule[] = [
     // Q1: Business establishment status
@@ -56,7 +69,7 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
       field: 'business_established_date',
       label: t('q2_text'),
       required: true,
-      condition: (data) => data.established_business === t('yes'),
+      condition: (data) => isYesValue(data.established_business),
       validator: (value) => value && value.month && value.year
     },
     
@@ -65,8 +78,8 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
       field: 'business_planned_date',
       label: t('q3_text'),
       required: true,
-      condition: (data) => data.established_business === t('no'),
-      validator: (value) => value && (value === t('unknown') || (value.month && value.year))
+      condition: (data) => isNoValue(data.established_business),
+      validator: (value) => value && (value === t('unknown') || value === 'unknown' || (value.month && value.year))
     },
     
     // Q4: Plan type
@@ -95,7 +108,7 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
       field: 'staff_future',
       label: t('q7_text'),
       required: true,
-      condition: (data) => data.staff === t('no'),
+      condition: (data) => isNoValue(data.staff),
     },
     
     // Q8: Business location
@@ -125,7 +138,7 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
       field: 'product_grouping',
       label: t('q17_text'),
       required: false, // Optional even if products = yes
-      condition: (data) => data.products_yn === t('yes'),
+      condition: (data) => isYesValue(data.products_yn),
     },
     
     // Q12: Services
@@ -140,7 +153,7 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
       field: 'service_grouping',
       label: t('q18_text'),
       required: false, // Optional even if services = yes
-      condition: (data) => data.services_yn === t('yes'),
+      condition: (data) => isYesValue(data.services_yn),
     },
     
     // Q14: Intellectual Property
@@ -162,7 +175,7 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
       field: 'forecast_start_date',
       label: t('q19_text'),
       required: true,
-      condition: (data) => data.financial_model_required_yn === t('yes'),
+      condition: (data) => isYesValue(data.financial_model_required_yn),
       validator: (value) => value && value.month && value.year
     },
     
@@ -171,7 +184,7 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
       field: 'financial_year_end',
       label: t('q20_text'),
       required: true,
-      condition: (data) => data.financial_model_required_yn === t('yes'),
+      condition: (data) => isYesValue(data.financial_model_required_yn),
     },
     
     // Q18: Forecast years (if Q15 = Yes)
@@ -179,7 +192,7 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
       field: 'forecast_years',
       label: t('q21_text'),
       required: true,
-      condition: (data) => data.financial_model_required_yn === t('yes'),
+      condition: (data) => isYesValue(data.financial_model_required_yn),
     },
     
     // Q19: Inventory management (if Q15 = Yes)
@@ -187,7 +200,7 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
       field: 'inventory_management',
       label: t('q22_text'),
       required: true,
-      condition: (data) => data.financial_model_required_yn === t('yes'),
+      condition: (data) => isYesValue(data.financial_model_required_yn),
     },
     
     // Q20: Finance required
@@ -221,6 +234,16 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
     validationRules.forEach(rule => {
       const shouldValidate = !rule.condition || rule.condition(formData);
       
+      // Debug log for conditional questions
+      if (rule.condition) {
+        console.log(`Condition for ${rule.field}:`, {
+          field: rule.field,
+          shouldValidate,
+          formData: formData,
+          value: formData[rule.field]
+        });
+      }
+      
       if (shouldValidate) {
         const value = formData[rule.field];
         let isValid = true;
@@ -238,6 +261,11 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
         results[rule.field] = isValid;
         if (!isValid) {
           allValid = false;
+          console.log(`Validation failed for ${rule.field}:`, {
+            value,
+            required: rule.required,
+            hasValidator: !!rule.validator
+          });
         }
       } else {
         // Field not required due to condition
@@ -254,6 +282,20 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
 
     return allValid;
   };
+
+  // Debug: Log form data to understand structure
+  useEffect(() => {
+    console.log('=== InitialSetupValidation Debug ===');
+    console.log('FormData received:', formData);
+    console.log('Translation yes:', t('yes'));
+    console.log('Translation no:', t('no'));
+    console.log('FormData established_business:', formData['established_business']);
+    console.log('FormData staff:', formData['staff']);
+    console.log('FormData products_yn:', formData['products_yn']);
+    console.log('FormData services_yn:', formData['services_yn']);
+    console.log('FormData financial_model_required_yn:', formData['financial_model_required_yn']);
+    console.log('=====================================');
+  }, [formData, t]);
 
   // Validate on mount and when formData changes
   useEffect(() => {
