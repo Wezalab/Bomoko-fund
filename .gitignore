@@ -24,6 +24,8 @@ dist-ssr
 *.sw?
 .env
 .env.backup
+.env.backup.*
+test-openai-browser.html
 
 # Local Netlify folder
 .netlify
