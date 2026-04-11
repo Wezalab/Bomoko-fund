@@ -13,6 +13,11 @@ import NotFound from '@/pages/NotFound'
 import AuthRedirect from '@/components/AuthRedirect'
 import BusinessPlanWizard from '@/components/BusinessPlanWizard'
 import BusinessPlanOverviewNew from '@/components/businessPlan/BusinessPlanOverviewNew'
+import BMCLayout from '@/pages/BMCLayout'
+import BMCNewLayout from '@/pages/BMCNewLayout'
+import BMCWizardLayout from '@/pages/BMCWizardLayout'
+import BMCCanvasLayout from '@/pages/BMCCanvasLayout'
+import BMCStrategyLayout from '@/pages/BMCStrategyLayout'
 
 function RootNavigation() {
 
@@ -36,6 +41,11 @@ function RootNavigation() {
             <Route path="/faq" element={<FaqLayout />} />
             <Route path="/privacy-policy" element={<PrivacyPolicyLayout />} />
             <Route path="/profile" element={<ProfileLayout />} />
+            <Route path="/bmc" element={<BMCLayout />} />
+            <Route path="/bmc/new" element={<BMCNewLayout />} />
+            <Route path="/bmc/wizard" element={<BMCWizardLayout />} />
+            <Route path="/bmc/:id" element={<BMCCanvasLayout />} />
+            <Route path="/bmc/:id/strategies" element={<BMCStrategyLayout />} />
             <Route path="/auth/google/callback" element={<AuthRedirect />} />
             <Route path="/*" element={<NotFound />} />
         </Routes>
