@@ -480,4 +480,154 @@ N'incluez aucune explication ou texte supplémentaire.`;
       suggestion2: ["Services Basiques", "Services Premium", "Services Spécialisés"]
     };
   }
-}; 
+};
+
+// ========================
+// BMC Generation Functions
+// ========================
+
+import type { BMCWizardAnswers, BMCBlock, BMCBlockKey, StrategySuggestion } from '@/types/bmc';
+import { BMC_BLOCK_LABELS } from '@/types/bmc';
+
+export const generateBMCFromAnswers = async (answers: BMCWizardAnswers): Promise<BMCBlock[]> => {
+  const prompt = `Tu es un expert en stratégie d'entreprise et Business Model Canvas. À partir des réponses suivantes d'un entrepreneur, génère un Business Model Canvas structuré et enrichi.
+
+Informations de l'entrepreneur :
+- Nom de l'entreprise : ${answers.businessName || 'Non spécifié'}
+- Secteur d'activité : ${answers.industry || 'Non spécifié'}
+
+Réponses du questionnaire :
+1. Segments de clientèle : ${answers.customerSegments}
+2. Propositions de valeur : ${answers.valuePropositions}
+3. Canaux : ${answers.channels}
+4. Relations clients : ${answers.customerRelationships}
+5. Sources de revenus : ${answers.revenueStreams}
+6. Ressources clés : ${answers.keyResources}
+7. Activités clés : ${answers.keyActivities}
+8. Partenaires clés : ${answers.keyPartnerships}
+9. Structure de coûts : ${answers.costStructure}
+
+Pour chaque bloc, enrichis et structure la réponse de l'entrepreneur avec des détails professionnels, des exemples concrets et des recommandations adaptées au contexte africain francophone.
+
+Retourne UNIQUEMENT un objet JSON avec cette structure exacte (sans texte avant ou après) :
+{
+  "customerSegments": "Contenu enrichi pour les segments de clientèle...",
+  "valuePropositions": "Contenu enrichi pour les propositions de valeur...",
+  "channels": "Contenu enrichi pour les canaux...",
+  "customerRelationships": "Contenu enrichi pour les relations clients...",
+  "revenueStreams": "Contenu enrichi pour les sources de revenus...",
+  "keyResources": "Contenu enrichi pour les ressources clés...",
+  "keyActivities": "Contenu enrichi pour les activités clés...",
+  "keyPartnerships": "Contenu enrichi pour les partenaires clés...",
+  "costStructure": "Contenu enrichi pour la structure de coûts..."
+}
+
+Chaque valeur doit être un texte de 2-4 phrases, professionnel, concret et actionable. Tout en français.`;
+
+  try {
+    const response = await getChatCompletion(prompt);
+    const content = response.choices[0]?.message?.content?.trim() || '';
+
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON found in response');
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    const blockKeys: BMCBlockKey[] = [
+      'customerSegments', 'valuePropositions', 'channels',
+      'customerRelationships', 'revenueStreams', 'keyResources',
+      'keyActivities', 'keyPartnerships', 'costStructure',
+    ];
+
+    return blockKeys.map((key, idx) => ({
+      id: `block-${key}`,
+      key,
+      title: BMC_BLOCK_LABELS[key].fr,
+      content: parsed[key] || answers[key] || '',
+      aiGenerated: !!parsed[key],
+    }));
+  } catch (error) {
+    console.error('Error generating BMC from answers:', error);
+    const blockKeys: BMCBlockKey[] = [
+      'customerSegments', 'valuePropositions', 'channels',
+      'customerRelationships', 'revenueStreams', 'keyResources',
+      'keyActivities', 'keyPartnerships', 'costStructure',
+    ];
+    return blockKeys.map((key) => ({
+      id: `block-${key}`,
+      key,
+      title: BMC_BLOCK_LABELS[key].fr,
+      content: answers[key] || '',
+      aiGenerated: false,
+    }));
+  }
+};
+
+export const generateBMCStrategySuggestions = async (blocks: BMCBlock[]): Promise<StrategySuggestion[]> => {
+  const canvasSummary = blocks.map(b => `${b.title}: ${b.content}`).join('\n');
+
+  const prompt = `Tu es un consultant en stratégie d'entreprise. Analyse le Business Model Canvas suivant et fournis des recommandations stratégiques concrètes.
+
+Business Model Canvas :
+${canvasSummary}
+
+Génère exactement 6 recommandations réparties en 3 catégories :
+- 2 stratégies de croissance (growth)
+- 2 améliorations de monétisation (monetization)
+- 2 alertes ou risques à surveiller (risk)
+
+Retourne UNIQUEMENT un tableau JSON avec cette structure exacte :
+[
+  {"category": "growth", "title": "Titre court", "description": "Description actionable en 1-2 phrases"},
+  {"category": "growth", "title": "Titre court", "description": "Description actionable en 1-2 phrases"},
+  {"category": "monetization", "title": "Titre court", "description": "Description actionable en 1-2 phrases"},
+  {"category": "monetization", "title": "Titre court", "description": "Description actionable en 1-2 phrases"},
+  {"category": "risk", "title": "Titre court", "description": "Description actionable en 1-2 phrases"},
+  {"category": "risk", "title": "Titre court", "description": "Description actionable en 1-2 phrases"}
+]
+
+Tout en français, adapté au contexte africain francophone.`;
+
+  try {
+    const response = await getChatCompletion(prompt);
+    const content = response.choices[0]?.message?.content?.trim() || '';
+
+    const jsonMatch = content.match(/\[[\s\S]*\]/);
+    if (!jsonMatch) throw new Error('No JSON array found in response');
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    return parsed.map((item: any, idx: number) => ({
+      id: `strategy-${idx}`,
+      category: item.category,
+      title: item.title,
+      description: item.description,
+    }));
+  } catch (error) {
+    console.error('Error generating BMC strategy suggestions:', error);
+    return [
+      { id: 'strategy-0', category: 'growth', title: 'Élargir la base client', description: 'Explorez de nouveaux segments de marché pour diversifier vos sources de revenus.' },
+      { id: 'strategy-1', category: 'growth', title: 'Renforcer les partenariats', description: 'Développez des alliances stratégiques pour accéder à de nouvelles ressources.' },
+      { id: 'strategy-2', category: 'monetization', title: 'Optimiser la tarification', description: 'Analysez votre structure de prix par rapport à la valeur perçue par vos clients.' },
+      { id: 'strategy-3', category: 'monetization', title: 'Diversifier les revenus', description: 'Explorez des sources de revenus complémentaires à votre offre principale.' },
+      { id: 'strategy-4', category: 'risk', title: 'Dépendance fournisseurs', description: 'Identifiez des alternatives pour réduire la dépendance à un nombre limité de partenaires.' },
+      { id: 'strategy-5', category: 'risk', title: 'Évolution du marché', description: 'Surveillez les tendances du marché et adaptez votre proposition de valeur en conséquence.' },
+    ];
+  }
+};
+
+export const enrichBMCBlock = async (block: BMCBlock, context: string): Promise<string> => {
+  const prompt = `Améliore et enrichis le contenu suivant d'un bloc de Business Model Canvas.
+
+Bloc : ${block.title}
+Contenu actuel : ${block.content}
+Contexte additionnel : ${context}
+
+Réécris le contenu de manière plus professionnelle, détaillée et actionable. Garde le même sujet mais enrichis avec des exemples concrets et des recommandations adaptées au contexte africain francophone. Retourne uniquement le texte amélioré (2-4 phrases), sans titre ni formatage spécial.`;
+
+  try {
+    const response = await getChatCompletion(prompt);
+    return response.choices[0]?.message?.content?.trim() || block.content;
+  } catch (error) {
+    console.error('Error enriching BMC block:', error);
+    return block.content;
+  }
+};
