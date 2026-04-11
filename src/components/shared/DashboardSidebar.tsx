@@ -11,7 +11,8 @@ import {
   Edit,
   Eye,
   DollarSign,
-  Settings
+  Settings,
+  LayoutGrid,
 } from 'lucide-react';
 
 interface DashboardSidebarProps {
@@ -37,6 +38,10 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className = "" }) =
     }
     
     if (path === '/dashboard' && location.pathname === '/dashboard') {
+      return true;
+    }
+
+    if (path === '/bmc' && location.pathname.startsWith('/bmc')) {
       return true;
     }
     
@@ -67,6 +72,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className = "" }) =
       icon: Eye,
       label: t('viewPlan') || 'View Plan',
       active: isActiveRoute('/business-plan')
+    },
+    {
+      path: '/bmc',
+      icon: LayoutGrid,
+      label: t('bmc') || 'BMC',
+      active: isActiveRoute('/bmc')
     },
     {
       path: '/financials',
