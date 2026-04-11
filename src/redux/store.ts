@@ -4,6 +4,7 @@ import storage from 'redux-persist/lib/storage'
 import { persistReducer, persistStore } from 'redux-persist';
 import projectReducer from './slices/projectSlice'
 import userReducer from './slices/userSlice'
+import bmcReducer from './slices/bmcSlice'
 import splitApi from './services/api';
 import { businessPlanApi } from './services/businessPlanServices';
 
@@ -29,6 +30,7 @@ const persistConfig = {
 const reducers = combineReducers({
     projectReducer,
     userReducer,
+    bmcReducer,
     [splitApi.reducerPath]:splitApi.reducer,
     [businessPlanApi.reducerPath]: businessPlanApi.reducer
 });
