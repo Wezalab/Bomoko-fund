@@ -4,7 +4,9 @@ import storage from 'redux-persist/lib/storage'
 import { persistReducer, persistStore } from 'redux-persist';
 import projectReducer from './slices/projectSlice'
 import userReducer from './slices/userSlice'
+import bmcReducer from './slices/bmcSlice'
 import splitApi from './services/api';
+import { businessPlanApi } from './services/businessPlanServices';
 
 // import { encryptTransform } from 'redux-persist-transform-encrypt';
 // import { thunk } from 'redux-thunk';
@@ -28,7 +30,9 @@ const persistConfig = {
 const reducers = combineReducers({
     projectReducer,
     userReducer,
-    [splitApi.reducerPath]:splitApi.reducer
+    bmcReducer,
+    [splitApi.reducerPath]:splitApi.reducer,
+    [businessPlanApi.reducerPath]: businessPlanApi.reducer
 });
 
 // Create a persisted reducer
@@ -41,7 +45,7 @@ export const store = configureStore({
     getDefaultMiddleware({
       immutableCheck: false,
       serializableCheck: false,
-    }).concat(splitApi.middleware),
+    }).concat(splitApi.middleware, businessPlanApi.middleware),
   
 })
 

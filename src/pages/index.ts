@@ -1,15 +1,24 @@
-import HomeLayout from "./HomeLayout";
-import Layout from "./Layout";
-import ProjectLayout from "./ProjectLayout";
-import WorkLayout from "./WorkLayout";
-import ContactLayout from "./ContactLayout";
 
-
-
-export {
-    Layout,
-    HomeLayout,
-    ProjectLayout,
-    WorkLayout,
-    ContactLayout
-}
+export { default as CreateProjectLayout } from './CreateProjectLayout'
+export { default as EditProjectLayout } from './EditProjectLayout'
+export { default as FaqLayout } from './FaqLayout'
+export { default as HomeLayout } from './HomeLayout'
+export { default as Layout } from './Layout'
+export { default as NotFound } from './NotFound'
+export { default as PrivacyPolicyLayout } from './PrivacyPolicyLayout'
+export { default as ProfileLayout } from './ProfileLayout'
+export { default as ProjectLayout } from './ProjectLayout'
+export { default as SingleProjectLayout } from './SingleProjectLayout'
+export { default as WorkLayout } from './WorkLayout'
+export { default as ContactLayout } from './ContactLayout'
+export { default as BusinessPlanLayout } from './BusinessPlanLayout'
+export { default as BusinessPlanEditorLayout } from './BusinessPlanEditorLayout'
+export { default as BusinessPlanSetupLayout } from './BusinessPlanSetupLayout'
+export { default as GoogleCallback } from './GoogleCallback'
+export { default as VentureLayout } from './VentureLayout'
+export { default as DashboardLayout } from './DashboardLayout'
+export { default as BMCLayout } from './BMCLayout'
+export { default as BMCNewLayout } from './BMCNewLayout'
+export { default as BMCWizardLayout } from './BMCWizardLayout'
+export { default as BMCCanvasLayout } from './BMCCanvasLayout'
+export { default as BMCStrategyLayout } from './BMCStrategyLayout'

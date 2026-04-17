@@ -46,7 +46,7 @@ function SingleProject() {
         isSuccess:userProjectIsSuccess,
         isError:userProjectIsError,
         isLoading:userProjectIsLoading
-      }=useUsersProjectsQuery(user?._id)
+      }=useUsersProjectsQuery(user?._id, {skip: !user?._id})
 
     useEffect(()=>{
         window.scrollTo(0,0)

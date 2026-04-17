@@ -1,4 +1,9 @@
+# VITE_LLM_PROVIDER is a non-secret toggle (e.g. groq vs chatgpt). Marking it as a
+# secret in Netlify causes false positives when the same strings appear in code/docs.
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "VITE_LLM_PROVIDER"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200 
+  status = 200

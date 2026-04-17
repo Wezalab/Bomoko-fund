@@ -3,6 +3,252 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Business Plan Editor Styles */
+.business-plan-editor {
+  @apply min-h-screen bg-gray-50;
+}
+
+.business-plan-editor .prose {
+  @apply max-w-none;
+}
+
+.business-plan-editor .prose h1 {
+  @apply text-3xl font-bold text-gray-900 mb-6;
+}
+
+.business-plan-editor .prose h2 {
+  @apply text-2xl font-semibold text-gray-800 mb-4 mt-8;
+}
+
+.business-plan-editor .prose h3 {
+  @apply text-xl font-semibold text-gray-700 mb-3 mt-6;
+}
+
+.business-plan-editor .prose p {
+  @apply text-gray-600 leading-relaxed mb-4;
+}
+
+.business-plan-editor .prose ul, .business-plan-editor .prose ol {
+  @apply mb-4;
+}
+
+.business-plan-editor .prose li {
+  @apply mb-2;
+}
+
+.business-plan-editor .prose blockquote {
+  @apply border-l-4 border-blue-500 pl-6 italic text-gray-700 my-6;
+}
+
+.business-plan-editor .prose strong {
+  @apply font-semibold text-gray-900;
+}
+
+.business-plan-editor .prose em {
+  @apply italic;
+}
+
+/* TipTap Editor Styles */
+.ProseMirror {
+  @apply outline-none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  @apply text-gray-400 float-left h-0 pointer-events-none;
+  content: attr(data-placeholder);
+}
+
+.ProseMirror-focused {
+  @apply outline-none;
+}
+
+/* Custom scrollbar for editor */
+.business-plan-editor .max-h-\[600px\]::-webkit-scrollbar {
+  @apply w-2;
+}
+
+.business-plan-editor .max-h-\[600px\]::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-lg;
+}
+
+.business-plan-editor .max-h-\[600px\]::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-lg;
+}
+
+.business-plan-editor .max-h-\[600px\]::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* Sidebar active state */
+.business-plan-sidebar .border-l-4 {
+  @apply border-blue-600;
+}
+
+/* Progress bar animation */
+.progress-bar {
+  @apply transition-all duration-500 ease-out;
+}
+
+/* AI Generate button gradient */
+.ai-generate-btn {
+  @apply bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all duration-300;
+}
+
+/* Business Plan Wizard Styles */
+.business-plan-wizard {
+  @apply min-h-screen;
+}
+
+.business-plan-wizard .radio-options {
+  @apply flex flex-col gap-3 mb-6;
+}
+
+.business-plan-wizard .radio-options.radio-options-small {
+  @apply flex-row gap-4;
+}
+
+.business-plan-wizard .radio-options.radio-options-medium {
+  @apply grid grid-cols-2 gap-3;
+}
+
+.business-plan-wizard .radio-options.radio-options-wide {
+  @apply flex flex-col gap-4;
+}
+
+.business-plan-wizard .radio {
+  @apply relative flex items-center justify-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all hover:border-gray-300;
+}
+
+.business-plan-wizard .radio.active {
+  @apply border-lightBlue bg-lightBlue/10 text-lightBlue;
+}
+
+.business-plan-wizard .radio input[type="radio"] {
+  @apply absolute opacity-0 pointer-events-none;
+}
+
+.business-plan-wizard .radio div {
+  @apply text-center font-medium;
+}
+
+.business-plan-wizard .radio .sub-paragraph {
+  @apply text-sm text-gray-600 mt-2 font-normal;
+}
+
+.business-plan-wizard .form-control {
+  @apply w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-lightBlue focus:border-lightBlue outline-none transition-all;
+}
+
+.business-plan-wizard select.form-control {
+  @apply appearance-none bg-white;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+.business-plan-wizard .slider-container {
+  @apply relative w-full py-4;
+}
+
+.business-plan-wizard .slider {
+  @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
+}
+
+.business-plan-wizard .slider::-webkit-slider-thumb {
+  @apply appearance-none w-6 h-6 bg-lightBlue rounded-full cursor-pointer;
+}
+
+.business-plan-wizard .slider::-moz-range-thumb {
+  @apply w-6 h-6 bg-lightBlue rounded-full cursor-pointer border-0;
+}
+
+.business-plan-wizard .slider-labels {
+  @apply flex justify-between mt-2 px-2;
+}
+
+.business-plan-wizard .slider-labels small {
+  @apply text-gray-500 font-medium;
+}
+
+.business-plan-wizard .fieldset {
+  @apply mb-8;
+}
+
+.business-plan-wizard .fieldset-heading {
+  @apply text-lg font-semibold text-dark mb-4 pb-2 border-b border-gray-200;
+}
+
+.business-plan-wizard .question {
+  @apply mb-6;
+}
+
+.business-plan-wizard .question-text {
+  @apply text-lg font-semibold text-dark mb-3;
+}
+
+.business-plan-wizard .question-sub-text {
+  @apply text-gray-600 mb-4 leading-relaxed;
+}
+
+.business-plan-wizard .question-sub-text strong {
+  @apply font-semibold text-dark;
+}
+
+.business-plan-wizard .question-sub-title-list {
+  @apply list-disc list-inside mt-2 space-y-1;
+}
+
+.business-plan-wizard .question-sub-title-list li {
+  @apply text-sm text-gray-600;
+}
+
+.business-plan-wizard .question-box {
+  @apply ml-6 mt-4 p-4 bg-gray-50 rounded-lg border-l-4 border-lightBlue;
+}
+
+.business-plan-wizard .question-step-box {
+  @apply p-2 rounded-lg border border-gray-200 bg-white mb-2 transition-all;
+}
+
+.business-plan-wizard .question-step-box.complete {
+  @apply bg-lightBlue/5 border-lightBlue/20;
+}
+
+.business-plan-wizard .question-step-no {
+  @apply text-xs font-semibold text-gray-600 mb-1;
+}
+
+.business-plan-wizard .question-step-text {
+  @apply text-sm text-gray-700;
+}
+
+.business-plan-wizard .add-or {
+  @apply flex items-center gap-2;
+}
+
+.business-plan-wizard .fancy-checkbox-container {
+  @apply relative flex items-center cursor-pointer;
+}
+
+.business-plan-wizard .fancy-checkbox-container input[type="checkbox"] {
+  @apply absolute opacity-0 pointer-events-none;
+}
+
+.business-plan-wizard .checkmark {
+  @apply w-5 h-5 bg-white border-2 border-gray-300 rounded mr-3 relative;
+}
+
+.business-plan-wizard .fancy-checkbox-container input[type="checkbox"]:checked ~ .checkmark {
+  @apply bg-lightBlue border-lightBlue;
+}
+
+.business-plan-wizard .fancy-checkbox-container input[type="checkbox"]:checked ~ .checkmark::after {
+  content: "✓";
+  @apply absolute top-0 left-0 w-full h-full flex items-center justify-center text-white text-xs font-bold;
+}
+
 
 body{
   margin: 0;

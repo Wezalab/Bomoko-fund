@@ -78,12 +78,40 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
     const navigate=useNavigate()
     const dispatch=useAppDispatch()
 
-    // Use user's avatar from Redux if available, otherwise use default profile image
-    const userAvatar = user?.avatar ? user.avatar : profileImage;
+    // Function to handle Google profile image URLs
+    const getOptimizedImageUrl = (url: string) => {
+        if (!url) return profileImage;
+        
+        // If it's a Google profile image, ensure it's high quality and accessible
+        if (url.includes('googleusercontent.com')) {
+            // Remove size restrictions and ensure we get a good quality image
+            return url.replace(/=s\d+-c/, '=s200-c').replace(/\/photo\.jpg$/, '');
+        }
+        
+        return url;
+    };
+
+    // Use user's profile picture from Redux if available, otherwise use default profile image
+    // Priority: user.profile (Google profile picture) > user.avatar (uploaded avatar) > default profileImage
+    let userAvatar = profileImage;
+    
+    if (user?.profile) {
+        userAvatar = getOptimizedImageUrl(user.profile);
+    } else if (user?.avatar) {
+        userAvatar = getOptimizedImageUrl(user.avatar);
+    }
+    
+    // Debug logging
+    console.log("[DEBUG] Navbar - User object:", user);
+    console.log("[DEBUG] Navbar - user.profile:", user?.profile);
+    console.log("[DEBUG] Navbar - user.avatar:", user?.avatar);
+    console.log("[DEBUG] Navbar - userAvatar:", userAvatar);
+    console.log("[DEBUG] Navbar - isGoogleUser:", user?.isGoogleUser);
     
     // Function to handle image load errors
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
         console.log("[DEBUG] Avatar image failed to load, using fallback");
+        console.log("[DEBUG] Failed image src:", e.currentTarget.src);
         e.currentTarget.src = profileImage;
     };
 
@@ -102,7 +130,7 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
     //console.log("user",user)
   return (
     <>
-        <nav className='flex sticky top-0 z-30 shadow-md py-3 px-2 bg-white justify-between items-center md:hidden'>
+        <nav className='flex sticky top-0 z-30 shadow-md py-2 px-2 bg-white justify-between items-center md:hidden'>
             <IoMdMenu onClick={()=>setSideBar(true)} size={28} />
             <div className='flex items-center space-x-1'>
                 {
@@ -113,6 +141,8 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                                 className='w-full h-full object-cover'
                                 alt='user-profile'
                                 onError={handleImageError}
+                                crossOrigin="anonymous"
+                                referrerPolicy="no-referrer"
                             />
                         </div>
                     )
@@ -181,12 +211,12 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                 </div>
             </aside>
         </nav>
-        <nav className='hidden md:py-5  lg:py-[16px] sticky top-0 z-30 md:px-2 lg:px-[80px] md:flex items-center justify-between bg-white shadow-sm'>
-            <div className='md:hidden lg:flex -mt-6 items-center md:space-x-2 lg:space-x-[8px]'>
+        <nav className='hidden md:py-2  lg:py-[8px] sticky top-0 z-30 md:px-2 lg:px-[80px] md:flex items-center justify-between bg-white shadow-sm'>
+            <div className='md:hidden lg:flex -mt-3 items-center md:space-x-2 lg:space-x-[8px]'>
                 <img 
                     onClick={()=>navigate("/")}
                     src={lightLogo}
-                    className='md:h-[70px] mt-5 md:w-[150px] cursor-pointer lg:w-[250px] lg:h-[140px]'
+                    className='md:h-[50px] mt-2 md:w-[120px] cursor-pointer lg:w-[200px] lg:h-[100px]'
                     alt='app-image'
                 />
                 {/* <h1 className='font-semibold md:hidden lg:inline capitalize md:text-[16px] text-nowrap lg:text-[24px] text-lightBlue'>bomoko fund</h1> */}
@@ -252,6 +282,8 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                                     className='w-[39px] h-[39px] rounded-full'
                                     alt='profile-image'
                                     onError={handleImageError}
+                                    crossOrigin="anonymous"
+                                    referrerPolicy="no-referrer"
                                 />
                                 <GoChevronDown 
                                     className="font-bold hover:text-white"
@@ -267,6 +299,8 @@ function Navbar({signIn,signUp,setResetPassword,setSignUp,setNotification,setSig
                                     className='w-[30px] h-[30px] rounded-full'
                                     alt='profile-image'
                                     onError={handleImageError}
+                                    crossOrigin="anonymous"
+                                    referrerPolicy="no-referrer"
                                 />
                                 <div className='flex flex-col'>
                                     <span className='text-black font-semibold text-sm'>{user?.email?.split("@")[0]}</span>

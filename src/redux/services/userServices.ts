@@ -108,6 +108,42 @@ export const userService=splitApi.injectEndpoints({
                     
                 }
             }
+        }),
+        // Google OAuth integration - Check auth status after OAuth callback
+        googleAuthCallback:builder.mutation({
+            query(){
+                return{
+                    url:"/auth/google/status",
+                    method:"GET",
+                    credentials: 'include' // Include session cookies
+                }
+            }
+        }),
+        checkGoogleUser:builder.mutation({
+            query(){
+                return{
+                    url:"/auth/google/status",
+                    method:"GET",
+                    credentials: 'include' // Important for session cookies
+                }
+            }
+        }),
+        checkGoogleUserWithToken:builder.mutation({
+            query(){
+                return{
+                    url:"/auth/google/check",
+                    method:"GET"
+                }
+            }
+        }),
+        exchangeGoogleToken:builder.mutation({
+            query(data){
+                return{
+                    url:"/auth/exchange-google-token",
+                    method:"POST",
+                    body:data
+                }
+            }
         })
     }),
     overrideExisting:true
@@ -126,5 +162,9 @@ export const {
     useGetProfileMutation,
     useRegisterEmailMutation,
     useLoginPhoneMutation,
-    useRegisterMutation
+    useRegisterMutation,
+    useGoogleAuthCallbackMutation,
+    useCheckGoogleUserMutation,
+    useCheckGoogleUserWithTokenMutation,
+    useExchangeGoogleTokenMutation
 }=userService
