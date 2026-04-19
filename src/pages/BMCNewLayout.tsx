@@ -1,14 +1,15 @@
 import React from 'react';
-import Layout from './Layout';
+import DashboardSidebar from '@/components/shared/DashboardSidebar';
 import BMCIntroduction from '@/components/bmc/BMCIntroduction';
 
 const BMCNewLayout: React.FC = () => {
   return (
-    <Layout>
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
+      <DashboardSidebar />
+      <div className="flex-1 ml-[72px] overflow-auto">
         <BMCIntroduction />
       </div>
-    </Layout>
+    </div>
   );
 };
 
