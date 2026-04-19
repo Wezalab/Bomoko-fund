@@ -159,8 +159,18 @@ const FinancialsPage: React.FC = () => {
       }
       toast.success(lang === 'fr' ? 'Données financières sauvegardées' : 'Financial data saved');
       refetch();
-    } catch {
-      toast.error(lang === 'fr' ? 'Erreur lors de la sauvegarde' : 'Save failed');
+    } catch (err: any) {
+      const status = err?.status ?? err?.originalStatus;
+      if (status === 404) {
+        toast.error(
+          lang === 'fr'
+            ? 'API Finance non disponible — le backend n\'a pas encore ce module'
+            : 'Finance API not available yet — ask your backend to implement /api/finance',
+          { duration: 6000 },
+        );
+      } else {
+        toast.error(lang === 'fr' ? 'Erreur lors de la sauvegarde' : 'Save failed');
+      }
     } finally {
       setSaving(false);
     }
