@@ -19,6 +19,7 @@ export interface CostItem {
 export interface LabourItem {
   id: string;
   name: string;
+  unit: string;
   /** Number of person-days */
   quantity: number;
   /** Price per person-day */
