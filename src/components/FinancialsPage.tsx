@@ -183,7 +183,7 @@ const FinancialsPage: React.FC = () => {
 
   /* ─────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #f8faff 100%)' }}>
+    <div className="w-full" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #f8faff 100%)' }}>
 
       {/* ══ Hero Header ══ */}
       <div
