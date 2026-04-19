@@ -367,12 +367,7 @@ const FinancialsPage: React.FC = () => {
                               />
                             </Td>
                             <Td>
-                              <input
-                                value={item.unit}
-                                onChange={(e) => setFixedCosts(update(fixedCosts, idx, { unit: e.target.value }))}
-                                className={`${inputCls} w-20`}
-                                placeholder="kg"
-                              />
+                              <UnitInput id={item.id} value={item.unit} onChange={(v) => setFixedCosts(update(fixedCosts, idx, { unit: v }))} />
                             </Td>
                             <Td>
                               <NumInput value={item.quantity} onChange={(v) => setFixedCosts(update(fixedCosts, idx, { quantity: v }))} />
@@ -445,12 +440,7 @@ const FinancialsPage: React.FC = () => {
                               />
                             </Td>
                             <Td>
-                              <input
-                                value={item.unit}
-                                onChange={(e) => setInputsServices(update(inputsServices, idx, { unit: e.target.value }))}
-                                className={`${inputCls} w-20`}
-                                placeholder="kg"
-                              />
+                              <UnitInput id={item.id} value={item.unit} onChange={(v) => setInputsServices(update(inputsServices, idx, { unit: v }))} />
                             </Td>
                             <Td>
                               <NumInput value={item.quantity} onChange={(v) => setInputsServices(update(inputsServices, idx, { quantity: v }))} />
@@ -512,12 +502,7 @@ const FinancialsPage: React.FC = () => {
                               />
                             </Td>
                             <Td>
-                              <input
-                                value={item.unit}
-                                onChange={(e) => setLabour(update(labour, idx, { unit: e.target.value }))}
-                                className={`${inputCls} w-20`}
-                                placeholder="JP"
-                              />
+                              <UnitInput id={item.id} value={item.unit} onChange={(v) => setLabour(update(labour, idx, { unit: v }))} />
                             </Td>
                             <Td>
                               <NumInput value={item.quantity} onChange={(v) => setLabour(update(labour, idx, { quantity: v }))} />
@@ -599,12 +584,7 @@ const FinancialsPage: React.FC = () => {
                               />
                             </Td>
                             <Td>
-                              <input
-                                value={item.unit}
-                                onChange={(e) => setRevenueItems(update(revenueItems, idx, { unit: e.target.value }))}
-                                className={`${inputCls} w-20`}
-                                placeholder="kg"
-                              />
+                              <UnitInput id={item.id} value={item.unit} onChange={(v) => setRevenueItems(update(revenueItems, idx, { unit: v }))} />
                             </Td>
                             <Td>
                               <NumInput value={item.quantity} onChange={(v) => setRevenueItems(update(revenueItems, idx, { quantity: v }))} />
@@ -825,6 +805,30 @@ const FinancialsPage: React.FC = () => {
 
 const inputCls =
   'w-full border-0 bg-transparent text-gray-800 text-sm focus:outline-none focus:ring-1 focus:ring-[#3AB6FF]/40 rounded px-1 py-0.5 placeholder-gray-300';
+
+const UNIT_OPTIONS = [
+  'kg', 'g', 't', 'l', 'ml', 'm³',
+  'm', 'm²', 'km',
+  'pcs', 'unit', 'box', 'bag', 'bundle', 'set',
+  'hr', 'day', 'week', 'month', 'year',
+  'JP', 'PD',
+  '%', 'lot',
+];
+
+const UnitInput: React.FC<{ id: string; value: string; onChange: (v: string) => void }> = ({ id, value, onChange }) => (
+  <>
+    <datalist id={`units-${id}`}>
+      {UNIT_OPTIONS.map((u) => <option key={u} value={u} />)}
+    </datalist>
+    <input
+      list={`units-${id}`}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={`${inputCls} w-24`}
+      placeholder="unit…"
+    />
+  </>
+);
 
 const Th: React.FC<{ children?: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
   <th className={`px-3 py-2.5 text-left text-xs font-semibold whitespace-nowrap ${className}`}>{children}</th>
