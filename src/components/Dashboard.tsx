@@ -41,6 +41,7 @@ import {
   Shield,
   HelpCircle,
   HeartHandshake,
+  FolderOpen,
   ChevronRight,
   Loader2,
 } from 'lucide-react';
@@ -84,6 +85,7 @@ const NAV_ITEMS = [
   { path: '/business-plan-editor', icon: Edit, labelKey: 'editPlan' },
   { path: '/business-plan', icon: Eye, labelKey: 'viewPlan' },
   { path: '/bmc', icon: LayoutGrid, labelKey: 'bmc' },
+  { path: '/manage', icon: FolderOpen, labelKey: 'manage' },
   { path: '/financials', icon: DollarSign, labelKey: 'financials' },
   { path: '/users', icon: Users, labelKey: 'users' },
   { path: '/settings', icon: Settings, labelKey: 'settings' },
@@ -215,6 +217,7 @@ const Dashboard: React.FC = () => {
     { label: t('userAccess') || 'User Access', desc: t('manageUserAccess') || 'Manage collaborators', icon: Users, gradient: 'from-emerald-500 to-teal-600', path: '/user-access', disabled: false },
     { label: t('accountSettings') || 'Account Settings', desc: t('manageUserProfileAccountBilling') || 'Profile, account & billing', icon: Shield, gradient: 'from-orange-500 to-red-500', path: '/account-settings', disabled: false },
     { label: t('frequentQuestions') || 'FAQ', desc: t('findAnswersTutorialVideos') || 'Find answers & tutorials', icon: HelpCircle, gradient: 'from-pink-500 to-rose-600', path: '/faq', disabled: false },
+    { label: t('manage') || 'Manage', desc: 'Ventures, BMC & plans CRUD', icon: FolderOpen, gradient: 'from-indigo-500 to-violet-600', path: '/manage', disabled: false },
     { label: t('requestSupport') || 'Request Support', desc: t('getInTouchSupportTeam') || 'Get in touch with support', icon: HeartHandshake, gradient: 'from-sky-500 to-blue-600', path: '/support', disabled: false },
     { label: t('partnerProgram') || 'Partner Program', desc: t('earnRewardsReferNewCustomers') || 'Earn rewards by referring', icon: Sparkles, gradient: 'from-amber-500 to-yellow-500', path: '', disabled: true },
   ];
