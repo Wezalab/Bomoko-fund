@@ -9,7 +9,7 @@ export const financeService = splitApi.injectEndpoints({
   endpoints: (builder) => ({
     /** GET /api/finance?ventureId=<id> */
     getFinanceSheet: builder.query<FinancialSheet | null, string>({
-      query: (ventureId) => `/api/finance?ventureId=${ventureId}`,
+      query: (ventureId) => `/finance?ventureId=${ventureId}`,
       transformResponse: (response: any) => {
         if (!response) return null;
         if (Array.isArray(response)) return response[0] ?? null;
@@ -22,7 +22,7 @@ export const financeService = splitApi.injectEndpoints({
     /** POST /api/finance */
     createFinanceSheet: builder.mutation<FinancialSheet, CreateFinanceSheetRequest>({
       query: (data) => ({
-        url: '/api/finance',
+        url: '/finance',
         method: 'POST',
         body: data,
       }),
@@ -31,7 +31,7 @@ export const financeService = splitApi.injectEndpoints({
     /** PUT /api/finance/:id */
     updateFinanceSheet: builder.mutation<FinancialSheet, UpdateFinanceSheetRequest>({
       query: ({ id, ...data }) => ({
-        url: `/api/finance/${id}`,
+        url: `/finance/${id}`,
         method: 'PUT',
         body: data,
       }),
@@ -40,7 +40,7 @@ export const financeService = splitApi.injectEndpoints({
     /** DELETE /api/finance/:id */
     deleteFinanceSheet: builder.mutation<{ message: string }, string>({
       query: (id) => ({
-        url: `/api/finance/${id}`,
+        url: `/finance/${id}`,
         method: 'DELETE',
       }),
     }),
