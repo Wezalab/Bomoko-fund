@@ -115,26 +115,23 @@ function HomePage() {
             </span>
           </div>
           <div className="flex flex-col md:flex-row gap-3 mt-3 lg:mt-10">
-            <Button
-              className="flex items-center space-x-3 bg-darkBlue  h-[40px] md:h-[52px] rounded-[100px] hover:bg-lightBlue"
-            >
-              {t("Start Now")}
-              <MdOutlineArrowOutward size={24} color="white" />
-            </Button>
-            <Button
-              onClick={() => navigate("/business-plan")}
-              className="flex items-center space-x-3 bg-blue-600  h-[40px] md:h-[52px] rounded-[100px] hover:bg-blue-700"
-            >
-              {t("Create Business Plan")}
-              <MdOutlineArrowOutward size={24} color="white" />
-            </Button>
-            <Button
-              onClick={() => navigate("/venture")}
-              className="flex items-center space-x-3 bg-teal-600  h-[40px] md:h-[52px] rounded-[100px] hover:bg-teal-700"
-            >
-              {t("Create Venture")}
-              <MdOutlineArrowOutward size={24} color="white" />
-            </Button>
+            {user?._id ? (
+              <Button
+                onClick={() => navigate("/dashboard")}
+                className="flex items-center space-x-3 bg-darkBlue h-[40px] md:h-[52px] rounded-[100px] hover:bg-lightBlue"
+              >
+                {t("Go to Dashboard")}
+                <MdOutlineArrowOutward size={24} color="white" />
+              </Button>
+            ) : (
+              <Button
+                onClick={() => navigate("/venture")}
+                className="flex items-center space-x-3 bg-teal-600 h-[40px] md:h-[52px] rounded-[100px] hover:bg-teal-700"
+              >
+                {t("Create Venture")}
+                <MdOutlineArrowOutward size={24} color="white" />
+              </Button>
+            )}
           </div>
         </div>
         <div className="relative w-full h-[384px]">
