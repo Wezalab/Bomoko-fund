@@ -175,7 +175,7 @@ const FinancialsPage: React.FC = () => {
   const addInput = () =>
     setInputsServices((p) => [...p, { id: newId(), name: '', unit: '', quantity: 1, unitPrice: 0 }]);
   const addLabour = () =>
-    setLabour((p) => [...p, { id: newId(), name: '', quantity: 1, unitPrice: 0 }]);
+    setLabour((p) => [...p, { id: newId(), name: '', unit: '', quantity: 1, unitPrice: 0 }]);
   const addRevenue = (type: 'product' | 'by-product') =>
     setRevenueItems((p) => [...p, { id: newId(), name: '', unit: '', quantity: 1, unitPrice: 0, type }]);
 
@@ -492,6 +492,7 @@ const FinancialsPage: React.FC = () => {
                       <thead>
                         <tr className="bg-blue-50 text-blue-800">
                           <Th>{lang === 'fr' ? 'Tâche' : 'Task'}</Th>
+                          <Th>{lang === 'fr' ? 'Unité' : 'Unit'}</Th>
                           <Th>{lang === 'fr' ? 'Nb. journées (JP)' : 'Person-Days (PD)'}</Th>
                           <Th>{lang === 'fr' ? 'Prix / JP' : 'Price / PD'} ({currency})</Th>
                           <Th className="text-right">Total ({currency})</Th>
@@ -508,6 +509,14 @@ const FinancialsPage: React.FC = () => {
                                 onChange={(e) => setLabour(update(labour, idx, { name: e.target.value }))}
                                 className={inputCls}
                                 placeholder={lang === 'fr' ? 'ex. Récolte' : 'e.g. Harvesting'}
+                              />
+                            </Td>
+                            <Td>
+                              <input
+                                value={item.unit}
+                                onChange={(e) => setLabour(update(labour, idx, { unit: e.target.value }))}
+                                className={`${inputCls} w-20`}
+                                placeholder="JP"
                               />
                             </Td>
                             <Td>
