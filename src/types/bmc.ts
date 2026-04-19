@@ -29,6 +29,8 @@ export interface StrategySuggestion {
 export interface BusinessModelCanvas {
   _id: string;
   userId: string;
+  /** Optional — links this canvas to a specific venture */
+  ventureId?: string;
   title: string;
   description: string;
   blocks: BMCBlock[];
@@ -55,6 +57,8 @@ export interface BMCWizardAnswers {
 export interface CreateBMCRequest {
   title: string;
   description?: string;
+  /** Optional — links this canvas to a specific venture */
+  ventureId?: string;
   blocks: BMCBlock[];
   strategySuggestions?: StrategySuggestion[];
   status?: BMCStatus;
@@ -64,6 +68,8 @@ export interface UpdateBMCRequest {
   id: string;
   title?: string;
   description?: string;
+  /** Optional — links this canvas to a specific venture */
+  ventureId?: string;
   blocks?: BMCBlock[];
   strategySuggestions?: StrategySuggestion[];
   status?: BMCStatus;
