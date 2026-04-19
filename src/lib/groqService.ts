@@ -2,23 +2,41 @@ import Groq from 'groq-sdk';
 import OpenAI from 'openai';
 import { groqApiKey, llmProvider, chatgptApiKey, chatgptModel } from './env';
 
-// Initialize providers
-const groq = new Groq({
-  apiKey: groqApiKey,
-  dangerouslyAllowBrowser: true
-});
+// Lazy-init: constructing Groq/OpenAI at import time throws if that provider's key is
+// missing, even when the other provider is selected (e.g. ChatGPT-only on Netlify).
 
-const openai = new OpenAI({
-  apiKey: chatgptApiKey,
-  dangerouslyAllowBrowser: true
-});
+let groqClient: Groq | null = null;
+function getGroqClient(): Groq {
+  if (groqClient) return groqClient;
+  const key = groqApiKey?.trim();
+  if (!key) {
+    throw new Error(
+      'VITE_GROQ_API_KEY is missing. Set it in the environment, or set VITE_LLM_PROVIDER to chatgpt.'
+    );
+  }
+  groqClient = new Groq({ apiKey: key, dangerouslyAllowBrowser: true });
+  return groqClient;
+}
+
+let openaiClient: OpenAI | null = null;
+function getOpenAIClient(): OpenAI {
+  if (openaiClient) return openaiClient;
+  const key = chatgptApiKey?.trim();
+  if (!key) {
+    throw new Error(
+      'VITE_CHATGPT_API_KEY is missing. Set it in the environment, or set VITE_LLM_PROVIDER to groq.'
+    );
+  }
+  openaiClient = new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true });
+  return openaiClient;
+}
 
 // Generic chat completion function that uses the configured provider
 export const getChatCompletion = async (message: string) => {
   try {
     if (llmProvider === 'groq') {
       // Use Groq
-    const response = await groq.chat.completions.create({
+    const response = await getGroqClient().chat.completions.create({
       messages: [
         {
           role: "user",
@@ -32,7 +50,7 @@ export const getChatCompletion = async (message: string) => {
     return response;
     } else {
       // Default to ChatGPT
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         messages: [
           {
             role: "user",
