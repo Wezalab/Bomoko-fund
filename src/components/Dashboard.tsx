@@ -7,6 +7,9 @@ import { useTranslation } from '@/lib/TranslationContext';
 import { useGetUserVenturesQuery } from '@/redux/services/ventureServices';
 import { useGetVentureBusinessPlansQuery } from '@/redux/services/businessPlanServices';
 import { useGetUserCanvasesQuery } from '@/redux/services/bmcServices';
+import { useGetFinanceSheetQuery } from '@/redux/services/financeServices';
+import { useUsersProjectsQuery } from '@/redux/services/projectServices';
+import { computeSummary } from '@/types/finance';
 import { setCanvas } from '@/redux/slices/bmcSlice';
 import {
   Home,
@@ -17,7 +20,6 @@ import {
   Settings,
   User,
   ArrowUpRight,
-  Trash2,
   Plus,
   Building,
   FileText,
@@ -36,7 +38,6 @@ import {
   Calendar,
   MapPin,
   CheckCircle2,
-  Clock,
   Zap,
   Shield,
   HelpCircle,
@@ -44,6 +45,11 @@ import {
   FolderOpen,
   ChevronRight,
   Loader2,
+  BarChart3,
+  Megaphone,
+  ExternalLink,
+  Activity,
+  Coins,
 } from 'lucide-react';
 import profileImage from '../assets/profileImage.png';
 import {
@@ -161,6 +167,28 @@ const Dashboard: React.FC = () => {
   /* ─── BMC canvases ─── */
   const { data: apiCanvases, isLoading: isLoadingCanvases } = useGetUserCanvasesQuery();
   const allCanvases: BusinessModelCanvas[] = apiCanvases || [];
+  const ventureCanvases = selectedVentureId
+    ? allCanvases.filter((c) => !c.ventureId || c.ventureId === selectedVentureId)
+    : allCanvases;
+
+  /* ─── Finance sheet for selected venture ─── */
+  const { data: financeSheet, isLoading: isLoadingFinance } = useGetFinanceSheetQuery(
+    selectedVentureId,
+    { skip: !selectedVentureId },
+  );
+  const financeSummary = financeSheet ? computeSummary(financeSheet) : null;
+
+  /* ─── User projects (crowdfunding) ─── */
+  const { data: userProjectsRaw, isLoading: isLoadingProjects } = useUsersProjectsQuery(
+    user?._id || '',
+    { skip: !user?._id },
+  );
+  const userProjects: any[] = (() => {
+    if (!userProjectsRaw) return [];
+    if (Array.isArray(userProjectsRaw)) return userProjectsRaw;
+    if (Array.isArray((userProjectsRaw as any)?.data)) return (userProjectsRaw as any).data;
+    return [];
+  })();
 
   /* ─── Helpers ─── */
   const getOptimizedImageUrl = (url: string) => {
@@ -467,207 +495,390 @@ const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* ── Right Panel: Plans + BMC (3 cols) ── */}
-            <div className="xl:col-span-3 flex flex-col gap-6">
+            {/* ── Right Panel: 4 Venture Sections (3 cols) ── */}
+            <div className="xl:col-span-3">
+              {!selectedVenture ? (
+                /* ── No venture selected placeholder ── */
+                <div className="h-full min-h-[400px] bg-white rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center p-10">
+                  <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mb-5 border-2 border-dashed border-gray-200">
+                    <Building className="w-9 h-9 text-gray-300" />
+                  </div>
+                  <h3 className="font-bold text-gray-700 text-lg mb-2">Select a Venture</h3>
+                  <p className="text-gray-400 text-sm max-w-xs leading-relaxed">
+                    Pick an entreprise from the left panel to explore its Business Plan, BMC, Financials, and Crowdfunding.
+                  </p>
+                </div>
+              ) : (
+                /* ── 4-Section Grid ── */
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 h-full">
 
-              {/* ── Business Plans for selected venture ── */}
-              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-6 py-5 flex items-center justify-between border-b border-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-violet-100 rounded-xl flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-violet-600" />
+                  {/* ══════════════════════════════
+                      1. BUSINESS PLAN  (violet)
+                  ══════════════════════════════ */}
+                  <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+                    {/* Card Header */}
+                    <div className="px-5 pt-5 pb-4">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-2xl bg-violet-600 flex items-center justify-center shadow-lg shadow-violet-200">
+                            <FileText className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-gray-900 text-sm">Business Plan</h3>
+                            <p className="text-[10px] text-gray-400 mt-0.5 truncate max-w-[130px]">
+                              {selectedVenture.businessName}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="bg-violet-50 text-violet-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                            {isLoadingPlans ? '…' : ventureBusinessPlans.length}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Stat pill row */}
+                      <div className="flex gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 bg-violet-50 rounded-xl px-3 py-1.5">
+                          <Activity className="w-3 h-3 text-violet-500" />
+                          <span className="text-[11px] font-semibold text-violet-700">
+                            {ventureBusinessPlans.filter((p: any) => p.metadata?.status === 'completed').length} Completed
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-amber-50 rounded-xl px-3 py-1.5">
+                          <Edit className="w-3 h-3 text-amber-500" />
+                          <span className="text-[11px] font-semibold text-amber-700">
+                            {ventureBusinessPlans.filter((p: any) => p.metadata?.status !== 'completed').length} In Draft
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-base font-bold text-gray-900">{t('myBusinessPlans') || 'Business Plans'}</h2>
-                      {selectedVenture && (
-                        <p className="text-gray-400 text-xs mt-0.5 truncate max-w-[200px]">
-                          For <span className="text-[#020A3C] font-medium">{selectedVenture.businessName}</span>
-                        </p>
+
+                    {/* Plan List */}
+                    <div className="px-5 flex-1 overflow-hidden">
+                      {isLoadingPlans ? (
+                        <div className="py-4 flex justify-center"><Loader2 className="w-5 h-5 text-violet-300 animate-spin" /></div>
+                      ) : ventureBusinessPlans.length > 0 ? (
+                        <div className="space-y-2 max-h-[160px] overflow-y-auto custom-scrollbar">
+                          {ventureBusinessPlans.slice(0, 4).map((plan: any) => {
+                            const statusCfg = STATUS_CONFIG[plan.metadata?.status] || STATUS_CONFIG['draft'];
+                            const pct = plan.progress?.completionPercentage ?? 0;
+                            return (
+                              <div
+                                key={plan._id}
+                                className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-100 hover:border-violet-200 hover:bg-violet-50/40 cursor-pointer transition-all group/item"
+                                onClick={() => handleNavigation('/business-plan-editor')}
+                              >
+                                <div className="w-7 h-7 bg-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <FileText className="w-3.5 h-3.5 text-violet-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-semibold text-gray-800 truncate">{plan.metadata?.title || 'Business Plan'}</p>
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
+                                      {statusCfg.label}
+                                    </span>
+                                    <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                                      <div className="h-full bg-violet-400 rounded-full" style={{ width: `${pct}%` }} />
+                                    </div>
+                                    <span className="text-[9px] text-gray-400 flex-shrink-0">{pct}%</span>
+                                  </div>
+                                </div>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover/item:text-violet-500 flex-shrink-0 transition-colors" />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="py-4 text-center">
+                          <p className="text-xs text-gray-400">No plans yet. Create your first!</p>
+                        </div>
                       )}
                     </div>
-                  </div>
-                  <button
-                    onClick={() => handleNavigation('/business-plan/wizard')}
-                    className="w-9 h-9 bg-violet-600 hover:bg-violet-700 text-white rounded-xl flex items-center justify-center transition-colors shadow-md shadow-violet-200"
-                    title={t('createNewPlan') || 'New Plan'}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
 
-                <div className="p-5">
-                  {!selectedVenture ? (
-                    <div className="flex items-center gap-3 py-6 px-4 bg-gray-50 rounded-2xl">
-                      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-100">
-                        <Building className="w-5 h-5 text-gray-300" />
-                      </div>
-                      <p className="text-gray-400 text-sm">Select a venture on the left to see its business plans</p>
-                    </div>
-                  ) : isLoadingPlans ? (
-                    <LoadingState />
-                  ) : ventureBusinessPlans.length > 0 ? (
-                    <div className="space-y-2.5 max-h-[220px] overflow-y-auto custom-scrollbar">
-                      {ventureBusinessPlans.map((plan: any) => {
-                        const statusCfg = STATUS_CONFIG[plan.metadata?.status] || STATUS_CONFIG['draft'];
-                        const completionPct = plan.progress?.completionPercentage ?? 0;
-                        return (
-                          <div
-                            key={plan._id}
-                            className="flex items-center gap-3 p-3.5 rounded-2xl border border-gray-100 hover:border-violet-200 hover:bg-violet-50/30 cursor-pointer transition-all group"
-                            onClick={() => handleNavigation('/business-plan-editor')}
-                          >
-                            <div className="w-9 h-9 bg-violet-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                              <FileText className="w-4 h-4 text-violet-600" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2">
-                                <p className="font-semibold text-gray-800 text-sm truncate">{plan.metadata?.title || 'Business Plan'}</p>
-                                <ArrowUpRight className="w-4 h-4 text-gray-300 group-hover:text-violet-500 flex-shrink-0 transition-colors" />
-                              </div>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${statusCfg.bg} ${statusCfg.text}`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />{statusCfg.label}
-                                </span>
-                                <span className="text-[10px] text-gray-400">{completionPct}% complete</span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-4 py-5">
-                      <div className="w-12 h-12 bg-violet-50 rounded-2xl flex items-center justify-center flex-shrink-0">
-                        <FileText className="w-5 h-5 text-violet-300" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-700 text-sm">No business plans yet</p>
-                        <p className="text-gray-400 text-xs mt-0.5">Generate an AI-powered plan for this venture</p>
-                      </div>
+                    {/* CTA Footer */}
+                    <div className="px-5 py-4 mt-2 border-t border-gray-50 flex gap-2">
                       <button
                         onClick={() => handleNavigation('/business-plan/wizard')}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-xl transition-colors whitespace-nowrap"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-xl transition-colors shadow-sm shadow-violet-200"
                       >
-                        <Plus className="w-3.5 h-3.5" />
-                        Create Plan
+                        <Plus className="w-3.5 h-3.5" /> New Plan
+                      </button>
+                      <button
+                        onClick={() => handleNavigation('/business-plan')}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-violet-50 hover:bg-violet-100 text-violet-700 text-xs font-semibold rounded-xl transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> View All
                       </button>
                     </div>
-                  )}
-                </div>
-              </div>
+                  </div>
 
-              {/* ── Business Model Canvas Section ── */}
-              <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-6 py-5 flex items-center justify-between border-b border-gray-50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-emerald-100 rounded-xl flex items-center justify-center">
-                      <LayoutGrid className="w-4 h-4 text-emerald-600" />
+                  {/* ══════════════════════════════
+                      2. BMC  (emerald)
+                  ══════════════════════════════ */}
+                  <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+                    <div className="px-5 pt-5 pb-4">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-2xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-200">
+                            <LayoutGrid className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-gray-900 text-sm">BMC</h3>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Business Model Canvas</p>
+                          </div>
+                        </div>
+                        <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                          {isLoadingCanvases ? '…' : ventureCanvases.length}
+                        </span>
+                      </div>
+
+                      <div className="flex gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 bg-emerald-50 rounded-xl px-3 py-1.5">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                          <span className="text-[11px] font-semibold text-emerald-700">
+                            {ventureCanvases.filter((c) => c.status === 'completed').length} Completed
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-sky-50 rounded-xl px-3 py-1.5">
+                          <LayoutGrid className="w-3 h-3 text-sky-500" />
+                          <span className="text-[11px] font-semibold text-sky-700">
+                            {allCanvases.length} Total
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h2 className="text-base font-bold text-gray-900">Business Model Canvas</h2>
-                      {selectedVenture && (
-                        <p className="text-gray-400 text-xs mt-0.5 truncate max-w-[200px]">
-                          For <span className="text-[#020A3C] font-medium">{selectedVenture.businessName}</span>
-                        </p>
+
+                    <div className="px-5 flex-1 overflow-hidden">
+                      {isLoadingCanvases ? (
+                        <div className="py-4 flex justify-center"><Loader2 className="w-5 h-5 text-emerald-300 animate-spin" /></div>
+                      ) : ventureCanvases.length > 0 ? (
+                        <div className="space-y-2 max-h-[160px] overflow-y-auto custom-scrollbar">
+                          {ventureCanvases.slice(0, 4).map((canvas) => {
+                            const filled = canvas.blocks.filter((b) => b.content?.trim()).length;
+                            const total = canvas.blocks.length;
+                            const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+                            return (
+                              <div
+                                key={canvas._id}
+                                className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-100 hover:border-emerald-200 hover:bg-emerald-50/40 cursor-pointer transition-all group/item"
+                                onClick={() => handleOpenBMC(canvas)}
+                              >
+                                {/* Mini grid preview */}
+                                <div className="w-9 h-7 grid grid-cols-3 gap-px rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                                  {Array.from({ length: 9 }).map((_, i) => (
+                                    <div key={i} className={canvas.blocks[i]?.content?.trim() ? 'bg-emerald-300' : 'bg-gray-100'} />
+                                  ))}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-semibold text-gray-800 truncate">{canvas.title}</p>
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded-full ${canvas.status === 'completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
+                                      {canvas.status === 'completed' ? 'Done' : 'Draft'}
+                                    </span>
+                                    <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                                      <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${pct}%` }} />
+                                    </div>
+                                    <span className="text-[9px] text-gray-400 flex-shrink-0">{filled}/{total}</span>
+                                  </div>
+                                </div>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover/item:text-emerald-500 flex-shrink-0 transition-colors" />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="py-4 text-center">
+                          <p className="text-xs text-gray-400">No canvas yet. Build your model!</p>
+                        </div>
                       )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => handleNavigation('/bmc')}
-                      className="h-8 px-3 text-xs font-medium text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
-                    >
-                      View all
-                    </button>
-                    {/* ── THE "+" to add a new BMC ── */}
-                    <button
-                      onClick={handleNewBMC}
-                      className="w-9 h-9 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center transition-colors shadow-md shadow-emerald-200"
-                      title="Create new Business Model Canvas"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
 
-                <div className="p-5">
-                  {isLoadingCanvases ? (
-                    <LoadingState />
-                  ) : allCanvases.length > 0 ? (
-                    <div className="space-y-2.5 max-h-[280px] overflow-y-auto custom-scrollbar">
-                      {allCanvases.map((canvas) => {
-                        const filled = canvas.blocks.filter((b) => b.content?.trim()).length;
-                        const total = canvas.blocks.length;
-                        const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
-                        return (
-                          <div
-                            key={canvas._id}
-                            className="flex items-center gap-3 p-3.5 rounded-2xl border border-gray-100 hover:border-emerald-200 hover:bg-emerald-50/30 cursor-pointer transition-all group"
-                            onClick={() => handleOpenBMC(canvas)}
-                          >
-                            {/* Mini BMC preview grid */}
-                            <div className="w-12 h-10 grid grid-cols-3 gap-0.5 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
-                              {Array.from({ length: 9 }).map((_, i) => {
-                                const block = canvas.blocks[i];
-                                return (
-                                  <div
-                                    key={i}
-                                    className={`${block?.content?.trim() ? 'bg-emerald-200' : 'bg-gray-100'}`}
-                                  />
-                                );
-                              })}
-                            </div>
-
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2">
-                                <p className="font-semibold text-gray-800 text-sm truncate">{canvas.title}</p>
-                                <ArrowUpRight className="w-4 h-4 text-gray-300 group-hover:text-emerald-500 flex-shrink-0 transition-colors" />
-                              </div>
-                              <div className="flex items-center gap-2 mt-1">
-                                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${canvas.status === 'completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${canvas.status === 'completed' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                                  {canvas.status === 'completed' ? 'Completed' : 'Draft'}
-                                </span>
-                                <span className="text-[10px] text-gray-400">{filled}/{total} blocks filled</span>
-                                {canvas.createdAt && (
-                                  <span className="text-[10px] text-gray-400 hidden sm:inline-flex items-center gap-1">
-                                    <Calendar className="w-3 h-3" />
-                                    {formatDateShort(canvas.createdAt)}
-                                  </span>
-                                )}
-                              </div>
-                              {/* Progress bar */}
-                              <div className="mt-2 h-1 bg-gray-100 rounded-full overflow-hidden w-full">
-                                <div
-                                  className="h-full bg-emerald-400 rounded-full transition-all"
-                                  style={{ width: `${pct}%` }}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-4 py-5">
-                      <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center flex-shrink-0">
-                        <LayoutGrid className="w-5 h-5 text-emerald-300" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-700 text-sm">No BMC canvases yet</p>
-                        <p className="text-gray-400 text-xs mt-0.5">Visualize your business model in one page</p>
-                      </div>
+                    <div className="px-5 py-4 mt-2 border-t border-gray-50 flex gap-2">
                       <button
                         onClick={handleNewBMC}
-                        className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl transition-colors whitespace-nowrap"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold rounded-xl transition-colors shadow-sm shadow-emerald-200"
                       >
-                        <Plus className="w-3.5 h-3.5" />
-                        New BMC
+                        <Plus className="w-3.5 h-3.5" /> New BMC
+                      </button>
+                      <button
+                        onClick={() => handleNavigation('/bmc')}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-xl transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> View All
                       </button>
                     </div>
-                  )}
+                  </div>
+
+                  {/* ══════════════════════════════
+                      3. FINANCIALS  (indigo/blue)
+                  ══════════════════════════════ */}
+                  <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+                    <div className="px-5 pt-5 pb-4">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-2xl bg-[#020A3C] flex items-center justify-center shadow-lg shadow-[#020A3C]/20">
+                            <BarChart3 className="w-5 h-5 text-[#3AB6FF]" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-gray-900 text-sm">Financials</h3>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Costs · Revenue · Margins</p>
+                          </div>
+                        </div>
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${financeSheet ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {isLoadingFinance ? '…' : financeSheet ? 'Active' : 'Not set'}
+                        </span>
+                      </div>
+
+                      {/* Finance summary pills */}
+                      {financeSummary ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 border border-blue-100">
+                            <p className="text-[10px] text-blue-500 font-medium mb-0.5">Revenue</p>
+                            <p className="text-sm font-bold text-blue-800">
+                              {financeSheet?.currency || '$'}{' '}
+                              {financeSummary.grossRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl p-3 border border-indigo-100">
+                            <p className="text-[10px] text-indigo-500 font-medium mb-0.5">Net Margin</p>
+                            <p className={`text-sm font-bold ${financeSummary.netMargin >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                              {financeSheet?.currency || '$'}{' '}
+                              {financeSummary.netMargin.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-xl p-3 border border-gray-100">
+                            <p className="text-[10px] text-gray-500 font-medium mb-0.5">Total Costs</p>
+                            <p className="text-sm font-bold text-gray-700">
+                              {financeSheet?.currency || '$'}{' '}
+                              {financeSummary.totalCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </p>
+                          </div>
+                          <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-3 border border-amber-100">
+                            <p className="text-[10px] text-amber-600 font-medium mb-0.5">Gross Margin</p>
+                            <p className={`text-sm font-bold ${financeSummary.grossMargin >= 0 ? 'text-amber-700' : 'text-red-600'}`}>
+                              {financeSheet?.currency || '$'}{' '}
+                              {financeSummary.grossMargin.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </p>
+                          </div>
+                        </div>
+                      ) : isLoadingFinance ? (
+                        <div className="py-4 flex justify-center"><Loader2 className="w-5 h-5 text-blue-300 animate-spin" /></div>
+                      ) : (
+                        <div className="py-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 text-center">
+                          <Coins className="w-8 h-8 text-blue-200 mx-auto mb-2" />
+                          <p className="text-xs text-blue-400 font-medium">No financial sheet yet</p>
+                          <p className="text-[10px] text-blue-300 mt-0.5">Set up costs, revenue & margins</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="px-5 py-4 mt-auto border-t border-gray-50">
+                      <button
+                        onClick={() => handleNavigation(`/financials${selectedVentureId ? `?ventureId=${selectedVentureId}` : ''}`)}
+                        className="w-full inline-flex items-center justify-center gap-2 py-2.5 bg-[#020A3C] hover:bg-[#0a1963] text-white text-xs font-semibold rounded-xl transition-colors shadow-sm"
+                      >
+                        <TrendingUp className="w-3.5 h-3.5" />
+                        {financeSheet ? 'Open Financials' : 'Set Up Financials'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* ══════════════════════════════
+                      4. CROWDFUNDING  (amber/orange)
+                  ══════════════════════════════ */}
+                  <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+                    <div className="px-5 pt-5 pb-4">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-200">
+                            <Megaphone className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-gray-900 text-sm">Crowdfunding</h3>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Campaigns · Donations</p>
+                          </div>
+                        </div>
+                        <span className="bg-amber-50 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                          {isLoadingProjects ? '…' : userProjects.length}
+                        </span>
+                      </div>
+
+                      <div className="flex gap-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 bg-amber-50 rounded-xl px-3 py-1.5">
+                          <CheckCircle2 className="w-3 h-3 text-amber-500" />
+                          <span className="text-[11px] font-semibold text-amber-700">
+                            {userProjects.filter((p: any) => p.status === 'active' || p.status === 'published').length} Active
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-orange-50 rounded-xl px-3 py-1.5">
+                          <HeartHandshake className="w-3 h-3 text-orange-500" />
+                          <span className="text-[11px] font-semibold text-orange-700">
+                            {userProjects.filter((p: any) => p.status === 'draft').length} Draft
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="px-5 flex-1 overflow-hidden">
+                      {isLoadingProjects ? (
+                        <div className="py-4 flex justify-center"><Loader2 className="w-5 h-5 text-amber-300 animate-spin" /></div>
+                      ) : userProjects.length > 0 ? (
+                        <div className="space-y-2 max-h-[160px] overflow-y-auto custom-scrollbar">
+                          {userProjects.slice(0, 4).map((project: any) => {
+                            const raised = project.amountRaised ?? project.raised ?? 0;
+                            const goal = project.goalAmount ?? project.goal ?? 0;
+                            const fundPct = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
+                            return (
+                              <div
+                                key={project._id}
+                                className="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-100 hover:border-amber-200 hover:bg-amber-50/40 cursor-pointer transition-all group/item"
+                                onClick={() => handleNavigation(`/projects/${project._id}`)}
+                              >
+                                <div className="w-7 h-7 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                  <Megaphone className="w-3.5 h-3.5 text-amber-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-semibold text-gray-800 truncate">{project.title || project.name || 'Campaign'}</p>
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                                      <div className="h-full bg-amber-400 rounded-full" style={{ width: `${fundPct}%` }} />
+                                    </div>
+                                    <span className="text-[9px] text-gray-400 flex-shrink-0">{fundPct}%</span>
+                                  </div>
+                                </div>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-gray-300 group-hover/item:text-amber-500 flex-shrink-0 transition-colors" />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="py-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-100 text-center">
+                          <Megaphone className="w-8 h-8 text-amber-200 mx-auto mb-2" />
+                          <p className="text-xs text-amber-400 font-medium">No campaigns yet</p>
+                          <p className="text-[10px] text-amber-300 mt-0.5">Launch a crowdfunding campaign</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="px-5 py-4 mt-2 border-t border-gray-50 flex gap-2">
+                      <button
+                        onClick={() => handleNavigation('/projects/create')}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-amber-200"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> New Campaign
+                      </button>
+                      <button
+                        onClick={() => handleNavigation('/projects')}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold rounded-xl transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> Browse
+                      </button>
+                    </div>
+                  </div>
+
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
