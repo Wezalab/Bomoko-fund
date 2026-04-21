@@ -503,9 +503,9 @@ const Dashboard: React.FC = () => {
                   <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mb-5 border-2 border-dashed border-gray-200">
                     <Building className="w-9 h-9 text-gray-300" />
                   </div>
-                  <h3 className="font-bold text-gray-700 text-lg mb-2">Select a Venture</h3>
+                  <h3 className="font-bold text-gray-700 text-lg mb-2">{t('selectVenture') || 'Select a Venture'}</h3>
                   <p className="text-gray-400 text-sm max-w-xs leading-relaxed">
-                    Pick an entreprise from the left panel to explore its Business Plan, BMC, Financials, and Crowdfunding.
+                    {t('selectVentureDesc') || 'Pick an entreprise from the left panel to explore its Business Plan, BMC, Financials, and Crowdfunding.'}
                   </p>
                 </div>
               ) : (
@@ -524,7 +524,7 @@ const Dashboard: React.FC = () => {
                             <FileText className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <h3 className="font-bold text-gray-900 text-sm">Business Plan</h3>
+                            <h3 className="font-bold text-gray-900 text-sm">{t('businessPlan') || 'Business Plan'}</h3>
                             <p className="text-[10px] text-gray-400 mt-0.5 truncate max-w-[130px]">
                               {selectedVenture.businessName}
                             </p>
@@ -542,13 +542,13 @@ const Dashboard: React.FC = () => {
                         <div className="flex items-center gap-1.5 bg-violet-50 rounded-xl px-3 py-1.5">
                           <Activity className="w-3 h-3 text-violet-500" />
                           <span className="text-[11px] font-semibold text-violet-700">
-                            {ventureBusinessPlans.filter((p: any) => p.metadata?.status === 'completed').length} Completed
+                            {ventureBusinessPlans.filter((p: any) => p.metadata?.status === 'completed').length} {t('completed') || 'Completed'}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 bg-amber-50 rounded-xl px-3 py-1.5">
                           <Edit className="w-3 h-3 text-amber-500" />
                           <span className="text-[11px] font-semibold text-amber-700">
-                            {ventureBusinessPlans.filter((p: any) => p.metadata?.status !== 'completed').length} In Draft
+                            {ventureBusinessPlans.filter((p: any) => p.metadata?.status !== 'completed').length} {t('inDraft') || 'In Draft'}
                           </span>
                         </div>
                       </div>
@@ -591,7 +591,7 @@ const Dashboard: React.FC = () => {
                         </div>
                       ) : (
                         <div className="py-4 text-center">
-                          <p className="text-xs text-gray-400">No plans yet. Create your first!</p>
+                          <p className="text-xs text-gray-400">{t('noPlansYet') || 'No plans yet. Create your first!'}</p>
                         </div>
                       )}
                     </div>
@@ -602,13 +602,13 @@ const Dashboard: React.FC = () => {
                         onClick={() => handleNavigation('/business-plan/wizard')}
                         className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-xl transition-colors shadow-sm shadow-violet-200"
                       >
-                        <Plus className="w-3.5 h-3.5" /> New Plan
+                        <Plus className="w-3.5 h-3.5" /> {t('newPlan') || 'New Plan'}
                       </button>
                       <button
                         onClick={() => handleNavigation('/business-plan')}
                         className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-violet-50 hover:bg-violet-100 text-violet-700 text-xs font-semibold rounded-xl transition-colors"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" /> View All
+                        <ExternalLink className="w-3.5 h-3.5" /> {t('viewAll') || 'View All'}
                       </button>
                     </div>
                   </div>
@@ -624,8 +624,8 @@ const Dashboard: React.FC = () => {
                             <LayoutGrid className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <h3 className="font-bold text-gray-900 text-sm">BMC</h3>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Business Model Canvas</p>
+                            <h3 className="font-bold text-gray-900 text-sm">{t('bmc') || 'BMC'}</h3>
+                            <p className="text-[10px] text-gray-400 mt-0.5">{t('businessModelCanvas') || 'Business Model Canvas'}</p>
                           </div>
                         </div>
                         <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">
@@ -637,13 +637,13 @@ const Dashboard: React.FC = () => {
                         <div className="flex items-center gap-1.5 bg-emerald-50 rounded-xl px-3 py-1.5">
                           <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                           <span className="text-[11px] font-semibold text-emerald-700">
-                            {ventureCanvases.filter((c) => c.status === 'completed').length} Completed
+                            {ventureCanvases.filter((c) => c.status === 'completed').length} {t('completed') || 'Completed'}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 bg-sky-50 rounded-xl px-3 py-1.5">
                           <LayoutGrid className="w-3 h-3 text-sky-500" />
                           <span className="text-[11px] font-semibold text-sky-700">
-                            {allCanvases.length} Total
+                            {allCanvases.length} {t('total') || 'Total'}
                           </span>
                         </div>
                       </div>
@@ -674,7 +674,7 @@ const Dashboard: React.FC = () => {
                                   <p className="text-xs font-semibold text-gray-800 truncate">{canvas.title}</p>
                                   <div className="flex items-center gap-2 mt-0.5">
                                     <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded-full ${canvas.status === 'completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
-                                      {canvas.status === 'completed' ? 'Done' : 'Draft'}
+                                      {canvas.status === 'completed' ? (t('done') || 'Done') : (t('draft') || 'Draft')}
                                     </span>
                                     <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                                       <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${pct}%` }} />
@@ -689,7 +689,7 @@ const Dashboard: React.FC = () => {
                         </div>
                       ) : (
                         <div className="py-4 text-center">
-                          <p className="text-xs text-gray-400">No canvas yet. Build your model!</p>
+                          <p className="text-xs text-gray-400">{t('noCanvasYet') || 'No canvas yet. Build your model!'}</p>
                         </div>
                       )}
                     </div>
@@ -699,13 +699,13 @@ const Dashboard: React.FC = () => {
                         onClick={handleNewBMC}
                         className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold rounded-xl transition-colors shadow-sm shadow-emerald-200"
                       >
-                        <Plus className="w-3.5 h-3.5" /> New BMC
+                        <Plus className="w-3.5 h-3.5" /> {t('newBMC') || 'New BMC'}
                       </button>
                       <button
                         onClick={() => handleNavigation('/bmc')}
                         className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-xl transition-colors"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" /> View All
+                        <ExternalLink className="w-3.5 h-3.5" /> {t('viewAll') || 'View All'}
                       </button>
                     </div>
                   </div>
@@ -721,12 +721,12 @@ const Dashboard: React.FC = () => {
                             <BarChart3 className="w-5 h-5 text-[#3AB6FF]" />
                           </div>
                           <div>
-                            <h3 className="font-bold text-gray-900 text-sm">Financials</h3>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Costs · Revenue · Margins</p>
+                            <h3 className="font-bold text-gray-900 text-sm">{t('financials') || 'Financials'}</h3>
+                            <p className="text-[10px] text-gray-400 mt-0.5">{t('financialsSubtitle') || 'Costs · Revenue · Margins'}</p>
                           </div>
                         </div>
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${financeSheet ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
-                          {isLoadingFinance ? '…' : financeSheet ? 'Active' : 'Not set'}
+                          {isLoadingFinance ? '…' : financeSheet ? (t('active') || 'Active') : (t('notSet') || 'Not set')}
                         </span>
                       </div>
 
@@ -734,28 +734,28 @@ const Dashboard: React.FC = () => {
                       {financeSummary ? (
                         <div className="grid grid-cols-2 gap-2">
                           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-3 border border-blue-100">
-                            <p className="text-[10px] text-blue-500 font-medium mb-0.5">Revenue</p>
+                            <p className="text-[10px] text-blue-500 font-medium mb-0.5">{t('revenue') || 'Revenue'}</p>
                             <p className="text-sm font-bold text-blue-800">
                               {financeSheet?.currency || '$'}{' '}
                               {financeSummary.grossRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                             </p>
                           </div>
                           <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl p-3 border border-indigo-100">
-                            <p className="text-[10px] text-indigo-500 font-medium mb-0.5">Net Margin</p>
+                            <p className="text-[10px] text-indigo-500 font-medium mb-0.5">{t('netMargin') || 'Net Margin'}</p>
                             <p className={`text-sm font-bold ${financeSummary.netMargin >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
                               {financeSheet?.currency || '$'}{' '}
                               {financeSummary.netMargin.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                             </p>
                           </div>
                           <div className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-xl p-3 border border-gray-100">
-                            <p className="text-[10px] text-gray-500 font-medium mb-0.5">Total Costs</p>
+                            <p className="text-[10px] text-gray-500 font-medium mb-0.5">{t('totalCosts') || 'Total Costs'}</p>
                             <p className="text-sm font-bold text-gray-700">
                               {financeSheet?.currency || '$'}{' '}
                               {financeSummary.totalCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                             </p>
                           </div>
                           <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-3 border border-amber-100">
-                            <p className="text-[10px] text-amber-600 font-medium mb-0.5">Gross Margin</p>
+                            <p className="text-[10px] text-amber-600 font-medium mb-0.5">{t('grossMargin') || 'Gross Margin'}</p>
                             <p className={`text-sm font-bold ${financeSummary.grossMargin >= 0 ? 'text-amber-700' : 'text-red-600'}`}>
                               {financeSheet?.currency || '$'}{' '}
                               {financeSummary.grossMargin.toLocaleString(undefined, { maximumFractionDigits: 0 })}
@@ -767,8 +767,8 @@ const Dashboard: React.FC = () => {
                       ) : (
                         <div className="py-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 text-center">
                           <Coins className="w-8 h-8 text-blue-200 mx-auto mb-2" />
-                          <p className="text-xs text-blue-400 font-medium">No financial sheet yet</p>
-                          <p className="text-[10px] text-blue-300 mt-0.5">Set up costs, revenue & margins</p>
+                          <p className="text-xs text-blue-400 font-medium">{t('noFinancialSheet') || 'No financial sheet yet'}</p>
+                          <p className="text-[10px] text-blue-300 mt-0.5">{t('setupFinancialsDesc') || 'Set up costs, revenue & margins'}</p>
                         </div>
                       )}
                     </div>
@@ -779,7 +779,7 @@ const Dashboard: React.FC = () => {
                         className="w-full inline-flex items-center justify-center gap-2 py-2.5 bg-[#020A3C] hover:bg-[#0a1963] text-white text-xs font-semibold rounded-xl transition-colors shadow-sm"
                       >
                         <TrendingUp className="w-3.5 h-3.5" />
-                        {financeSheet ? 'Open Financials' : 'Set Up Financials'}
+                        {financeSheet ? (t('openFinancials') || 'Open Financials') : (t('setupFinancialsBtn') || 'Set Up Financials')}
                       </button>
                     </div>
                   </div>
@@ -795,8 +795,8 @@ const Dashboard: React.FC = () => {
                             <Megaphone className="w-5 h-5 text-white" />
                           </div>
                           <div>
-                            <h3 className="font-bold text-gray-900 text-sm">Crowdfunding</h3>
-                            <p className="text-[10px] text-gray-400 mt-0.5">Campaigns · Donations</p>
+                            <h3 className="font-bold text-gray-900 text-sm">{t('crowdfunding') || 'Crowdfunding'}</h3>
+                            <p className="text-[10px] text-gray-400 mt-0.5">{t('crowdfundingSubtitle') || 'Campaigns · Donations'}</p>
                           </div>
                         </div>
                         <span className="bg-amber-50 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full">
@@ -808,13 +808,13 @@ const Dashboard: React.FC = () => {
                         <div className="flex items-center gap-1.5 bg-amber-50 rounded-xl px-3 py-1.5">
                           <CheckCircle2 className="w-3 h-3 text-amber-500" />
                           <span className="text-[11px] font-semibold text-amber-700">
-                            {userProjects.filter((p: any) => p.status === 'active' || p.status === 'published').length} Active
+                            {userProjects.filter((p: any) => p.status === 'active' || p.status === 'published').length} {t('active') || 'Active'}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 bg-orange-50 rounded-xl px-3 py-1.5">
                           <HeartHandshake className="w-3 h-3 text-orange-500" />
                           <span className="text-[11px] font-semibold text-orange-700">
-                            {userProjects.filter((p: any) => p.status === 'draft').length} Draft
+                            {userProjects.filter((p: any) => p.status === 'draft').length} {t('draft') || 'Draft'}
                           </span>
                         </div>
                       </div>
@@ -839,7 +839,7 @@ const Dashboard: React.FC = () => {
                                   <Megaphone className="w-3.5 h-3.5 text-amber-600" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-gray-800 truncate">{project.title || project.name || 'Campaign'}</p>
+                                  <p className="text-xs font-semibold text-gray-800 truncate">{project.title || project.name || (t('crowdfunding') || 'Campaign')}</p>
                                   <div className="flex items-center gap-2 mt-0.5">
                                     <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                                       <div className="h-full bg-amber-400 rounded-full" style={{ width: `${fundPct}%` }} />
@@ -855,8 +855,8 @@ const Dashboard: React.FC = () => {
                       ) : (
                         <div className="py-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-100 text-center">
                           <Megaphone className="w-8 h-8 text-amber-200 mx-auto mb-2" />
-                          <p className="text-xs text-amber-400 font-medium">No campaigns yet</p>
-                          <p className="text-[10px] text-amber-300 mt-0.5">Launch a crowdfunding campaign</p>
+                          <p className="text-xs text-amber-400 font-medium">{t('noCampaigns') || 'No campaigns yet'}</p>
+                          <p className="text-[10px] text-amber-300 mt-0.5">{t('launchCampaignDesc') || 'Launch a crowdfunding campaign'}</p>
                         </div>
                       )}
                     </div>
@@ -866,13 +866,13 @@ const Dashboard: React.FC = () => {
                         onClick={() => handleNavigation('/projects/create')}
                         className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-semibold rounded-xl transition-all shadow-sm shadow-amber-200"
                       >
-                        <Plus className="w-3.5 h-3.5" /> New Campaign
+                        <Plus className="w-3.5 h-3.5" /> {t('newCampaign') || 'New Campaign'}
                       </button>
                       <button
                         onClick={() => handleNavigation('/projects')}
                         className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold rounded-xl transition-colors"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" /> Browse
+                        <ExternalLink className="w-3.5 h-3.5" /> {t('browse') || 'Browse'}
                       </button>
                     </div>
                   </div>
