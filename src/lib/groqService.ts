@@ -508,7 +508,7 @@ import type { BMCWizardAnswers, BMCBlock, BMCBlockKey, StrategySuggestion } from
 import { BMC_BLOCK_LABELS } from '@/types/bmc';
 
 export const generateBMCFromAnswers = async (answers: BMCWizardAnswers): Promise<BMCBlock[]> => {
-  const prompt = `Tu es un expert en stratégie d'entreprise et Business Model Canvas. À partir des réponses suivantes d'un entrepreneur, génère un Business Model Canvas (BMC) professionnel.
+  const prompt = `Tu es un expert Business Model Canvas (méthode Osterwalder). À partir des réponses de l'entrepreneur ci-dessous, remplis chaque bloc du BMC avec des entrées COURTES et DIRECTES, comme on écrit sur un vrai canevas physique.
 
 Informations de l'entrepreneur :
 - Nom de l'entreprise : ${answers.businessName || 'Non spécifié'}
@@ -525,12 +525,18 @@ Réponses du questionnaire :
 8. Partenaires clés : ${answers.keyPartnerships}
 9. Structure de coûts : ${answers.costStructure}
 
-RÈGLE DE RÉDACTION — chaque bloc doit suivre EXACTEMENT ce schéma en 3 phrases :
-1. Phrase d'ouverture : présente le contexte spécifique à ce bloc en lien direct avec l'entreprise ("Pour [cible/ressource/activité]…" ou "En [faisant X]…").
-2. Phrase d'action : commence par "Veillez à…" et donne une recommandation concrète et actionable propre au contexte africain francophone.
-3. Phrase d'exemple : commence par "Par exemple, en…" et illustre avec un cas pratique et précis directement lié à l'activité de l'entrepreneur.
+RÈGLES STRICTES DE RÉDACTION :
+- Chaque bloc = 3 à 5 points courts séparés par " • "
+- Chaque point = 4 à 8 mots maximum, direct et précis
+- PAS de phrases longues, PAS de paragraphes, PAS d'explications
+- Style : noms, verbes d'action, chiffres si possible
+- Adapté au contexte africain francophone
+- Tout en français
 
-NE PAS dépasser 3 phrases par bloc. NE PAS utiliser de listes à puces. Rédiger en prose fluide et professionnelle. Tout en français.
+EXEMPLE du rendu attendu :
+  customerSegments → "Femmes rurales en milieu agricole • Jeunes entrepreneurs 18-35 ans • PME du secteur informel"
+  keyActivities → "Formation agricole terrain • Gestion des prêts communautaires • Suivi mensuel des bénéficiaires"
+  revenueStreams → "Frais d'adhésion mensuelle • Commission sur prêts accordés • Vente de semences certifiées"
 
 Retourne UNIQUEMENT un objet JSON avec cette structure exacte (sans texte avant ou après) :
 {
@@ -636,16 +642,20 @@ Tout en français, adapté au contexte africain francophone.`;
 };
 
 export const enrichBMCBlock = async (block: BMCBlock, context: string): Promise<string> => {
-  const prompt = `Réécris le contenu suivant d'un bloc de Business Model Canvas en suivant EXACTEMENT ce schéma en 3 phrases :
-1. Phrase d'ouverture : présente le contexte spécifique à ce bloc ("Pour [cible/ressource/activité]…" ou "En [faisant X]…").
-2. Phrase d'action : commence par "Veillez à…" avec une recommandation concrète et actionable adaptée au contexte africain francophone.
-3. Phrase d'exemple : commence par "Par exemple, en…" avec un cas pratique et précis lié au sujet du bloc.
+  const prompt = `Tu es un expert Business Model Canvas (méthode Osterwalder). Réécris le contenu du bloc ci-dessous en entrées COURTES et DIRECTES, comme sur un vrai canevas physique.
 
 Bloc : ${block.title}
 Contenu actuel : ${block.content}
 Contexte additionnel : ${context}
 
-NE PAS dépasser 3 phrases. NE PAS utiliser de listes à puces. Rédiger en prose fluide et professionnelle, en français. Retourne uniquement le texte réécrit, sans titre ni formatage spécial.`;
+RÈGLES STRICTES :
+- 3 à 5 points courts séparés par " • "
+- Chaque point = 4 à 8 mots maximum, direct et précis
+- PAS de phrases longues, PAS de paragraphes, PAS d'explications
+- Style : noms, verbes d'action, chiffres si possible
+- Adapté au contexte africain francophone, tout en français
+
+Retourne uniquement le texte réécrit (points séparés par • ), sans titre ni formatage supplémentaire.`;
 
   try {
     const response = await getChatCompletion(prompt);
