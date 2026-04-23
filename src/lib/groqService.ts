@@ -508,48 +508,53 @@ import type { BMCWizardAnswers, BMCBlock, BMCBlockKey, StrategySuggestion } from
 import { BMC_BLOCK_LABELS } from '@/types/bmc';
 
 export const generateBMCFromAnswers = async (answers: BMCWizardAnswers): Promise<BMCBlock[]> => {
-  const prompt = `Tu es un expert Business Model Canvas (méthode Osterwalder). À partir des réponses de l'entrepreneur ci-dessous, remplis chaque bloc du BMC avec des entrées COURTES et DIRECTES, comme on écrit sur un vrai canevas physique.
+  const prompt = `Tu es un consultant expert en Business Model Canvas (méthode Osterwalder). Tu dois remplir un BMC professionnel pour un entrepreneur africain francophone.
 
-Informations de l'entrepreneur :
-- Nom de l'entreprise : ${answers.businessName || 'Non spécifié'}
-- Secteur d'activité : ${answers.industry || 'Non spécifié'}
+Pour chaque bloc, génère 3 à 5 entrées précises séparées par " • ". Chaque entrée doit être un groupe nominal ou un verbe d'action suivi d'un qualificatif concret (public cible, lieu, fréquence, moyen, montant). Style télégraphique, informatif, jamais de phrases complètes.
 
-Réponses du questionnaire :
-1. Segments de clientèle : ${answers.customerSegments}
-2. Propositions de valeur : ${answers.valuePropositions}
-3. Canaux : ${answers.channels}
-4. Relations clients : ${answers.customerRelationships}
-5. Sources de revenus : ${answers.revenueStreams}
-6. Ressources clés : ${answers.keyResources}
-7. Activités clés : ${answers.keyActivities}
-8. Partenaires clés : ${answers.keyPartnerships}
-9. Structure de coûts : ${answers.costStructure}
+---
+EXEMPLE COMPLET (entrée → sortie attendue) :
 
-RÈGLES STRICTES DE RÉDACTION :
-- Chaque bloc = 3 à 5 points courts séparés par " • "
-- Chaque point = 4 à 8 mots maximum, direct et précis
-- PAS de phrases longues, PAS de paragraphes, PAS d'explications
-- Style : noms, verbes d'action, chiffres si possible
-- Adapté au contexte africain francophone
-- Tout en français
+ENTRÉE :
+  Entreprise : AgroSem Bénin | Secteur : Agriculture
+  customerSegments : femmes et jeunes ruraux
+  valuePropositions : formations et accès au crédit
+  channels : whatsapp et visites
+  customerRelationships : accompagnement personnalisé
+  revenueStreams : services gratuits, subventions
+  keyResources : champs, semences, agronomes
+  keyActivities : formations, gestion de prêts
+  keyPartnerships : FAO, ONG locales
+  costStructure : équipements, main d'oeuvre
 
-EXEMPLE du rendu attendu :
-  customerSegments → "Femmes rurales en milieu agricole • Jeunes entrepreneurs 18-35 ans • PME du secteur informel"
-  keyActivities → "Formation agricole terrain • Gestion des prêts communautaires • Suivi mensuel des bénéficiaires"
-  revenueStreams → "Frais d'adhésion mensuelle • Commission sur prêts accordés • Vente de semences certifiées"
-
-Retourne UNIQUEMENT un objet JSON avec cette structure exacte (sans texte avant ou après) :
+SORTIE ATTENDUE :
 {
-  "customerSegments": "...",
-  "valuePropositions": "...",
-  "channels": "...",
-  "customerRelationships": "...",
-  "revenueStreams": "...",
-  "keyResources": "...",
-  "keyActivities": "...",
-  "keyPartnerships": "...",
-  "costStructure": "..."
-}`;
+  "customerSegments": "Femmes rurales chefs de ménage • Jeunes agriculteurs 18-35 ans • Membres d'associations villageoises • Exploitants en zone semi-aride",
+  "valuePropositions": "Formations agricoles pratiques certifiées • Accès au microcrédit sans garantie • Semences améliorées à prix subventionné • Accompagnement post-formation sur le terrain",
+  "channels": "Groupes WhatsApp communautaires • Visites terrain hebdomadaires • Réunions villageoises mensuelles • Radio rurale locale",
+  "customerRelationships": "Accompagnement individuel par un agronome référent • Groupes d'entraide entre bénéficiaires • Suivi trimestriel des progrès • Ligne d'assistance téléphonique",
+  "revenueStreams": "Subventions publiques et bailleurs internationaux • Frais d'adhésion symbolique (200 FCFA/mois) • Vente de semences certifiées locales • Partenariats avec coopératives agricoles",
+  "keyResources": "Champs de démonstration communautaires • Stock de semences biologiques certifiées • Équipe de 10 agronomes formés • Système de gestion des prêts numérique",
+  "keyActivities": "Formations agricoles hebdomadaires sur le terrain • Gestion et suivi des prêts communautaires • Sélection et distribution de semences • Collecte de données et reporting bailleurs",
+  "keyPartnerships": "FAO — appui technique et financement • ONG CARE INTERNATIONAL — réseau local • Coopératives agricoles régionales • Institutions de microfinance partenaires",
+  "costStructure": "Salaires agronomes terrain (60% des coûts) • Achat et stockage de semences • Transport et logistique rurale • Maintenance système numérique"
+}
+---
+
+Maintenant génère le BMC pour cet entrepreneur :
+
+Entreprise : ${answers.businessName || 'Non spécifié'} | Secteur : ${answers.industry || 'Non spécifié'}
+customerSegments : ${answers.customerSegments}
+valuePropositions : ${answers.valuePropositions}
+channels : ${answers.channels}
+customerRelationships : ${answers.customerRelationships}
+revenueStreams : ${answers.revenueStreams}
+keyResources : ${answers.keyResources}
+keyActivities : ${answers.keyActivities}
+keyPartnerships : ${answers.keyPartnerships}
+costStructure : ${answers.costStructure}
+
+Retourne UNIQUEMENT le JSON (sans texte avant ou après), en respectant exactement le niveau de détail et le style de l'exemple ci-dessus.`;
 
   try {
     const response = await getChatCompletion(prompt);
@@ -565,7 +570,7 @@ Retourne UNIQUEMENT un objet JSON avec cette structure exacte (sans texte avant 
       'keyActivities', 'keyPartnerships', 'costStructure',
     ];
 
-    return blockKeys.map((key, idx) => ({
+    return blockKeys.map((key) => ({
       id: `block-${key}`,
       key,
       title: BMC_BLOCK_LABELS[key].fr,
@@ -642,20 +647,19 @@ Tout en français, adapté au contexte africain francophone.`;
 };
 
 export const enrichBMCBlock = async (block: BMCBlock, context: string): Promise<string> => {
-  const prompt = `Tu es un expert Business Model Canvas (méthode Osterwalder). Réécris le contenu du bloc ci-dessous en entrées COURTES et DIRECTES, comme sur un vrai canevas physique.
+  const prompt = `Tu es un consultant expert en Business Model Canvas. Enrichis le contenu du bloc ci-dessous.
 
-Bloc : ${block.title}
+FORMAT OBLIGATOIRE : 3 à 5 entrées séparées par " • ". Chaque entrée = groupe nominal ou verbe d'action + qualificatif précis (lieu, cible, fréquence, montant). Style télégraphique, jamais de phrases complètes.
+
+EXEMPLE :
+  Bloc "Activités clés" avec contenu "formations, prêts" →
+  "Formations agricoles hebdomadaires sur le terrain • Gestion et suivi des prêts communautaires • Sélection et distribution de semences certifiées • Reporting mensuel pour les bailleurs"
+
+Bloc à enrichir : ${block.title}
 Contenu actuel : ${block.content}
-Contexte additionnel : ${context}
+${context ? `Contexte : ${context}` : ''}
 
-RÈGLES STRICTES :
-- 3 à 5 points courts séparés par " • "
-- Chaque point = 4 à 8 mots maximum, direct et précis
-- PAS de phrases longues, PAS de paragraphes, PAS d'explications
-- Style : noms, verbes d'action, chiffres si possible
-- Adapté au contexte africain francophone, tout en français
-
-Retourne uniquement le texte réécrit (points séparés par • ), sans titre ni formatage supplémentaire.`;
+Retourne uniquement les entrées séparées par " • ", sans titre ni explication.`;
 
   try {
     const response = await getChatCompletion(prompt);
