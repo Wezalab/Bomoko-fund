@@ -13,6 +13,7 @@ import {
   DollarSign,
   Settings,
   LayoutGrid,
+  FolderOpen,
 } from 'lucide-react';
 
 interface DashboardSidebarProps {
@@ -42,6 +43,10 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className = "" }) =
     }
 
     if (path === '/bmc' && location.pathname.startsWith('/bmc')) {
+      return true;
+    }
+
+    if (path === '/manage' && location.pathname === '/manage') {
       return true;
     }
     
@@ -78,6 +83,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ className = "" }) =
       icon: LayoutGrid,
       label: t('bmc') || 'BMC',
       active: isActiveRoute('/bmc')
+    },
+    {
+      path: '/manage',
+      icon: FolderOpen,
+      label: t('manage') || 'Manage',
+      active: isActiveRoute('/manage')
     },
     {
       path: '/financials',

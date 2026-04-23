@@ -18,6 +18,8 @@ import BMCNewLayout from '@/pages/BMCNewLayout'
 import BMCWizardLayout from '@/pages/BMCWizardLayout'
 import BMCCanvasLayout from '@/pages/BMCCanvasLayout'
 import BMCStrategyLayout from '@/pages/BMCStrategyLayout'
+import ManageLayout from '@/pages/ManageLayout'
+import FinancialsLayout from '@/pages/FinancialsLayout'
 
 function RootNavigation() {
 
@@ -46,6 +48,8 @@ function RootNavigation() {
             <Route path="/bmc/wizard" element={<BMCWizardLayout />} />
             <Route path="/bmc/:id" element={<BMCCanvasLayout />} />
             <Route path="/bmc/:id/strategies" element={<BMCStrategyLayout />} />
+            <Route path="/manage" element={<ManageLayout />} />
+            <Route path="/financials" element={<FinancialsLayout />} />
             <Route path="/auth/google/callback" element={<AuthRedirect />} />
             <Route path="/*" element={<NotFound />} />
         </Routes>

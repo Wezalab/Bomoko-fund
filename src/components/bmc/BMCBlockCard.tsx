@@ -132,12 +132,20 @@ const BMCBlockCard: React.FC<BMCBlockCardProps> = ({ block, className = '' }) =>
               </div>
             </div>
           </div>
+        ) : block.content ? (
+          <ul className="space-y-1">
+            {block.content.split('•').map((point, i) => {
+              const trimmed = point.trim();
+              return trimmed ? (
+                <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700 leading-snug">
+                  <span className={`mt-0.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${colors.badge}`} />
+                  <span>{trimmed}</span>
+                </li>
+              ) : null;
+            })}
+          </ul>
         ) : (
-          <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {block.content || (
-              <span className="text-gray-400 italic">Cliquez sur le crayon pour ajouter du contenu</span>
-            )}
-          </p>
+          <span className="text-xs text-gray-400 italic">Cliquez sur le crayon pour ajouter du contenu</span>
         )}
       </div>
 

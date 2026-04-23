@@ -2,23 +2,41 @@ import Groq from 'groq-sdk';
 import OpenAI from 'openai';
 import { groqApiKey, llmProvider, chatgptApiKey, chatgptModel } from './env';
 
-// Initialize providers
-const groq = new Groq({
-  apiKey: groqApiKey,
-  dangerouslyAllowBrowser: true
-});
+// Lazy-init: constructing Groq/OpenAI at import time throws if that provider's key is
+// missing, even when the other provider is selected (e.g. ChatGPT-only on Netlify).
 
-const openai = new OpenAI({
-  apiKey: chatgptApiKey,
-  dangerouslyAllowBrowser: true
-});
+let groqClient: Groq | null = null;
+function getGroqClient(): Groq {
+  if (groqClient) return groqClient;
+  const key = groqApiKey?.trim();
+  if (!key) {
+    throw new Error(
+      'VITE_GROQ_API_KEY is missing. Set it in the environment, or set VITE_LLM_PROVIDER to chatgpt.'
+    );
+  }
+  groqClient = new Groq({ apiKey: key, dangerouslyAllowBrowser: true });
+  return groqClient;
+}
+
+let openaiClient: OpenAI | null = null;
+function getOpenAIClient(): OpenAI {
+  if (openaiClient) return openaiClient;
+  const key = chatgptApiKey?.trim();
+  if (!key) {
+    throw new Error(
+      'VITE_CHATGPT_API_KEY is missing. Set it in the environment, or set VITE_LLM_PROVIDER to groq.'
+    );
+  }
+  openaiClient = new OpenAI({ apiKey: key, dangerouslyAllowBrowser: true });
+  return openaiClient;
+}
 
 // Generic chat completion function that uses the configured provider
 export const getChatCompletion = async (message: string) => {
   try {
     if (llmProvider === 'groq') {
       // Use Groq
-    const response = await groq.chat.completions.create({
+    const response = await getGroqClient().chat.completions.create({
       messages: [
         {
           role: "user",
@@ -32,7 +50,7 @@ export const getChatCompletion = async (message: string) => {
     return response;
     } else {
       // Default to ChatGPT
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         messages: [
           {
             role: "user",
@@ -490,7 +508,7 @@ import type { BMCWizardAnswers, BMCBlock, BMCBlockKey, StrategySuggestion } from
 import { BMC_BLOCK_LABELS } from '@/types/bmc';
 
 export const generateBMCFromAnswers = async (answers: BMCWizardAnswers): Promise<BMCBlock[]> => {
-  const prompt = `Tu es un expert en stratégie d'entreprise et Business Model Canvas. À partir des réponses suivantes d'un entrepreneur, génère un Business Model Canvas structuré et enrichi.
+  const prompt = `Tu es un expert Business Model Canvas (méthode Osterwalder). À partir des réponses de l'entrepreneur ci-dessous, remplis chaque bloc du BMC avec des entrées COURTES et DIRECTES, comme on écrit sur un vrai canevas physique.
 
 Informations de l'entrepreneur :
 - Nom de l'entreprise : ${answers.businessName || 'Non spécifié'}
@@ -507,22 +525,31 @@ Réponses du questionnaire :
 8. Partenaires clés : ${answers.keyPartnerships}
 9. Structure de coûts : ${answers.costStructure}
 
-Pour chaque bloc, enrichis et structure la réponse de l'entrepreneur avec des détails professionnels, des exemples concrets et des recommandations adaptées au contexte africain francophone.
+RÈGLES STRICTES DE RÉDACTION :
+- Chaque bloc = 3 à 5 points courts séparés par " • "
+- Chaque point = 4 à 8 mots maximum, direct et précis
+- PAS de phrases longues, PAS de paragraphes, PAS d'explications
+- Style : noms, verbes d'action, chiffres si possible
+- Adapté au contexte africain francophone
+- Tout en français
+
+EXEMPLE du rendu attendu :
+  customerSegments → "Femmes rurales en milieu agricole • Jeunes entrepreneurs 18-35 ans • PME du secteur informel"
+  keyActivities → "Formation agricole terrain • Gestion des prêts communautaires • Suivi mensuel des bénéficiaires"
+  revenueStreams → "Frais d'adhésion mensuelle • Commission sur prêts accordés • Vente de semences certifiées"
 
 Retourne UNIQUEMENT un objet JSON avec cette structure exacte (sans texte avant ou après) :
 {
-  "customerSegments": "Contenu enrichi pour les segments de clientèle...",
-  "valuePropositions": "Contenu enrichi pour les propositions de valeur...",
-  "channels": "Contenu enrichi pour les canaux...",
-  "customerRelationships": "Contenu enrichi pour les relations clients...",
-  "revenueStreams": "Contenu enrichi pour les sources de revenus...",
-  "keyResources": "Contenu enrichi pour les ressources clés...",
-  "keyActivities": "Contenu enrichi pour les activités clés...",
-  "keyPartnerships": "Contenu enrichi pour les partenaires clés...",
-  "costStructure": "Contenu enrichi pour la structure de coûts..."
-}
-
-Chaque valeur doit être un texte de 2-4 phrases, professionnel, concret et actionable. Tout en français.`;
+  "customerSegments": "...",
+  "valuePropositions": "...",
+  "channels": "...",
+  "customerRelationships": "...",
+  "revenueStreams": "...",
+  "keyResources": "...",
+  "keyActivities": "...",
+  "keyPartnerships": "...",
+  "costStructure": "..."
+}`;
 
   try {
     const response = await getChatCompletion(prompt);
@@ -615,13 +642,20 @@ Tout en français, adapté au contexte africain francophone.`;
 };
 
 export const enrichBMCBlock = async (block: BMCBlock, context: string): Promise<string> => {
-  const prompt = `Améliore et enrichis le contenu suivant d'un bloc de Business Model Canvas.
+  const prompt = `Tu es un expert Business Model Canvas (méthode Osterwalder). Réécris le contenu du bloc ci-dessous en entrées COURTES et DIRECTES, comme sur un vrai canevas physique.
 
 Bloc : ${block.title}
 Contenu actuel : ${block.content}
 Contexte additionnel : ${context}
 
-Réécris le contenu de manière plus professionnelle, détaillée et actionable. Garde le même sujet mais enrichis avec des exemples concrets et des recommandations adaptées au contexte africain francophone. Retourne uniquement le texte amélioré (2-4 phrases), sans titre ni formatage spécial.`;
+RÈGLES STRICTES :
+- 3 à 5 points courts séparés par " • "
+- Chaque point = 4 à 8 mots maximum, direct et précis
+- PAS de phrases longues, PAS de paragraphes, PAS d'explications
+- Style : noms, verbes d'action, chiffres si possible
+- Adapté au contexte africain francophone, tout en français
+
+Retourne uniquement le texte réécrit (points séparés par • ), sans titre ni formatage supplémentaire.`;
 
   try {
     const response = await getChatCompletion(prompt);
