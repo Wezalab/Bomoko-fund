@@ -69,6 +69,35 @@ export const getChatCompletion = async (message: string) => {
   }
 };
 
+// Structured JSON completion with system + user roles and guaranteed JSON output.
+// Used for BMC generation where we need reliable, enriched JSON (not echoed user input).
+export const getJsonChatCompletion = async (systemPrompt: string, userPrompt: string): Promise<string> => {
+  if (llmProvider === 'groq') {
+    const response = await getGroqClient().chat.completions.create({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      model: 'llama-3.3-70b-versatile',
+      temperature: 0.8,
+      max_tokens: 2048,
+      response_format: { type: 'json_object' },
+    });
+    return response.choices[0]?.message?.content?.trim() || '';
+  }
+  const response = await getOpenAIClient().chat.completions.create({
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt },
+    ],
+    model: chatgptModel,
+    temperature: 0.8,
+    max_tokens: 2048,
+    response_format: { type: 'json_object' },
+  });
+  return response.choices[0]?.message?.content?.trim() || '';
+};
+
 // Keep the old function for backwards compatibility
 export const getGroqChatCompletion = getChatCompletion;
 
@@ -508,82 +537,93 @@ import type { BMCWizardAnswers, BMCBlock, BMCBlockKey, StrategySuggestion } from
 import { BMC_BLOCK_LABELS } from '@/types/bmc';
 
 export const generateBMCFromAnswers = async (answers: BMCWizardAnswers): Promise<BMCBlock[]> => {
-  const prompt = `Tu es un consultant expert en Business Model Canvas (méthode Osterwalder). Tu dois remplir un BMC professionnel pour un entrepreneur africain francophone.
+  const systemPrompt = `Tu es un consultant senior expert en Business Model Canvas (méthode Osterwalder), spécialisé dans l'entrepreneuriat africain francophone.
 
-Pour chaque bloc, génère 3 à 5 entrées précises séparées par " • ". Chaque entrée doit être un groupe nominal ou un verbe d'action suivi d'un qualificatif concret (public cible, lieu, fréquence, moyen, montant). Style télégraphique, informatif, jamais de phrases complètes.
+TA MISSION : transformer les réponses brutes d'un entrepreneur (souvent incomplètes, télégraphiques, avec fautes) en un BMC professionnel riche, précis et actionnable.
 
----
-EXEMPLE COMPLET (entrée → sortie attendue) :
+RÈGLES ABSOLUES (non-négociables) :
+1. Tu dois ENRICHIR et REFORMULER chaque réponse — JAMAIS la recopier telle quelle.
+2. Pour chaque bloc, produis 3 à 5 entrées séparées par " • " (espace bullet espace).
+3. Chaque entrée = un groupe nominal ou un verbe d'action + qualificatif concret (cible, lieu, fréquence, moyen, montant réaliste en FCFA/USD/EUR).
+4. Corrige silencieusement les fautes d'orthographe de l'entrepreneur.
+5. Déduis le contexte manquant à partir du secteur et des autres réponses.
+6. Style télégraphique mais riche. JAMAIS de phrase complète. JAMAIS de point final. JAMAIS de majuscule au milieu d'une entrée.
+7. Réponds STRICTEMENT en JSON valide avec les 9 clés : customerSegments, valuePropositions, channels, customerRelationships, revenueStreams, keyResources, keyActivities, keyPartnerships, costStructure.
 
-ENTRÉE :
-  Entreprise : AgroSem Bénin | Secteur : Agriculture
-  customerSegments : femmes et jeunes ruraux
-  valuePropositions : formations et accès au crédit
-  channels : whatsapp et visites
-  customerRelationships : accompagnement personnalisé
-  revenueStreams : services gratuits, subventions
-  keyResources : champs, semences, agronomes
-  keyActivities : formations, gestion de prêts
-  keyPartnerships : FAO, ONG locales
-  costStructure : équipements, main d'oeuvre
+EXEMPLE de TRANSFORMATION (étude le ton et le niveau de détail) :
 
-SORTIE ATTENDUE :
+Entrée brute de l'entrepreneur :
+  Secteur: Agriculture
+  customerSegments: "hommes et femmes vulnérables"
+  keyActivities: "formation, gestions de prêts, cultiver les choux, oigons, poireaux, oberginess, amarantes"
+  keyPartnerships: "Cooperatives agricoles, FAO, CARE INTERNATIONAL"
+
+Sortie attendue (enrichie, corrigée, structurée) :
 {
-  "customerSegments": "Femmes rurales chefs de ménage • Jeunes agriculteurs 18-35 ans • Membres d'associations villageoises • Exploitants en zone semi-aride",
-  "valuePropositions": "Formations agricoles pratiques certifiées • Accès au microcrédit sans garantie • Semences améliorées à prix subventionné • Accompagnement post-formation sur le terrain",
-  "channels": "Groupes WhatsApp communautaires • Visites terrain hebdomadaires • Réunions villageoises mensuelles • Radio rurale locale",
-  "customerRelationships": "Accompagnement individuel par un agronome référent • Groupes d'entraide entre bénéficiaires • Suivi trimestriel des progrès • Ligne d'assistance téléphonique",
-  "revenueStreams": "Subventions publiques et bailleurs internationaux • Frais d'adhésion symbolique (200 FCFA/mois) • Vente de semences certifiées locales • Partenariats avec coopératives agricoles",
-  "keyResources": "Champs de démonstration communautaires • Stock de semences biologiques certifiées • Équipe de 10 agronomes formés • Système de gestion des prêts numérique",
-  "keyActivities": "Formations agricoles hebdomadaires sur le terrain • Gestion et suivi des prêts communautaires • Sélection et distribution de semences • Collecte de données et reporting bailleurs",
-  "keyPartnerships": "FAO — appui technique et financement • ONG CARE INTERNATIONAL — réseau local • Coopératives agricoles régionales • Institutions de microfinance partenaires",
-  "costStructure": "Salaires agronomes terrain (60% des coûts) • Achat et stockage de semences • Transport et logistique rurale • Maintenance système numérique"
+  "customerSegments": "Femmes rurales chefs de ménage en zone agricole • Jeunes agriculteurs 18-35 ans sans foncier • Familles vulnérables à faibles revenus • Membres d'associations villageoises d'épargne",
+  "keyActivities": "Formations agricoles hebdomadaires sur le terrain • Gestion et suivi du portefeuille de prêts communautaires • Production maraîchère diversifiée (choux, oignons, poireaux, aubergines, amarantes) • Accompagnement technique post-récolte",
+  "keyPartnerships": "Coopératives agricoles locales — mutualisation des intrants • FAO — appui technique et financement • CARE INTERNATIONAL — réseau de terrain et formation • ONG humanitaires — distribution et plaidoyer"
 }
----
 
-Maintenant génère le BMC pour cet entrepreneur :
+Remarque : "oigons" et "oberginess" ont été corrigés en "oignons" et "aubergines", et chaque entrée a été enrichie d'un qualificatif concret.`;
 
-Entreprise : ${answers.businessName || 'Non spécifié'} | Secteur : ${answers.industry || 'Non spécifié'}
-customerSegments : ${answers.customerSegments}
-valuePropositions : ${answers.valuePropositions}
-channels : ${answers.channels}
-customerRelationships : ${answers.customerRelationships}
-revenueStreams : ${answers.revenueStreams}
-keyResources : ${answers.keyResources}
-keyActivities : ${answers.keyActivities}
-keyPartnerships : ${answers.keyPartnerships}
-costStructure : ${answers.costStructure}
+  const userPrompt = `Génère le BMC complet pour cet entrepreneur en appliquant EXACTEMENT les règles et le style de l'exemple du système.
 
-Retourne UNIQUEMENT le JSON (sans texte avant ou après), en respectant exactement le niveau de détail et le style de l'exemple ci-dessus.`;
+Entreprise : ${answers.businessName || 'Non spécifié'}
+Secteur : ${answers.industry || 'Non spécifié'}
+
+Réponses brutes :
+- customerSegments : ${answers.customerSegments || '(non renseigné)'}
+- valuePropositions : ${answers.valuePropositions || '(non renseigné)'}
+- channels : ${answers.channels || '(non renseigné)'}
+- customerRelationships : ${answers.customerRelationships || '(non renseigné)'}
+- revenueStreams : ${answers.revenueStreams || '(non renseigné)'}
+- keyResources : ${answers.keyResources || '(non renseigné)'}
+- keyActivities : ${answers.keyActivities || '(non renseigné)'}
+- keyPartnerships : ${answers.keyPartnerships || '(non renseigné)'}
+- costStructure : ${answers.costStructure || '(non renseigné)'}
+
+Retourne UNIQUEMENT l'objet JSON avec les 9 clés, chaque valeur enrichie avec 3 à 5 entrées séparées par " • ".`;
+
+  const blockKeys: BMCBlockKey[] = [
+    'customerSegments', 'valuePropositions', 'channels',
+    'customerRelationships', 'revenueStreams', 'keyResources',
+    'keyActivities', 'keyPartnerships', 'costStructure',
+  ];
 
   try {
-    const response = await getChatCompletion(prompt);
-    const content = response.choices[0]?.message?.content?.trim() || '';
+    const raw = await getJsonChatCompletion(systemPrompt, userPrompt);
+    console.log('[BMC] raw AI response:', raw);
 
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON found in response');
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON found in AI response');
 
     const parsed = JSON.parse(jsonMatch[0]);
-    const blockKeys: BMCBlockKey[] = [
-      'customerSegments', 'valuePropositions', 'channels',
-      'customerRelationships', 'revenueStreams', 'keyResources',
-      'keyActivities', 'keyPartnerships', 'costStructure',
-    ];
+    console.log('[BMC] parsed blocks:', parsed);
 
-    return blockKeys.map((key) => ({
-      id: `block-${key}`,
-      key,
-      title: BMC_BLOCK_LABELS[key].fr,
-      content: parsed[key] || answers[key] || '',
-      aiGenerated: !!parsed[key],
-    }));
+    // Detect echo: if a block equals the raw user answer, we treat it as failed enrichment.
+    const isEcho = (key: BMCBlockKey, generated: string): boolean => {
+      const raw = (answers[key] || '').trim().toLowerCase();
+      const gen = (generated || '').trim().toLowerCase();
+      return !!raw && (gen === raw || !gen.includes('•'));
+    };
+
+    return blockKeys.map((key) => {
+      const generated = typeof parsed[key] === 'string' ? parsed[key] : '';
+      const echoed = isEcho(key, generated);
+      if (echoed) {
+        console.warn(`[BMC] block "${key}" looks echoed or unenriched:`, generated);
+      }
+      return {
+        id: `block-${key}`,
+        key,
+        title: BMC_BLOCK_LABELS[key].fr,
+        content: generated || answers[key] || '',
+        aiGenerated: !!generated && !echoed,
+      };
+    });
   } catch (error) {
-    console.error('Error generating BMC from answers:', error);
-    const blockKeys: BMCBlockKey[] = [
-      'customerSegments', 'valuePropositions', 'channels',
-      'customerRelationships', 'revenueStreams', 'keyResources',
-      'keyActivities', 'keyPartnerships', 'costStructure',
-    ];
+    console.error('[BMC] Error generating BMC from answers:', error);
     return blockKeys.map((key) => ({
       id: `block-${key}`,
       key,
@@ -609,12 +649,12 @@ Génère exactement 6 recommandations réparties en 3 catégories :
 
 Retourne UNIQUEMENT un tableau JSON avec cette structure exacte :
 [
-  {"category": "growth", "title": "Titre court", "description": "Description actionable en 1-2 phrases"},
-  {"category": "growth", "title": "Titre court", "description": "Description actionable en 1-2 phrases"},
-  {"category": "monetization", "title": "Titre court", "description": "Description actionable en 1-2 phrases"},
-  {"category": "monetization", "title": "Titre court", "description": "Description actionable en 1-2 phrases"},
-  {"category": "risk", "title": "Titre court", "description": "Description actionable en 1-2 phrases"},
-  {"category": "risk", "title": "Titre court", "description": "Description actionable en 1-2 phrases"}
+  {"category": "growth", "title": "Titre court", "description": "Description actionable en 1-3 phrases"},
+  {"category": "growth", "title": "Titre court", "description": "Description actionable en 1-3 phrases"},
+  {"category": "monetization", "title": "Titre court", "description": "Description actionable en 1-3 phrases"},
+  {"category": "monetization", "title": "Titre court", "description": "Description actionable en 1-3 phrases"},
+  {"category": "risk", "title": "Titre court", "description": "Description actionable en 1-3 phrases"},
+  {"category": "risk", "title": "Titre court", "description": "Description actionable en 1-3 phrases"}
 ]
 
 Tout en français, adapté au contexte africain francophone.`;
@@ -638,7 +678,7 @@ Tout en français, adapté au contexte africain francophone.`;
     return [
       { id: 'strategy-0', category: 'growth', title: 'Élargir la base client', description: 'Explorez de nouveaux segments de marché pour diversifier vos sources de revenus.' },
       { id: 'strategy-1', category: 'growth', title: 'Renforcer les partenariats', description: 'Développez des alliances stratégiques pour accéder à de nouvelles ressources.' },
-      { id: 'strategy-2', category: 'monetization', title: 'Optimiser la tarification', description: 'Analysez votre structure de prix par rapport à la valeur perçue par vos clients.' },
+      { id: 'strategy-3', category: 'monetization', title: 'Optimiser la tarification', description: 'Analysez votre structure de prix par rapport à la valeur perçue par vos clients.' },
       { id: 'strategy-3', category: 'monetization', title: 'Diversifier les revenus', description: 'Explorez des sources de revenus complémentaires à votre offre principale.' },
       { id: 'strategy-4', category: 'risk', title: 'Dépendance fournisseurs', description: 'Identifiez des alternatives pour réduire la dépendance à un nombre limité de partenaires.' },
       { id: 'strategy-5', category: 'risk', title: 'Évolution du marché', description: 'Surveillez les tendances du marché et adaptez votre proposition de valeur en conséquence.' },
