@@ -508,7 +508,7 @@ import type { BMCWizardAnswers, BMCBlock, BMCBlockKey, StrategySuggestion } from
 import { BMC_BLOCK_LABELS } from '@/types/bmc';
 
 export const generateBMCFromAnswers = async (answers: BMCWizardAnswers): Promise<BMCBlock[]> => {
-  const prompt = `Tu es un expert en stratégie d'entreprise et Business Model Canvas. À partir des réponses suivantes d'un entrepreneur, génère un Business Model Canvas structuré et enrichi.
+  const prompt = `Tu es un expert en stratégie d'entreprise et Business Model Canvas. À partir des réponses suivantes d'un entrepreneur, génère un Business Model Canvas (BMC) professionnel.
 
 Informations de l'entrepreneur :
 - Nom de l'entreprise : ${answers.businessName || 'Non spécifié'}
@@ -525,22 +525,25 @@ Réponses du questionnaire :
 8. Partenaires clés : ${answers.keyPartnerships}
 9. Structure de coûts : ${answers.costStructure}
 
-Pour chaque bloc, enrichis et structure la réponse de l'entrepreneur avec des détails professionnels, des exemples concrets et des recommandations adaptées au contexte africain francophone.
+RÈGLE DE RÉDACTION — chaque bloc doit suivre EXACTEMENT ce schéma en 3 phrases :
+1. Phrase d'ouverture : présente le contexte spécifique à ce bloc en lien direct avec l'entreprise ("Pour [cible/ressource/activité]…" ou "En [faisant X]…").
+2. Phrase d'action : commence par "Veillez à…" et donne une recommandation concrète et actionable propre au contexte africain francophone.
+3. Phrase d'exemple : commence par "Par exemple, en…" et illustre avec un cas pratique et précis directement lié à l'activité de l'entrepreneur.
+
+NE PAS dépasser 3 phrases par bloc. NE PAS utiliser de listes à puces. Rédiger en prose fluide et professionnelle. Tout en français.
 
 Retourne UNIQUEMENT un objet JSON avec cette structure exacte (sans texte avant ou après) :
 {
-  "customerSegments": "Contenu enrichi pour les segments de clientèle...",
-  "valuePropositions": "Contenu enrichi pour les propositions de valeur...",
-  "channels": "Contenu enrichi pour les canaux...",
-  "customerRelationships": "Contenu enrichi pour les relations clients...",
-  "revenueStreams": "Contenu enrichi pour les sources de revenus...",
-  "keyResources": "Contenu enrichi pour les ressources clés...",
-  "keyActivities": "Contenu enrichi pour les activités clés...",
-  "keyPartnerships": "Contenu enrichi pour les partenaires clés...",
-  "costStructure": "Contenu enrichi pour la structure de coûts..."
-}
-
-Chaque valeur doit être un texte de 2-4 phrases, professionnel, concret et actionable. Tout en français.`;
+  "customerSegments": "...",
+  "valuePropositions": "...",
+  "channels": "...",
+  "customerRelationships": "...",
+  "revenueStreams": "...",
+  "keyResources": "...",
+  "keyActivities": "...",
+  "keyPartnerships": "...",
+  "costStructure": "..."
+}`;
 
   try {
     const response = await getChatCompletion(prompt);
@@ -633,13 +636,16 @@ Tout en français, adapté au contexte africain francophone.`;
 };
 
 export const enrichBMCBlock = async (block: BMCBlock, context: string): Promise<string> => {
-  const prompt = `Améliore et enrichis le contenu suivant d'un bloc de Business Model Canvas.
+  const prompt = `Réécris le contenu suivant d'un bloc de Business Model Canvas en suivant EXACTEMENT ce schéma en 3 phrases :
+1. Phrase d'ouverture : présente le contexte spécifique à ce bloc ("Pour [cible/ressource/activité]…" ou "En [faisant X]…").
+2. Phrase d'action : commence par "Veillez à…" avec une recommandation concrète et actionable adaptée au contexte africain francophone.
+3. Phrase d'exemple : commence par "Par exemple, en…" avec un cas pratique et précis lié au sujet du bloc.
 
 Bloc : ${block.title}
 Contenu actuel : ${block.content}
 Contexte additionnel : ${context}
 
-Réécris le contenu de manière plus professionnelle, détaillée et actionable. Garde le même sujet mais enrichis avec des exemples concrets et des recommandations adaptées au contexte africain francophone. Retourne uniquement le texte amélioré (2-4 phrases), sans titre ni formatage spécial.`;
+NE PAS dépasser 3 phrases. NE PAS utiliser de listes à puces. Rédiger en prose fluide et professionnelle, en français. Retourne uniquement le texte réécrit, sans titre ni formatage spécial.`;
 
   try {
     const response = await getChatCompletion(prompt);
