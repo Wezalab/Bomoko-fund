@@ -1,4 +1,6 @@
-const apiUrl = import.meta.env.VITE_BOMOKO_SERVER;
+// Strip any trailing slash to guarantee `${apiUrl}/path` never produces `//path`.
+const rawApiUrl = import.meta.env.VITE_BOMOKO_SERVER as string | undefined;
+const apiUrl = rawApiUrl ? rawApiUrl.replace(/\/+$/, '') : rawApiUrl;
 const payementToken = import.meta.env.VITE_PAYMENT_TOKEN;
 const groqApiKey = import.meta.env.VITE_GROQ_API_KEY;
 
