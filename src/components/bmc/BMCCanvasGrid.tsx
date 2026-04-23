@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Lightbulb, Save, Download, Loader2 } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
 import { RootState } from '@/redux/store';
 import { useCreateCanvasMutation, useUpdateCanvasMutation } from '@/redux/services/bmcServices';
 import BMCBlockCard from './BMCBlockCard';
@@ -14,6 +15,8 @@ const BMCCanvasGrid: React.FC = () => {
   const canvas = useSelector((s: RootState) => s.bmcReducer.currentCanvas);
   const [createCanvas, { isLoading: isCreating }] = useCreateCanvasMutation();
   const [updateCanvas, { isLoading: isUpdating }] = useUpdateCanvasMutation();
+  const printRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   if (!canvas) {
     return (
@@ -33,8 +36,10 @@ const BMCCanvasGrid: React.FC = () => {
   const blockMap = Object.fromEntries(canvas.blocks.map((b) => [b.key, b]));
 
   const handleSave = async () => {
+    // A client-generated UUID contains dashes; a persisted MongoDB ObjectId does not.
+    const isNewCanvas = !canvas._id || canvas._id.includes('-');
     try {
-      if (canvas._id && canvas._id.length > 20) {
+      if (isNewCanvas) {
         await createCanvas({
           title: canvas.title,
           description: canvas.description,
@@ -50,8 +55,44 @@ const BMCCanvasGrid: React.FC = () => {
         }).unwrap();
       }
       toast.success('Canvas sauvegardé avec succès');
-    } catch {
-      toast.error('Erreur lors de la sauvegarde');
+    } catch (error: any) {
+      console.error('[BMC] Save failed:', error);
+      const status = error?.status;
+      const detail =
+        error?.data?.message ||
+        error?.data?.error ||
+        error?.error ||
+        (typeof error?.data === 'string' ? error.data : null);
+      const message = status
+        ? `Erreur ${status}${detail ? ` — ${detail}` : ''}`
+        : detail || 'Erreur lors de la sauvegarde';
+      toast.error(message);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    if (!printRef.current) return;
+    setIsExporting(true);
+    const safeTitle = (canvas.title || 'BMC').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_');
+    const filename = `${safeTitle}.pdf`;
+    try {
+      await html2pdf()
+        .set({
+          margin: [10, 10, 10, 10],
+          filename,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+          pagebreak: { mode: ['avoid-all'] },
+        })
+        .from(printRef.current)
+        .save();
+      toast.success('PDF exporté avec succès');
+    } catch (error) {
+      console.error('[BMC] PDF export failed:', error);
+      toast.error("Échec de l'export PDF");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -82,6 +123,18 @@ const BMCCanvasGrid: React.FC = () => {
           >
             <Lightbulb className="w-4 h-4" />
             Stratégies
+          </button>
+          <button
+            onClick={handleExportPDF}
+            disabled={isExporting}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium disabled:opacity-60"
+          >
+            {isExporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            PDF
           </button>
           <button
             onClick={handleSave}
@@ -197,6 +250,92 @@ const BMCCanvasGrid: React.FC = () => {
           <BMCBlockCard key={block.key} block={block} className="min-h-[140px]" />
         ))}
       </motion.div>
+
+      {/* Hidden print layout — always rendered at full desktop width, off-screen.
+          Guarantees PDF export looks identical regardless of user's viewport. */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: '-10000px',
+          width: '1200px',
+          padding: '24px',
+          background: '#ffffff',
+          zIndex: -1,
+        }}
+      >
+        <div ref={printRef} style={{ width: '1152px' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 }}>
+              {canvas.title}
+            </h1>
+            {canvas.description && (
+              <p style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px' }}>
+                {canvas.description}
+              </p>
+            )}
+          </div>
+          <div className="border-2 border-gray-300 rounded-xl overflow-hidden bg-white">
+            <div className="grid grid-cols-10" style={{ minHeight: '340px' }}>
+              <div className="col-span-2 border-r border-gray-300">
+                {blockMap.keyPartnerships && (
+                  <BMCBlockCard block={blockMap.keyPartnerships} className="h-full rounded-none border-0" />
+                )}
+              </div>
+              <div className="col-span-2 border-r border-gray-300 flex flex-col">
+                <div className="flex-1 border-b border-gray-300">
+                  {blockMap.keyActivities && (
+                    <BMCBlockCard block={blockMap.keyActivities} className="h-full rounded-none border-0" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  {blockMap.keyResources && (
+                    <BMCBlockCard block={blockMap.keyResources} className="h-full rounded-none border-0" />
+                  )}
+                </div>
+              </div>
+              <div className="col-span-2 border-r border-gray-300">
+                {blockMap.valuePropositions && (
+                  <BMCBlockCard block={blockMap.valuePropositions} className="h-full rounded-none border-0" />
+                )}
+              </div>
+              <div className="col-span-2 border-r border-gray-300 flex flex-col">
+                <div className="flex-1 border-b border-gray-300">
+                  {blockMap.customerRelationships && (
+                    <BMCBlockCard block={blockMap.customerRelationships} className="h-full rounded-none border-0" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  {blockMap.channels && (
+                    <BMCBlockCard block={blockMap.channels} className="h-full rounded-none border-0" />
+                  )}
+                </div>
+              </div>
+              <div className="col-span-2">
+                {blockMap.customerSegments && (
+                  <BMCBlockCard block={blockMap.customerSegments} className="h-full rounded-none border-0" />
+                )}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 border-t border-gray-300" style={{ minHeight: '140px' }}>
+              <div className="border-r border-gray-300">
+                {blockMap.costStructure && (
+                  <BMCBlockCard block={blockMap.costStructure} className="h-full rounded-none border-0" />
+                )}
+              </div>
+              <div>
+                {blockMap.revenueStreams && (
+                  <BMCBlockCard block={blockMap.revenueStreams} className="h-full rounded-none border-0" />
+                )}
+              </div>
+            </div>
+          </div>
+          <div style={{ marginTop: '10px', fontSize: '10px', color: '#9ca3af', textAlign: 'right' }}>
+            Généré par Bomoko Fund · {new Date().toLocaleDateString('fr-FR')}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

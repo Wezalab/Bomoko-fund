@@ -1,37 +1,38 @@
 import splitApi from './api';
 import { BusinessModelCanvas, CreateBMCRequest, UpdateBMCRequest } from '@/types/bmc';
 
+// baseUrl already ends with `/api`, so endpoints must NOT repeat `/api`.
 export const bmcService = splitApi.injectEndpoints({
   endpoints: (builder) => ({
     getUserCanvases: builder.query<BusinessModelCanvas[], void>({
-      query: () => '/api/bmc',
+      query: () => '/bmc',
     }),
     getCanvas: builder.query<BusinessModelCanvas, string>({
-      query: (id) => `/api/bmc/${id}`,
+      query: (id) => `/bmc/${id}`,
     }),
     createCanvas: builder.mutation<BusinessModelCanvas, CreateBMCRequest>({
       query: (data) => ({
-        url: '/api/bmc',
+        url: '/bmc',
         method: 'POST',
         body: data,
       }),
     }),
     updateCanvas: builder.mutation<BusinessModelCanvas, UpdateBMCRequest>({
       query: ({ id, ...data }) => ({
-        url: `/api/bmc/${id}`,
+        url: `/bmc/${id}`,
         method: 'PUT',
         body: data,
       }),
     }),
     deleteCanvas: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/api/bmc/${id}`,
+        url: `/bmc/${id}`,
         method: 'DELETE',
       }),
     }),
     duplicateCanvas: builder.mutation<BusinessModelCanvas, string>({
       query: (id) => ({
-        url: `/api/bmc/${id}/duplicate`,
+        url: `/bmc/${id}/duplicate`,
         method: 'POST',
       }),
     }),
