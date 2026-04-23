@@ -7,9 +7,8 @@ const llmProvider = import.meta.env.VITE_LLM_PROVIDER || 'chatgpt';
 const chatgptApiKey = import.meta.env.VITE_CHATGPT_API_KEY;
 const chatgptModel = import.meta.env.VITE_CHATGPT_MODEL || 'gpt-4o';
 
-// Google OAuth Configuration
+// Google OAuth Configuration — only the public client_id belongs in the frontend
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-const googleClientSecret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
 
 export {
     apiUrl,
@@ -19,5 +18,4 @@ export {
     chatgptApiKey,
     chatgptModel,
     googleClientId,
-    googleClientSecret
 }
