@@ -73,17 +73,29 @@ const BMCCanvasGrid: React.FC = () => {
   const handleExportPDF = async () => {
     if (!printRef.current) return;
     setIsExporting(true);
-    const safeTitle = (canvas.title || 'BMC').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_');
+    // Transliterate diacritics (é→e, ô→o, ç→c) so the filename keeps the original word shape.
+    const safeTitle = (canvas.title || 'BMC')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^\w\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '_');
     const filename = `${safeTitle}.pdf`;
     try {
       await html2pdf()
         .set({
-          margin: [10, 10, 10, 10],
+          margin: [8, 8, 8, 8],
           filename,
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-          pagebreak: { mode: ['avoid-all'] },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            windowWidth: 1200,
+            scrollY: 0,
+          },
+          jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' },
+          pagebreak: { mode: ['css', 'legacy'] },
         })
         .from(printRef.current)
         .save();
@@ -265,7 +277,17 @@ const BMCCanvasGrid: React.FC = () => {
           zIndex: -1,
         }}
       >
-        <div ref={printRef} style={{ width: '1152px' }}>
+        {/* Scoped overrides: let content grow instead of being clipped by block scrollbars.
+            Without these, long AI-generated bullets get cut off in the exported image. */}
+        <style>{`
+          .bmc-print-scope .overflow-y-auto { overflow: visible !important; }
+          .bmc-print-scope ul, .bmc-print-scope li, .bmc-print-scope span {
+            word-break: break-word;
+            overflow-wrap: anywhere;
+          }
+          .bmc-print-scope { line-height: 1.35; }
+        `}</style>
+        <div ref={printRef} className="bmc-print-scope" style={{ width: '1152px' }}>
           <div style={{ marginBottom: '16px' }}>
             <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 }}>
               {canvas.title}
@@ -277,7 +299,7 @@ const BMCCanvasGrid: React.FC = () => {
             )}
           </div>
           <div className="border-2 border-gray-300 rounded-xl overflow-hidden bg-white">
-            <div className="grid grid-cols-10" style={{ minHeight: '340px' }}>
+            <div className="grid grid-cols-10" style={{ alignItems: 'stretch' }}>
               <div className="col-span-2 border-r border-gray-300">
                 {blockMap.keyPartnerships && (
                   <BMCBlockCard block={blockMap.keyPartnerships} className="h-full rounded-none border-0" />
@@ -318,7 +340,7 @@ const BMCCanvasGrid: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-2 border-t border-gray-300" style={{ minHeight: '140px' }}>
+            <div className="grid grid-cols-2 border-t border-gray-300">
               <div className="border-r border-gray-300">
                 {blockMap.costStructure && (
                   <BMCBlockCard block={blockMap.costStructure} className="h-full rounded-none border-0" />
