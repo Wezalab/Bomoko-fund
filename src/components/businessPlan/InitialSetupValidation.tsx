@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, AlertCircle, Save, FileText } from 'lucide-react';
 import { useTranslation } from '@/lib/TranslationContext';
 import { useCreateBusinessPlanMutation } from '@/redux/services/businessPlanServices';
-import { useGetUserVenturesQuery } from '@/redux/services/ventureServices';
+import { useGetMyEntreprisesQuery } from '@/redux/services/ventureServices';
 import { useAppSelector } from '@/redux/hooks';
 import { selectUser } from '@/redux/slices/userSlice';
 
@@ -35,7 +35,7 @@ const InitialSetupValidation: React.FC<InitialSetupValidationProps> = ({
 }) => {
   const { t } = useTranslation();
   const user = useAppSelector(selectUser) as ExtendedUser;
-  const { data: ventures } = useGetUserVenturesQuery({ userId: user?._id || '' }, { skip: !user?._id });
+  const { data: ventures } = useGetMyEntreprisesQuery({ userId: user?._id || '' }, { skip: !user?._id });
   const [createBusinessPlan, { isLoading: isCreating }] = useCreateBusinessPlanMutation();
   
   const [validationResults, setValidationResults] = useState<Record<string, boolean>>({});
