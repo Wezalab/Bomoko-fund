@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectUser, selectToken, setToken, setUser } from '@/redux/slices/userSlice';
 import { useTranslation } from '@/lib/TranslationContext';
 import { apiUrl } from '@/lib/env';
+
+interface SignedInUser {
+  name: string;
+  email: string;
+  picture: string;
+}
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -14,10 +21,13 @@ const LoginPage: React.FC = () => {
   const { t } = useTranslation();
   const currentUser = useAppSelector(selectUser);
   const token = useAppSelector(selectToken);
-  const isLoggedIn = !!(currentUser?.email || currentUser?.phone_number) && !!token;
+
+  // Track if user was already logged in when the page first mounted
+  const wasAlreadyLoggedIn = useRef(!!(currentUser?.email || currentUser?.phone_number) && !!token);
 
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarView, setSidebarView] = useState<'benefits' | 'funding'>('benefits');
+  const [signedInUser, setSignedInUser] = useState<SignedInUser | null>(null);
 
   const numberColors = [
     'text-yellow-400',
@@ -27,11 +37,12 @@ const LoginPage: React.FC = () => {
     'text-red-400',
   ];
 
+  // Only auto-redirect if the user was already logged in before opening this page
   React.useEffect(() => {
-    if (isLoggedIn) {
+    if (wasAlreadyLoggedIn.current) {
       navigate('/dashboard');
     }
-  }, [isLoggedIn, navigate]);
+  }, [navigate]);
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setIsLoading(true);
@@ -67,8 +78,13 @@ const LoginPage: React.FC = () => {
           cryptoWallet: authData.user.cryptoWallet || [],
         }));
 
+        setSignedInUser({
+          name: authData.user.name,
+          email: authData.user.email,
+          picture: authData.user.avatar || authData.user.picture || '',
+        });
+
         toast.success(authData.message || t('Successfully signed in with Google!'));
-        navigate('/dashboard');
       } else {
         throw new Error(authData.message || 'Authentication failed');
       }
@@ -196,80 +212,152 @@ const LoginPage: React.FC = () => {
             <span className="text-xl font-bold text-[#02093d]">BOMOKO FUND</span>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            {/* Badge */}
-            <div className="mb-6">
-              <span className="inline-block px-4 py-1.5 bg-yellow-400 text-[#02093d] rounded-full text-xs font-semibold uppercase tracking-wide">
-                {t('FREE TRIAL')}
-              </span>
-            </div>
-
-            {/* Title */}
-            <h1 className="text-4xl font-bold text-[#02093d] mb-2 leading-tight">
-              {t('Welcome to')}{' '}
-              <span className="text-[#0a78c2]">BOMOKO FUND</span>
-            </h1>
-            <p className="text-gray-500 mb-8 text-sm leading-relaxed">
-              {t('Sign in to access your dashboard, manage your business plans, and connect with investors.')}
-            </p>
-
-            {/* Divider */}
-            <div className="relative flex items-center mb-8">
-              <div className="flex-grow border-t border-gray-200" />
-              <span className="mx-4 text-sm text-gray-400">{t('Continue with')}</span>
-              <div className="flex-grow border-t border-gray-200" />
-            </div>
-
-            {/* Google Sign-in */}
-            <div className="flex justify-center">
-              {isLoading ? (
-                <div className="flex items-center space-x-3 px-6 py-3 border border-gray-200 rounded-lg w-full justify-center">
-                  <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  <span className="text-gray-600 text-sm">{t('Signing in...')}</span>
-                </div>
-              ) : (
-                <div className="w-full">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={handleGoogleError}
-                    size="large"
-                    width="100%"
-                    text="signin_with"
-                    useOneTap={false}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Footer note */}
-            <p className="mt-8 text-center text-xs text-gray-400">
-              {t('By signing in, you agree to our')}{' '}
-              <button
-                onClick={() => navigate('/privacy-policy')}
-                className="text-[#0a78c2] hover:underline"
+          <AnimatePresence mode="wait">
+            {signedInUser ? (
+              /* ── Signed-in account card ── */
+              <motion.div
+                key="signed-in"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.35 }}
               >
-                {t('Privacy Policy')}
-              </button>
-              .
-            </p>
+                {/* Success badge */}
+                <div className="flex items-center space-x-2 mb-6">
+                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  <span className="text-sm font-medium text-green-600">
+                    {t('Successfully signed in with Google!')}
+                  </span>
+                </div>
 
-            {/* Back to home */}
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => navigate('/')}
-                className="text-sm text-gray-500 hover:text-[#02093d] transition-colors"
+                {/* Account card */}
+                <div className="bg-gradient-to-r from-[#02093d] to-[#0a1854] rounded-2xl p-6 mb-6 text-white">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/30 flex-shrink-0">
+                      {signedInUser.picture ? (
+                        <img
+                          src={signedInUser.picture}
+                          alt={signedInUser.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-white/20 flex items-center justify-center text-xl font-bold">
+                          {signedInUser.name?.[0]?.toUpperCase() || 'U'}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="text-xs bg-white/15 px-2 py-0.5 rounded-full">
+                          Google Account
+                        </span>
+                      </div>
+                      <p className="text-lg font-semibold truncate">{signedInUser.name}</p>
+                      <p className="text-sm text-white/70 truncate">{signedInUser.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Go to dashboard button */}
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  className="w-full flex items-center justify-center space-x-2 bg-[#0a78c2] hover:bg-[#0860a8] text-white font-semibold py-3.5 px-6 rounded-xl transition-colors"
+                >
+                  <span>{t('Go to Dashboard')}</span>
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+
+                {/* Sign in with a different account */}
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => setSignedInUser(null)}
+                    className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {t('Use a different account')}
+                  </button>
+                </div>
+              </motion.div>
+            ) : (
+              /* ── Sign-in form ── */
+              <motion.div
+                key="sign-in"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
               >
-                ← {t('Back to home')}
-              </button>
-            </div>
-          </motion.div>
+                {/* Badge */}
+                <div className="mb-6">
+                  <span className="inline-block px-4 py-1.5 bg-yellow-400 text-[#02093d] rounded-full text-xs font-semibold uppercase tracking-wide">
+                    {t('FREE TRIAL')}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h1 className="text-4xl font-bold text-[#02093d] mb-2 leading-tight">
+                  {t('Welcome to')}{' '}
+                  <span className="text-[#0a78c2]">BOMOKO FUND</span>
+                </h1>
+                <p className="text-gray-500 mb-8 text-sm leading-relaxed">
+                  {t('Sign in to access your dashboard, manage your business plans, and connect with investors.')}
+                </p>
+
+                {/* Divider */}
+                <div className="relative flex items-center mb-8">
+                  <div className="flex-grow border-t border-gray-200" />
+                  <span className="mx-4 text-sm text-gray-400">{t('Continue with')}</span>
+                  <div className="flex-grow border-t border-gray-200" />
+                </div>
+
+                {/* Google Sign-in */}
+                <div className="flex justify-center">
+                  {isLoading ? (
+                    <div className="flex items-center space-x-3 px-6 py-3 border border-gray-200 rounded-lg w-full justify-center">
+                      <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      <span className="text-gray-600 text-sm">{t('Signing in...')}</span>
+                    </div>
+                  ) : (
+                    <div className="w-full">
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        size="large"
+                        width="100%"
+                        text="signin_with"
+                        useOneTap={false}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer note */}
+                <p className="mt-8 text-center text-xs text-gray-400">
+                  {t('By signing in, you agree to our')}{' '}
+                  <button
+                    onClick={() => navigate('/privacy-policy')}
+                    className="text-[#0a78c2] hover:underline"
+                  >
+                    {t('Privacy Policy')}
+                  </button>
+                  .
+                </p>
+
+                {/* Back to home */}
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => navigate('/')}
+                    className="text-sm text-gray-500 hover:text-[#02093d] transition-colors"
+                  >
+                    ← {t('Back to home')}
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
