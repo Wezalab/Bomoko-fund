@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@/redux/hooks';
 import { selectUser } from '@/redux/slices/userSlice';
 import { useTranslation } from '@/lib/TranslationContext';
-import { useGetUserVenturesQuery } from '@/redux/services/ventureServices';
+import { useGetMyEntreprisesQuery } from '@/redux/services/ventureServices';
 import {
   useGetFinanceSheetQuery,
   useCreateFinanceSheetMutation,
@@ -76,8 +76,8 @@ const FinancialsPage: React.FC = () => {
   const [revenueItems, setRevenueItems] = useState<RevenueItem[]>([]);
 
   /* ── Ventures ── */
-  const { data: venturesResp, isLoading: loadingVentures } = useGetUserVenturesQuery(
-    { userId: user?._id || '', page: 1, limit: 50 },
+  const { data: venturesResp, isLoading: loadingVentures } = useGetMyEntreprisesQuery(
+    { userId: user?._id || '' },
     { skip: !user?._id },
   );
   const ventures: any[] = Array.isArray(venturesResp)
