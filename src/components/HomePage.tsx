@@ -125,10 +125,10 @@ function HomePage() {
               </Button>
             ) : (
               <Button
-                onClick={() => navigate("/venture")}
+                onClick={() => navigate("/login")}
                 className="flex items-center space-x-3 bg-teal-600 h-[40px] md:h-[52px] rounded-[100px] hover:bg-teal-700"
               >
-                {t("Create Venture")}
+                Commencer
                 <MdOutlineArrowOutward size={24} color="white" />
               </Button>
             )}

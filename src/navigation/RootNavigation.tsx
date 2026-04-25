@@ -11,6 +11,7 @@ import BusinessPlanEditorLayout from '@/pages/BusinessPlanEditorLayout'
 import BusinessPlanSetupLayout from '@/pages/BusinessPlanSetupLayout'
 import NotFound from '@/pages/NotFound'
 import AuthRedirect from '@/components/AuthRedirect'
+import LoginPage from '@/components/LoginPage'
 import BusinessPlanWizard from '@/components/BusinessPlanWizard'
 import BusinessPlanOverviewNew from '@/components/businessPlan/BusinessPlanOverviewNew'
 import BMCLayout from '@/pages/BMCLayout'
@@ -51,6 +52,7 @@ function RootNavigation() {
             <Route path="/manage" element={<ManageLayout />} />
             <Route path="/financials" element={<FinancialsLayout />} />
             <Route path="/auth/google/callback" element={<AuthRedirect />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/*" element={<NotFound />} />
         </Routes>
     </Router>
