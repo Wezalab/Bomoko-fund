@@ -4,7 +4,7 @@ import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { selectUser, setUser, setToken, initialState } from '@/redux/slices/userSlice';
 import { ProjectInitialState, setProject } from '@/redux/slices/projectSlice';
 import { useTranslation } from '@/lib/TranslationContext';
-import { useGetUserVenturesQuery } from '@/redux/services/ventureServices';
+import { useGetMyEntreprisesQuery } from '@/redux/services/ventureServices';
 import { useGetVentureBusinessPlansQuery } from '@/redux/services/businessPlanServices';
 import { useGetUserCanvasesQuery } from '@/redux/services/bmcServices';
 import { useGetFinanceSheetQuery } from '@/redux/services/financeServices';
@@ -97,18 +97,18 @@ const NAV_ITEMS = [
   { path: '/settings', icon: Settings, labelKey: 'settings' },
 ];
 
-const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-  completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', label: 'Completed' },
-  'in-progress': { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', label: 'In Progress' },
-  published: { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', label: 'Published' },
-  draft: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', label: 'Draft' },
+const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string; labelKey: string; fallback: string }> = {
+  completed: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', labelKey: 'completed', fallback: 'Completed' },
+  'in-progress': { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500', labelKey: 'inProgress', fallback: 'In Progress' },
+  published: { bg: 'bg-violet-50', text: 'text-violet-700', dot: 'bg-violet-500', labelKey: 'published', fallback: 'Published' },
+  draft: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500', labelKey: 'draft', fallback: 'Draft' },
 };
 
-const getTimeGreeting = () => {
+const getTimeGreetingKey = (): { key: string; fallback: string } => {
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
+  if (h < 12) return { key: 'goodMorning', fallback: 'Good morning' };
+  if (h < 17) return { key: 'goodAfternoon', fallback: 'Good afternoon' };
+  return { key: 'goodEvening', fallback: 'Good evening' };
 };
 
 const Dashboard: React.FC = () => {
@@ -116,7 +116,8 @@ const Dashboard: React.FC = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser) as unknown as ExtendedUser;
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const dateLocale = language === 'fr' ? 'fr-FR' : 'en-US';
 
   const isActiveRoute = (path: string) => {
     if (location.pathname === path) return true;
@@ -126,7 +127,7 @@ const Dashboard: React.FC = () => {
 
   /* ─── Ventures ─── */
   const { data: venturesResponse, isLoading: isLoadingVentures, error: venturesError } =
-    useGetUserVenturesQuery({ userId: user?._id || '', page: 1, limit: 50 }, { skip: !user?._id });
+    useGetMyEntreprisesQuery({ userId: user?._id || '' }, { skip: !user?._id });
 
   const ventures = Array.isArray(venturesResponse)
     ? venturesResponse
@@ -227,15 +228,20 @@ const Dashboard: React.FC = () => {
   };
 
   const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    new Date(dateString).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: 'numeric' });
 
   const formatDateShort = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
+      return new Date(dateString).toLocaleDateString(dateLocale, { day: '2-digit', month: 'short', year: '2-digit' });
     } catch { return ''; }
   };
 
-  const userName = user?.name || user?.email?.split('@')[0] || 'User';
+  const userName = user?.name || user?.email?.split('@')[0] || (t('user') || 'User');
+  const greeting = getTimeGreetingKey();
+  const ventureCount = Array.isArray(ventures) ? ventures.length : 0;
+  const ventureWord = ventureCount === 1
+    ? (t('venture') || 'venture')
+    : (t('ventures') || 'ventures');
 
   /* ─── Quick Action Cards ─── */
   const quickActions = [
@@ -245,7 +251,7 @@ const Dashboard: React.FC = () => {
     { label: t('userAccess') || 'User Access', desc: t('manageUserAccess') || 'Manage collaborators', icon: Users, gradient: 'from-emerald-500 to-teal-600', path: '/user-access', disabled: false },
     { label: t('accountSettings') || 'Account Settings', desc: t('manageUserProfileAccountBilling') || 'Profile, account & billing', icon: Shield, gradient: 'from-orange-500 to-red-500', path: '/account-settings', disabled: false },
     { label: t('frequentQuestions') || 'FAQ', desc: t('findAnswersTutorialVideos') || 'Find answers & tutorials', icon: HelpCircle, gradient: 'from-pink-500 to-rose-600', path: '/faq', disabled: false },
-    { label: t('manage') || 'Manage', desc: 'Ventures, BMC & plans CRUD', icon: FolderOpen, gradient: 'from-indigo-500 to-violet-600', path: '/manage', disabled: false },
+    { label: t('manage') || 'Manage', desc: t('manageDesc') || 'Ventures, BMC & plans CRUD', icon: FolderOpen, gradient: 'from-indigo-500 to-violet-600', path: '/manage', disabled: false },
     { label: t('financials') || 'Financials', desc: t('costsRevenueMargins') || 'Costs, revenue & margins', icon: TrendingUp, gradient: 'from-emerald-500 to-green-600', path: '/financials', disabled: false },
     { label: t('requestSupport') || 'Request Support', desc: t('getInTouchSupportTeam') || 'Get in touch with support', icon: HeartHandshake, gradient: 'from-sky-500 to-blue-600', path: '/support', disabled: false },
     { label: t('partnerProgram') || 'Partner Program', desc: t('earnRewardsReferNewCustomers') || 'Earn rewards by referring', icon: Sparkles, gradient: 'from-amber-500 to-yellow-500', path: '', disabled: true },
@@ -314,14 +320,14 @@ const Dashboard: React.FC = () => {
             <div>
               <p className="text-[#3AB6FF] text-sm font-medium mb-1 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" />
-                {getTimeGreeting()}
+                {t(greeting.key) || greeting.fallback}
               </p>
               <h1 className="text-3xl font-bold text-white mb-1">
                 {t('Welcome') || 'Welcome back,'}{' '}
                 <span className="text-[#3AB6FF]">{userName}</span> 👋
               </h1>
               <p className="text-white/50 text-sm mt-0.5">
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                {new Date().toLocaleDateString(dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
             </div>
 
@@ -330,7 +336,7 @@ const Dashboard: React.FC = () => {
                 <Search className="absolute left-3 w-4 h-4 text-white/40" />
                 <input
                   className="bg-white/10 text-white text-sm placeholder-white/40 border border-white/15 rounded-xl pl-9 pr-4 py-2.5 w-52 focus:outline-none focus:border-[#3AB6FF]/50 focus:bg-white/15 transition-all"
-                  placeholder="Search..."
+                  placeholder={t('searchPlaceholder') || 'Search...'}
                 />
               </div>
               <button className="relative w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center border border-white/15 transition-colors">
@@ -341,14 +347,14 @@ const Dashboard: React.FC = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button className="flex items-center gap-2.5 bg-white/10 hover:bg-white/20 border border-white/15 rounded-2xl h-11 px-3 transition-all">
-                      <img src={userAvatar} className="w-8 h-8 rounded-xl object-cover ring-2 ring-[#3AB6FF]/40" alt="profile" onError={handleImageError} crossOrigin="anonymous" referrerPolicy="no-referrer" />
+                      <img src={userAvatar} className="w-8 h-8 rounded-xl object-cover ring-2 ring-[#3AB6FF]/40" alt={t('profile') || 'Profile'} onError={handleImageError} crossOrigin="anonymous" referrerPolicy="no-referrer" />
                       <span className="text-sm font-medium text-white hidden sm:block max-w-[120px] truncate">{userName}</span>
                       <ChevronDown className="w-4 h-4 text-white/60" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="p-2 w-64 shadow-2xl border-gray-100 rounded-2xl">
                     <div className="flex items-center gap-3 p-3 mb-1 bg-gray-50 rounded-xl">
-                      <img src={userAvatar} className="w-10 h-10 rounded-xl object-cover" alt="profile" onError={handleImageError} crossOrigin="anonymous" referrerPolicy="no-referrer" />
+                      <img src={userAvatar} className="w-10 h-10 rounded-xl object-cover" alt={t('profile') || 'Profile'} onError={handleImageError} crossOrigin="anonymous" referrerPolicy="no-referrer" />
                       <div className="min-w-0">
                         <p className="font-semibold text-gray-900 text-sm truncate">{userName}</p>
                         <p className="text-gray-500 text-xs truncate">{user?.email}</p>
@@ -379,10 +385,10 @@ const Dashboard: React.FC = () => {
           {/* Stats Bar */}
           <div className="relative mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: 'Total Ventures', value: isLoadingVentures ? '…' : (Array.isArray(ventures) ? ventures.length : 0), icon: Building, color: 'from-[#3AB6FF]/20 to-[#3AB6FF]/5', iconColor: 'text-[#3AB6FF]', trend: '+2 this month' },
-              { label: 'Business Plans', value: ventureBusinessPlans.length, icon: FileText, color: 'from-violet-400/20 to-violet-400/5', iconColor: 'text-violet-300', trend: selectedVenture ? `For ${selectedVenture.businessName?.slice(0,12)}…` : 'Select a venture' },
-              { label: 'BMC Canvases', value: isLoadingCanvases ? '…' : allCanvases.length, icon: LayoutGrid, color: 'from-emerald-400/20 to-emerald-400/5', iconColor: 'text-emerald-300', trend: 'Business models' },
-              { label: 'Completed', value: Array.isArray(ventures) ? ventures.filter((v) => v.status === 'completed').length : 0, icon: CheckCircle2, color: 'from-amber-400/20 to-amber-400/5', iconColor: 'text-amber-300', trend: 'Well done!' },
+              { label: t('totalVentures') || 'Total Ventures', value: isLoadingVentures ? '…' : ventureCount, icon: Building, color: 'from-[#3AB6FF]/20 to-[#3AB6FF]/5', iconColor: 'text-[#3AB6FF]', trend: ventureCount > 0 ? `${ventureCount} ${ventureWord}` : (t('selectAVenture') || 'Select a venture') },
+              { label: t('businessPlans') || 'Business Plans', value: ventureBusinessPlans.length, icon: FileText, color: 'from-violet-400/20 to-violet-400/5', iconColor: 'text-violet-300', trend: selectedVenture ? `${t('forVenturePrefix') || 'For'} ${selectedVenture.businessName?.slice(0,12)}…` : (t('selectAVenture') || 'Select a venture') },
+              { label: t('bmcCanvases') || 'BMC Canvases', value: isLoadingCanvases ? '…' : allCanvases.length, icon: LayoutGrid, color: 'from-emerald-400/20 to-emerald-400/5', iconColor: 'text-emerald-300', trend: t('businessModels') || 'Business models' },
+              { label: t('completed') || 'Completed', value: Array.isArray(ventures) ? ventures.filter((v) => v.status === 'completed').length : 0, icon: CheckCircle2, color: 'from-amber-400/20 to-amber-400/5', iconColor: 'text-amber-300', trend: t('wellDone') || 'Well done!' },
             ].map(({ label, value, icon: Icon, color, iconColor, trend }) => (
               <div key={label} className={`bg-gradient-to-br ${color} border border-white/10 rounded-2xl p-4 backdrop-blur-sm`}>
                 <div className="flex items-center justify-between mb-3">
@@ -412,13 +418,13 @@ const Dashboard: React.FC = () => {
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">{t('myVentures') || 'My Ventures'}</h2>
                   <p className="text-gray-400 text-xs mt-0.5">
-                    {Array.isArray(ventures) ? ventures.length : 0} entreprise{Array.isArray(ventures) && ventures.length !== 1 ? 's' : ''}
+                    {ventureCount} {ventureWord}
                   </p>
                 </div>
                 <button
-                  onClick={() => handleNavigation('/venture-wizard')}
+                  onClick={() => handleNavigation('/venture')}
                   className="w-9 h-9 bg-[#020A3C] hover:bg-[#0a1963] text-white rounded-xl flex items-center justify-center transition-colors shadow-md"
-                  title={t('createNewBusiness') || 'New Venture'}
+                  title={t('newVenture') || t('createNewBusiness') || 'New Venture'}
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -426,11 +432,11 @@ const Dashboard: React.FC = () => {
 
               <div className="p-5 flex-1 overflow-hidden">
                 {!user?._id ? (
-                  <EmptyState icon={<Building className="w-8 h-8 text-gray-300" />} title="Sign in required" desc="Please sign in to view your ventures" />
+                  <EmptyState icon={<Building className="w-8 h-8 text-gray-300" />} title={t('signInRequired') || 'Sign in required'} desc={t('signInToViewVentures') || 'Please sign in to view your ventures'} />
                 ) : isLoadingVentures ? (
                   <LoadingState />
                 ) : venturesError ? (
-                  <EmptyState icon={<Building className="w-8 h-8 text-red-300" />} title="Couldn't load ventures" desc="Please try again later" error />
+                  <EmptyState icon={<Building className="w-8 h-8 text-red-300" />} title={t('couldntLoadVentures') || "Couldn't load ventures"} desc={t('pleaseTryAgainLater') || 'Please try again later'} error />
                 ) : Array.isArray(ventures) && ventures.length > 0 ? (
                   <div className="space-y-2.5 max-h-[520px] overflow-y-auto pr-1 custom-scrollbar">
                     {ventures.map((venture) => {
@@ -458,7 +464,7 @@ const Dashboard: React.FC = () => {
                               <div className="flex items-center gap-2 mt-1 flex-wrap">
                                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${statusCfg.bg} ${statusCfg.text}`}>
                                   <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-                                  {statusCfg.label}
+                                  {t(statusCfg.labelKey) || statusCfg.fallback}
                                 </span>
                                 {venture.country && (
                                   <span className="inline-flex items-center gap-1 text-[10px] text-gray-400">
@@ -486,10 +492,10 @@ const Dashboard: React.FC = () => {
                 ) : (
                   <EmptyActionState
                     icon={<Building className="w-8 h-8 text-gray-300" />}
-                    title={t('noBusinessCreated') || 'No ventures yet'}
-                    desc={t('createBusinessMessage') || 'Create your first venture'}
-                    btnLabel={t('createNewBusiness') || 'Create Venture'}
-                    onBtnClick={() => handleNavigation('/venture-wizard')}
+                    title={t('noVenturesYet') || t('noBusinessCreated') || 'No ventures yet'}
+                    desc={t('createFirstVenture') || t('createBusinessMessage') || 'Create your first venture'}
+                    btnLabel={t('createVenture') || t('createNewBusiness') || 'Create Venture'}
+                    onBtnClick={() => handleNavigation('/venture')}
                   />
                 )}
               </div>
@@ -573,10 +579,10 @@ const Dashboard: React.FC = () => {
                                   <FileText className="w-3.5 h-3.5 text-violet-600" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-gray-800 truncate">{plan.metadata?.title || 'Business Plan'}</p>
+                                  <p className="text-xs font-semibold text-gray-800 truncate">{plan.metadata?.title || t('businessPlan') || 'Business Plan'}</p>
                                   <div className="flex items-center gap-2 mt-0.5">
                                     <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded-full ${statusCfg.bg} ${statusCfg.text}`}>
-                                      {statusCfg.label}
+                                      {t(statusCfg.labelKey) || statusCfg.fallback}
                                     </span>
                                     <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                                       <div className="h-full bg-violet-400 rounded-full" style={{ width: `${pct}%` }} />
@@ -839,7 +845,7 @@ const Dashboard: React.FC = () => {
                                   <Megaphone className="w-3.5 h-3.5 text-amber-600" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-gray-800 truncate">{project.title || project.name || (t('crowdfunding') || 'Campaign')}</p>
+                                  <p className="text-xs font-semibold text-gray-800 truncate">{project.title || project.name || (t('campaign') || 'Campaign')}</p>
                                   <div className="flex items-center gap-2 mt-0.5">
                                     <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
                                       <div className="h-full bg-amber-400 rounded-full" style={{ width: `${fundPct}%` }} />
@@ -892,8 +898,8 @@ const Dashboard: React.FC = () => {
                   <Zap className="w-4 h-4 text-[#3AB6FF]" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900">Quick Actions</h2>
-                  <p className="text-gray-400 text-xs">For <span className="text-[#020A3C] font-medium">{selectedVenture.businessName}</span></p>
+                  <h2 className="text-lg font-bold text-gray-900">{t('quickActions') || 'Quick Actions'}</h2>
+                  <p className="text-gray-400 text-xs">{t('forVenturePrefix') || 'For'} <span className="text-[#020A3C] font-medium">{selectedVenture.businessName}</span></p>
                 </div>
               </div>
 
@@ -919,7 +925,7 @@ const Dashboard: React.FC = () => {
                       {!disabled && <ArrowUpRight className="absolute top-0 right-0 w-4 h-4 text-white/50 group-hover:text-white group-hover:scale-110 transition-all" />}
                       {disabled && (
                         <span className="inline-flex items-center gap-1 mt-2 bg-gray-200 text-gray-500 text-[10px] font-medium px-2 py-0.5 rounded-full">
-                          <Lock className="w-2.5 h-2.5" /> Coming soon
+                          <Lock className="w-2.5 h-2.5" /> {t('comingSoon') || 'Coming soon'}
                         </span>
                       )}
                     </div>
@@ -988,12 +994,15 @@ const Dashboard: React.FC = () => {
    Helper Sub-Components
 ───────────────────────────────────────── */
 
-const LoadingState = () => (
-  <div className="flex flex-col items-center justify-center py-10 gap-3">
-    <Loader2 className="w-8 h-8 text-gray-300 animate-spin" />
-    <p className="text-gray-400 text-sm">Loading…</p>
-  </div>
-);
+const LoadingState = () => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex flex-col items-center justify-center py-10 gap-3">
+      <Loader2 className="w-8 h-8 text-gray-300 animate-spin" />
+      <p className="text-gray-400 text-sm">{t('loading') || 'Loading…'}</p>
+    </div>
+  );
+};
 
 const EmptyState = ({ icon, title, desc, error = false }: { icon: React.ReactNode; title: string; desc: string; error?: boolean }) => (
   <div className="flex flex-col items-center justify-center py-12 text-center">
