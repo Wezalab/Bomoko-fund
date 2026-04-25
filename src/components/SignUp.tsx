@@ -81,6 +81,7 @@ function SignUp({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    googleToken: credentialResponse.credential,
                     idToken: credentialResponse.credential,
                     credential: credentialResponse.credential,
                     token: credentialResponse.credential,
@@ -94,26 +95,29 @@ function SignUp({
             const authData = await backendResponse.json();
             console.log('✅ Google authentication successful:', authData);
 
-            if (authData.success && authData.userId) {
+            const userId = authData.userId || authData.user?._id || authData.user?.id || authData.user?.sub;
+            const isSuccess = authData.success || userId || authData.jwtToken || authData.token;
+
+            if (isSuccess) {
                 // Set user data in Redux with backend user ID
                 dispatch(setUser({
-                    _id: authData.userId, // Use backend user ID
-                    email: authData.user.email,
-                    name: authData.user.name,
-                    phone_number: authData.user.phone || '',
-                    bio: authData.user.bio || '',
-                    location: authData.user.location || '',
+                    _id: userId,
+                    email: authData.user?.email || '',
+                    name: authData.user?.name || '',
+                    phone_number: authData.user?.phone || '',
+                    bio: authData.user?.bio || '',
+                    location: authData.user?.location || '',
                     isGoogleUser: true,
-                    profile: authData.user.avatar || authData.user.picture,
-                    projects: authData.user.projects || [],
-                    cryptoWallet: authData.user.cryptoWallet || []
+                    profile: authData.user?.avatar || authData.user?.picture,
+                    projects: authData.user?.projects || [],
+                    cryptoWallet: authData.user?.cryptoWallet || []
                 }));
 
                 // Set JWT token
                 dispatch(setToken(authData.jwtToken || authData.token));
                 
                 toast.success(authData.message || "Signed up successfully!");
-                console.log("Google sign-up success with backend userId:", authData.userId);
+                console.log("Google sign-up success with backend userId:", userId);
                 onClose();
             } else {
                 throw new Error(authData.message || 'Authentication failed');

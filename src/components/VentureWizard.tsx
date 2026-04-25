@@ -411,6 +411,7 @@ const VentureWizard: React.FC = () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+              googleToken: token,
               idToken: token,
               credential: token,
               token: token,
@@ -620,11 +621,12 @@ const VentureWizard: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          idToken: credentialResponse.credential,
-          credential: credentialResponse.credential,
-          token: credentialResponse.credential,
-        })
+          body: JSON.stringify({
+            googleToken: credentialResponse.credential,
+            idToken: credentialResponse.credential,
+            credential: credentialResponse.credential,
+            token: credentialResponse.credential,
+          })
       });
 
       if (!backendResponse.ok) {
@@ -638,55 +640,47 @@ const VentureWizard: React.FC = () => {
       const authData = await backendResponse.json();
       console.log("Backend auth response:", authData);
 
-      if (authData.success) {
-        // Enhanced logging for separate token data
+      const userId = authData.userId || authData.user?._id || authData.user?.id || authData.user?.sub;
+      const isSuccess = authData.success || userId || authData.jwtToken || authData.token;
+
+      if (isSuccess) {
         console.log('🔑 Backend Auth Data:', {
           userId: authData.userId,
           token: authData.token,
           jwtToken: authData.jwtToken,
-          googleToken: authData.googleToken
         });
         
-        // Update Redux store with backend-verified data
-        // Use jwtToken as primary token for API calls
         dispatch(setToken(authData.jwtToken || authData.token));
-        
-        // Enhanced user ID handling for Google authentication
-        const userId = authData.userId || authData.user._id || authData.user.id || authData.user.sub;
         
         console.log('🔍 Backend User ID Resolution:', {
           backendUserId: authData.userId,
-          userDocId: authData.user._id,
-          userIdField: authData.user.id,
-          googleSub: authData.user.sub,
+          userDocId: authData.user?._id,
           finalUserId: userId,
-          isBackendId: !!authData.userId
         });
         
         dispatch(setUser({
           _id: userId,
-          email: authData.user.email,
-          name: authData.user.name,
-          phone_number: authData.user.phone || '',
-          bio: authData.user.bio || '',
-          location: authData.user.location || '',
+          email: authData.user?.email || '',
+          name: authData.user?.name || '',
+          phone_number: authData.user?.phone || '',
+          bio: authData.user?.bio || '',
+          location: authData.user?.location || '',
           isGoogleUser: true,
-          profile: authData.user.avatar || authData.user.picture,
-          projects: authData.user.projects || [],
-          cryptoWallet: authData.user.cryptoWallet || []
+          profile: authData.user?.avatar || authData.user?.picture,
+          projects: authData.user?.projects || [],
+          cryptoWallet: authData.user?.cryptoWallet || []
         }));
         
         console.log('🔑 Redux User Set With ID:', userId);
         
-        // Update venture data with Google user info - store all tokens separately
         updateVentureData('authMethod', 'google');
-        updateVentureData('userName', authData.user.name || '');
+        updateVentureData('userName', authData.user?.name || '');
         updateVentureData('googleUser', {
-          email: authData.user.email,
-          name: authData.user.name,
-          picture: authData.user.avatar || authData.user.picture,
-          access_token: authData.googleToken, // Store original Google token
-          jwt_token: authData.jwtToken,       // Store JWT token separately
+          email: authData.user?.email || '',
+          name: authData.user?.name || '',
+          picture: authData.user?.avatar || authData.user?.picture || '',
+          access_token: authData.googleToken,
+          jwt_token: authData.jwtToken,
           api_token: authData.token,          // Store API token separately
           user_id: authData.userId            // Store userId separately
         });
