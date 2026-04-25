@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTranslation } from '@/lib/TranslationContext';
 import { generateProductGroupSuggestions, generateServiceGroupSuggestions } from '@/lib/groqService';
-import { useGetUserVenturesQuery } from '@/redux/services/ventureServices';
+import { useGetMyEntreprisesQuery } from '@/redux/services/ventureServices';
 
 interface ExtendedUser {
   _id: string;
@@ -110,10 +110,8 @@ const BusinessPlanWizard: React.FC<BusinessPlanWizardProps> = ({ onComplete }) =
     data: venturesResponse, 
     isLoading: isLoadingVentures, 
     error: venturesError 
-  } = useGetUserVenturesQuery({ 
-    userId: user?._id || '', 
-    page: 1, 
-    limit: 50 
+  } = useGetMyEntreprisesQuery({ 
+    userId: user?._id || '',
   }, {
     skip: !user?._id // Skip the query if user ID is not available
   });
