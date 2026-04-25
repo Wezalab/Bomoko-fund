@@ -28,6 +28,45 @@ export interface Venture extends VentureData {
   isActive: boolean;
 }
 
+export type EntrepriseSecteur = 'AGRO-TRANSFORMATION' | 'SERVICE' | 'AUTRE';
+export type EntrepriseCustomerType = 'B2B' | 'B2C' | 'B2B2C' | 'C2C' | 'B2G';
+export type EntrepriseCategoryBase = 'PME' | 'JEUNE' | 'FEMME' | 'PSDE';
+
+export interface EntrepriseTeamMember {
+  name: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface EntreprisePayload {
+  owner: string;
+  company_name: string;
+  mini_bio?: string;
+  description?: string;
+  founding_date?: string;
+  mission?: string;
+  vision?: string;
+  phone?: string;
+  full_address?: string;
+  secteur?: EntrepriseSecteur[];
+  stage?: string;
+  type_of_customers?: EntrepriseCustomerType[];
+  customer_base?: string[];
+  category_base?: EntrepriseCategoryBase[];
+  website?: string;
+  email?: string;
+  social_Media?: string[];
+  team?: EntrepriseTeamMember[];
+}
+
+export interface Entreprise extends EntreprisePayload {
+  _id: string;
+  owner: any;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export const ventureService = splitApi.injectEndpoints({
   endpoints: builder => ({
     createVenture: builder.mutation<Venture, VentureData & { user_id: string; userId?: string }>({
@@ -169,6 +208,76 @@ export const ventureService = splitApi.injectEndpoints({
         console.error("[DEBUG API ERROR] Publish venture error:", response);
         return response;
       }
+    }),
+    /**
+     * GET /entreprises — backend returns ALL ventures; we filter by owner._id
+     * (or owner === userId for legacy non-populated rows) on the client and
+     * normalize each row into the existing `Venture` shape so the dashboard
+     * UI keeps reading `businessName`, `country`, `businessTypes`, `status`
+     * without changes.
+     */
+    getMyEntreprises: builder.query<Venture[], { userId: string }>({
+      query: () => '/entreprises',
+      transformResponse: (response: any, _meta, arg: { userId: string }): Venture[] => {
+        const list: any[] = Array.isArray(response)
+          ? response
+          : Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response?.entreprises)
+          ? response.entreprises
+          : [];
+        const userId = arg?.userId;
+        const filtered = userId
+          ? list.filter((e) => {
+              const ownerId = typeof e?.owner === 'string' ? e.owner : e?.owner?._id;
+              return ownerId === userId;
+            })
+          : list;
+        return filtered.map((e: any): Venture => ({
+          _id: e._id,
+          userId: typeof e?.owner === 'string' ? e.owner : e?.owner?._id || '',
+          businessName: e.company_name || e.businessName || '',
+          country: e.country || e.full_address || '',
+          businessDescription: e.description || e.mini_bio || '',
+          businessTypes: Array.isArray(e.secteur) ? e.secteur : (Array.isArray(e.businessTypes) ? e.businessTypes : []),
+          purpose: e.purpose || '',
+          userName: e.userName || '',
+          userRole: e.userRole || '',
+          authMethod: e.authMethod || '',
+          language: e.language || '',
+          currency: e.currency || '',
+          status: (e.status as Venture['status']) || 'draft',
+          createdAt: e.createdAt || '',
+          updatedAt: e.updatedAt || '',
+          isActive: e.isActive !== false,
+          // Keep the raw entreprise fields available so detail views can read
+          // company_name, mission, vision, etc. directly off the venture.
+          ...e,
+        }));
+      },
+      transformErrorResponse: (response: any) => {
+        console.error("[DEBUG API ERROR] Get my entreprises error:", response);
+        return response;
+      }
+    }),
+    /**
+     * POST /entreprises — `owner` and `company_name` are required by the API.
+     * The Authorization header is attached automatically by `splitApi` from
+     * the Redux JWT token.
+     */
+    createEntreprise: builder.mutation<Entreprise, EntreprisePayload>({
+      query: (body) => ({
+        url: '/entreprises',
+        method: 'POST',
+        body,
+      }),
+      transformResponse: (response: any): Entreprise => {
+        return response?.data || response?.entreprise || response;
+      },
+      transformErrorResponse: (response: any) => {
+        console.error("[DEBUG API ERROR] Create entreprise error:", response);
+        return response;
+      }
     })
   }),
   overrideExisting: true
@@ -181,5 +290,7 @@ export const {
   useUpdateVentureMutation,
   useDeleteVentureMutation,
   useGetBusinessTypesQuery,
-  usePublishVentureMutation
+  usePublishVentureMutation,
+  useGetMyEntreprisesQuery,
+  useCreateEntrepriseMutation,
 } = ventureService;
