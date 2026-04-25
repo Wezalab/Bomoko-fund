@@ -1,664 +1,351 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Sparkles, Loader2, Search, User } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  User,
+  Plus,
+  X,
+  Trash2,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
-import { Textarea } from "./ui/textarea";
-import countryData from '../constants/countries.json';
-import { generateBusinessTypeSuggestions, generateBusinessNameSuggestions } from '../lib/groqService';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Textarea } from './ui/textarea';
 import { useTranslation } from '../lib/TranslationContext';
 import { apiUrl } from '../lib/env';
 import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectUser, selectToken, setToken, setUser } from '@/redux/slices/userSlice';
-import { useCreateVentureMutation } from '@/redux/services/ventureServices';
+import {
+  useCreateEntrepriseMutation,
+  EntreprisePayload,
+  EntrepriseSecteur,
+  EntrepriseCustomerType,
+  EntrepriseCategoryBase,
+  EntrepriseTeamMember,
+} from '@/redux/services/ventureServices';
 
-interface Country {
-  code: string;
-  name: string;
-  color: string;
-}
+type EntrepriseDraft = {
+  company_name: string;
+  mini_bio: string;
+  description: string;
+  founding_date: string;
+  mission: string;
+  vision: string;
+  phone: string;
+  full_address: string;
+  secteur: EntrepriseSecteur[];
+  stage: string;
+  type_of_customers: EntrepriseCustomerType[];
+  customer_base: string[];
+  category_base: EntrepriseCategoryBase[];
+  website: string;
+  email: string;
+  social_Media: string[];
+  team: EntrepriseTeamMember[];
+};
 
-interface VentureData {
-  purpose: string;
-  country: string;
-  businessDescription: string;
-  businessTypes: string[];
-  businessName: string;
-  userName: string;
-  userRole: string;
-  authMethod: 'google' | '';
-  language: string;
-  currency: string;
-  googleUser?: {
-    email: string;
-    name: string;
-    picture: string;
-    access_token: string;
-    jwt_token?: string;
-    api_token?: string;
-    user_id?: string;
-  };
-}
+const emptyDraft: EntrepriseDraft = {
+  company_name: '',
+  mini_bio: '',
+  description: '',
+  founding_date: '',
+  mission: '',
+  vision: '',
+  phone: '',
+  full_address: '',
+  secteur: [],
+  stage: '',
+  type_of_customers: [],
+  customer_base: [],
+  category_base: [],
+  website: '',
+  email: '',
+  social_Media: [],
+  team: [],
+};
+
+const SECTEUR_OPTIONS: { value: EntrepriseSecteur; labelKey: string; fallback: string }[] = [
+  { value: 'AGRO-TRANSFORMATION', labelKey: 'sectorAgro', fallback: 'Agro-transformation' },
+  { value: 'SERVICE', labelKey: 'sectorService', fallback: 'Service' },
+  { value: 'AUTRE', labelKey: 'sectorOther', fallback: 'Other' },
+];
+
+const STAGE_OPTIONS: { value: string; labelKey: string; fallback: string }[] = [
+  { value: 'IDEA', labelKey: 'stageIdea', fallback: 'Idea' },
+  { value: 'MVP', labelKey: 'stageMvp', fallback: 'MVP' },
+  { value: 'EARLY', labelKey: 'stageEarly', fallback: 'Early stage' },
+  { value: 'GROWTH', labelKey: 'stageGrowth', fallback: 'Growth' },
+  { value: 'SCALE', labelKey: 'stageScale', fallback: 'Scale' },
+];
+
+const CUSTOMER_TYPE_OPTIONS: { value: EntrepriseCustomerType; label: string }[] = [
+  { value: 'B2B', label: 'B2B' },
+  { value: 'B2C', label: 'B2C' },
+  { value: 'B2B2C', label: 'B2B2C' },
+  { value: 'C2C', label: 'C2C' },
+  { value: 'B2G', label: 'B2G' },
+];
+
+const CATEGORY_BASE_OPTIONS: { value: EntrepriseCategoryBase; labelKey: string; fallback: string }[] = [
+  { value: 'PME', labelKey: 'categoryPME', fallback: 'PME' },
+  { value: 'JEUNE', labelKey: 'categoryJEUNE', fallback: 'Youth' },
+  { value: 'FEMME', labelKey: 'categoryFEMME', fallback: 'Women-led' },
+  { value: 'PSDE', labelKey: 'categoryPSDE', fallback: 'PSDE' },
+];
+
+type StepDef = {
+  id: string;
+  titleKey: string;
+  titleFallback: string;
+  descKey: string;
+  descFallback: string;
+};
+
+const STEPS: StepDef[] = [
+  {
+    id: 'identity',
+    titleKey: 'wizardStepIdentity',
+    titleFallback: 'Identity',
+    descKey: 'wizardStepIdentityDesc',
+    descFallback: 'Tell us the name of your venture and a one-line bio.',
+  },
+  {
+    id: 'vision',
+    titleKey: 'wizardStepVision',
+    titleFallback: 'Vision & mission',
+    descKey: 'wizardStepVisionDesc',
+    descFallback: 'Describe what you do, why you do it, and when you started.',
+  },
+  {
+    id: 'sector',
+    titleKey: 'wizardStepSector',
+    titleFallback: 'Sector & stage',
+    descKey: 'wizardStepSectorDesc',
+    descFallback: 'What sector are you in and how mature is the venture?',
+  },
+  {
+    id: 'customers',
+    titleKey: 'wizardStepCustomers',
+    titleFallback: 'Customers',
+    descKey: 'wizardStepCustomersDesc',
+    descFallback: 'Who do you serve and what categories does your venture fit?',
+  },
+  {
+    id: 'contact',
+    titleKey: 'wizardStepContact',
+    titleFallback: 'Contact',
+    descKey: 'wizardStepContactDesc',
+    descFallback: 'How can people reach you?',
+  },
+  {
+    id: 'team',
+    titleKey: 'wizardStepTeam',
+    titleFallback: 'Team',
+    descKey: 'wizardStepTeamDesc',
+    descFallback: 'Add the people building this venture with you.',
+  },
+  {
+    id: 'review',
+    titleKey: 'wizardStepReview',
+    titleFallback: 'Review & submit',
+    descKey: 'wizardStepReviewDesc',
+    descFallback: 'Double-check everything before saving your venture.',
+  },
+];
+
+const numberColors = [
+  'text-yellow',
+  'text-green-400',
+  'text-blue-400',
+  'text-purple-400',
+  'text-red-400',
+];
 
 const VentureWizard: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [businessDescriptionSubStep, setBusinessDescriptionSubStep] = useState(0); // 0: description, 1: type selection
-  const [isLoadingAISuggestions, setIsLoadingAISuggestions] = useState(false);
-  const [aiSuggestions, setAISuggestions] = useState<string[]>([]);
-  
-  // Authentication state
+  const dispatch = useAppDispatch();
   const currentUser = useAppSelector(selectUser);
   const token = useAppSelector(selectToken);
-  const isLoggedIn = !!(currentUser?.email || currentUser?.phone_number) && !!token;
-  
-  // Debug: Log current authentication state
-  React.useEffect(() => {
-    console.log('🔐 VentureWizard Auth State Update:', {
-      currentUser,
-      hasUserId: !!currentUser?._id,
-      token,
-      hasToken: !!token,
-      isLoggedIn,
-      userEmail: currentUser?.email,
-      userPhone: currentUser?.phone_number
-    });
-  }, [currentUser, token, isLoggedIn]);
+  const isLoggedIn = !!(currentUser?.email || currentUser?.phone_number) && !!token && !!currentUser?._id;
 
-
-  
-  // Redux dispatch for authentication
-  const dispatch = useAppDispatch();
-  const [isLoadingNameSuggestions, setIsLoadingNameSuggestions] = useState(false);
-  const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
-  
-  // Venture API hooks
-  const [createVenture, { isLoading: isCreatingVenture }] = useCreateVentureMutation();
-  
-  // Define colors for numbers
-  const numberColors = [
-    'text-yellow', // 01 - Yellow
-    'text-green-400', // 02 - Green
-    'text-blue-400', // 03 - Blue
-    'text-purple-400', // 04 - Purple
-    'text-red-400', // 05 - Red
-  ];
-  const [showNameSuggestions, setShowNameSuggestions] = useState(false);
-  const [countrySearch, setCountrySearch] = useState('');
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [draft, setDraft] = useState<EntrepriseDraft>(emptyDraft);
   const [sidebarView, setSidebarView] = useState<'benefits' | 'funding'>('benefits');
   const [showResultModal, setShowResultModal] = useState(false);
   const [resultModalType, setResultModalType] = useState<'success' | 'error'>('success');
   const [resultModalMessage, setResultModalMessage] = useState('');
-  const [ventureData, setVentureData] = useState<VentureData>({
-    purpose: '',
-    country: '',
-    businessDescription: '',
-    businessTypes: [],
-    businessName: '',
-    userName: '',
-    userRole: '',
-    authMethod: '',
-    language: '',
-    currency: '',
-  });
 
-  const countries: Country[] = countryData as Country[];
+  // Local input buffers for chip-style inputs (so the user can type without
+  // committing on every keystroke).
+  const [customerBaseBuf, setCustomerBaseBuf] = useState('');
+  const [socialBuf, setSocialBuf] = useState('');
 
-  const filteredCountries = countries.filter(country =>
-    country.name.toLowerCase().includes(countrySearch.toLowerCase())
-  );
+  const [createEntreprise, { isLoading: isCreating }] = useCreateEntrepriseMutation();
 
-  const selectedCountry = countries.find(c => c.code === ventureData.country);
-
-  const steps = [
-    {
-      id: 'auth-method',
-      question: t('Register with Google or set username & password?'),
-      description: t('You can use Google to sign in and out of your account or you can manually set a username.'),
-      type: 'auth'
-    },
-    {
-      id: 'purpose',
-      question: t('Why are you creating a business plan?'),
-      description: t('The option you choose will not alter the structure of your plan; it just helps us to better understand your goals.'),
-      type: 'choice'
-    },
-    {
-      id: 'location',
-      question: t('Where will the business be based?'),
-      description: t('Select your country, language, and currency for your business plan.'),
-      type: 'country-with-details'
-    },
-    {
-      id: 'business-description',
-      question: businessDescriptionSubStep === 0 
-        ? t('What will the business do?')
-        : t('Please choose the options that most accurately describe the business:'),
-      description: businessDescriptionSubStep === 0 
-        ? t('This will not appear in your plan, it just helps us understand the business. Below are a few examples:')
-        : t('If none of the suggestions accurately describe your business, click the \'Manual\' button to search for other options.'),
-      type: businessDescriptionSubStep === 0 ? 'textarea' : 'business-type-selection'
-    },
-    {
-      id: 'business-name',
-      question: t('What will the business be called?'),
-      description: t('If you haven\'t chosen a name, enter a temporary one and change it later in the Business Settings.'),
-      type: 'text'
-    },
-    {
-      id: 'user-info',
-      question: t('What is your name and role?'),
-      description: t('Please provide your full name and describe your position or affiliation with the business.'),
-      type: 'user-details'
-    }
-  ];
-
-  const purposeOptions = [
-    {
-      value: 'validate-idea',
-      title: t('Validate Idea'),
-      description: t('To transform a business concept or idea into a structured plan, ensuring that the venture is both feasible and profitable')
-    },
-    {
-      value: 'launch-startup',
-      title: t('Launch Startup'),
-      description: t('To create a roadmap for launching, scaling or funding a new business, including detailed objectives, strategies and forecasts.')
-    },
-    {
-      value: 'drive-growth',
-      title: t('Drive Growth'),
-      description: t('To develop strategies for expanding operations, entering new markets, or optimising resources for success and increased profitability.')
-    }
-  ];
-
-  const roleOptions = [
-    'Founder',
-    'Co-founder',
-    'CEO',
-    'Entrepreneur',
-    'Business Owner',
-    'Consultant',
-    'Investor',
-    'Other'
-  ];
-
-  const predefinedBusinessTypes = [
-    'Software Company',
-    'Mobile App Developer',
-    'Website Designer',
-    'E-commerce Platform',
-    'Digital Marketing Agency',
-    'Consulting Firm',
-    'Manufacturing Business',
-    'Restaurant',
-    'Retail Store',
-    'Healthcare Services',
-    'Educational Services',
-    'Financial Services',
-    'Real Estate',
-    'Construction Company',
-    'Transportation Services',
-    'Agriculture Business',
-    'Tech Startup',
-    'SaaS Company',
-    'Online Marketplace',
-    'Content Creation',
-    'Event Planning',
-    'Fitness & Wellness',
-    'Beauty & Cosmetics',
-    'Fashion & Apparel',
-    'Food & Beverage',
-    'Travel & Tourism',
-    'Legal Services',
-    'Accounting Services',
-    'Photography Services',
-    'Marketing Consultancy'
-  ];
-
-  const updateVentureData = (key: keyof VentureData, value: any) => {
-    setVentureData(prev => ({ ...prev, [key]: value }));
+  const update = <K extends keyof EntrepriseDraft>(key: K, value: EntrepriseDraft[K]) => {
+    setDraft((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Auto-set venture auth method if user is already authenticated via Google
-  React.useEffect(() => {
-    if (currentUser?.isGoogleUser && currentUser?.email && token && !ventureData.authMethod) {
-      console.log('🔄 Auto-setting venture auth method for existing Google user');
-      updateVentureData('authMethod', 'google');
-      updateVentureData('userName', currentUser.name || '');
-      updateVentureData('googleUser', {
-        email: currentUser.email,
-        name: currentUser.name || '',
-        picture: currentUser.profile || '',
-        access_token: token,
-        user_id: currentUser._id
-      });
+  const toggleArrayValue = <T extends string>(arr: T[], value: T): T[] => {
+    return arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
+  };
+
+  const addChip = (key: 'customer_base' | 'social_Media', value: string) => {
+    const v = value.trim();
+    if (!v) return;
+    if (draft[key].includes(v)) return;
+    update(key, [...draft[key], v]);
+  };
+
+  const removeChip = (key: 'customer_base' | 'social_Media', value: string) => {
+    update(
+      key,
+      draft[key].filter((v) => v !== value)
+    );
+  };
+
+  const addTeamMember = () => {
+    update('team', [...draft.team, { name: '', email: '', phone: '' }]);
+  };
+
+  const updateTeamMember = (index: number, field: keyof EntrepriseTeamMember, value: string) => {
+    const next = draft.team.slice();
+    next[index] = { ...next[index], [field]: value };
+    update('team', next);
+  };
+
+  const removeTeamMember = (index: number) => {
+    update(
+      'team',
+      draft.team.filter((_, i) => i !== index)
+    );
+  };
+
+  const isStepComplete = (stepId: string) => {
+    switch (stepId) {
+      case 'identity':
+        // Only company_name is required (matches API contract).
+        return draft.company_name.trim().length > 0;
+      default:
+        return true;
     }
-  }, [currentUser, token, ventureData.authMethod]);
-
-  const generateAISuggestions = async () => {
-    if (!ventureData.businessDescription.trim()) return;
-    
-    setIsLoadingAISuggestions(true);
-    try {
-      const suggestions = await generateBusinessTypeSuggestions(ventureData.businessDescription);
-      setAISuggestions(suggestions);
-      setBusinessDescriptionSubStep(1);
-    } catch (error) {
-      console.error('Error generating AI suggestions:', error);
-    } finally {
-      setIsLoadingAISuggestions(false);
-    }
-  };
-
-  const toggleBusinessType = (businessType: string) => {
-    const currentTypes = ventureData.businessTypes;
-    if (currentTypes.includes(businessType)) {
-      updateVentureData('businessTypes', currentTypes.filter(type => type !== businessType));
-    } else {
-      updateVentureData('businessTypes', [...currentTypes, businessType]);
-    }
-  };
-
-  const clearBusinessTypes = () => {
-    updateVentureData('businessTypes', []);
-  };
-
-  const generateNameSuggestions = async () => {
-    if (!ventureData.businessDescription.trim()) return;
-    
-    setIsLoadingNameSuggestions(true);
-    try {
-      const suggestions = await generateBusinessNameSuggestions(
-        ventureData.businessDescription, 
-        ventureData.businessTypes
-      );
-      setNameSuggestions(suggestions);
-      setShowNameSuggestions(true);
-    } catch (error) {
-      console.error('Error generating name suggestions:', error);
-    } finally {
-      setIsLoadingNameSuggestions(false);
-    }
-  };
-
-  const selectBusinessName = (name: string) => {
-    updateVentureData('businessName', name);
-    setShowNameSuggestions(false);
-  };
-
-  const selectCountry = (country: Country) => {
-    updateVentureData('country', country.code);
-    setCountrySearch(country.name);
-    setShowCountryDropdown(false);
   };
 
   const handleNext = () => {
-    // Special handling for business description step (now at index 3)
-    if (currentStep === 3 && businessDescriptionSubStep === 0) {
-      // Move to business type selection substep
-      setBusinessDescriptionSubStep(1);
-      return;
-    }
-
-    // Reset business description substep when moving to next step
-    if (currentStep === 3) {
-      setBusinessDescriptionSubStep(0);
-    }
-
-    if (currentStep < steps.length - 1) {
+    if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Handle completion
       handleComplete();
     }
   };
 
   const handlePrev = () => {
-    // Special handling for business description step (now at index 3)
-    if (currentStep === 3 && businessDescriptionSubStep === 1) {
-      // Move back to business description substep
-      setBusinessDescriptionSubStep(0);
-      return;
-    }
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
+  };
 
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-      // Reset business description substep when moving to previous step
-      if (currentStep === 4) {
-        setBusinessDescriptionSubStep(0);
-      }
-    }
+  const buildPayload = (ownerId: string): EntreprisePayload => {
+    // Strip empty strings / empty arrays so we don't send noisy fields the
+    // backend doesn't need (everything except `owner` and `company_name` is
+    // optional on the API side).
+    const cleanedTeam = draft.team
+      .map((m) => ({
+        name: m.name.trim(),
+        email: m.email?.trim() || undefined,
+        phone: m.phone?.trim() || undefined,
+      }))
+      .filter((m) => m.name.length > 0);
+
+    const payload: EntreprisePayload = {
+      owner: ownerId,
+      company_name: draft.company_name.trim(),
+    };
+    if (draft.mini_bio.trim()) payload.mini_bio = draft.mini_bio.trim();
+    if (draft.description.trim()) payload.description = draft.description.trim();
+    if (draft.founding_date) payload.founding_date = draft.founding_date;
+    if (draft.mission.trim()) payload.mission = draft.mission.trim();
+    if (draft.vision.trim()) payload.vision = draft.vision.trim();
+    if (draft.phone.trim()) payload.phone = draft.phone.trim();
+    if (draft.full_address.trim()) payload.full_address = draft.full_address.trim();
+    if (draft.secteur.length) payload.secteur = draft.secteur;
+    if (draft.stage) payload.stage = draft.stage;
+    if (draft.type_of_customers.length) payload.type_of_customers = draft.type_of_customers;
+    if (draft.customer_base.length) payload.customer_base = draft.customer_base;
+    if (draft.category_base.length) payload.category_base = draft.category_base;
+    if (draft.website.trim()) payload.website = draft.website.trim();
+    if (draft.email.trim()) payload.email = draft.email.trim();
+    if (draft.social_Media.length) payload.social_Media = draft.social_Media;
+    if (cleanedTeam.length) payload.team = cleanedTeam;
+    return payload;
   };
 
   const handleComplete = async () => {
+    if (!isLoggedIn || !currentUser?._id) {
+      toast.error(t('Please sign in to create a venture') || 'Please sign in to create a venture');
+      return;
+    }
+    if (!draft.company_name.trim()) {
+      toast.error(t('Company name is required') || 'Company name is required');
+      return;
+    }
+
     try {
-      // Show loading state
-      console.log('🚀 Starting venture creation...');
-      
-      // Enhanced debugging for authentication
-      console.log('🔍 Authentication check debug:', {
-        currentUser,
-        currentUserId: currentUser?._id,
-        currentUserKeys: currentUser ? Object.keys(currentUser) : [],
-        token,
-        isLoggedInCheck: isLoggedIn,
-        userEmail: currentUser?.email,
-        userPhone: currentUser?.phone_number,
-        hasToken: !!token
-      });
-      
-      // Additional debugging for Google users
-      if (currentUser?.isGoogleUser) {
-        const isGoogleId = /^\d{18,}$/.test(currentUser._id);
-        const isBackendId = /^[a-f\d]{24}$/i.test(currentUser._id);
-        
-        console.log('🔍 Google User Debug Details:', {
-          _id: currentUser._id,
-          isGoogleUser: currentUser.isGoogleUser,
-          profile: currentUser.profile,
-          isGoogleId,
-          isBackendId,
-          allUserProperties: currentUser
-        });
-        
-        // If user has Google ID instead of backend ID, clear session and show message
-        if (isGoogleId && !isBackendId) {
-          console.warn('⚠️ User has old Google ID session, clearing session to force re-authentication');
-          
-          // Clear the old session
-          dispatch(setUser({
-            _id: "",
-            profile: "",
-            email: "",
-            bio: "",
-            phone_number: "",
-            password: "",
-            projects: [],
-            cryptoWallet: [],
-            name: '',
-            location: "",
-            isGoogleUser: false
-          }));
-          dispatch(setToken(""));
-          
-          toast.error('Your session is outdated. Please sign in again with Google to continue.');
-          throw new Error('Outdated session detected. Please sign in again with Google to create ventures.');
-        }
-      }
-      
-      // Check if user is authenticated - improved logic with multiple fallbacks
-      let userId = currentUser?._id || ventureData.googleUser?.user_id;
-      
-      // Check if current user has Google ID instead of backend ID
-      const hasGoogleId = userId && /^\d{18,}$/.test(userId);
-      const hasBackendId = userId && /^[a-f\d]{24}$/i.test(userId);
-      
-      if (hasGoogleId && !hasBackendId && token) {
-        console.warn('⚠️ User has Google ID instead of backend ID, attempting to exchange token for backend user ID');
-        
-        try {
-          // Try to exchange the current Google token for backend user data
-          const backendResponse = await fetch(`${apiUrl}/auth/exchange-google-token`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              googleToken: token,
-              idToken: token,
-              credential: token,
-              token: token,
-            })
-          });
+      const payload = buildPayload(currentUser._id);
+      const result = await createEntreprise(payload).unwrap();
+      console.log('✅ Entreprise created:', result);
 
-          if (backendResponse.ok) {
-            const authData = await backendResponse.json();
-            if (authData.success && authData.userId) {
-              console.log('✅ Successfully exchanged Google token for backend user ID:', authData.userId);
-              
-              // Update Redux store with backend user ID
-              dispatch(setUser({
-                ...currentUser,
-                _id: authData.userId
-              }));
-              dispatch(setToken(authData.jwtToken || authData.token));
-              
-              // Use the backend user ID
-              userId = authData.userId;
-              console.log('🔧 Updated userId to backend ID:', userId);
-            } else {
-              throw new Error('Backend token exchange failed');
-            }
-          } else {
-            throw new Error(`Backend responded with ${backendResponse.status}`);
-          }
-        } catch (error) {
-          console.error('❌ Failed to exchange token for backend user ID:', error);
-          
-          // Provide user-friendly guidance
-          toast.error('Session expired. Please refresh the page and sign in again with Google.');
-          
-          throw new Error('Session expired. Please refresh the page and authenticate again with Google to continue.');
-        }
-      }
-                     
-      console.log('🔍 User ID Resolution:', {
-        fromCurrentUser: currentUser?._id,
-        fromVentureData: ventureData.googleUser?.user_id,
-        generatedFromEmail: !currentUser?._id && !ventureData.googleUser?.user_id ? userId : null,
-        finalUserId: userId
-      });
-                     
-      const hasValidAuth = !!(userId && token) || !!(ventureData.authMethod === 'google' && ventureData.googleUser);
-      
-      if (!hasValidAuth || !userId) {
-        console.error('❌ Authentication failed:', {
-          hasUserId: !!userId,
-          hasToken: !!token,
-          currentUser,
-          ventureAuthMethod: ventureData.authMethod,
-          hasGoogleUser: !!ventureData.googleUser
-        });
-        throw new Error('User not authenticated. Please sign in to create a venture.');
-      }
-      
-      console.log('✅ Authentication validated with userId:', userId);
-      
-      // Ensure userId is a string (TypeScript requirement)
-      const validUserId: string = userId;
-      
-      // Prepare venture data for API - Use user_id as primary since userId is filtered
-      const venturePayload = {
-        // Use user_id as primary field (userId is being filtered by backend)
-        user_id: validUserId,  // ✅ This field gets through to backend
-        userId: validUserId,   // ❌ This gets filtered but keep for compatibility  
-        owner_id: validUserId, // ✅ Backup field
-        
-        // Original venture data
-        purpose: ventureData.purpose,
-        country: ventureData.country,
-        businessDescription: ventureData.businessDescription,
-        businessTypes: ventureData.businessTypes,
-        businessName: ventureData.businessName,
-        userName: ventureData.userName,
-        userRole: ventureData.userRole,
-        authMethod: ventureData.authMethod,
-        language: ventureData.language,
-        currency: ventureData.currency,
-        ...(ventureData.googleUser && { googleUser: ventureData.googleUser })
-      };
-
-      console.log('📋 Venture payload prepared:', venturePayload);
-      console.log('👤 User ID included:', validUserId);
-      console.log('🔍 Final payload check - userId field present:', 'userId' in venturePayload);
-      console.log('🔍 Final payload userId value:', venturePayload.userId);
-      console.log('🔍 All payload keys:', Object.keys(venturePayload));
-      console.log('🔍 Payload JSON:', JSON.stringify(venturePayload, null, 2));
-      
-      // Create venture via API - Try direct fetch to bypass RTK Query issues
-      console.log('🔧 Attempting direct fetch to bypass RTK Query...');
-      
-      let result;
-      
-      try {
-        const directResponse = await fetch(`${apiUrl}/ventures`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(venturePayload)
-        });
-        
-        console.log('🔧 Direct fetch response status:', directResponse.status);
-        console.log('🔧 Direct fetch response ok:', directResponse.ok);
-        
-        if (!directResponse.ok) {
-          const errorData = await directResponse.json();
-          console.log('🔧 Direct fetch error data:', errorData);
-          throw new Error(`Direct API call failed: ${directResponse.status}`);
-        }
-        
-        result = await directResponse.json();
-        console.log('✅ Direct fetch success:', result);
-        
-        // If direct fetch works, we know it's an RTK Query issue
-        
-      } catch (directError) {
-        console.error('❌ Direct fetch also failed:', directError);
-        
-        // Fallback to RTK Query if direct fetch fails
-        console.log('🔄 Falling back to RTK Query...');
-        result = await createVenture(venturePayload).unwrap();
-      }
-      
-      console.log('✅ Venture created successfully:', result);
-      
-      // Show success modal
       setResultModalType('success');
       setResultModalMessage(
-        `${t('Business plan created successfully!')} "${ventureData.businessName}" ${t('has been saved to your dashboard.')}`
+        `${t('ventureCreatedSuccessfully') || 'Venture created successfully!'} "${draft.company_name.trim()}"`
       );
       setShowResultModal(true);
-      
-      // Show success toast as well
-      toast.success(`🎉 ${t('Business plan created successfully!')}`, {
-        duration: 3000,
-        style: {
-          background: '#10B981',
-          color: 'white',
-        }
-      });
-      
-      // Clear local storage
-      localStorage.removeItem('ventureWizardData');
-      
+      toast.success(`🎉 ${t('ventureCreatedSuccessfully') || 'Venture created successfully!'}`);
     } catch (error: any) {
-      console.error('❌ Error creating venture:', error);
-      
-      // Show detailed error message
-      let errorMessage = t('Failed to create business plan. Please try again.');
-      
-      if (error?.data?.message) {
-        errorMessage = error.data.message;
-      } else if (error?.message) {
-        errorMessage = error.message;
-      } else if (error?.status) {
-        errorMessage = `${t('Server error')}: ${error.status}`;
-      }
-      
-      // Show error modal
+      console.error('❌ Error creating entreprise:', error);
+      let errorMessage = t('failedToCreateVenture') || 'Failed to create venture. Please try again.';
+      if (error?.data?.message) errorMessage = error.data.message;
+      else if (error?.message) errorMessage = error.message;
+      else if (error?.status) errorMessage = `${t('Server error') || 'Server error'}: ${error.status}`;
       setResultModalType('error');
       setResultModalMessage(errorMessage);
       setShowResultModal(true);
-      
-      // Show error toast as well
-      toast.error(`❌ ${errorMessage}`, {
-        duration: 4000,
-        style: {
-          background: '#EF4444',
-          color: 'white',
-        }
-      });
-      
-      // Show additional debugging info in console
-      console.error('💡 Debug info:', {
-        errorType: typeof error,
-        errorKeys: Object.keys(error || {}),
-        errorStatus: error?.status,
-        errorData: error?.data,
-        currentUser: currentUser,
-        userAuthenticated: !!currentUser?._id,
-        sentPayload: {
-          userId: currentUser?._id,
-          purpose: ventureData.purpose,
-          country: ventureData.country,
-          businessName: ventureData.businessName
-        }
-      });
-      
-      // Fallback: store data locally if API fails
-      localStorage.setItem('ventureWizardData', JSON.stringify(ventureData));
-      
-      // Don't navigate on error, let user try again
+      toast.error(`❌ ${errorMessage}`);
     }
   };
 
+  // ---------- Google auth pre-step (only when not logged in) ----------
   const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      console.log("Google credential response:", credentialResponse);
-      
-      // Send ID token (credential) to backend for verification and user management
       const backendResponse = await fetch(`${apiUrl}/auth/exchange-google-token`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-          body: JSON.stringify({
-            googleToken: credentialResponse.credential,
-            idToken: credentialResponse.credential,
-            credential: credentialResponse.credential,
-            token: credentialResponse.credential,
-          })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          googleToken: credentialResponse.credential,
+          idToken: credentialResponse.credential,
+          credential: credentialResponse.credential,
+          token: credentialResponse.credential,
+        }),
       });
 
       if (!backendResponse.ok) {
-        console.error('❌ Backend authentication failed:', backendResponse.status, backendResponse.statusText);
         const errorText = await backendResponse.text();
-        console.error('❌ Backend error response:', errorText);
-        
-        throw new Error(`Backend authentication failed: ${backendResponse.status} - ${errorText || 'Unknown error'}. Please try again or contact support.`);
+        throw new Error(`Backend authentication failed: ${backendResponse.status} - ${errorText || 'Unknown error'}.`);
       }
 
       const authData = await backendResponse.json();
-      console.log("Backend auth response:", authData);
-
       const userId = authData.userId || authData.user?._id || authData.user?.id || authData.user?.sub;
       const isSuccess = authData.success || userId || authData.jwtToken || authData.token;
 
-      if (isSuccess) {
-        console.log('🔑 Backend Auth Data:', {
-          userId: authData.userId,
-          token: authData.token,
-          jwtToken: authData.jwtToken,
-        });
-        
-        dispatch(setToken(authData.jwtToken || authData.token));
-        
-        console.log('🔍 Backend User ID Resolution:', {
-          backendUserId: authData.userId,
-          userDocId: authData.user?._id,
-          finalUserId: userId,
-        });
-        
-        dispatch(setUser({
+      if (!isSuccess) throw new Error(authData.message || 'Authentication failed');
+
+      dispatch(setToken(authData.jwtToken || authData.token));
+      dispatch(
+        setUser({
           _id: userId,
           email: authData.user?.email || '',
           name: authData.user?.name || '',
@@ -666,671 +353,539 @@ const VentureWizard: React.FC = () => {
           bio: authData.user?.bio || '',
           location: authData.user?.location || '',
           isGoogleUser: true,
-          profile: authData.user?.avatar || authData.user?.picture,
+          profile: authData.user?.avatar || authData.user?.picture || '',
           projects: authData.user?.projects || [],
-          cryptoWallet: authData.user?.cryptoWallet || []
-        }));
-        
-        console.log('🔑 Redux User Set With ID:', userId);
-        
-        updateVentureData('authMethod', 'google');
-        updateVentureData('userName', authData.user?.name || '');
-        updateVentureData('googleUser', {
-          email: authData.user?.email || '',
-          name: authData.user?.name || '',
-          picture: authData.user?.avatar || authData.user?.picture || '',
-          access_token: authData.googleToken,
-          jwt_token: authData.jwtToken,
-          api_token: authData.token,          // Store API token separately
-          user_id: authData.userId            // Store userId separately
-        });
-        
-        console.log('✅ Google authentication successful with backend user ID:', {
-          userId: authData.userId,
-          hasJwtToken: !!authData.jwtToken,
-          hasApiToken: !!authData.token,
-          hasGoogleToken: !!authData.googleToken
-        });
-        
-        // Force a small delay to ensure Redux state is updated
-        setTimeout(() => {
-          console.log('🔄 Verifying user state after authentication:', {
-            currentUserId: currentUser?._id,
-            newUserId: userId,
-            stateUpdated: currentUser?._id === userId
-          });
-        }, 100);
-        
-        toast.success(authData.message || 'Successfully signed in with Google!');
-        // Don't auto-complete, let user continue through the wizard
-      } else {
-        throw new Error(authData.message || 'Authentication failed');
-      }
+          cryptoWallet: authData.user?.cryptoWallet || [],
+        })
+      );
+
+      toast.success(t('Successfully signed in with Google') || 'Successfully signed in with Google');
     } catch (error) {
-      console.error('Error during Google authentication:', error);
-      toast.error('Google authentication failed. Please try again.');
+      console.error('Google auth error:', error);
+      toast.error(t('Google authentication failed. Please try again.') || 'Google authentication failed. Please try again.');
     }
   };
 
   const handleGoogleError = () => {
     console.error('Google sign-in failed');
-    toast.error('Google sign-in failed. Please try again.');
+    toast.error(t('Google authentication failed. Please try again.') || 'Google authentication failed. Please try again.');
   };
 
-  const isStepComplete = (stepId: string) => {
-    switch (stepId) {
-      case 'auth-method':
-        // If user is already logged in (from Redux), consider step complete
-        // Or if they just signed in through the wizard (ventureData.googleUser)
-        const hasReduxAuth = !!currentUser?.email && !!token;
-        const hasGoogleReduxAuth = !!currentUser?.isGoogleUser && !!currentUser?.email && !!token;
-        const hasWizardAuth = ventureData.authMethod === 'google' && !!ventureData.googleUser;
-        
-        console.log('🔍 Auth Step Validation:', {
-          hasReduxAuth,
-          hasGoogleReduxAuth,
-          hasWizardAuth,
-          currentUserEmail: currentUser?.email,
-          currentUserIsGoogle: currentUser?.isGoogleUser,
-          hasToken: !!token,
-          ventureAuthMethod: ventureData.authMethod,
-          hasVentureGoogleUser: !!ventureData.googleUser
-        });
-        
-        return hasReduxAuth || hasGoogleReduxAuth || hasWizardAuth;
-      case 'purpose':
-        return ventureData.purpose !== '';
-      case 'location':
-        return ventureData.country !== '' && ventureData.language !== '' && ventureData.currency !== '';
-      case 'business-description':
-        if (businessDescriptionSubStep === 0) {
-          return ventureData.businessDescription !== '';
-        } else {
-          return ventureData.businessTypes.length > 0;
-        }
-      case 'business-name':
-        return ventureData.businessName !== '';
-      case 'user-info':
-        return ventureData.userName !== '' && ventureData.userRole !== '';
-
-      default:
-        return false;
-    }
-  };
-
-  const renderStepContent = () => {
-    const step = steps[currentStep];
-
-    switch (step.type) {
-      case 'choice':
-        return (
-          <div className="space-y-4">
-            {purposeOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => updateVentureData('purpose', option.value)}
-                className={`w-full p-6 text-left rounded-lg border-2 transition-all relative ${
-                  ventureData.purpose === option.value
-                    ? 'border-yellow-400 bg-yellow-50 shadow-lg transform scale-[1.02]'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                                 {/* Selected indicator */}
-                 {ventureData.purpose === option.value && (
-                   <div className="absolute top-3 right-3 w-6 h-6 bg-yellow rounded-full flex items-center justify-center">
-                     <svg className="w-4 h-4 text-dark" fill="currentColor" viewBox="0 0 20 20">
-                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                     </svg>
-                   </div>
-                 )}
-                 <h3 className={`font-semibold text-lg mb-2 ${
-                   ventureData.purpose === option.value ? 'text-dark' : 'text-gray-900'
-                 }`}>
-                   {option.title}
-                 </h3>
-                 <p className={`text-sm ${
-                   ventureData.purpose === option.value ? 'text-dark/70' : 'text-gray-600'
-                 }`}>
-                  {option.description}
-                </p>
-              </button>
+  // ---------- Sidebar content ----------
+  const renderSidebarContent = () => {
+    if (sidebarView === 'benefits') {
+      return (
+        <>
+          <div>
+            <h3 className="text-lg font-semibold mb-2 text-white">
+              {t('Benefits of using BOMOKO FUND') || 'Benefits of using BOMOKO FUND'}
+            </h3>
+            <p className="text-sm text-gray-300">
+              {t('for creating your business plan.') || 'for creating your business plan.'}
+            </p>
+          </div>
+          <div className="space-y-6">
+            {[
+              {
+                title: t('AI-powered business planning') || 'AI-powered business planning',
+                desc:
+                  t(
+                    'Create a professional quality business plan in no time, just answer our multiple-choice questions and let BOMOKO FUND do the rest.'
+                  ) ||
+                  'Create a professional quality business plan in no time, just answer our multiple-choice questions and let BOMOKO FUND do the rest.',
+              },
+              {
+                title: t('Access to funding opportunities') || 'Access to funding opportunities',
+                desc:
+                  t(
+                    'Connect with investors and funding opportunities specifically designed for African entrepreneurs and high-potential projects.'
+                  ) ||
+                  'Connect with investors and funding opportunities specifically designed for African entrepreneurs and high-potential projects.',
+              },
+              {
+                title: t('Community of entrepreneurs') || 'Community of entrepreneurs',
+                desc:
+                  t(
+                    'Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.'
+                  ) ||
+                  'Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.',
+              },
+              {
+                title: t('Expert guidance and mentorship') || 'Expert guidance and mentorship',
+                desc:
+                  t(
+                    'Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.'
+                  ) ||
+                  'Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.',
+              },
+              {
+                title: t('Comprehensive business tools') || 'Comprehensive business tools',
+                desc:
+                  t(
+                    'Focus on high-potential projects that address critical social and economic needs across African communities.'
+                  ) ||
+                  'Focus on high-potential projects that address critical social and economic needs across African communities.',
+              },
+            ].map((b, i) => (
+              <div key={i} className="flex items-start space-x-4">
+                <div className={`text-4xl font-bold ${numberColors[i]} opacity-90`}>
+                  {String(i + 1).padStart(2, '0')}
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2 text-white">{b.title}</h4>
+                  <p className="text-sm text-gray-300">{b.desc}</p>
+                </div>
+              </div>
             ))}
           </div>
-        );
+        </>
+      );
+    }
+    return (
+      <>
+        <div>
+          <h3 className="text-lg font-semibold mb-2 text-white">
+            {t('How funding works on BOMOKO FUND') || 'How funding works on BOMOKO FUND'}
+          </h3>
+          <p className="text-sm text-gray-300">
+            {t('Step-by-step guide to get funded.') || 'Step-by-step guide to get funded.'}
+          </p>
+        </div>
+      </>
+    );
+  };
 
-      case 'country-with-details':
-        return (
-          <div className="space-y-6">
-            {/* Country Selection */}
-            <div className="relative">
-              <Label htmlFor="country" className="text-sm font-medium text-dark">
-                {t('Select Country')}
-              </Label>
-              <div className="relative mt-2">
-                <div
-                  className="w-full p-3 border-2 border-gray-200 rounded-lg bg-white cursor-pointer hover:border-lightBlue/50 transition-colors"
-                  onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {selectedCountry && (
-                        <div 
-                          className="w-4 h-4 rounded-full"
-                          style={{ backgroundColor: selectedCountry.color }}
-                        />
-                      )}
-                      <span className={selectedCountry ? 'text-dark' : 'text-gray-400'}>
-                        {selectedCountry ? selectedCountry.name : t('Select Country')}
-                      </span>
-                    </div>
-                    <ChevronRight className={`w-4 h-4 transition-transform ${showCountryDropdown ? 'rotate-90' : ''}`} />
-                  </div>
-                </div>
-                
-                {showCountryDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-hidden">
-                    <div className="p-3 border-b border-gray-200">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <Input
-                          type="text"
-                          placeholder={t('Search countries...')}
-                          value={countrySearch}
-                          onChange={(e) => setCountrySearch(e.target.value)}
-                          className="pl-10 border-gray-300 focus:border-lightBlue"
-                        />
-                      </div>
-                    </div>
-                    <div className="max-h-40 overflow-y-auto">
-                      {filteredCountries.map((country) => (
-                        <div
-                          key={country.code}
-                          className="flex items-center gap-3 p-3 hover:bg-gray-50 cursor-pointer transition-colors"
-                          onClick={() => selectCountry(country)}
-                        >
-                          <div 
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: country.color }}
-                          />
-                          <span className="text-dark">{country.name}</span>
-                        </div>
-                      ))}
-                      {filteredCountries.length === 0 && (
-                        <div className="p-3 text-gray-500 text-center">
-                          {t('No countries found')}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Language Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="language" className="text-sm font-medium text-dark">
-                {t('Select Language')}
-              </Label>
-              <Select value={ventureData.language} onValueChange={(value) => updateVentureData('language', value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('Select Language')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="fr">Français</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Currency Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="currency" className="text-sm font-medium text-dark">
-                {t('Select Currency')}
-              </Label>
-              <Select value={ventureData.currency} onValueChange={(value) => updateVentureData('currency', value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('Select Currency')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="USD">US Dollar (USD)</SelectItem>
-                  <SelectItem value="CDF">Congolese Franc (CDF)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        );
-
-      case 'textarea':
+  // ---------- Step content ----------
+  const renderStepContent = () => {
+    const step = STEPS[currentStep];
+    switch (step.id) {
+      case 'identity':
         return (
           <div className="space-y-4">
-            {/* Description Examples */}
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h4 className="font-medium text-gray-900 mb-3">{t('Examples:')}</h4>
-              <div className="space-y-2 text-sm text-gray-700">
-                <div className="flex items-start gap-2">
-                  <span className="text-lightBlue">•</span>
-                  <span>{t('We are a marketing agency specialising in TikTok and YouTube for small businesses.')}</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-lightBlue">•</span>
-                  <span>{t('A fintech startup developing mobile payment solutions for rural communities in Africa.')}</span>
-                </div>
-              </div>
+            <div>
+              <Label htmlFor="company_name">
+                {t('companyName') || 'Company name'} <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="company_name"
+                value={draft.company_name}
+                onChange={(e) => update('company_name', e.target.value)}
+                placeholder={t('companyName') || 'Company name'}
+              />
             </div>
-            
-            <Textarea
-              value={ventureData.businessDescription}
-              onChange={(e) => updateVentureData('businessDescription', e.target.value)}
-              placeholder={t('Describe your business here...')}
-              className="min-h-[100px] resize-none"
-            />
+            <div>
+              <Label htmlFor="mini_bio">{t('miniBio') || 'Short description'}</Label>
+              <Input
+                id="mini_bio"
+                value={draft.mini_bio}
+                onChange={(e) => update('mini_bio', e.target.value)}
+                placeholder={t('miniBioPlaceholder') || 'A one-line description of your venture'}
+                maxLength={200}
+              />
+            </div>
           </div>
         );
 
-      case 'business-type-selection':
+      case 'vision':
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="description">{t('descriptionLabel') || 'Description'}</Label>
+              <Textarea
+                id="description"
+                value={draft.description}
+                onChange={(e) => update('description', e.target.value)}
+                placeholder={t('descriptionPlaceholder') || 'Describe what your venture does in detail.'}
+                rows={4}
+              />
+            </div>
+            <div>
+              <Label htmlFor="mission">{t('mission') || 'Mission'}</Label>
+              <Textarea
+                id="mission"
+                value={draft.mission}
+                onChange={(e) => update('mission', e.target.value)}
+                placeholder={t('missionPlaceholder') || 'What problem do you solve?'}
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label htmlFor="vision">{t('vision') || 'Vision'}</Label>
+              <Textarea
+                id="vision"
+                value={draft.vision}
+                onChange={(e) => update('vision', e.target.value)}
+                placeholder={t('visionPlaceholder') || 'Where do you see this venture in 5 years?'}
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label htmlFor="founding_date">{t('foundingDate') || 'Founding date'}</Label>
+              <Input
+                id="founding_date"
+                type="date"
+                value={draft.founding_date}
+                onChange={(e) => update('founding_date', e.target.value)}
+              />
+            </div>
+          </div>
+        );
+
+      case 'sector':
         return (
           <div className="space-y-6">
-            {/* AI Suggestions */}
-            {aiSuggestions.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="font-medium text-gray-900">{t('AI Suggestions')}</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {aiSuggestions.map((suggestion, index) => (
+            <div>
+              <Label className="mb-2 block">{t('sectorLabel') || 'Sector'}</Label>
+              <div className="flex flex-wrap gap-2">
+                {SECTEUR_OPTIONS.map((opt) => {
+                  const active = draft.secteur.includes(opt.value);
+                  return (
                     <button
-                      key={index}
-                      onClick={() => toggleBusinessType(suggestion)}
-                      className={`p-3 text-center rounded-lg border-2 transition-all ${
-                        ventureData.businessTypes.includes(suggestion)
-                          ? 'border-lightBlue bg-lightBlue/10 text-lightBlue'
-                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                      key={opt.value}
+                      type="button"
+                      onClick={() => update('secteur', toggleArrayValue(draft.secteur, opt.value))}
+                      className={`px-4 py-2 rounded-full border-2 text-sm transition-colors ${
+                        active
+                          ? 'border-lightBlue bg-lightBlue text-white'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                       }`}
                     >
-                      <div className="flex items-center justify-center">
-                        <span className="font-medium">{suggestion}</span>
-                      </div>
+                      {t(opt.labelKey) || opt.fallback}
                     </button>
-                  ))}
-                </div>
-                <div className="flex justify-center">
-                  <Button
-                    onClick={clearBusinessTypes}
-                    variant="outline"
-                    size="sm"
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    {t('Clear All')}
-                  </Button>
-                </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
 
-            {/* Load AI Suggestions Button */}
-            {aiSuggestions.length === 0 && (
-              <div className="text-center">
-                <button
-                  onClick={generateAISuggestions}
-                  disabled={isLoadingAISuggestions || !ventureData.businessDescription.trim()}
-                  className="inline-flex items-center space-x-2 px-6 py-3 border-2 border-dashed border-lightBlue text-lightBlue rounded-lg hover:bg-lightBlue/10 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoadingAISuggestions ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <Sparkles className="w-5 h-5" />
-                  )}
-                  <span>
-                    {isLoadingAISuggestions ? t('Loading') + '...' : t('Load AI Suggestions')}
-                  </span>
-                </button>
-              </div>
-            )}
-
-            {/* Manual Selection Section */}
-            <div className="space-y-4">
-              <h3 className="font-medium text-gray-900">{t('Manual')}</h3>
-              <p className="text-sm text-gray-600">
-                {t('If none of the suggestions accurately describe your business, click the \'Manual\' button to search for other options.')}
-              </p>
-              
-              <Select onValueChange={(value) => toggleBusinessType(value)}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t('Manual')} />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {predefinedBusinessTypes.map((type, index) => (
-                    <SelectItem 
-                      key={index} 
-                      value={type}
+            <div>
+              <Label className="mb-2 block">{t('stageLabel') || 'Stage'}</Label>
+              <div className="flex flex-wrap gap-2">
+                {STAGE_OPTIONS.map((opt) => {
+                  const active = draft.stage === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => update('stage', active ? '' : opt.value)}
+                      className={`px-4 py-2 rounded-full border-2 text-sm transition-colors ${
+                        active
+                          ? 'border-lightBlue bg-lightBlue text-white'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                      }`}
                     >
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                      {t(opt.labelKey) || opt.fallback}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
 
-              {/* Selected Business Types Display */}
-              {ventureData.businessTypes.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700">{t('Selected Types:')}</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {ventureData.businessTypes.map((type, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center space-x-1 px-3 py-1 bg-lightBlue/10 text-lightBlue rounded-full text-sm"
+      case 'customers':
+        return (
+          <div className="space-y-6">
+            <div>
+              <Label className="mb-2 block">{t('customerTypesLabel') || 'Customer types'}</Label>
+              <div className="flex flex-wrap gap-2">
+                {CUSTOMER_TYPE_OPTIONS.map((opt) => {
+                  const active = draft.type_of_customers.includes(opt.value);
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() =>
+                        update('type_of_customers', toggleArrayValue(draft.type_of_customers, opt.value))
+                      }
+                      className={`px-4 py-2 rounded-full border-2 text-sm transition-colors ${
+                        active
+                          ? 'border-lightBlue bg-lightBlue text-white'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <Label className="mb-2 block">{t('customerBaseLabel') || 'Customer base'}</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={customerBaseBuf}
+                  onChange={(e) => setCustomerBaseBuf(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addChip('customer_base', customerBaseBuf);
+                      setCustomerBaseBuf('');
+                    }
+                  }}
+                  placeholder={t('customerBasePlaceholder') || 'e.g. Urban customers, then press Enter'}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    addChip('customer_base', customerBaseBuf);
+                    setCustomerBaseBuf('');
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {draft.customer_base.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {draft.customer_base.map((c) => (
+                    <span
+                      key={c}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700"
+                    >
+                      {c}
+                      <button
+                        type="button"
+                        onClick={() => removeChip('customer_base', c)}
+                        className="hover:text-red-500"
                       >
-                        <span>{type}</span>
-                        <button
-                          onClick={() => toggleBusinessType(type)}
-                          className="text-lightBlue hover:text-lightBlue/80"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Label className="mb-2 block">{t('categoryBaseLabel') || 'Category'}</Label>
+              <div className="flex flex-wrap gap-2">
+                {CATEGORY_BASE_OPTIONS.map((opt) => {
+                  const active = draft.category_base.includes(opt.value);
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() =>
+                        update('category_base', toggleArrayValue(draft.category_base, opt.value))
+                      }
+                      className={`px-4 py-2 rounded-full border-2 text-sm transition-colors ${
+                        active
+                          ? 'border-lightBlue bg-lightBlue text-white'
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      {t(opt.labelKey) || opt.fallback}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'contact':
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="phone">{t('phone') || 'Phone'}</Label>
+                <Input
+                  id="phone"
+                  value={draft.phone}
+                  onChange={(e) => update('phone', e.target.value)}
+                  placeholder="+243..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">{t('email') || 'Email'}</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={draft.email}
+                  onChange={(e) => update('email', e.target.value)}
+                  placeholder="hello@yourcompany.com"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="full_address">{t('fullAddress') || 'Address'}</Label>
+              <Input
+                id="full_address"
+                value={draft.full_address}
+                onChange={(e) => update('full_address', e.target.value)}
+                placeholder={t('fullAddressPlaceholder') || 'Kinshasa, DRC'}
+              />
+            </div>
+            <div>
+              <Label htmlFor="website">{t('website') || 'Website'}</Label>
+              <Input
+                id="website"
+                type="url"
+                value={draft.website}
+                onChange={(e) => update('website', e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+            <div>
+              <Label className="mb-2 block">{t('socialMedia') || 'Social media'}</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={socialBuf}
+                  onChange={(e) => setSocialBuf(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addChip('social_Media', socialBuf);
+                      setSocialBuf('');
+                    }
+                  }}
+                  placeholder={t('socialMediaPlaceholder') || 'Paste a profile URL and press Enter'}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    addChip('social_Media', socialBuf);
+                    setSocialBuf('');
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              {draft.social_Media.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {draft.social_Media.map((s) => (
+                    <span
+                      key={s}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gray-100 text-sm text-gray-700 max-w-full truncate"
+                    >
+                      <span className="truncate max-w-[260px]">{s}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeChip('social_Media', s)}
+                        className="hover:text-red-500"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
                 </div>
               )}
             </div>
           </div>
         );
 
-      case 'text':
+      case 'team':
         return (
           <div className="space-y-4">
-            <div className="relative">
-              <Input
-                value={ventureData.businessName}
-                onChange={(e) => updateVentureData('businessName', e.target.value)}
-                placeholder={t('e.g. BOMOKO Solutions')}
-                className="pr-20"
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center">
-                <span className="text-gray-400 mr-3">or</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={generateNameSuggestions}
-                  disabled={isLoadingNameSuggestions || !ventureData.businessDescription.trim()}
-                  className="bg-lightBlue hover:bg-lightBlue/90 text-white border-lightBlue disabled:opacity-50 disabled:cursor-not-allowed"
+            {draft.team.length === 0 && (
+              <p className="text-sm text-gray-500">
+                {t('teamEmptyHint') || 'No team members yet — add the founders, co-founders, or key teammates.'}
+              </p>
+            )}
+            {draft.team.map((m, idx) => (
+              <div key={idx} className="border rounded-lg p-4 bg-gray-50/60 space-y-3 relative">
+                <button
+                  type="button"
+                  onClick={() => removeTeamMember(idx)}
+                  className="absolute top-3 right-3 text-gray-400 hover:text-red-500"
+                  aria-label={t('removeTeamMember') || 'Remove'}
                 >
-                  {isLoadingNameSuggestions ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    t('Suggest Names')
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            {/* Name Suggestions */}
-            {showNameSuggestions && nameSuggestions.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-gray-900">{t('Suggest Names')}</h3>
-                  <button
-                    onClick={() => setShowNameSuggestions(false)}
-                    className="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    {t('Hide Suggestions')}
-                  </button>
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <div>
+                  <Label>{t('teamMemberName') || 'Name'}</Label>
+                  <Input
+                    value={m.name}
+                    onChange={(e) => updateTeamMember(idx, 'name', e.target.value)}
+                    placeholder={t('teamMemberNamePlaceholder') || 'Full name'}
+                  />
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {nameSuggestions.map((name, index) => (
-                    <button
-                      key={index}
-                      onClick={() => selectBusinessName(name)}
-                      className={`p-3 text-center rounded-lg border-2 transition-all ${
-                        ventureData.businessName === name
-                          ? 'border-lightBlue bg-lightBlue/10 text-lightBlue'
-                          : 'border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center">
-                        <span className="font-medium">{name}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Loading state for AI suggestions */}
-            {isLoadingNameSuggestions && (
-              <div className="text-center py-4">
-                <div className="inline-flex items-center space-x-2 text-lightBlue">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Getting AI Options...</span>
-                </div>
-              </div>
-            )}
-          </div>
-        );
-
-      case 'user-details':
-        return (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Input
-                  value={ventureData.userName}
-                  onChange={(e) => updateVentureData('userName', e.target.value)}
-                                     placeholder={t('Full Name')}
-                />
-              </div>
-              <div>
-                <Select value={ventureData.userRole} onValueChange={(value) => updateVentureData('userRole', value)}>
-                                     <SelectTrigger>
-                     <SelectValue placeholder={t('Your Role')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roleOptions.map((role) => (
-                      <SelectItem key={role} value={role}>
-                        {role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'auth':
-        return (
-          <div className="space-y-4">
-            {/* Show logged-in user UI if user is already authenticated */}
-            {isLoggedIn ? (
-              <div className="space-y-6">
-                <div className="bg-gradient-to-r from-lightBlue to-darkBlue rounded-xl p-6 text-white">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                        {currentUser?.profile ? (
-                          <img 
-                            src={currentUser.profile} 
-                            alt="Profile" 
-                            className="w-16 h-16 rounded-full object-cover"
-                          />
-                        ) : (
-                          <User className="w-8 h-8 text-darkBlue" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">{t('Welcome back!')}</h3>
-                        <p className="text-sm opacity-90">{currentUser?.name || 'User'}</p>
-                        <p className="text-xs opacity-75">{currentUser?.email || currentUser?.phone_number}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="bg-white/20 rounded-lg px-3 py-1 text-xs">
-                        Google Account
-                      </div>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <Label>{t('email') || 'Email'}</Label>
+                    <Input
+                      type="email"
+                      value={m.email || ''}
+                      onChange={(e) => updateTeamMember(idx, 'email', e.target.value)}
+                    />
                   </div>
-                </div>
-                
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                    <p className="text-sm text-yellow-800">
-                      {t('You are logged in and ready to continue with your business plan!')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* Show only Google authentication for non-logged-in users */}
-                <div className="flex justify-center">
-                  <div className="w-full max-w-md">
-                    <GoogleLogin
-                      onSuccess={handleGoogleSuccess}
-                      onError={handleGoogleError}
-                      size="large"
-                      width="100%"
-                      text="signin_with"
-                      useOneTap={false}
+                  <div>
+                    <Label>{t('phone') || 'Phone'}</Label>
+                    <Input
+                      value={m.phone || ''}
+                      onChange={(e) => updateTeamMember(idx, 'phone', e.target.value)}
                     />
                   </div>
                 </div>
-                
-                {/* Google user info when Google auth is successful */}
-                {ventureData.authMethod === 'google' && ventureData.googleUser && (
-                  <div className="space-y-4 mt-6">
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                      <div className="flex items-center space-x-3">
-                        <img 
-                          src={ventureData.googleUser.picture} 
-                          alt="Profile" 
-                          className="w-12 h-12 rounded-full"
-                        />
-                        <div>
-                          <h3 className="font-medium text-green-800">{t('Successfully signed in with Google')}</h3>
-                          <p className="text-sm text-green-600">{ventureData.googleUser.name}</p>
-                          <p className="text-sm text-green-600">{ventureData.googleUser.email}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
+              </div>
+            ))}
+            <Button type="button" variant="outline" onClick={addTeamMember} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              {t('addTeamMember') || 'Add team member'}
+            </Button>
           </div>
         );
 
-
+      case 'review':
+        return <ReviewPanel draft={draft} />;
 
       default:
         return null;
     }
   };
 
-  const currentStepData = steps[currentStep];
-
-  const renderSidebarContent = () => {
-    if (sidebarView === 'benefits') {
-      return (
-        <>
-          <div>
-            <h3 className="text-lg font-semibold mb-2 text-white">{t('Benefits of using BOMOKO FUND')}</h3>
-            <p className="text-sm text-gray-300">{t('for creating your business plan.')}</p>
+  // ---------- Auth gate ----------
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-lightGreen/20 to-lightBlue/20 flex">
+        <div className="w-1/3 bg-gradient-to-b from-[#02093d] to-[#0a1854] text-white p-8 relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="mb-8">
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="w-8 h-8 bg-white rounded text-[#02093d] flex items-center justify-center font-bold">
+                  B
+                </div>
+                <span className="text-2xl font-bold text-white">{t('BOMOKO FUND') || 'BOMOKO FUND'}</span>
+              </div>
+            </div>
+            <div className="space-y-8">{renderSidebarContent()}</div>
           </div>
+        </div>
 
-          <div className="space-y-6">
-            <div className="flex items-start space-x-4">
-              <div className={`text-4xl font-bold ${numberColors[0]} opacity-90`}>01</div>
-              <div>
-                <h4 className="font-semibold mb-2 text-white">{t('AI-powered business planning')}</h4>
-                <p className="text-sm text-gray-300">{t('Create a professional quality business plan in no time, just answer our multiple-choice questions and let BOMOKO FUND do the rest.')}</p>
-              </div>
+        <div className="flex-1 p-8 bg-white flex items-center justify-center">
+          <div className="max-w-md w-full text-center space-y-6">
+            <h1 className="text-3xl font-bold text-dark">
+              {t('signInToCreateVenture') || 'Sign in to create your venture'}
+            </h1>
+            <p className="text-gray-600">
+              {t('signInToCreateVentureDesc') ||
+                'You need to be signed in to create a new venture in Bomoko Fund.'}
+            </p>
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                size="large"
+                width="100%"
+                text="signin_with"
+                useOneTap={false}
+              />
             </div>
-
-            <div className="flex items-start space-x-4">
-              <div className={`text-4xl font-bold ${numberColors[1]} opacity-90`}>02</div>
-              <div>
-                <h4 className="font-semibold mb-2 text-white">{t('Access to funding opportunities')}</h4>
-                <p className="text-sm text-gray-300">{t('Connect with investors and funding opportunities specifically designed for African entrepreneurs and high-potential projects.')}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className={`text-4xl font-bold ${numberColors[2]} opacity-90`}>03</div>
-              <div>
-                <h4 className="font-semibold mb-2 text-white">{t('Community of entrepreneurs')}</h4>
-                <p className="text-sm text-gray-300">{t('Join a thriving ecosystem of visionary business owners, impact-driven investors, and supporters across Africa.')}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className={`text-4xl font-bold ${numberColors[3]} opacity-90`}>04</div>
-              <div>
-                <h4 className="font-semibold mb-2 text-white">{t('Expert guidance and mentorship')}</h4>
-                <p className="text-sm text-gray-300">{t('Get guidance from experienced entrepreneurs and business experts who understand the African market landscape.')}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className={`text-4xl font-bold ${numberColors[4]} opacity-90`}>05</div>
-              <div>
-                <h4 className="font-semibold mb-2 text-white">{t('Comprehensive business tools')}</h4>
-                <p className="text-sm text-gray-300">{t('Focus on high-potential projects that address critical social and economic needs across African communities.')}</p>
-              </div>
-            </div>
+            <Button variant="outline" onClick={() => navigate('/dashboard')}>
+              {t('Go to Dashboard') || 'Go to Dashboard'}
+            </Button>
           </div>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <div>
-            <h3 className="text-lg font-semibold mb-2 text-white">{t('How funding works on BOMOKO FUND')}</h3>
-            <p className="text-sm text-gray-300">{t('Step-by-step guide to get funded.')}</p>
-          </div>
+        </div>
+      </div>
+    );
+  }
 
-          <div className="space-y-6">
-            <div className="flex items-start space-x-4">
-              <div className={`text-4xl font-bold ${numberColors[0]} opacity-90`}>01</div>
-              <div>
-                <h4 className="font-semibold mb-2 text-white">{t('Create Your Business Plan')}</h4>
-                <p className="text-sm text-gray-300">{t('Build a comprehensive business plan using our AI-powered tools and templates specifically designed for African entrepreneurs.')}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className={`text-4xl font-bold ${numberColors[1]} opacity-90`}>02</div>
-              <div>
-                <h4 className="font-semibold mb-2 text-white">{t('Submit for Review')}</h4>
-                <p className="text-sm text-gray-300">{t('Our expert team reviews your business plan to ensure it meets funding requirements and provides feedback for improvement.')}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className={`text-4xl font-bold ${numberColors[2]} opacity-90`}>03</div>
-              <div>
-                <h4 className="font-semibold mb-2 text-white">{t('Get Matched with Investors')}</h4>
-                <p className="text-sm text-gray-300">{t('Connect with impact-driven investors who are specifically interested in funding high-potential African ventures and projects.')}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className={`text-4xl font-bold ${numberColors[3]} opacity-90`}>04</div>
-              <div>
-                <h4 className="font-semibold mb-2 text-white">{t('Receive Funding')}</h4>
-                <p className="text-sm text-gray-300">{t('Once matched, receive funding through our secure platform and start building your business with ongoing support and mentorship.')}</p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-4">
-              <div className={`text-4xl font-bold ${numberColors[4]} opacity-90`}>05</div>
-              <div>
-                <h4 className="font-semibold mb-2 text-white">{t('Launch & Scale')}</h4>
-                <p className="text-sm text-gray-300">{t('Launch your business with confidence and access our network of resources, mentors, and partners to scale your impact across Africa.')}</p>
-              </div>
-            </div>
-          </div>
-        </>
-      );
-    }
-  };
+  // ---------- Wizard ----------
+  const currentStepData = STEPS[currentStep];
+  const stepTitle = t(currentStepData.titleKey) || currentStepData.titleFallback;
+  const stepDesc = t(currentStepData.descKey) || currentStepData.descFallback;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-lightGreen/20 to-lightBlue/20 flex">
@@ -1342,7 +897,7 @@ const VentureWizard: React.FC = () => {
               <div className="w-8 h-8 bg-white rounded text-[#02093d] flex items-center justify-center font-bold">
                 B
               </div>
-              <span className="text-2xl font-bold text-white">{t('BOMOKO FUND')}</span>
+              <span className="text-2xl font-bold text-white">{t('BOMOKO FUND') || 'BOMOKO FUND'}</span>
             </div>
           </div>
 
@@ -1356,7 +911,7 @@ const VentureWizard: React.FC = () => {
                     : 'bg-white/10 text-gray-200 hover:bg-white/20'
                 }`}
               >
-                {t('Funding')}
+                {t('Funding') || 'Funding'}
               </button>
               <button
                 onClick={() => setSidebarView('benefits')}
@@ -1366,7 +921,7 @@ const VentureWizard: React.FC = () => {
                     : 'bg-white/10 text-gray-200 hover:bg-white/20'
                 }`}
               >
-                {t('Benefits')}
+                {t('Benefits') || 'Benefits'}
               </button>
             </div>
 
@@ -1375,30 +930,43 @@ const VentureWizard: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main content */}
       <div className="flex-1 p-8 bg-white">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <div className="inline-block px-4 py-2 bg-yellow text-dark rounded-full text-sm font-medium mb-4">
-              {t('FREE TRIAL')}
+              {t('newVenture') || 'New Venture'}
             </div>
-            <h1 className="text-5xl font-bold mb-2 text-dark">
-              {t('Create')} <span className="text-lightBlue">{t('Business Plan')}</span>
+            <h1 className="text-4xl md:text-5xl font-bold mb-2 text-dark">
+              {t('Create') || 'Create'}{' '}
+              <span className="text-lightBlue">{t('Venture') || 'Venture'}</span>
             </h1>
-            <div className="text-right text-sm text-gray-500 mt-8">
-              <span>{t('Already have an account?')} </span>
-              <button className="text-lightBlue hover:text-lightBlue/80">{t('Log In')}</button>
-            </div>
+            {currentUser && (
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mt-3">
+                {currentUser.profile ? (
+                  <img
+                    src={currentUser.profile}
+                    alt={t('profile') || 'Profile'}
+                    className="w-6 h-6 rounded-full"
+                  />
+                ) : (
+                  <User className="w-4 h-4" />
+                )}
+                <span>
+                  {t('signedInAs') || 'Signed in as'} {currentUser.name || currentUser.email}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="mb-8">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-lightBlue rounded-full flex items-center justify-center text-white font-bold">
-                ✓
+                {currentStep + 1}
               </div>
-              <h2 className="text-2xl font-bold text-dark">{currentStepData.question}</h2>
+              <h2 className="text-2xl font-bold text-dark">{stepTitle}</h2>
             </div>
-            <p className="text-gray-600 mb-6">{currentStepData.description}</p>
+            <p className="text-gray-600 mb-6">{stepDesc}</p>
           </div>
 
           <AnimatePresence mode="wait">
@@ -1416,16 +984,16 @@ const VentureWizard: React.FC = () => {
           <div className="flex justify-between items-center mt-8">
             <Button
               onClick={handlePrev}
-              disabled={currentStep === 0}
+              disabled={currentStep === 0 || isCreating}
               variant="outline"
               className="flex items-center space-x-2"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span>{t('Back')}</span>
+              <span>{t('Back') || 'Back'}</span>
             </Button>
 
             <div className="flex space-x-2">
-              {steps.map((_, index) => (
+              {STEPS.map((_, index) => (
                 <div
                   key={index}
                   className={`w-3 h-3 rounded-full transition-colors ${
@@ -1441,17 +1009,21 @@ const VentureWizard: React.FC = () => {
 
             <Button
               onClick={handleNext}
-              disabled={!isStepComplete(currentStepData.id) || isCreatingVenture}
+              disabled={!isStepComplete(currentStepData.id) || isCreating}
               className="flex items-center space-x-2 bg-lightBlue hover:bg-lightBlue/90 text-white"
             >
-              {isCreatingVenture ? (
+              {isCreating ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>{t('Creating...')}</span>
+                  <span>{t('Creating...') || 'Creating...'}</span>
                 </>
               ) : (
                 <>
-                  <span>{currentStep === steps.length - 1 ? t('Complete Setup') : t('Continue')}</span>
+                  <span>
+                    {currentStep === STEPS.length - 1
+                      ? t('createVenture') || 'Create Venture'
+                      : t('Continue') || 'Continue'}
+                  </span>
                   <ChevronRight className="w-4 h-4" />
                 </>
               )}
@@ -1472,21 +1044,23 @@ const VentureWizard: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
                     </svg>
                   </div>
-                  <h3 className="text-xl font-semibold text-green-800 mb-2">{t('Success!')}</h3>
+                  <h3 className="text-xl font-semibold text-green-800 mb-2">
+                    {t('Success!') || 'Success!'}
+                  </h3>
                   <p className="text-gray-600 mb-6">{resultModalMessage}</p>
                   <div className="flex space-x-3">
                     <Button
                       onClick={() => navigate('/dashboard')}
                       className="flex-1 bg-green-600 hover:bg-green-700 text-white"
                     >
-                      {t('Go to Dashboard')}
+                      {t('Go to Dashboard') || 'Go to Dashboard'}
                     </Button>
                     <Button
                       onClick={() => setShowResultModal(false)}
                       variant="outline"
                       className="flex-1"
                     >
-                      {t('Close')}
+                      {t('Close') || 'Close'}
                     </Button>
                   </div>
                 </>
@@ -1497,21 +1071,23 @@ const VentureWizard: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                   </div>
-                  <h3 className="text-xl font-semibold text-red-800 mb-2">{t('Error!')}</h3>
+                  <h3 className="text-xl font-semibold text-red-800 mb-2">
+                    {t('Error!') || 'Error!'}
+                  </h3>
                   <p className="text-gray-600 mb-6">{resultModalMessage}</p>
                   <div className="flex space-x-3">
                     <Button
                       onClick={() => setShowResultModal(false)}
                       className="flex-1 bg-red-600 hover:bg-red-700 text-white"
                     >
-                      {t('Try Again')}
+                      {t('Try Again') || 'Try Again'}
                     </Button>
                     <Button
                       onClick={() => navigate('/dashboard')}
                       variant="outline"
                       className="flex-1"
                     >
-                      {t('Go to Dashboard')}
+                      {t('Go to Dashboard') || 'Go to Dashboard'}
                     </Button>
                   </div>
                 </>
@@ -1524,4 +1100,48 @@ const VentureWizard: React.FC = () => {
   );
 };
 
-export default VentureWizard; 
+const ReviewPanel: React.FC<{ draft: EntrepriseDraft }> = ({ draft }) => {
+  const { t } = useTranslation();
+  const rows = useMemo(
+    () => [
+      { label: t('companyName') || 'Company name', value: draft.company_name },
+      { label: t('miniBio') || 'Short description', value: draft.mini_bio },
+      { label: t('descriptionLabel') || 'Description', value: draft.description },
+      { label: t('mission') || 'Mission', value: draft.mission },
+      { label: t('vision') || 'Vision', value: draft.vision },
+      { label: t('foundingDate') || 'Founding date', value: draft.founding_date },
+      { label: t('sectorLabel') || 'Sector', value: draft.secteur.join(', ') },
+      { label: t('stageLabel') || 'Stage', value: draft.stage },
+      { label: t('customerTypesLabel') || 'Customer types', value: draft.type_of_customers.join(', ') },
+      { label: t('customerBaseLabel') || 'Customer base', value: draft.customer_base.join(', ') },
+      { label: t('categoryBaseLabel') || 'Category', value: draft.category_base.join(', ') },
+      { label: t('phone') || 'Phone', value: draft.phone },
+      { label: t('email') || 'Email', value: draft.email },
+      { label: t('fullAddress') || 'Address', value: draft.full_address },
+      { label: t('website') || 'Website', value: draft.website },
+      { label: t('socialMedia') || 'Social media', value: draft.social_Media.join(', ') },
+      {
+        label: t('team') || 'Team',
+        value: draft.team
+          .map((m) => `${m.name}${m.email ? ` <${m.email}>` : ''}${m.phone ? ` (${m.phone})` : ''}`)
+          .join(' · '),
+      },
+    ],
+    [draft, t]
+  );
+
+  return (
+    <div className="border rounded-lg divide-y">
+      {rows.map((row, i) => (
+        <div key={i} className="flex items-start gap-4 px-4 py-3">
+          <div className="w-40 shrink-0 text-sm font-medium text-gray-600">{row.label}</div>
+          <div className="flex-1 text-sm text-gray-900 break-words">
+            {row.value && row.value.toString().trim().length > 0 ? row.value : <span className="text-gray-400">—</span>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default VentureWizard;
