@@ -411,7 +411,9 @@ const VentureWizard: React.FC = () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              googleToken: token
+              idToken: token,
+              credential: token,
+              token: token,
             })
           });
 
@@ -619,7 +621,9 @@ const VentureWizard: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          googleToken: credentialResponse.credential // ✅ Use credential (ID token), not access token
+          idToken: credentialResponse.credential,
+          credential: credentialResponse.credential,
+          token: credentialResponse.credential,
         })
       });
 
