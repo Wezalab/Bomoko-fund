@@ -4,7 +4,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { selectUser } from '@/redux/slices/userSlice';
 import { useTranslation } from '@/lib/TranslationContext';
 import {
-  useGetUserVenturesQuery,
+  useGetMyEntreprisesQuery,
   useUpdateVentureMutation,
   useDeleteVentureMutation,
   Venture,
@@ -102,7 +102,7 @@ const ManagePage: React.FC = () => {
     data: venturesResp,
     isLoading: loadingVentures,
     refetch: refetchVentures,
-  } = useGetUserVenturesQuery({ userId: user?._id || '', page: 1, limit: 50 }, { skip: !user?._id });
+  } = useGetMyEntreprisesQuery({ userId: user?._id || '' }, { skip: !user?._id });
 
   const ventures: Venture[] = Array.isArray(venturesResp)
     ? venturesResp
