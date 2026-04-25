@@ -34,8 +34,10 @@ const LoginPage: React.FC = () => {
   const token = useAppSelector(selectToken);
 
   const wasAlreadyLoggedIn = useRef(!!(currentUser?.email || currentUser?.phone_number) && !!token);
+  const googleBtnRef = useRef<HTMLDivElement>(null);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [googleBtnWidth, setGoogleBtnWidth] = useState(400);
   const [sidebarView, setSidebarView] = useState<'benefits' | 'funding'>('benefits');
   const [signedInUser, setSignedInUser] = useState<SignedInUser | null>(null);
   const [imgError, setImgError] = useState(false);
@@ -54,6 +56,17 @@ const LoginPage: React.FC = () => {
     }
   }, [navigate]);
 
+  // Keep Google button width in sync with its container
+  React.useEffect(() => {
+    const el = googleBtnRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setGoogleBtnWidth(Math.floor(entry.contentRect.width));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setIsLoading(true);
     setImgError(false);
@@ -65,7 +78,11 @@ const LoginPage: React.FC = () => {
       const backendResponse = await fetch(`${apiUrl}/auth/exchange-google-token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ googleToken: credentialResponse.credential }),
+        body: JSON.stringify({
+          idToken: credentialResponse.credential,
+          credential: credentialResponse.credential,
+          token: credentialResponse.credential,
+        }),
       });
 
       if (!backendResponse.ok) {
@@ -333,7 +350,7 @@ const LoginPage: React.FC = () => {
                 </div>
 
                 {/* Google Sign-in */}
-                <div className="flex justify-center">
+                <div ref={googleBtnRef} className="flex justify-center">
                   {isLoading ? (
                     <div className="flex items-center space-x-3 px-6 py-3 border border-gray-200 rounded-lg w-full justify-center">
                       <svg className="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -343,16 +360,14 @@ const LoginPage: React.FC = () => {
                       <span className="text-gray-600 text-sm">{t('Signing in...')}</span>
                     </div>
                   ) : (
-                    <div className="w-full">
-                      <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={handleGoogleError}
-                        size="large"
-                        width="100%"
-                        text="signin_with"
-                        useOneTap={false}
-                      />
-                    </div>
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={handleGoogleError}
+                      size="large"
+                      width={googleBtnWidth}
+                      text="signin_with"
+                      useOneTap={false}
+                    />
                   )}
                 </div>
 

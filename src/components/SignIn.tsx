@@ -206,7 +206,11 @@ function SignIn({
             const backendResponse = await fetch(`${apiUrl}/auth/exchange-google-token`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ googleToken: credentialResponse.credential })
+                body: JSON.stringify({
+                    idToken: credentialResponse.credential,
+                    credential: credentialResponse.credential,
+                    token: credentialResponse.credential,
+                })
             });
 
             if (!backendResponse.ok) {
