@@ -144,6 +144,7 @@ const BMCBlockCard: React.FC<BMCBlockCardProps> = ({ block, className = '' }) =>
               ) : null;
             })}
           </ul>
+          
         ) : (
           <span className="text-xs text-gray-400 italic">Cliquez sur le crayon pour ajouter du contenu</span>
         )}
