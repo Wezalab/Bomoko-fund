@@ -15,6 +15,17 @@ interface SignedInUser {
   picture: string;
 }
 
+/** Decode a Google ID-token (JWT) payload without a library. */
+function decodeGoogleJwt(credential: string): Record<string, any> {
+  try {
+    const payload = credential.split('.')[1];
+    const padded = payload + '='.repeat((4 - (payload.length % 4)) % 4);
+    return JSON.parse(atob(padded.replace(/-/g, '+').replace(/_/g, '/')));
+  } catch {
+    return {};
+  }
+}
+
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -22,12 +33,12 @@ const LoginPage: React.FC = () => {
   const currentUser = useAppSelector(selectUser);
   const token = useAppSelector(selectToken);
 
-  // Track if user was already logged in when the page first mounted
   const wasAlreadyLoggedIn = useRef(!!(currentUser?.email || currentUser?.phone_number) && !!token);
 
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarView, setSidebarView] = useState<'benefits' | 'funding'>('benefits');
   const [signedInUser, setSignedInUser] = useState<SignedInUser | null>(null);
+  const [imgError, setImgError] = useState(false);
 
   const numberColors = [
     'text-yellow-400',
@@ -37,7 +48,6 @@ const LoginPage: React.FC = () => {
     'text-red-400',
   ];
 
-  // Only auto-redirect if the user was already logged in before opening this page
   React.useEffect(() => {
     if (wasAlreadyLoggedIn.current) {
       navigate('/dashboard');
@@ -46,6 +56,11 @@ const LoginPage: React.FC = () => {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setIsLoading(true);
+    setImgError(false);
+
+    // Decode the Google JWT directly — most reliable source for the profile picture
+    const googlePayload = decodeGoogleJwt(credentialResponse.credential);
+
     try {
       const backendResponse = await fetch(`${apiUrl}/auth/exchange-google-token`, {
         method: 'POST',
@@ -65,6 +80,13 @@ const LoginPage: React.FC = () => {
 
         const userId = authData.userId || authData.user._id || authData.user.id || authData.user.sub;
 
+        // Prefer the picture from the decoded JWT — it's always a valid Google URL
+        const picture =
+          googlePayload.picture ||
+          authData.user.avatar ||
+          authData.user.picture ||
+          '';
+
         dispatch(setUser({
           _id: userId,
           email: authData.user.email,
@@ -73,18 +95,18 @@ const LoginPage: React.FC = () => {
           bio: authData.user.bio || '',
           location: authData.user.location || '',
           isGoogleUser: true,
-          profile: authData.user.avatar || authData.user.picture,
+          profile: picture,
           projects: authData.user.projects || [],
           cryptoWallet: authData.user.cryptoWallet || [],
         }));
 
         setSignedInUser({
-          name: authData.user.name,
-          email: authData.user.email,
-          picture: authData.user.avatar || authData.user.picture || '',
+          name: authData.user.name || googlePayload.name || '',
+          email: authData.user.email || googlePayload.email || '',
+          picture,
         });
 
-        toast.success(authData.message || t('Successfully signed in with Google!'));
+        toast.success(t('Successfully signed in with Google'));
       } else {
         throw new Error(authData.message || 'Authentication failed');
       }
@@ -99,7 +121,6 @@ const LoginPage: React.FC = () => {
   const handleGoogleError = () => {
     toast.error(t('Google sign-in failed. Please try again.'));
   };
-
   const renderSidebarContent = () => {
     if (sidebarView === 'benefits') {
       return (
@@ -225,37 +246,38 @@ const LoginPage: React.FC = () => {
                 <div className="flex items-center space-x-2 mb-6">
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
                   <span className="text-sm font-medium text-green-600">
-                    {t('Successfully signed in with Google!')}
+                    {t('Successfully signed in with Google')}
                   </span>
                 </div>
 
                 {/* Account card */}
                 <div className="bg-gradient-to-r from-[#02093d] to-[#0a1854] rounded-2xl p-6 mb-6 text-white">
                   <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/30 flex-shrink-0">
-                      {signedInUser.picture ? (
+                    {/* Profile picture */}
+                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/30 flex-shrink-0 bg-white/20">
+                      {signedInUser.picture && !imgError ? (
                         <img
                           src={signedInUser.picture}
                           alt={signedInUser.name}
+                          referrerPolicy="no-referrer"
+                          crossOrigin="anonymous"
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
+                          onError={() => setImgError(true)}
                         />
                       ) : (
-                        <div className="w-full h-full bg-white/20 flex items-center justify-center text-xl font-bold">
+                        <div className="w-full h-full flex items-center justify-center text-xl font-bold text-white">
                           {signedInUser.name?.[0]?.toUpperCase() || 'U'}
                         </div>
                       )}
                     </div>
+
+                    {/* User info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-xs bg-white/15 px-2 py-0.5 rounded-full">
-                          Google Account
-                        </span>
-                      </div>
-                      <p className="text-lg font-semibold truncate">{signedInUser.name}</p>
-                      <p className="text-sm text-white/70 truncate">{signedInUser.email}</p>
+                      <span className="text-xs bg-white/15 px-2 py-0.5 rounded-full inline-block mb-1.5">
+                        {t('Google Account')}
+                      </span>
+                      <p className="text-base font-semibold leading-tight">{signedInUser.name}</p>
+                      <p className="text-sm text-white/70 truncate mt-0.5">{signedInUser.email}</p>
                     </div>
                   </div>
                 </div>
@@ -269,10 +291,10 @@ const LoginPage: React.FC = () => {
                   <ArrowRight className="w-5 h-5" />
                 </button>
 
-                {/* Sign in with a different account */}
+                {/* Use a different account */}
                 <div className="mt-4 text-center">
                   <button
-                    onClick={() => setSignedInUser(null)}
+                    onClick={() => { setSignedInUser(null); setImgError(false); }}
                     className="text-sm text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {t('Use a different account')}

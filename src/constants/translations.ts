@@ -257,6 +257,8 @@ export const translations: Translations = {
     // "Go to Dashboard": "Go to Dashboard",
     "Continue with Business Plan": "Continue with Business Plan",
     "You are logged in and ready to create your business plan!": "You are logged in and ready to create your business plan!",
+    "Google authentication failed. Please try again.": "Google authentication failed. Please try again.",
+    "Google sign-in failed. Please try again.": "Google sign-in failed. Please try again.",
 
     // Dashboard
     "Welcome": "Welcome",
@@ -949,6 +951,8 @@ export const translations: Translations = {
     // "Go to Dashboard": "Aller au tableau de bord",
     "Continue with Business Plan": "Continuer avec le plan d'affaires",
     "You are logged in and ready to create your business plan!": "Vous êtes connecté et prêt à créer votre plan d'affaires !",
+    "Google authentication failed. Please try again.": "L'authentification Google a échoué. Veuillez réessayer.",
+    "Google sign-in failed. Please try again.": "La connexion Google a échoué. Veuillez réessayer.",
 
     // Dashboard
     "Welcome": "Bienvenue",
