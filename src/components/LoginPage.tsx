@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectUser, selectToken, setToken, setUser } from '@/redux/slices/userSlice';
 import { useTranslation } from '@/lib/TranslationContext';
 import { apiUrl } from '@/lib/env';
+import { getLoginJwt } from '@/lib/authResponse';
 
 interface SignedInUser {
   name: string;
@@ -98,7 +99,7 @@ const LoginPage: React.FC = () => {
       const isSuccess = authData.success || authData.user || authData.userId || authData.jwtToken || authData.token;
 
       if (isSuccess) {
-        dispatch(setToken(authData.jwtToken || authData.token));
+        dispatch(setToken(getLoginJwt(authData) ?? authData.jwtToken ?? authData.token));
 
         const userId = authData.userId || authData.user?._id || authData.user?.id || authData.user?.sub;
 
