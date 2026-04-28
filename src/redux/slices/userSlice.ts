@@ -21,6 +21,7 @@ export const initialState={
         phone:"",
         otp:"",
         email:"",
+        name:"",
         isVerified:false
     }
     
