@@ -16,6 +16,7 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { useTranslation } from '../lib/TranslationContext';
 import { apiUrl } from '../lib/env';
+import { getLoginJwt } from '@/lib/authResponse';
 import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -343,7 +344,7 @@ const VentureWizard: React.FC = () => {
 
       if (!isSuccess) throw new Error(authData.message || 'Authentication failed');
 
-      dispatch(setToken(authData.jwtToken || authData.token));
+      dispatch(setToken(getLoginJwt(authData) ?? authData.jwtToken ?? authData.token));
       dispatch(
         setUser({
           _id: userId,
