@@ -20,7 +20,7 @@ import { handleRTKQueryError } from "@/redux/errorHandler";
 
 import { GoogleLogin } from '@react-oauth/google';
 import { apiUrl } from '@/lib/env';
-import { getLoginJwt, mapLoginResponseToUserFields } from '@/lib/authResponse';
+import { getLoginJwt, getLoginUserRecord, mapLoginResponseToUserFields } from '@/lib/authResponse';
 
 interface signInProps{
     onClose?:any,
@@ -222,29 +222,26 @@ function SignIn({
             const authData = await backendResponse.json();
             console.log('✅ Google authentication successful:', authData);
 
-            const userId = authData.userId || authData.user?._id || authData.user?.id || authData.user?.sub;
-            const isSuccess = authData.success || userId || authData.jwtToken || authData.token;
+            const jwt = getLoginJwt(authData);
+            const userFields = mapLoginResponseToUserFields(authData);
+            const userRecord = getLoginUserRecord(authData);
+            const isSuccess = authData.success || jwt || userFields._id;
 
             if (isSuccess) {
                 // Set user data in Redux with backend user ID
                 dispatch(setUser({
-                    _id: userId,
-                    email: authData.user?.email || '',
-                    name: authData.user?.name || '',
-                    phone_number: authData.user?.phone || '',
-                    bio: authData.user?.bio || '',
-                    location: authData.user?.location || '',
+                    ...userFields,
                     isGoogleUser: true,
-                    profile: authData.user?.avatar || authData.user?.picture,
-                    projects: authData.user?.projects || [],
-                    cryptoWallet: authData.user?.cryptoWallet || []
+                    profile: userRecord?.avatar || userRecord?.picture || userRecord?.profile || '',
+                    projects: Array.isArray(userRecord?.projects) ? userRecord.projects : [],
+                    cryptoWallet: Array.isArray(userRecord?.cryptoWallet) ? userRecord.cryptoWallet : []
                 }));
 
                 // Set JWT token
-                dispatch(setToken(getLoginJwt(authData) ?? authData.jwtToken ?? authData.token));
+                if (jwt) dispatch(setToken(jwt));
                 
                 toast.success(authData.message || "Logged in successfully!");
-                console.log("Google sign-in success with backend userId:", userId);
+                console.log("Google sign-in success with backend userId:", userFields._id);
                 onClose();
             } else {
                 throw new Error(authData.message || 'Authentication failed');

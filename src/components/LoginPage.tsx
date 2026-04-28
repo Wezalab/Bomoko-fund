@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import { selectUser, selectToken, setToken, setUser } from '@/redux/slices/userSlice';
 import { useTranslation } from '@/lib/TranslationContext';
 import { apiUrl } from '@/lib/env';
-import { getLoginJwt } from '@/lib/authResponse';
+import { getLoginJwt, getLoginUserRecord, mapLoginResponseToUserFields } from '@/lib/authResponse';
 
 interface SignedInUser {
   name: string;
@@ -95,37 +95,37 @@ const LoginPage: React.FC = () => {
       const authData = await backendResponse.json();
       console.log('Backend auth response:', authData);
 
+      const jwt = getLoginJwt(authData);
+      const userFields = mapLoginResponseToUserFields(authData);
+      const userRecord = getLoginUserRecord(authData);
+
       // Backend may return success with or without an explicit `success: true` field
-      const isSuccess = authData.success || authData.user || authData.userId || authData.jwtToken || authData.token;
+      const isSuccess = authData.success || jwt || userFields._id;
 
       if (isSuccess) {
-        dispatch(setToken(getLoginJwt(authData) ?? authData.jwtToken ?? authData.token));
-
-        const userId = authData.userId || authData.user?._id || authData.user?.id || authData.user?.sub;
+        if (jwt) dispatch(setToken(jwt));
 
         // Prefer the picture from the decoded JWT — it's always a valid Google URL
         const picture =
           googlePayload.picture ||
-          authData.user?.avatar ||
-          authData.user?.picture ||
+          userRecord?.avatar ||
+          userRecord?.picture ||
+          userRecord?.profile ||
           '';
 
         dispatch(setUser({
-          _id: userId,
-          email: authData.user?.email || googlePayload.email || '',
-          name: authData.user?.name || googlePayload.name || '',
-          phone_number: authData.user?.phone || '',
-          bio: authData.user?.bio || '',
-          location: authData.user?.location || '',
+          ...userFields,
+          email: userFields.email || googlePayload.email || '',
+          name: userFields.name || googlePayload.name || '',
           isGoogleUser: true,
           profile: picture,
-          projects: authData.user?.projects || [],
-          cryptoWallet: authData.user?.cryptoWallet || [],
+          projects: Array.isArray(userRecord?.projects) ? userRecord.projects : [],
+          cryptoWallet: Array.isArray(userRecord?.cryptoWallet) ? userRecord.cryptoWallet : [],
         }));
 
         setSignedInUser({
-          name: authData.user?.name || googlePayload.name || '',
-          email: authData.user?.email || googlePayload.email || '',
+          name: userFields.name || googlePayload.name || '',
+          email: userFields.email || googlePayload.email || '',
           picture,
         });
 
