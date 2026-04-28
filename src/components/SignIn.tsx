@@ -20,6 +20,7 @@ import { handleRTKQueryError } from "@/redux/errorHandler";
 
 import { GoogleLogin } from '@react-oauth/google';
 import { apiUrl } from '@/lib/env';
+import { getLoginJwt, mapLoginResponseToUserFields } from '@/lib/authResponse';
 
 interface signInProps{
     onClose?:any,
@@ -115,14 +116,14 @@ function SignIn({
         if(loginIsSuccess && loginData){
             console.log("login data:",loginData)
             toast.success(loginData?.message)
-            dispatch(setToken(loginData?.token || loginData?.jwtToken))
+            const jwt = getLoginJwt(loginData)
+            if (jwt) dispatch(setToken(jwt))
             dispatch(setUser({
-                _id:loginData?.userDetails?._id || loginData?.userId,
-                email:loginData?.userDetails?.email,
-                phone_number:loginData?.userDetails?.phone,
-                name:loginData?.userDetails?.name,
-                bio:loginData?.userDetails?.bio,
-                location:loginData?.userDetails?.location
+                ...mapLoginResponseToUserFields(loginData),
+                profile: '',
+                isGoogleUser: false,
+                projects: [],
+                cryptoWallet: [],
             }))
             onClose()
             resetWithEmail()
@@ -135,7 +136,7 @@ function SignIn({
                 typeof loginError === 'object' &&
                 loginError !== null &&
                 'status' in loginError &&
-                loginError.status === 401 &&
+                (loginError.status === 401 || loginError.status === 400) &&
                 'data' in loginError &&
                 loginError.data &&
                 typeof loginError.data === 'object' &&
@@ -154,14 +155,14 @@ function SignIn({
         if(loginWithPhoneData && loginWithPhoneIsSuccess){
             console.log("login with phone Data:",loginWithPhoneData)
             toast.success(loginWithPhoneData?.message)
-            dispatch(setToken(loginWithPhoneData?.token || loginWithPhoneData?.jwtToken))
+            const jwt = getLoginJwt(loginWithPhoneData)
+            if (jwt) dispatch(setToken(jwt))
             dispatch(setUser({
-                _id:loginWithPhoneData.userDetails._id || loginWithPhoneData?.userId,
-                email:loginWithPhoneData?.userDetails?.email,
-                phone_number:loginWithPhoneData?.userDetails?.phone,
-                name:loginWithPhoneData?.userDetails?.name,
-                bio:loginWithPhoneData?.userDetails?.bio,
-                location:loginWithPhoneData?.userDetails?.location
+                ...mapLoginResponseToUserFields(loginWithPhoneData),
+                profile: '',
+                isGoogleUser: false,
+                projects: [],
+                cryptoWallet: [],
             }))
             onClose()
             resetWithPhone()
@@ -174,7 +175,7 @@ function SignIn({
                 typeof loginWithPhoneError === 'object' &&
                 loginWithPhoneError !== null &&
                 'status' in loginWithPhoneError &&
-                loginWithPhoneError.status === 401 &&
+                (loginWithPhoneError.status === 401 || loginWithPhoneError.status === 400) &&
                 'data' in loginWithPhoneError &&
                 loginWithPhoneError.data &&
                 typeof loginWithPhoneError.data === 'object' &&
@@ -240,7 +241,7 @@ function SignIn({
                 }));
 
                 // Set JWT token
-                dispatch(setToken(authData.jwtToken || authData.token));
+                dispatch(setToken(getLoginJwt(authData) ?? authData.jwtToken ?? authData.token));
                 
                 toast.success(authData.message || "Logged in successfully!");
                 console.log("Google sign-in success with backend userId:", userId);
