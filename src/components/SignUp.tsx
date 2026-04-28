@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form"
 import { Input } from "./ui/input"
 import { FaHashtag, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { CiLock } from "react-icons/ci"
-import { useFinalizeRegistrationMutation, useRegisterMutation, useRegisterOtpMutation, useVerifyOtpMutation } from "@/redux/services/userServices"
+import { useFinalizeRegistrationMutation, useRegisterOtpMutation, useSignupMutation, useVerifyOtpMutation } from "@/redux/services/userServices"
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
@@ -16,6 +16,7 @@ import toast from "react-hot-toast"
 import { initialState, selectSignUpData, setSignUpData, setToken, setUser } from "@/redux/slices/userSlice"
 import LoadingComponent from "./LoadingComponent"
 import { apiUrl } from "@/lib/env"
+import { getLoginJwt } from "@/lib/authResponse"
 import { handleRTKQueryError } from "@/redux/errorHandler";
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -33,7 +34,8 @@ const stepOneSchemaPhone=z.object({
     
 })
 const stepOneSchemaEmail=z.object({
-  email: z.string().email("Invalid email format")   
+  name: z.string().min(1, "Name is required").trim(),
+  email: z.string().email("Invalid email format"),
 })
 
 const stepTwoSchema=z.object({
@@ -114,7 +116,7 @@ function SignUp({
                 }));
 
                 // Set JWT token
-                dispatch(setToken(authData.jwtToken || authData.token));
+                dispatch(setToken(getLoginJwt(authData) ?? authData.jwtToken ?? authData.token));
                 
                 toast.success(authData.message || "Signed up successfully!");
                 console.log("Google sign-up success with backend userId:", userId);
@@ -171,15 +173,15 @@ function SignUp({
     ]=useRegisterOtpMutation()
 
     const [
-      RegisterEmail,
+      signup,
       {
-        data:registerEmailData,
-        error:registerEmailError,
-        isError:registerEmailIsError,
-        isLoading:registerEmailIsLoading,
-        isSuccess:registerEmailIsSuccess
-      }
-    ]=useRegisterMutation()
+        data: signupData,
+        error: signupError,
+        isError: signupIsError,
+        isLoading: signupIsLoading,
+        isSuccess: signupIsSuccess,
+      },
+    ] = useSignupMutation()
 
     const [
       verifyOtp,
@@ -218,17 +220,20 @@ function SignUp({
 
 
     useEffect(()=>{
-      if(registerEmailData && registerEmailIsSuccess){
-        //console.log("register with email success",registerEmailData)
-        toast.success("The one Time password was sent to your email address")
-        setStepsWithEmail(2)
+      if(signupIsSuccess && signupData){
+        toast.success(
+          typeof signupData.message === 'string'
+            ? signupData.message
+            : 'Account created — you can sign in.'
+        )
+        dispatch(setSignUpData(initialState.signUpData))
+        onClose()
+        setSignIn(true)
       }
-      if(registerEmailIsError){
-        console.log("error while register with email",registerEmailError)
-        handleRTKQueryError(registerEmailError);
+      if(signupIsError){
+        handleRTKQueryError(signupError)
       }
-    },[registerEmailIsSuccess,registerEmailIsError])
-
+    },[signupIsSuccess, signupIsError, dispatch, onClose, setSignIn])
 
     useEffect(()=>{
       if(VerifyOtpData && verifyOtpIsSuccess){
@@ -236,10 +241,6 @@ function SignUp({
           dispatch(setSignUpData({...signUpData,isVerified:true}))
           setStepsWithPhone(3)
           toast.success("phone number verified")
-        }
-        if(signWithEmail){
-          setStepsWithEmail(3)
-          toast.success("Email verified")
         }
       }
       if(verifyOtpIsError){
@@ -251,14 +252,7 @@ function SignUp({
 
     useEffect(()=>{
       if(finalizeRegistrationData && finalizeRegistrationIsSuccess){
-        //console.log("finalize registration data:",finalizeRegistrationData)
         if(signWithPhone){
-          toast.success("user registered successfully login")
-          dispatch(setSignUpData(initialState.signUpData))
-          onClose()
-          setSignIn(true)
-        }
-        if(signWithEmail){
           toast.success("user registered successfully login")
           dispatch(setSignUpData(initialState.signUpData))
           onClose()
@@ -273,12 +267,8 @@ function SignUp({
 
 
     const onsubmitEmail=(data:StepOneDataEmail)=>{
-      if(data.email){
-        dispatch(setSignUpData({...signUpData,email:data.email}))
-        RegisterEmail({email:data.email})
-        return
-      }
-      console.log("unable to register with email!")
+      dispatch(setSignUpData({...signUpData, name: data.name, email: data.email}))
+      setStepsWithEmail(2)
     }
 
     const phoneSubmit=(data:StepOneData)=>{
@@ -291,19 +281,11 @@ function SignUp({
     }
 
     const phoneVerification=(data:StepTwoData)=>{
-      if(data.code){
-        if(signWithEmail){
-          verifyOtp({
-            email:signUpData.email,
-            otp:data.code
-          })
-        }
-        if(signWithPhone){
-          verifyOtp({
-            phone:signUpData.phone,
-            otp:data.code
-          })
-        }
+      if(data.code && signWithPhone){
+        verifyOtp({
+          phone:signUpData.phone,
+          otp:data.code
+        })
       }
     }
 
@@ -313,14 +295,20 @@ function SignUp({
         registerStepThreeReset({cpassword:""})
         return
       }
-      signWithPhone && finalizeRegistration({
-        phone:signUpData.phone,
-        password:data.password
-      })
-      signWithEmail && finalizeRegistration({
-        email:signUpData.email,
-        password:data.password
-      })
+      if (signWithPhone) {
+        finalizeRegistration({
+          phone: signUpData.phone,
+          password: data.password,
+        })
+      }
+      if (signWithEmail) {
+        signup({
+          name: signUpData.name,
+          email: signUpData.email,
+          password: data.password,
+          role: 'USER',
+        })
+      }
     }
 
 
@@ -391,7 +379,7 @@ function SignUp({
             signWithEmail && (
               <div className="">
                 <div className="mt-5">
-                  <span className="text-[24px] font-bold text-darkBlue ">Your email address</span>
+                  <span className="text-[24px] font-bold text-darkBlue ">Sign up with email</span>
                 </div>
                 <div className="flex items-center justify-between mt-5">
                   <Button
@@ -409,10 +397,6 @@ function SignUp({
                     <div className={stepsWithEmail >=2 ? "w-8 h-8 rounded-full bg-lightBlue flex items-center justify-center":"w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center"}>
                       <span className="text-white font-semibold">2</span>
                     </div>
-                    <div className="border-t-2 border-dashed mx-1 border-gray-500 w-5"></div>
-                    <div className={stepsWithEmail ===3 ? "w-8 h-8 rounded-full bg-lightBlue flex items-center justify-center":"w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center"}>
-                      <span className="text-white font-semibold">3</span>
-                    </div>
                   </div>
                 </div>
 
@@ -422,9 +406,21 @@ function SignUp({
                       className=""
                     >
                       <div className="my-5">
-                        <span className="text-lightGray">Provide your email to sign up</span>
+                        <span className="text-lightGray">Provide your name and email</span>
                       </div>
                       <form onSubmit={handleSubmitStepOneWithEmail(onsubmitEmail)} className="">
+                        <div className="flex flex-col space-y-1 my-5">
+                            <label className="font-semibold">Full name</label>
+                            <div className="relative">
+                                <Input 
+                                    type="text"
+                                    {...registerStepOneWithEmail("name")}
+                                    className="h-12 rounded-xl indent-3 text-black lg:text-md"
+                                    placeholder="Jane Doe"
+                                />
+                                {errorsStepOneWithEmail.name && <span className="text-red-600 mt-2">{errorsStepOneWithEmail.name?.message}</span> }
+                            </div>
+                        </div>
                         <div className="flex flex-col space-y-1 my-5">
                             <label className="font-semibold">Email</label>
                             <div className="relative">
@@ -443,7 +439,7 @@ function SignUp({
                           type="submit"
                           className="text-white w-full h-12 rounded-[100px] bg-darkBlue"
                         >
-                          { registerEmailIsLoading ? <LoadingComponent /> :"Continue"}
+                          Continue
                         </Button>
                       </form>
                       <div className="flex space-x-2 items-center justify-center my-5">
@@ -465,48 +461,9 @@ function SignUp({
                     <div
                       className=""
                     >
-                      <div className="flex space-x-2 items-center my-5">
-                        <span className="text-lightGray">Enter verification code sent to</span>
-                        <span className="text-lightBlue font-semibold">mail@mail.com</span>
-                      </div>
-                      <form onSubmit={handleSubmitStepTwoWithPhone(phoneVerification)} className="">
-                        <div className="flex flex-col space-y-1 my-5">
-                            <label className="font-semibold">Verification code</label>
-                            <div className="relative">
-                                <FaHashtag className="absolute top-4 left-3" size={18} />
-                                <Input 
-                                    type="text"
-                                    {...registerStepTwoWithPhone("code")}
-                                    className="h-12 rounded-xl indent-8 text-black lg:text-md"
-                                    placeholder="Verification code"
-                                />
-                                {errorsStepTwoWithPhone.code && <span className="text-red-600 mt-2">{errorsStepTwoWithPhone.code?.message}</span>}
-                            </div>
-                        </div>
-                        <Button
-                          type="submit"
-                          disabled={verifyOtpIsLoading}
-                          className="text-white w-full h-12 rounded-[100px] bg-darkBlue"
-                        >
-
-                          {verifyOtpIsLoading ? <LoadingComponent /> : "Continue"}
-                        </Button>
-                      </form>
-                      
-                      <div className="flex items-center justify-center space-x-2 mt-5">
-                          <span>Have not got the code?</span>
-                          <span className="text-lightBlue font-semibold cursor-pointer hover:underline">Resend code</span>
-                      </div>
-                    </div>
-                  )
-                }
-                {
-                  stepsWithEmail === 3 && (
-                    <div
-                      className=""
-                    >
-                      <div className="my-5">
-                        <span className="text-lightGray">Set the password for your account</span>
+                      <div className="my-5 flex flex-col gap-1">
+                        <span className="text-lightGray">Set a password for</span>
+                        <span className="text-lightBlue font-semibold break-all">{signUpData.email || 'your account'}</span>
                       </div>
                       <form onSubmit={handleSubmitStepThreeWithPhone(finalizeRegistrationOnSubmit)} className="">
                         <div className="flex flex-col space-y-1 my-5">
@@ -547,10 +504,10 @@ function SignUp({
                         </div>
                         <Button
                           type="submit"
-                          disabled={finalizeRegistrationIsLoading}
+                          disabled={signupIsLoading}
                           className="text-white w-full h-12 rounded-[100px] bg-darkBlue"
                         >
-                          {finalizeRegistrationIsLoading ? <LoadingComponent /> :"Continue"}
+                          {signupIsLoading ? <LoadingComponent /> :"Create account"}
                         </Button>
                       </form>
                     </div>
