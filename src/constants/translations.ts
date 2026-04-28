@@ -336,8 +336,6 @@ export const translations: Translations = {
     "createFirstBMC": "Create my first BMC",
     "createdAt": "Created:",
     "type": "Type:",
-    "completed": "Completed",
-    "inProgress": "In Progress", 
     "notStarted": "Not Started",
     "deleteBusiness": "Delete Business",
     "deletePlan": "Delete Plan",
@@ -622,8 +620,6 @@ export const translations: Translations = {
     "aiSuggestions": "AI Suggestions",
     
     // Business Plan Layout
-    "businessPlan": "Business Plan",
-    "initialSetup": "Initial Setup",
     "editYourPlan": "Edit and customize your business plan",
     "completeSetup": "Complete setup to unlock your plan",
     "planSaved": "Plan Saved",
@@ -1124,8 +1120,6 @@ export const translations: Translations = {
     "createFirstBMC": "Créer mon premier BMC",
     "createdAt": "Créé :",
     "type": "Type :",
-    "completed": "Terminé",
-    "inProgress": "En cours", 
     "notStarted": "Non démarré",
     "deleteBusiness": "Supprimer l'entreprise",
     "deletePlan": "Supprimer le plan",
@@ -1410,8 +1404,6 @@ export const translations: Translations = {
     "aiSuggestions": "Suggestions IA",
     
     // Business Plan Layout
-    "businessPlan": "Plan d'affaires",
-    "initialSetup": "Configuration initiale",
     "editYourPlan": "Modifiez et personnalisez votre plan d'affaires",
     "completeSetup": "Complétez la configuration pour débloquer votre plan",
     "planSaved": "Plan sauvegardé",
