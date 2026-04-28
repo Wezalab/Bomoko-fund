@@ -47,6 +47,26 @@ export const userService=splitApi.injectEndpoints({
                 }
             }
         }),
+        /** Local email/password account — matches POST /api/auth/signup */
+        signup:builder.mutation({
+            query(data:{
+                name:string
+                email:string
+                password:string
+                role?:string
+            }){
+                return{
+                    url:"/auth/signup",
+                    method:"POST",
+                    body:{
+                        name:data.name,
+                        email:data.email,
+                        password:data.password,
+                        role:data.role ?? 'USER',
+                    }
+                }
+            }
+        }),
         editProfile:builder.mutation({
             query({userId,data}){
                 return{
@@ -163,6 +183,7 @@ export const {
     useRegisterEmailMutation,
     useLoginPhoneMutation,
     useRegisterMutation,
+    useSignupMutation,
     useGoogleAuthCallbackMutation,
     useCheckGoogleUserMutation,
     useCheckGoogleUserWithTokenMutation,
