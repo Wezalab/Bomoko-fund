@@ -90,10 +90,16 @@ export type ProjectAttachment = {
   // Enhanced authentication response types
   export type LoginResponse = {
     message: string;
-    token: string;
+    /** Legacy top-level JWT */
+    token?: string;
     jwtToken?: string;
     userId?: string;
-    userDetails: User;
+    userDetails?: User;
+    /** API shape: JWT and profile nested under `user` */
+    user?: {
+      token?: string;
+      user?: User;
+    };
   };
 
   export type GoogleAuthResponse = {
