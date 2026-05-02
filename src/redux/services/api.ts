@@ -100,7 +100,7 @@ const baseQuery=fetchBaseQuery({
 const splitApi=createApi({
     reducerPath: 'splitApi',
     baseQuery: baseQuery,
-    tagTypes:[],
+    tagTypes:['Entreprise'],
     endpoints:()=>({})
 })
 

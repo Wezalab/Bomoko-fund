@@ -210,14 +210,31 @@ export const ventureService = splitApi.injectEndpoints({
       }
     }),
     /**
-     * GET /entreprises — backend returns ALL ventures; we filter by owner._id
-     * (or owner === userId for legacy non-populated rows) on the client and
-     * normalize each row into the existing `Venture` shape so the dashboard
-     * UI keeps reading `businessName`, `country`, `businessTypes`, `status`
-     * without changes.
+     * GET /entreprises?owner=<userId> — asks the backend to return only the
+     * current user's entreprises. We still filter client-side as a defensive
+     * net for backends that don't honor the query param (so users never see
+     * each other's data). Each row is normalized into the existing `Venture`
+     * shape so the dashboard UI keeps reading `businessName`, `country`,
+     * `businessTypes`, `status` without changes.
      */
     getMyEntreprises: builder.query<Venture[], { userId: string }>({
-      query: () => '/entreprises',
+      query: ({ userId }) => {
+        const params = new URLSearchParams();
+        if (userId) {
+          // Send both keys so a backend that uses either name will filter.
+          params.set('owner', userId);
+          params.set('userId', userId);
+        }
+        const qs = params.toString();
+        return qs ? `/entreprises?${qs}` : '/entreprises';
+      },
+      providesTags: (result) =>
+        result && Array.isArray(result)
+          ? [
+              ...result.map((e) => ({ type: 'Entreprise' as const, id: e._id })),
+              { type: 'Entreprise' as const, id: 'LIST' },
+            ]
+          : [{ type: 'Entreprise' as const, id: 'LIST' }],
       transformResponse: (response: any, _meta, arg: { userId: string }): Venture[] => {
         const list: any[] = Array.isArray(response)
           ? response
@@ -271,6 +288,8 @@ export const ventureService = splitApi.injectEndpoints({
         method: 'POST',
         body,
       }),
+      // Refetch the dashboard list as soon as a new entreprise is saved.
+      invalidatesTags: [{ type: 'Entreprise', id: 'LIST' }],
       transformResponse: (response: any): Entreprise => {
         return response?.data || response?.entreprise || response;
       },
