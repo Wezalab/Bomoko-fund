@@ -21,12 +21,18 @@ import { businessPlanApi } from './services/businessPlanServices';
 
 
 const persistConfig = {
-  key: 'root', // key for the persisted data in localStorage
-  storage,     // storage mechanism, here it's localStorage
-  
+  key: 'root',
+  storage,
+  // Bump this whenever the persisted shape changes incompatibly so old
+  // localStorage payloads are discarded instead of rehydrated.
+  version: 2,
+  // RTK Query slices are HTTP-response caches — they MUST NOT be persisted.
+  // Persisting them causes "Cannot read properties of undefined (reading
+  // '<TagType>')" errors after a deploy that adds new tagTypes, because
+  // older cached state is missing the new `provided.<TagType>` buckets.
+  blacklist: [splitApi.reducerPath, businessPlanApi.reducerPath],
 };
 
-// Combine your reducers
 const reducers = combineReducers({
     projectReducer,
     userReducer,
