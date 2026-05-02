@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
@@ -9,6 +9,27 @@ import { selectUser, selectToken, setToken, setUser } from '@/redux/slices/userS
 import { useTranslation } from '@/lib/TranslationContext';
 import { apiUrl } from '@/lib/env';
 import { getLoginJwt, getLoginUserRecord, mapLoginResponseToUserFields } from '@/lib/authResponse';
+
+const GOOGLE_USERINFO_URL = 'https://www.googleapis.com/oauth2/v3/userinfo';
+
+/**
+ * Some Google Workspace tenants strip the `picture` claim from the FedCM
+ * Sign-in-with-Google JWT. In that case we need an OAuth access_token to
+ * call the userinfo endpoint, which always returns the real photo URL
+ * (or Google's default circle-with-initial avatar if the user has none).
+ */
+async function fetchGoogleUserInfoPicture(accessToken: string): Promise<string | undefined> {
+  try {
+    const res = await fetch(GOOGLE_USERINFO_URL, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    if (!res.ok) return undefined;
+    const info = (await res.json()) as { picture?: string };
+    return info?.picture;
+  } catch {
+    return undefined;
+  }
+}
 
 interface SignedInUser {
   name: string;
@@ -68,12 +89,49 @@ const LoginPage: React.FC = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Applies a Google profile picture URL to both Redux and the local
+  // signed-in card, replacing the initials fallback.
+  const applyPicture = (picture: string) => {
+    if (!picture) return;
+    setImgError(false);
+    // setUser replaces the whole user object, so merge with the latest one.
+    dispatch(setUser({ ...currentUser, profile: picture }));
+    setSignedInUser((prev) => (prev ? { ...prev, picture } : prev));
+  };
+
+  // Secondary OAuth flow: requests an access_token (implicit flow) so we can
+  // call Google's /userinfo endpoint and retrieve the real profile picture
+  // for users whose ID-token JWT omits the `picture` claim (common on
+  // Google Workspace tenants).
+  const requestGooglePicture = useGoogleLogin({
+    flow: 'implicit',
+    scope: 'openid email profile',
+    onSuccess: async (tokenResponse) => {
+      const picture = await fetchGoogleUserInfoPicture(tokenResponse.access_token);
+      if (picture) applyPicture(picture);
+    },
+    onError: (err) => {
+      // Non-fatal: user denied the extra scope or the popup was blocked.
+      // The signed-in card just keeps showing the initials avatar.
+      console.warn('Google profile picture access not granted:', err);
+    },
+  });
+
   const handleGoogleSuccess = async (credentialResponse: any) => {
     setIsLoading(true);
     setImgError(false);
 
     // Decode the Google JWT directly — most reliable source for the profile picture
     const googlePayload = decodeGoogleJwt(credentialResponse.credential);
+
+    // If the JWT didn't carry a `picture` claim (some Workspace accounts
+    // strip it), kick off the access_token flow IMMEDIATELY — before any
+    // `await` — so the popup runs inside the original user-gesture context
+    // and isn't blocked by the browser. The result is applied
+    // asynchronously via `applyPicture()` once userinfo returns.
+    if (!googlePayload.picture) {
+      requestGooglePicture();
+    }
 
     try {
       const backendResponse = await fetch(`${apiUrl}/auth/exchange-google-token`, {
