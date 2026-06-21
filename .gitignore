@@ -31,3 +31,4 @@ test-openai-browser.html
 .netlify
 .qodo
 img-test/
+/local
