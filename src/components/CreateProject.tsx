@@ -5,33 +5,55 @@ import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Input } from "./ui/input";
 import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils";
-import { CalendarIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  ArrowLeft,
+  ArrowRight,
+  ChevronRight,
+  FileText,
+  DollarSign,
+  Upload,
+  Link2,
+  Paperclip,
+  ExternalLink,
+  CheckCircle2,
+  AlertCircle,
+  ImageIcon,
+  LayoutGrid,
+} from "lucide-react";
 import { addDays, format } from "date-fns";
 import { useEffect, useState } from "react";
 import MediaUpload from "./MediaUpload";
-import {z} from 'zod'
+import { z } from 'zod'
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCreateProjectMutation, useGetProjectCategoriesQuery, useGetProjectTypesQuery, useGetProvincesQuery, useGetTerritoriesQuery } from "@/redux/services/projectServices";
+import {
+  useCreateProjectMutation,
+  useGetProjectCategoriesQuery,
+  useGetProjectTypesQuery,
+  useGetProvincesQuery,
+  useGetTerritoriesQuery,
+} from "@/redux/services/projectServices";
 import { selectUser } from "@/redux/slices/userSlice";
 import LoadingComponent from "./LoadingComponent";
 import toast from "react-hot-toast";
 import PreviewProject from "./PreviewProject";
-import PopularImage1 from '../assets/popularProjectImg1.png'
-import PopularImage2 from '../assets/popularProjectProfile1.png'
-import PopularImage3 from '../assets/popularProjectProfile2.png'
-import PopularImage4 from '../assets/popularProjectProfile3.png'
 import axios from 'axios';
 import { apiUrl } from "@/lib/env";
-
+import { useGetUserCanvasesQuery } from "@/redux/services/bmcServices";
+import { useGetUserBusinessPlansQuery } from "@/redux/services/businessPlanServices";
 
 
 function formatDate(date: Date): string {
@@ -40,7 +62,6 @@ function formatDate(date: Date): string {
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
-
 
 const formSchema = z.object({
   name: z.string().min(3, "Project name is required"),
@@ -58,7 +79,6 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-// Define interfaces for our data types
 interface Province {
   _id: string;
   name: string;
@@ -69,1305 +89,861 @@ interface Territory {
   _id: string;
   name: string;
   status: string;
-  province?: {
-    _id: string;
-    name: string;
-  };
+  province?: { _id: string; name: string };
 }
 
 function CreateProject() {
-    const project=useAppSelector(selectProject)
-    const navigate=useNavigate()
-    const [date, setDate] = useState<Date>(new Date());
-    const [upload,setUpload]=useState(true)
-    const [embededLink,setEmbededLink]=useState(false)
-    const [unsplash,setUnsplash]=useState(false)
-    const user=useAppSelector(selectUser)
-    const [uploadedMedias, setUploadedMdias] = useState<File[]>([]);
-    const [uploadedAttachments, setUploadedAttachments] = useState<File[]>([]);
-    const [preview,setPreview]=useState(false)
-    const [next,setNext]=useState(true)
-    const formattedDate =formatDate(date);
+  const _project = useAppSelector(selectProject)
+  const navigate = useNavigate()
+  const [date, setDate] = useState<Date>(new Date());
+  const [upload, setUpload] = useState(true)
+  const [embededLink, setEmbededLink] = useState(false)
+  const [unsplash, setUnsplash] = useState(false)
+  const user = useAppSelector(selectUser)
+  const [uploadedMedias, setUploadedMdias] = useState<File[]>([]);
+  const [uploadedAttachments, setUploadedAttachments] = useState<File[]>([]);
+  const [preview, setPreview] = useState(false)
+  const [next, setNext] = useState(true)
+  const formattedDate = formatDate(date);
 
-    // Debug flag to print detailed province/territory data
-    const [debugDataPrinted, setDebugDataPrinted] = useState(false);
-    
-    // Immediate data prefetch
-    useEffect(() => {
-      // This improves load time by forcing immediate data fetching
-      console.log("Forcing immediate provinces and territories data fetch");
-      
-      // You can add specific fetch logic here if needed
-      if (!getProvincesData && !getProvincesIsLoading) {
-        console.log("No provinces data available, triggering fetch");
-        // Trigger a data refetch if needed
-      }
-      
-      if (!getTerritoriesData && !getTerritoriesIsLoading) {
-        console.log("No territories data available, triggering fetch");
-        // Trigger a data refetch if needed
-      }
-    }, []);
+  // Existing documents for smart attachments
+  const { data: bmcCanvases } = useGetUserCanvasesQuery();
+  const { data: userBusinessPlans, isError: bpError } = useGetUserBusinessPlansQuery(
+    { userId: user._id },
+    { skip: !user._id }
+  );
+  const businessPlans: any[] = (userBusinessPlans as any)?.businessPlans
+    || (userBusinessPlans as any)?.data
+    || (Array.isArray(userBusinessPlans) ? userBusinessPlans : []);
 
-    const {
-      register,
-      handleSubmit,
-      setValue,
-      reset,
-      getValues,
-      watch,
-      formState: { errors },
-    } = useForm<FormValues>({
-      resolver: zodResolver(formSchema),
-      defaultValues:{
-        type:"",
-        category:"",
-        province:"",
-        territory:"",
-        currency:"USD"
-      }
-    });
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    getValues,
+    watch,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      type: "",
+      category: "",
+      province: "",
+      territory: "",
+      currency: "USD",
+    },
+  });
 
-    //const attachments = useWatch<FileList | undefined>({ name: "attachments" });
-    
-    const handleMediasChange = (files: File[]) => {
-      setValue("medias",files)
-      setUploadedMdias(files);
-    };
+  const handleMediasChange = (files: File[]) => {
+    setValue("medias", files);
+    setUploadedMdias(files);
+  };
 
-    const handleAttachmentsChange = (files: File[]) => {
-      setValue("attachments",files)
-      setUploadedAttachments(files);
-    };
-    
-    const [
-      CreateProject,
-      {
-        data:createProjectData,
-        error:createProjectError,
-        isSuccess:createProjectIsSuccess,
-        isError:createProjectIsError,
-        isLoading:createProjectIsLoading
-      }
-    ]=useCreateProjectMutation()
+  const handleAttachmentsChange = (files: File[]) => {
+    setValue("attachments", files);
+    setUploadedAttachments(files);
+  };
 
-    const 
-      {
-        data:getProvincesData,
-        error:getProvincesError,
-        isSuccess:getProvincesIsSuccess,
-        isError:getProvincesIsError,
-        isLoading:getProvincesIsLoading
-      }=useGetProvincesQuery(undefined)
+  const [
+    CreateProjectMutation,
+    {
+      data: createProjectData,
+      error: createProjectError,
+      isSuccess: createProjectIsSuccess,
+      isError: createProjectIsError,
+      isLoading: createProjectIsLoading,
+    },
+  ] = useCreateProjectMutation();
 
-    const {
-      data:getTerritoriesData,
-      error:getTerritoriesError,
-      isSuccess:getTerritoriesIsSuccess,
-      isError:getTerritoriesIsError,
-      isLoading:getTerritoriesIsLoading
-    }=useGetTerritoriesQuery(undefined)
+  const { data: getProvincesData, isLoading: getProvincesIsLoading } = useGetProvincesQuery(undefined);
+  const { data: getTerritoriesData, isLoading: getTerritoriesIsLoading } = useGetTerritoriesQuery(undefined);
+  const { data: projectCategoriesData, isLoading: projectCategoriesIsLoading } = useGetProjectCategoriesQuery(undefined);
+  const { data: projectTypesData, isLoading: projectTypesIsLoading } = useGetProjectTypesQuery(undefined);
 
-    const {
-      data:projectCategoriesData,
-      error:projectCategoriesError,
-      isError:projectCategoriesIsError,
-      isLoading:projectCategoriesIsLoading,
-      isSuccess:projectCategoriesIsSuccess
-    }=useGetProjectCategoriesQuery(undefined)
+  // ── Data normalization helpers ──────────────────────────────────────────────
 
-    // Debug log for project categories response
-    useEffect(() => {
-      if(projectCategoriesIsSuccess) {
-        // console.log("[DEBUG] Project Categories API Response:", projectCategoriesData);
-        // console.log("[DEBUG] Project Categories Count:", projectCategoriesData?.length);
-      }
-      if(projectCategoriesIsError) {
-        console.error("[DEBUG ERROR] Project Categories API Error:", projectCategoriesError);
-        console.error("[DEBUG ERROR] Project Categories Error Status:", (projectCategoriesError as any)?.status);
-        console.error("[DEBUG ERROR] Project Categories Error Data:", (projectCategoriesError as any)?.data);
-      }
-    }, [projectCategoriesIsSuccess, projectCategoriesIsError, projectCategoriesData, projectCategoriesError]);
+  const validateCategoryData = (data: any[]) => {
+    if (!Array.isArray(data)) return [];
+    return data.map(item => {
+      if (!item || typeof item !== 'object') return null;
+      const name = item.name || item.title || item.label || item.categoryName || "Unknown Category";
+      return { _id: item._id || item.id || `id-${Math.random()}`, name, status: item.status || "ENABLED" };
+    }).filter(Boolean);
+  };
 
-    const {
-      data:projectTypesData,
-      error:projectTypesError,
-      isSuccess:projectTypesIsSuccess,
-      isError:projectTypesIsError,
-      isLoading:projectTypesIsLoading
-    }=useGetProjectTypesQuery(undefined)
+  const validateTypeData = (data: any[]) => {
+    if (!Array.isArray(data)) return [];
+    return data.map(item => {
+      if (!item || typeof item !== 'object') return null;
+      const name = item.name || item.title || item.label || item.typeName || "Unknown Type";
+      return { _id: item._id || item.id || `id-${Math.random()}`, name, status: item.status || "ENABLED" };
+    }).filter(Boolean);
+  };
 
-    // Debug log for project types response
-    useEffect(() => {
-      if(projectTypesIsSuccess) {
-        // console.log("[DEBUG] Project Types API Response:", projectTypesData);
-        // console.log("[DEBUG] Project Types Count:", projectTypesData?.length);
-      }
-      if(projectTypesIsError) {
-        console.error("[DEBUG ERROR] Project Types API Error:", projectTypesError);
-        console.error("[DEBUG ERROR] Project Types Error Status:", (projectTypesError as any)?.status);
-        console.error("[DEBUG ERROR] Project Types Error Data:", (projectTypesError as any)?.data);
-      }
-    }, [projectTypesIsSuccess, projectTypesIsError, projectTypesData, projectTypesError]);
-
-    const validateCategoryData = (data: any[]) => {
-      if (!Array.isArray(data)) {
-        console.error("[DEBUG ERROR] Project categories is not an array");
-        return [];
-      }
-      
-      // Filter and normalize category data
-      return data.map(item => {
-        // Check if item has required properties
-        if (!item || typeof item !== 'object') {
-          console.error("[DEBUG ERROR] Category item is not an object:", item);
-          return null;
-        }
-        
-        // Check for potential alternate property names (e.g. 'title' instead of 'name')
-        const possibleKeys = Object.keys(item);
-        // console.log("[DEBUG] Category item keys:", possibleKeys);
-        
-        // Try to find the name property - check various possibilities
-        let itemName = item.name;
-        if (!itemName) {
-          if (item.title) {
-            // console.log("[DEBUG] Using 'title' property instead of 'name' for category");
-            itemName = item.title;
-          } else if (item.label) {
-            // console.log("[DEBUG] Using 'label' property instead of 'name' for category");
-            itemName = item.label;
-          } else if (item.categoryName) {
-            // console.log("[DEBUG] Using 'categoryName' property instead of 'name' for category");
-            itemName = item.categoryName;
-          }
-        }
-        
-        // Create normalized item with defaults for missing properties
-        const normalizedItem = {
-          _id: item._id || item.id || `temp-id-${Math.random()}`,
-          name: itemName || "Unknown Category",
-          status: item.status || item.state || "ENABLED"
-        };
-        
-        // console.log("[DEBUG] Normalized category item:", normalizedItem);
-        return normalizedItem;
-      }).filter(Boolean); // Remove null items
-    };
-
-    const validateTypeData = (data: any[]) => {
-      if (!Array.isArray(data)) {
-        console.error("[DEBUG ERROR] Project types is not an array");
-        return [];
-      }
-      
-      // Filter and normalize type data
-      return data.map(item => {
-        // Check if item has required properties
-        if (!item || typeof item !== 'object') {
-          console.error("[DEBUG ERROR] Type item is not an object:", item);
-          return null;
-        }
-        
-        // Check for potential alternate property names (e.g. 'title' instead of 'name')
-        const possibleKeys = Object.keys(item);
-        // console.log("[DEBUG] Type item keys:", possibleKeys);
-        
-        // Try to find the name property - check various possibilities
-        let itemName = item.name;
-        if (!itemName) {
-          if (item.title) {
-            // console.log("[DEBUG] Using 'title' property instead of 'name' for type");
-            itemName = item.title;
-          } else if (item.label) {
-            // console.log("[DEBUG] Using 'label' property instead of 'name' for type");
-            itemName = item.label;
-          } else if (item.typeName) {
-            // console.log("[DEBUG] Using 'typeName' property instead of 'name' for type");
-            itemName = item.typeName;
-          }
-        }
-        
-        // Create normalized item with defaults for missing properties
-        const normalizedItem = {
-          _id: item._id || item.id || `temp-id-${Math.random()}`,
-          name: itemName || "Unknown Type",
-          status: item.status || item.state || "ENABLED"
-        };
-        
-        // console.log("[DEBUG] Normalized type item:", normalizedItem);
-        return normalizedItem;
-      }).filter(Boolean); // Remove null items
-    };
-
-    const validateProvinceData = (data: any[]) => {
-      console.log("[DEBUG] Original province data for validation:", data);
-      if (!data) {
-        console.error("[DEBUG ERROR] Provinces data is null or undefined");
-        return [];
-      }
-      
-      if (!Array.isArray(data)) {
-        console.error("[DEBUG ERROR] Provinces is not an array, type:", typeof data);
-        // Try to handle string response case (sometimes APIs return JSON strings)
-        if (typeof data === 'string') {
-          try {
-            const parsed = JSON.parse(data);
-            if (Array.isArray(parsed)) {
-              console.log("[DEBUG] Successfully parsed provinces string data to array");
-              data = parsed;
-            } else {
-              console.error("[DEBUG ERROR] Parsed provinces data is not an array");
-              return [];
-            }
-          } catch (e) {
-            console.error("[DEBUG ERROR] Failed to parse provinces string data:", e);
-            return [];
-          }
-        } else {
-          return [];
-        }
-      }
-      
-      // Always return a safe copy with fallbacks
-      return data.map(item => {
-        if (!item) {
-          console.log("[DEBUG] Province item is null or undefined, creating placeholder");
-          return {
-            _id: `placeholder-${Math.random()}`,
-            name: "Unknown Province",
-            status: "ENABLED"
-          };
-        }
-        
-        // Direct property access with fallbacks
-        const id = item._id || item.id || `province-${Math.random()}`;
-        const name = item.name || item.title || item.label || "Unknown Province";
-        const status = item.status || item.state || "ENABLED";
-        
-        return { _id: id, name, status };
-      });
-    };
-
-    const validateTerritoryData = (data: any[]) => {
-      console.log("[DEBUG] Original territory data for validation:", data);
-      if (!data) {
-        console.error("[DEBUG ERROR] Territories data is null or undefined");
-        return [];
-      }
-      
-      if (!Array.isArray(data)) {
-        console.error("[DEBUG ERROR] Territories is not an array, type:", typeof data);
-        // Try to handle string response case
-        if (typeof data === 'string') {
-          try {
-            const parsed = JSON.parse(data);
-            if (Array.isArray(parsed)) {
-              console.log("[DEBUG] Successfully parsed territories string data to array");
-              data = parsed;
-            } else {
-              console.error("[DEBUG ERROR] Parsed territories data is not an array");
-              return [];
-            }
-          } catch (e) {
-            console.error("[DEBUG ERROR] Failed to parse territories string data:", e);
-            return [];
-          }
-        } else {
-          return [];
-        }
-      }
-      
-      // Always return a safe copy with fallbacks
-      return data.map(item => {
-        if (!item) {
-          console.log("[DEBUG] Territory item is null or undefined, creating placeholder");
-          return {
-            _id: `placeholder-${Math.random()}`,
-            name: "Unknown Territory",
-            status: "ENABLED"
-          };
-        }
-        
-        // Territory data structure might include province object
-        const id = item._id || item.id || `territory-${Math.random()}`;
-        const name = item.name || item.title || item.label || "Unknown Territory";
-        const status = item.status || item.state || "ENABLED";
-        
-        // Also extract province information if available
-        const province = item.province ? {
-          _id: item.province._id || item.province.id || "",
-          name: item.province.name || ""
-        } : null;
-        
-        return { _id: id, name, status, province };
-      });
-    };
-
-    const normalizedCategories = projectCategoriesData ? validateCategoryData(projectCategoriesData) : [];
-    const normalizedTypes = projectTypesData ? validateTypeData(projectTypesData) : [];
-    const normalizedProvinces = getProvincesData ? validateProvinceData(getProvincesData) : [];
-    const normalizedTerritories = getTerritoriesData ? validateTerritoryData(getTerritoriesData) : [];
-
-    // Log the normalized data
-    useEffect(() => {
-      if (projectCategoriesIsSuccess) {
-        // console.log("[DEBUG] Normalized categories:", normalizedCategories);
-        // console.log("[DEBUG] Normalized categories count:", normalizedCategories.length);
-      }
-    }, [projectCategoriesIsSuccess, normalizedCategories]);
-
-    useEffect(() => {
-      if (projectTypesIsSuccess) {
-        // console.log("[DEBUG] Normalized types:", normalizedTypes);
-        // console.log("[DEBUG] Normalized types count:", normalizedTypes.length);
-      }
-    }, [projectTypesIsSuccess, normalizedTypes]);
-
-    // Additional debug for provinces and territories
-    useEffect(() => {
-      if (getProvincesIsSuccess && !debugDataPrinted) {
-        console.log("[DEBUG PROVINCE] Raw provinces data:", getProvincesData);
-        console.log("[DEBUG PROVINCE] Provinces data type:", typeof getProvincesData);
-        console.log("[DEBUG PROVINCE] Provinces data is array?:", Array.isArray(getProvincesData));
-        if (getProvincesData && Array.isArray(getProvincesData)) {
-          console.log("[DEBUG PROVINCE] Provinces length:", getProvincesData.length);
-          if (getProvincesData.length > 0) {
-            console.log("[DEBUG PROVINCE] First province:", getProvincesData[0]);
-            console.log("[DEBUG PROVINCE] First province keys:", getProvincesData[0] ? Object.keys(getProvincesData[0]) : "No keys");
-          }
-        }
-        
-        console.log("[DEBUG PROVINCE] Normalized provinces:", normalizedProvinces);
-        console.log("[DEBUG PROVINCE] Normalized provinces count:", normalizedProvinces.length);
-        
-        setDebugDataPrinted(true);
-      }
-    }, [getProvincesIsSuccess, getProvincesData, normalizedProvinces, debugDataPrinted]);
-
-    useEffect(() => {
-      if (getTerritoriesIsSuccess && !debugDataPrinted) {
-        console.log("[DEBUG TERRITORY] Raw territories data:", getTerritoriesData);
-        console.log("[DEBUG TERRITORY] Normalized territories:", normalizedTerritories);
-        console.log("[DEBUG TERRITORY] Normalized territories count:", normalizedTerritories.length);
-      }
-    }, [getTerritoriesIsSuccess, getTerritoriesData, normalizedTerritories, debugDataPrinted]);
-
-    const onsubmit=async(data:FormValues)=>{
-      // console.log("[DEBUG] Form submission started with data:", data);
-      
-      if(!preview){
-        let current=getValues()
-        
-        setAllValues(current)
-        setPreview(true)
-        console.log("all values to preview",current)
-      }
-      
-      if(preview){
-        const formData = new FormData();
-        formData.append("name", data.name);
-        formData.append("type", data.type);
-        formData.append("category", data.category);
-        formData.append("description", data.description);
-        formData.append("province", data.province);
-        formData.append("territory", data.territory);
-        
-        formData.append("endDate", formattedDate);
-        formData.append("currency", data.currency);
-        formData.append("targetAmount", data.targetAmount?.toString());
-        formData.append("projectOwner", user._id);
-        
-
-        //! only works for single file upload
-        uploadedMedias.forEach((file) => {
-          formData.append("medias", file);
-        });
-      
-        uploadedAttachments.forEach((file) => {
-          formData.append("attachments", file);
-        });
-        
-
-        // adjust for array upload files
-        // uploadedMedias.forEach((file, index) => {
-        //   formData.append(`medias[${index}]`, file);
-        // });
-        
-        // uploadedAttachments.forEach((file, index) => {
-        //   formData.append(`attachments[${index}]`, file);
-        // });
-
-
-        try {
-          // console.log("[DEBUG] Calling CreateProject API with FormData");
-          const response = await CreateProject(formData).unwrap();
-          // console.log("[DEBUG] Project creation successful. Response:", response);
-          toast.success("Project created successfully!");
-          navigate("/projects");
-        } catch (err) {
-          console.error("[DEBUG ERROR] Project creation failed with error:", err);
-          // More detailed error logging
-          if ((err as any)?.status) {
-            console.error("[DEBUG ERROR] Error status:", (err as any).status);
-          }
-          if ((err as any)?.data) {
-            console.error("[DEBUG ERROR] Error response data:", (err as any).data);
-          }
-          toast.error("Failed to create project!");
-        }
-        
-        // console.log("medias",uploadedMedias)
-        // console.log("attachment",uploadedAttachments)
-        for (let [key, value] of formData.entries()) {
-          console.log(`[DEBUG] FormData entry - ${key}:`, value);
-        }
-
-
-      }
-      
-    }
-
-    const [allValues,setAllValues]=useState<FormValues>(()=>getValues())
-
-    useEffect(()=>{
-      if(createProjectData && createProjectIsSuccess){
-        console.log("created project successfully!",createProjectData)
-
-        reset()
-        setPreviewProject(false)
-        navigate("/projects")
-
-      }
-      if(createProjectIsError){
-        console.log("error while creating a project",createProjectError)
-        toast.error("cannot create project")
-      }
-    },[createProjectIsError,createProjectIsSuccess])
-
-    useEffect(()=>{
-      if(getProvincesData && getProvincesIsSuccess){
-        console.log("[DEBUG] Provinces data received:", getProvincesData);
-        console.log("[DEBUG] Provinces data length:", getProvincesData.length);
-        
-        // Check data structure
-        if (getProvincesData.length > 0) {
-          console.log("[DEBUG] Province item sample:", getProvincesData[0]);
-          console.log("[DEBUG] Province keys:", Object.keys(getProvincesData[0]));
-        }
-      }
-      if(getProvincesIsError){
-        console.log("[DEBUG] Getting provinces error:", getProvincesError);
-        if ((getProvincesError as any)?.status) {
-          console.error("[DEBUG] Provinces error status:", (getProvincesError as any).status);
-        }
-        if ((getProvincesError as any)?.data) {
-          console.error("[DEBUG] Provinces error data:", (getProvincesError as any).data);
-        }
-      }
-      if(getProvincesIsLoading) {
-        console.log("[DEBUG] Provinces are loading...");
-      }
-    },[getProvincesIsError,getProvincesIsSuccess,getProvincesIsLoading])
-
-    useEffect(()=>{
-      if(getTerritoriesIsSuccess && getTerritoriesData){
-        console.log("[DEBUG] Territories data received:", getTerritoriesData);
-        console.log("[DEBUG] Territories data length:", getTerritoriesData.length);
-        
-        // Check data structure
-        if (getTerritoriesData.length > 0) {
-          console.log("[DEBUG] Territory item sample:", getTerritoriesData[0]);
-          console.log("[DEBUG] Territory keys:", Object.keys(getTerritoriesData[0]));
-        }
-      }
-      if(getTerritoriesIsError){
-        console.log("[DEBUG] Error while getting territories:", getTerritoriesError);
-        if ((getTerritoriesError as any)?.status) {
-          console.error("[DEBUG] Territories error status:", (getTerritoriesError as any).status);
-        }
-        if ((getTerritoriesError as any)?.data) {
-          console.error("[DEBUG] Territories error data:", (getTerritoriesError as any).data);
-        }
-      }
-      if(getTerritoriesIsLoading) {
-        console.log("[DEBUG] Territories are loading...");
-      }
-    },[getTerritoriesIsSuccess,getTerritoriesIsError,getTerritoriesIsLoading])
-
-
-    useEffect(()=>{
-      if(projectCategoriesIsSuccess && projectCategoriesData){
-        //console.log("project categories data:",projectCategoriesData)
-      }
-      if(projectCategoriesIsError){
-        console.log("unable to fetch project categories",projectCategoriesError)
-      }
-    },[projectCategoriesIsSuccess,projectCategoriesIsError])
-
-    useEffect(()=>{
-      if(projectTypesIsSuccess && projectTypesData){
-        //console.log("project types data:",projectTypesData)
-      }
-      if(projectTypesIsError){
-        console.log("unable to fetch project types",projectTypesError)
-      }
-
-    },[projectTypesIsSuccess,projectTypesIsError])
-
-
-    //errors handling
-    useEffect(()=>{
-      console.log("errors",errors)
-    },[errors])
-
-    // Enhanced form validation error logging
-    useEffect(() => {
-      // console.log("[DEBUG] Form Errors:", errors);
-      if (Object.keys(errors).length > 0) {
-        // console.log("[DEBUG] Form has validation errors:");
-        Object.entries(errors).forEach(([field, error]) => {
-          console.error(`[DEBUG ERROR] Field: ${field}, Error:`, error);
-        });
-      }
-    }, [errors]);
-
-    // Watch form field changes
-    useEffect(() => {
-      const subscription = watch((value, { name, type }) => {
-        console.log(`[DEBUG] Form field "${name}" changed:`, value[name as keyof FormValues]);
-      });
-      return () => subscription.unsubscribe();
-    }, [watch]);
-
-    // Enhanced logging for Select dropdowns
-    const handleCategoryChange = (value: string) => {
-      console.log("[DEBUG INTERACTION] Category selected:", value);
-      console.log("[DEBUG INTERACTION] Available categories:", normalizedCategories);
-      console.log("[DEBUG INTERACTION] Found category object:", 
-        normalizedCategories.find(cat => cat && cat.name === value) || "Not found in normalized data");
-      
-      // Check if we're setting the value correctly
-      try {
-        setValue("category", value);
-        const currentValues = getValues();
-        console.log("[DEBUG INTERACTION] Form values after category selection:", currentValues);
-        console.log("[DEBUG INTERACTION] Category in form after selection:", currentValues.category);
-      } catch (error) {
-        console.error("[DEBUG INTERACTION ERROR] Error setting category value:", error);
-      }
-    };
-
-    const handleTypeChange = (value: string) => {
-      console.log("[DEBUG INTERACTION] Type selected:", value);
-      console.log("[DEBUG INTERACTION] Available types:", normalizedTypes);
-      console.log("[DEBUG INTERACTION] Found type object:", 
-        normalizedTypes.find(type => type && type.name === value) || "Not found in normalized data");
-      
-      // Check if we're setting the value correctly
-      try {
-        setValue("type", value);
-        const currentValues = getValues();
-        console.log("[DEBUG INTERACTION] Form values after type selection:", currentValues);
-        console.log("[DEBUG INTERACTION] Type in form after selection:", currentValues.type);
-      } catch (error) {
-        console.error("[DEBUG INTERACTION ERROR] Error setting type value:", error);
-      }
-    };
-
-    // State to track filtered territories based on selected province
-    const [filteredTerritories, setFilteredTerritories] = useState<Territory[]>([]);
-
-    // Update filtered territories when province changes
-    const handleProvinceChange = (value: string) => {
-      console.log("[PROVINCE CHANGE] Selected province:", value);
-      
-      // Set the province value in the form
-      setValue("province", value);
-      
-      // Clear the territory selection when province changes
-      setValue("territory", "");
-      
-      // Find the province object from the selected name
-      const allProvinces = getProvincesList();
-      const selectedProvince = allProvinces.find(p => p.name === value);
-      
-      if (selectedProvince) {
-        console.log("[PROVINCE CHANGE] Found province object:", selectedProvince);
-        
-        // Filter territories for the selected province
-        const allTerritories = directTerritories.length > 0 ? directTerritories : 
-                              (getTerritoriesData || fallbackTerritories);
-        
-        const filtered = allTerritories.filter((t: Territory) => 
-          t.province && 
-          (t.province._id === selectedProvince._id || t.province.name === selectedProvince.name)
-        );
-        
-        console.log(`[PROVINCE CHANGE] Found ${filtered.length} territories for province ${value}`);
-        setFilteredTerritories(filtered);
-        
-        // Automatically select the first territory if available
-        if (filtered.length > 0) {
-          setValue("territory", filtered[0].name);
-          console.log("[PROVINCE CHANGE] Auto-selected territory:", filtered[0].name);
-        }
+  const validateProvinceData = (data: any): Province[] => {
+    if (!data) return [];
+    let arr = data;
+    if (!Array.isArray(arr)) {
+      if (typeof arr === 'string') {
+        try { arr = JSON.parse(arr); } catch { return []; }
+        if (!Array.isArray(arr)) return [];
       } else {
-        console.log("[PROVINCE CHANGE] Could not find province object for:", value);
-        setFilteredTerritories([]);
+        return [];
       }
-    };
-
-    // Get the appropriate list of territories based on province selection
-    const getFilteredTerritoriesList = () => {
-      // If we have a filtered list based on province selection, use it
-      if (filteredTerritories.length > 0) {
-        return filteredTerritories;
-      }
-      
-      // Otherwise return all territories
-      return getTerritoriesList();
-    };
-
-    const handleShowPreview=(e:any)=>{
-      e.preventDefault()
-      
-      let current=getValues()
-      
-      setAllValues(current)
-      setPreview(true)
-      console.log("all values to preview",current)
     }
-    // useEffect(() => {
-    //   console.log("Watched values:", watch());
-    // }, [watch()]);
+    return arr.map((item: any) => {
+      if (!item) return { _id: `ph-${Math.random()}`, name: "Unknown Province", status: "ENABLED" };
+      return {
+        _id: item._id || item.id || `p-${Math.random()}`,
+        name: item.name || item.title || item.label || "Unknown Province",
+        status: item.status || "ENABLED",
+      };
+    });
+  };
 
-    //console.log("edit project page",project)
-    
-    // Direct API test for provinces and territories
-    useEffect(() => {
-      const testProvinceTerritory = async () => {
-        try {
-          console.log("[DEBUG] Testing direct API call to provinces and territories");
-          
-          // Test provinces endpoint
-          const provincesResponse = await axios.get(`${apiUrl}provinces`);
-          console.log("[DEBUG] Provinces Response status:", provincesResponse.status);
-          console.log("[DEBUG] Provinces Response data:", provincesResponse.data);
-          
-          if (Array.isArray(provincesResponse.data)) {
-            console.log("[DEBUG] Provinces data is an array with length:", provincesResponse.data.length);
-          } else {
-            console.log("[DEBUG] Provinces data is not an array:", typeof provincesResponse.data);
-          }
-          
-          // Test territories endpoint
-          const territoriesResponse = await axios.get(`${apiUrl}territories`);
-          console.log("[DEBUG] Territories Response status:", territoriesResponse.status);
-          console.log("[DEBUG] Territories Response data:", territoriesResponse.data);
-          
-          if (Array.isArray(territoriesResponse.data)) {
-            console.log("[DEBUG] Territories data is an array with length:", territoriesResponse.data.length);
-          } else {
-            console.log("[DEBUG] Territories data is not an array:", typeof territoriesResponse.data);
-          }
-        } catch (error) {
-          console.error("[DEBUG] Error testing provinces/territories API:", error);
-          if (axios.isAxiosError(error)) {
-            console.error("[DEBUG] Response:", error.response?.data);
-            console.error("[DEBUG] Status:", error.response?.status);
-            console.error("[DEBUG] Request URL:", error.config?.url);
-          }
-        }
+  const validateTerritoryData = (data: any): Territory[] => {
+    if (!data) return [];
+    let arr = data;
+    if (!Array.isArray(arr)) {
+      if (typeof arr === 'string') {
+        try { arr = JSON.parse(arr); } catch { return []; }
+        if (!Array.isArray(arr)) return [];
+      } else {
+        return [];
+      }
+    }
+    return arr.map((item: any) => {
+      if (!item) return { _id: `th-${Math.random()}`, name: "Unknown Territory", status: "ENABLED" };
+      return {
+        _id: item._id || item.id || `t-${Math.random()}`,
+        name: item.name || item.title || item.label || "Unknown Territory",
+        status: item.status || "ENABLED",
+        province: item.province ? { _id: item.province._id || "", name: item.province.name || "" } : undefined,
       };
-      
-      testProvinceTerritory();
-    }, []);
-    
-    // Direct API test
-    useEffect(() => {
-      const testAPI = async () => {
-        try {
-          // console.log("[DEBUG DIRECT API] Testing direct API call to /project-categories");
-          const response = await axios.get(`${apiUrl}project-categories`);
-          // console.log("[DEBUG DIRECT API] Response data:", response.data);
-          // console.log("[DEBUG DIRECT API] Response status:", response.status);
-          
-          // Check if the response is an array with expected properties
-          if (Array.isArray(response.data)) {
-            // console.log("[DEBUG DIRECT API] Response is an array with length:", response.data.length);
-            response.data.forEach((item, index) => {
-              // console.log(`[DEBUG DIRECT API] Item ${index}:`, item);
-              // console.log(`[DEBUG DIRECT API] Item ${index} has name:`, item.name ? "Yes" : "No");
-              // console.log(`[DEBUG DIRECT API] Item ${index} has _id:`, item._id ? "Yes" : "No");
-              // console.log(`[DEBUG DIRECT API] Item ${index} has status:`, item.status ? "Yes" : "No");
-            });
-          } else {
-            // console.log("[DEBUG DIRECT API] Response is not an array:", typeof response.data);
-          }
-        } catch (error) {
-          console.error("[DEBUG DIRECT API] Error testing API:", error);
-          if (axios.isAxiosError(error)) {
-            console.error("[DEBUG DIRECT API] Response:", error.response?.data);
-            console.error("[DEBUG DIRECT API] Status:", error.response?.status);
-          }
-        }
-      };
-      
-      testAPI();
-    }, []);
-    
-    // Debug component loading
-    useEffect(() => {
-      console.log("======= COMPONENT MOUNT DEBUG =======");
-      console.log("Provinces loading:", getProvincesIsLoading);
-      console.log("Provinces error:", getProvincesIsError);
-      console.log("Provinces data:", getProvincesData);
-      
-      console.log("Territories loading:", getTerritoriesIsLoading);
-      console.log("Territories error:", getTerritoriesIsError);
-      console.log("Territories data:", getTerritoriesData);
-      console.log("====================================");
-      
-      // Force re-render after 3 seconds if still loading
-      const timer = setTimeout(() => {
-        if (getProvincesIsLoading || getTerritoriesIsLoading) {
-          console.log("Still loading after 3 seconds, forcing update");
-          // This will trigger a re-render
-          setDebugDataPrinted(prev => !prev);
-        }
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }, [getProvincesIsLoading, getProvincesIsError, getProvincesData, 
-        getTerritoriesIsLoading, getTerritoriesIsError, getTerritoriesData]);
-    
-    // Static fallback data for provinces and territories
-    const fallbackProvinces: Province[] = [
-      { _id: "fallback-1", name: "Nord-kivu", status: "ENABLED" },
-      { _id: "fallback-2", name: "Kinshasa", status: "ENABLED" },
-      { _id: "fallback-3", name: "Sud-Kivu", status: "ENABLED" },
-    ];
-    
-    const fallbackTerritories: Territory[] = [
-      { 
-        _id: "fallback-t1", 
-        name: "Goma", 
-        status: "ENABLED",
-        province: { _id: "fallback-1", name: "Nord-kivu" }
-      },
-      { 
-        _id: "fallback-t2", 
-        name: "Beni", 
-        status: "ENABLED",
-        province: { _id: "fallback-1", name: "Nord-kivu" }
-      },
-      { 
-        _id: "fallback-t3", 
-        name: "Bukavu", 
-        status: "ENABLED",
-        province: { _id: "fallback-3", name: "Sud-Kivu" }
-      },
-    ];
-    
-    // State for direct API fetched data
-    const [directProvinces, setDirectProvinces] = useState<any[]>([]);
-    const [directTerritories, setDirectTerritories] = useState<any[]>([]);
-    const [directFetchLoading, setDirectFetchLoading] = useState(true);
-    const [directFetchError, setDirectFetchError] = useState(false);
+    });
+  };
 
-    // Direct API fetch (bypassing RTK Query)
-    useEffect(() => {
-      const fetchDirectData = async () => {
-        setDirectFetchLoading(true);
-        try {
-          console.log("[DIRECT FETCH] Starting direct API fetch for provinces and territories");
-          
-          // Fetch provinces
-          const provincesResponse = await axios.get(`${apiUrl}provinces`);
-          console.log("[DIRECT FETCH] Provinces response:", provincesResponse.status);
-          console.log("[DIRECT FETCH] Provinces data count:", provincesResponse.data?.length || 0);
-          
-          if (Array.isArray(provincesResponse.data) && provincesResponse.data.length > 0) {
-            setDirectProvinces(provincesResponse.data);
-            console.log("[DIRECT FETCH] Provinces data:", provincesResponse.data);
-          } else {
-            console.error("[DIRECT FETCH] Provinces data is not an array or is empty");
-          }
-          
-          // Fetch territories
-          const territoriesResponse = await axios.get(`${apiUrl}territories`);
-          console.log("[DIRECT FETCH] Territories response:", territoriesResponse.status);
-          console.log("[DIRECT FETCH] Territories data count:", territoriesResponse.data?.length || 0);
-          
-          if (Array.isArray(territoriesResponse.data) && territoriesResponse.data.length > 0) {
-            setDirectTerritories(territoriesResponse.data);
-          } else {
-            console.error("[DIRECT FETCH] Territories data is not an array or is empty");
-          }
-          
-          setDirectFetchLoading(false);
-        } catch (error) {
-          console.error("[DIRECT FETCH] Error fetching data directly:", error);
-          setDirectFetchError(true);
-          setDirectFetchLoading(false);
-        }
-      };
-      
-      fetchDirectData();
-    }, []);
-    
-    // Compare RTK Query data with direct fetch data
-    useEffect(() => {
-      if (!directFetchLoading && !getProvincesIsLoading && getProvincesData) {
-        console.log("[DATA COMPARE] RTK Query provinces count:", getProvincesData?.length || 0);
-        console.log("[DATA COMPARE] Direct fetch provinces count:", directProvinces?.length || 0);
-        
-        if (getProvincesData?.length !== directProvinces?.length) {
-          console.log("[DATA COMPARE] Mismatch between RTK Query and direct fetch province counts");
-        }
+  const normalizedCategories = projectCategoriesData ? validateCategoryData(projectCategoriesData) : [];
+  const normalizedTypes = projectTypesData ? validateTypeData(projectTypesData) : [];
+
+  // ── Fallback static data ────────────────────────────────────────────────────
+
+  const fallbackProvinces: Province[] = [
+    { _id: "fb-1", name: "Nord-Kivu", status: "ENABLED" },
+    { _id: "fb-2", name: "Kinshasa", status: "ENABLED" },
+    { _id: "fb-3", name: "Sud-Kivu", status: "ENABLED" },
+  ];
+
+  const fallbackTerritories: Territory[] = [
+    { _id: "ft-1", name: "Goma", status: "ENABLED", province: { _id: "fb-1", name: "Nord-Kivu" } },
+    { _id: "ft-2", name: "Beni", status: "ENABLED", province: { _id: "fb-1", name: "Nord-Kivu" } },
+    { _id: "ft-3", name: "Bukavu", status: "ENABLED", province: { _id: "fb-3", name: "Sud-Kivu" } },
+  ];
+
+  // ── Direct API fetch (bypasses RTK cache for province/territory) ──────────
+
+  const [directProvinces, setDirectProvinces] = useState<Province[]>([]);
+  const [directTerritories, setDirectTerritories] = useState<Territory[]>([]);
+  const [directFetchLoading, setDirectFetchLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDirectData = async () => {
+      setDirectFetchLoading(true);
+      try {
+        const [pRes, tRes] = await Promise.all([
+          axios.get(`${apiUrl}provinces`),
+          axios.get(`${apiUrl}territories`),
+        ]);
+        if (Array.isArray(pRes.data) && pRes.data.length > 0) setDirectProvinces(pRes.data);
+        if (Array.isArray(tRes.data) && tRes.data.length > 0) setDirectTerritories(tRes.data);
+      } catch {
+        // silently fall back to RTK / static data
+      } finally {
+        setDirectFetchLoading(false);
       }
-      
-      if (!directFetchLoading && !getTerritoriesIsLoading && getTerritoriesData) {
-        console.log("[DATA COMPARE] RTK Query territories count:", getTerritoriesData?.length || 0);
-        console.log("[DATA COMPARE] Direct fetch territories count:", directTerritories?.length || 0);
-        
-        if (getTerritoriesData?.length !== directTerritories?.length) {
-          console.log("[DATA COMPARE] Mismatch between RTK Query and direct fetch territory counts");
-        }
-      }
-    }, [directFetchLoading, getProvincesIsLoading, getTerritoriesIsLoading, 
-        getProvincesData, getTerritoriesData, directProvinces, directTerritories]);
-    
-    // Helper function to get provinces data from API or fallback
-    const getProvincesList = () => {
-      // First try direct fetch data
-      if (!directFetchLoading && directProvinces.length > 0) {
-        console.log("[DATA SOURCE] Using direct fetch provinces data");
-        return directProvinces;
-      }
-      
-      // Then try RTK Query data
-      if (!getProvincesIsLoading && getProvincesData && Array.isArray(getProvincesData) && getProvincesData.length > 0) {
-        console.log("[DATA SOURCE] Using RTK Query provinces data");
-        return getProvincesData;
-      }
-      
-      // Fallback to static data
-      console.log("[DATA SOURCE] Using fallback provinces data");
-      return fallbackProvinces;
     };
-    
-    // Helper function to get territories data from API or fallback
-    const getTerritoriesList = () => {
-      // First try direct fetch data
-      if (!directFetchLoading && directTerritories.length > 0) {
-        console.log("[DATA SOURCE] Using direct fetch territories data");
-        return directTerritories;
-      }
-      
-      // Then try RTK Query data
-      if (!getTerritoriesIsLoading && getTerritoriesData && Array.isArray(getTerritoriesData) && getTerritoriesData.length > 0) {
-        console.log("[DATA SOURCE] Using RTK Query territories data");
-        return getTerritoriesData;
-      }
-      
-      // Fallback to static data
-      console.log("[DATA SOURCE] Using fallback territories data");
-      return fallbackTerritories;
-    };
-    
-    // Force render on data load
-    useEffect(() => {
-      const checkDataAndUpdate = () => {
-        const provinces = getProvincesList();
-        const territories = getTerritoriesList();
-        
-        console.log("[DATA CHECK] Current provinces count:", provinces.length);
-        console.log("[DATA CHECK] Current territories count:", territories.length);
-        
-        // Update form with first values if needed
-        if (provinces.length > 0 && !watch("province")) {
-          setValue("province", provinces[0].name);
-          console.log("[DATA CHECK] Set default province:", provinces[0].name);
-        }
-        
-        if (territories.length > 0 && !watch("territory")) {
-          setValue("territory", territories[0].name);
-          console.log("[DATA CHECK] Set default territory:", territories[0].name);
-        }
-      };
-      
-      // Check immediately
-      checkDataAndUpdate();
-      
-      // And also after a short delay to catch async updates
-      const timer = setTimeout(checkDataAndUpdate, 1000);
-      
-      return () => clearTimeout(timer);
-    }, [directProvinces, directTerritories, getProvincesData, getTerritoriesData]);
-    
-    // Handler for territory selection
-    const handleTerritoryChange = (value: string) => {
-      console.log("[TERRITORY CHANGE] Selected territory:", value);
-      setValue("territory", value);
-    };
-    
-    return (
-      <>
-        {
-          preview && (
-            <PreviewProject 
-              data={allValues}
-              back={()=>setPreview(false)}
-              loading={createProjectIsLoading ? true :false}
-              submit={handleSubmit(onsubmit)}
-              
-            />
-          )
-        }
-        {
-          !preview  &&
-          <form className="grid grid-cols-1 gap-y-5 lg:grid-cols-2 gap-x-10 p-5 md:p-10">
-            <div className="w-[98%] md:w-3/4 mx-auto">
-              <div className="flex items-center space-x-10 ">
-                
-                <span className="font-bold text-2xl">Create your Project</span>
+    fetchDirectData();
+  }, []);
+
+  // ── Province / territory helpers ────────────────────────────────────────────
+
+  const getProvincesList = (): Province[] => {
+    if (!directFetchLoading && directProvinces.length > 0) return directProvinces;
+    if (!getProvincesIsLoading && getProvincesData && Array.isArray(getProvincesData) && getProvincesData.length > 0)
+      return validateProvinceData(getProvincesData);
+    return fallbackProvinces;
+  };
+
+  const getTerritoriesList = (): Territory[] => {
+    if (!directFetchLoading && directTerritories.length > 0) return directTerritories;
+    if (!getTerritoriesIsLoading && getTerritoriesData && Array.isArray(getTerritoriesData) && getTerritoriesData.length > 0)
+      return validateTerritoryData(getTerritoriesData);
+    return fallbackTerritories;
+  };
+
+  const [filteredTerritories, setFilteredTerritories] = useState<Territory[]>([]);
+
+  const getFilteredTerritoriesList = (): Territory[] =>
+    filteredTerritories.length > 0 ? filteredTerritories : getTerritoriesList();
+
+  // Default province/territory once data loads
+  useEffect(() => {
+    const provinces = getProvincesList();
+    const territories = getTerritoriesList();
+    if (provinces.length > 0 && !watch("province")) setValue("province", provinces[0].name);
+    if (territories.length > 0 && !watch("territory")) setValue("territory", territories[0].name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [directProvinces, directTerritories, getProvincesData, getTerritoriesData]);
+
+  // ── Select change handlers ──────────────────────────────────────────────────
+
+  const handleCategoryChange = (value: string) => setValue("category", value);
+  const handleTypeChange = (value: string) => setValue("type", value);
+  const handleTerritoryChange = (value: string) => setValue("territory", value);
+
+  const handleProvinceChange = (value: string) => {
+    setValue("province", value);
+    setValue("territory", "");
+    const allProvinces = getProvincesList();
+    const selected = allProvinces.find(p => p.name === value);
+    if (selected) {
+      const allTerritories = directTerritories.length > 0 ? directTerritories : getTerritoriesList();
+      const filtered = allTerritories.filter(
+        (t: Territory) => t.province && (t.province._id === selected._id || t.province.name === selected.name)
+      );
+      setFilteredTerritories(filtered);
+      if (filtered.length > 0) setValue("territory", filtered[0].name);
+    } else {
+      setFilteredTerritories([]);
+    }
+  };
+
+  // ── Form submission ─────────────────────────────────────────────────────────
+
+  const [allValues, setAllValues] = useState<FormValues>(() => getValues());
+
+  const onsubmit = async (data: FormValues) => {
+    if (!preview) {
+      setAllValues(getValues());
+      setPreview(true);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("type", data.type);
+    formData.append("category", data.category);
+    formData.append("description", data.description);
+    formData.append("province", data.province);
+    formData.append("territory", data.territory);
+    formData.append("endDate", formattedDate);
+    formData.append("currency", data.currency);
+    formData.append("targetAmount", data.targetAmount?.toString());
+    formData.append("projectOwner", user._id);
+    uploadedMedias.forEach(file => formData.append("medias", file));
+    uploadedAttachments.forEach(file => formData.append("attachments", file));
+
+    try {
+      await CreateProjectMutation(formData).unwrap();
+      toast.success("Project created successfully!");
+      navigate("/projects");
+    } catch {
+      toast.error("Failed to create project!");
+    }
+  };
+
+  useEffect(() => {
+    if (createProjectData && createProjectIsSuccess) {
+      reset();
+      setPreviewProject(false);
+      navigate("/projects");
+    }
+    if (createProjectIsError) {
+      toast.error("Cannot create project");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createProjectIsError, createProjectIsSuccess]);
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+
+  const hasSmartDocs =
+    (bmcCanvases && bmcCanvases.length > 0) ||
+    (!bpError && businessPlans.length > 0);
+
+  const mediaTabItems = [
+    { key: 'upload', label: 'Upload', icon: Upload },
+    { key: 'link', label: 'Embed Link', icon: Link2 },
+    { key: 'unsplash', label: 'Unsplash', icon: ImageIcon },
+  ] as const;
+
+  return (
+    <>
+      {preview && (
+        <PreviewProject
+          data={allValues}
+          back={() => setPreview(false)}
+          loading={createProjectIsLoading}
+          submit={handleSubmit(onsubmit)}
+        />
+      )}
+
+      {!preview && (
+        <div className="min-h-screen bg-gray-50">
+
+          {/* ── Sticky Header ── */}
+          <header className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">
+            <div className="px-6 py-4 flex items-center justify-between gap-4">
+
+              {/* Back + Title */}
+              <div className="flex items-center gap-4 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4 text-gray-600" />
+                </button>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1 text-xs text-gray-400 mb-0.5">
+                    <span>Projects</span>
+                    <ChevronRight className="w-3 h-3" />
+                    <span className="text-gray-700 font-medium truncate">New Project</span>
+                  </div>
+                  <h1 className="text-lg font-bold text-gray-900 truncate">Create a New Project</h1>
+                </div>
               </div>
-              <div  className="">
-                <div className="grid w-full gap-2 mt-10">
-                  <Label htmlFor="project-name">Project Name</Label>
-                  <Textarea {...register("name")} rows={2} placeholder="Support 230 children to get school fees" id="project-name" />
-                  {errors.name && <p className="text-red-600">{errors.name.message}</p>}
-                </div>
-                <div className="grid grid-cols-2 mt-5 gap-x-5">
-                    <div className="flex flex-col space-y-1 my-5">
-                      <label className="font-semibold">Project category</label>
-                      {
-                        projectCategoriesIsLoading && <div className="text-blue-600">
-                          <LoadingComponent />
-                        </div>
-                      }
-                      {
-                        !projectCategoriesIsLoading && projectCategoriesData?.length===0 && <div className="text-red-600 font-semibold">
-                          <span className="font-semibold">No Project Categories available</span>
-                        </div>
-                      }
-                      {
-                        normalizedCategories.length > 0 && 
-                        <Select onValueChange={handleCategoryChange}>
-                          <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                            <SelectValue placeholder="Select project category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Project category</SelectLabel>
-                              {
-                                normalizedCategories.map((item: any) => (
-                                  <SelectItem 
-                                    key={item._id} 
-                                    value={item.name}
-                                    disabled={item.status !== "ENABLED"} 
-                                    className={item.status !== "ENABLED" ? "opacity-50 cursor-not-allowed" : ""}
-                                  >
-                                    {item.name}
-                                  </SelectItem>
-                                ))
-                              }
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      }
-                    </div>
-                    <div className="flex flex-col space-y-1 my-5">
-                      <label className="font-semibold">Project type</label>
-                      {
-                        projectTypesIsLoading && <div className="text-blue-600">
-                          <LoadingComponent />
-                        </div>
-                      }
-                      {
-                        !projectTypesIsLoading && projectTypesData?.length===0 && <div className="text-red-600 font-semibold">
-                          <span className="font-semibold">No Project Type</span>
-                        </div>
-                      }
-                      {
-                        normalizedTypes.length > 0 && 
-                        <Select onValueChange={handleTypeChange}>
-                          <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                            <SelectValue placeholder="Select project type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Project type</SelectLabel>
-                              {
-                                normalizedTypes.map((item: any) => (
-                                  <SelectItem 
-                                    key={item._id} 
-                                    value={item.name}
-                                    disabled={item.status !== "ENABLED"} 
-                                    className={item.status !== "ENABLED" ? "opacity-50 cursor-not-allowed" : ""}
-                                  >
-                                    {item.name}
-                                  </SelectItem>
-                                ))
-                              }
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      }
-                      {errors.type && <p className="text-red-600">{errors.type.message}</p>}
 
-                    </div>
+              {/* Step Indicator (desktop) */}
+              <div className="hidden md:flex items-center gap-2 shrink-0">
+                <div className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                  next
+                    ? "bg-[rgb(3,10,61)] text-white"
+                    : "bg-green-50 text-green-700 border border-green-200"
+                )}>
+                  {next ? (
+                    <span className="w-5 h-5 rounded-full bg-white text-[rgb(3,10,61)] text-xs font-bold flex items-center justify-center">1</span>
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  )}
+                  Project Info
                 </div>
-                <div className="grid w-full gap-2 mt-5">
-                  <Label htmlFor="project-description">Project Description</Label>
-                  <Textarea 
-                    {...register("description")}
-                    rows={5} 
-                    placeholder="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu" 
-                    id="project-description" 
-                  />
-                  {errors.description  && <span className="text-red-600 mt-2">{errors.description?.message}</span>}
+
+                <div className="w-8 h-px bg-gray-200" />
+
+                <div className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                  !next
+                    ? "bg-[rgb(3,10,61)] text-white"
+                    : "bg-gray-100 text-gray-400"
+                )}>
+                  <span className={cn(
+                    "w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center",
+                    !next ? "bg-white text-[rgb(3,10,61)]" : "bg-gray-300 text-gray-500"
+                  )}>2</span>
+                  Media & Docs
                 </div>
-                <div className="grid grid-cols-2 mt-5 gap-x-5">
-                    <div className="flex flex-col space-y-1 my-5">
-                      <label className="font-semibold">Currency</label>
-                      <Select onValueChange={(value) => setValue("currency", value as "USD"|"EUR"|"CDF")}>
-                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                          <SelectValue placeholder="Select currency" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Currency</SelectLabel>
-                            <SelectItem value="CDF">CDF</SelectItem>
-                            <SelectItem value="USD">USD</SelectItem>
-                            <SelectItem value="EUR">EUR</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                      
+              </div>
+
+              {/* Header Action Buttons (desktop) */}
+              <div className="hidden md:flex items-center gap-3 shrink-0">
+                {next ? (
+                  <Button
+                    type="button"
+                    onClick={() => setNext(false)}
+                    className="bg-[rgb(3,10,61)] hover:bg-blue-900 text-white rounded-xl px-5 h-10 flex items-center gap-2"
+                  >
+                    Continue
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setNext(true)}
+                      className="rounded-xl px-5 h-10"
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleSubmit(onsubmit)}
+                      className="bg-[rgb(3,10,61)] hover:bg-blue-900 text-white rounded-xl px-5 h-10 flex items-center gap-2"
+                    >
+                      Preview Project
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </header>
+
+          {/* ── Form Body ── */}
+          <form className="max-w-6xl mx-auto px-4 md:px-6 py-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+              {/* ════ LEFT COLUMN — Project Details ════ */}
+              <div className="space-y-6">
+
+                {/* Card: Project Information */}
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                      <FileText className="w-4 h-4 text-blue-600" />
                     </div>
-                    <div className="flex flex-col space-y-1 my-5">
-                      <label className="font-semibold">Target amount</label>
-                      <div className="relative">
-                        <Input 
-                          {...register("targetAmount")}
-                          className="h-10 rounded-xl w-full indent-2 text-black lg:text-md"
-                          placeholder="Target amount"
-                        />
-                        {errors.targetAmount  && <span className="text-red-600 mt-2">{errors.targetAmount?.message}</span>}
-                      </div>
+                    <h2 className="text-base font-semibold text-gray-900">Project Information</h2>
+                  </div>
+
+                  {/* Project Name */}
+                  <div className="space-y-1.5 mb-5">
+                    <Label htmlFor="project-name" className="text-sm font-medium text-gray-700">
+                      Project Name <span className="text-red-500">*</span>
+                    </Label>
+                    <Textarea
+                      {...register("name")}
+                      rows={2}
+                      placeholder="e.g. Support 230 children to get school fees"
+                      id="project-name"
+                      className="resize-none rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400 text-sm"
+                    />
+                    {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+                  </div>
+
+                  {/* Category + Type */}
+                  <div className="grid grid-cols-2 gap-4 mb-5">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700">Category</label>
+                      {projectCategoriesIsLoading ? (
+                        <div className="h-10 flex items-center pl-2"><LoadingComponent /></div>
+                      ) : (
+                        <Select onValueChange={handleCategoryChange}>
+                          <SelectTrigger className="h-10 rounded-xl border-gray-200 text-sm">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Category</SelectLabel>
+                              {normalizedCategories.map((item: any) => (
+                                <SelectItem
+                                  key={item._id}
+                                  value={item.name}
+                                  disabled={item.status !== "ENABLED"}
+                                  className={item.status !== "ENABLED" ? "opacity-50" : ""}
+                                >
+                                  {item.name}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      )}
                     </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700">Type</label>
+                      {projectTypesIsLoading ? (
+                        <div className="h-10 flex items-center pl-2"><LoadingComponent /></div>
+                      ) : (
+                        <Select onValueChange={handleTypeChange}>
+                          <SelectTrigger className="h-10 rounded-xl border-gray-200 text-sm">
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Type</SelectLabel>
+                              {normalizedTypes.map((item: any) => (
+                                <SelectItem
+                                  key={item._id}
+                                  value={item.name}
+                                  disabled={item.status !== "ENABLED"}
+                                  className={item.status !== "ENABLED" ? "opacity-50" : ""}
+                                >
+                                  {item.name}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      )}
+                      {errors.type && <p className="text-xs text-red-500">{errors.type.message}</p>}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="project-description" className="text-sm font-medium text-gray-700">
+                      Description <span className="text-red-500">*</span>
+                    </Label>
+                    <Textarea
+                      {...register("description")}
+                      rows={4}
+                      placeholder="Describe your project goals, impact, and how funds will be used…"
+                      id="project-description"
+                      className="resize-none rounded-xl border-gray-200 focus:border-blue-400 focus:ring-blue-400 text-sm"
+                    />
+                    {errors.description && <p className="text-xs text-red-500">{errors.description.message}</p>}
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 mt-5 gap-x-5">
-                    <div className="flex flex-col space-y-1 my-5">
-                      <label className="font-semibold">Province</label>
+
+                {/* Card: Location & Funding */}
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
+                      <DollarSign className="w-4 h-4 text-green-600" />
+                    </div>
+                    <h2 className="text-base font-semibold text-gray-900">Location & Funding</h2>
+                  </div>
+
+                  {/* Province + Territory */}
+                  <div className="grid grid-cols-2 gap-4 mb-5">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700">Province</label>
                       <Select onValueChange={handleProvinceChange}>
-                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                          <SelectValue placeholder={getProvincesIsLoading ? "Loading provinces..." : "Select province"} />
+                        <SelectTrigger className="h-10 rounded-xl border-gray-200 text-sm">
+                          <SelectValue placeholder={getProvincesIsLoading ? "Loading…" : "Select province"} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Province</SelectLabel>
                             {getProvincesList().map((item: Province) => (
-                              <SelectItem 
-                                key={item._id} 
-                                value={item.name}
-                              >
-                                {item.name}
-                              </SelectItem>
+                              <SelectItem key={item._id} value={item.name}>{item.name}</SelectItem>
                             ))}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
-                      {errors.province && <p className="text-red-600">{errors.province.message}</p>}
+                      {errors.province && <p className="text-xs text-red-500">{errors.province.message}</p>}
                     </div>
-                    
-                    <div className="flex flex-col space-y-1 my-5">
-                      <label className="font-semibold">Territory</label>
+
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700">Territory</label>
                       <Select onValueChange={handleTerritoryChange}>
-                        <SelectTrigger className="w-full h-10 border border-gray-200 mt-1">
-                          <SelectValue placeholder={getTerritoriesIsLoading ? "Loading territories..." : "Select territory"} />
+                        <SelectTrigger className="h-10 rounded-xl border-gray-200 text-sm">
+                          <SelectValue placeholder={getTerritoriesIsLoading ? "Loading…" : "Select territory"} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Territory</SelectLabel>
                             {getFilteredTerritoriesList().map((item: Territory) => (
-                              <SelectItem 
-                                key={item._id} 
-                                value={item.name}
-                              >
-                                {item.name} {item.province ? `(${item.province.name})` : ''}
+                              <SelectItem key={item._id} value={item.name}>
+                                {item.name}{item.province ? ` (${item.province.name})` : ''}
                               </SelectItem>
                             ))}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
-                      {watch("territory") && (
-                        <p className="text-sm text-gray-500 mt-1">
-                          {getFilteredTerritoriesList().find(t => t.name === watch("territory"))?.province?.name 
-                            ? `In ${getFilteredTerritoriesList().find(t => t.name === watch("territory"))?.province?.name}` 
-                            : ''}
-                        </p>
-                      )}
-                      {errors.territory && <p className="text-red-600">{errors.territory.message}</p>}
+                      {errors.territory && <p className="text-xs text-red-500">{errors.territory.message}</p>}
                     </div>
-                </div>
-                <div className="flex flex-col space-y-1 my-5">
-                  <label className="font-semibold">Project end date</label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full h-10 justify-start text-left font-normal",
-                          !date && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon />
-                        {date ? format(date, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent align="start" className="flex w-auto flex-col space-y-2 p-2">
+                  </div>
+
+                  {/* Currency + Target Amount */}
+                  <div className="grid grid-cols-2 gap-4 mb-5">
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700">Currency</label>
                       <Select
-                        onValueChange={(value) => setDate(addDays(new Date(), parseInt(value)))}
+                        defaultValue="USD"
+                        onValueChange={(v) => setValue("currency", v as "USD" | "EUR" | "CDF")}
                       >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
+                        <SelectTrigger className="h-10 rounded-xl border-gray-200 text-sm">
+                          <SelectValue placeholder="Currency" />
                         </SelectTrigger>
-                        <SelectContent position="popper">
-                          <SelectItem value="0">Today</SelectItem>
-                          <SelectItem value="1">Tomorrow</SelectItem>
-                          <SelectItem value="3">In 3 days</SelectItem>
-                          <SelectItem value="7">In a week</SelectItem>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Currency</SelectLabel>
+                            <SelectItem value="USD">USD — US Dollar</SelectItem>
+                            <SelectItem value="EUR">EUR — Euro</SelectItem>
+                            <SelectItem value="CDF">CDF — Franc Congolais</SelectItem>
+                          </SelectGroup>
                         </SelectContent>
                       </Select>
-                      <div className="rounded-md border">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={(selectedDate) => selectedDate && setDate(selectedDate)}
-                        />
-                      </div>
-                    </PopoverContent>
-                  </Popover>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-sm font-medium text-gray-700">
+                        Target Amount <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        {...register("targetAmount")}
+                        type="number"
+                        placeholder="e.g. 5000"
+                        className="h-10 rounded-xl border-gray-200 text-sm"
+                      />
+                      {errors.targetAmount && <p className="text-xs text-red-500">{errors.targetAmount.message}</p>}
+                    </div>
+                  </div>
+
+                  {/* End Date */}
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-gray-700">Project End Date</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          type="button"
+                          className={cn(
+                            "w-full h-10 justify-start text-left font-normal rounded-xl border-gray-200 text-sm",
+                            !date && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4 text-gray-400" />
+                          {date ? format(date, "PPP") : "Pick a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="flex w-auto flex-col space-y-2 p-2">
+                        <Select onValueChange={(value) => setDate(addDays(new Date(), parseInt(value)))}>
+                          <SelectTrigger className="h-9 rounded-lg text-sm">
+                            <SelectValue placeholder="Quick select" />
+                          </SelectTrigger>
+                          <SelectContent position="popper">
+                            <SelectItem value="0">Today</SelectItem>
+                            <SelectItem value="1">Tomorrow</SelectItem>
+                            <SelectItem value="3">In 3 days</SelectItem>
+                            <SelectItem value="7">In a week</SelectItem>
+                            <SelectItem value="30">In a month</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <div className="rounded-md border">
+                          <Calendar
+                            mode="single"
+                            selected={date}
+                            onSelect={(d) => d && setDate(d)}
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
-                {
-                  next && 
+
+                {/* Mobile: Continue Button */}
+                {next && (
                   <Button
                     type="button"
-                    onClick={()=>setNext(false)}
-                    className="bg-darkBlue h-14 text-white hover:bg-lightBlue rounded-[100px] w-full mt-10"
+                    onClick={() => setNext(false)}
+                    className="lg:hidden w-full h-12 bg-[rgb(3,10,61)] hover:bg-blue-900 text-white font-semibold rounded-xl"
                   >
-                      Next
+                    Continue to Media & Docs
+                    <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
-                }
+                )}
               </div>
-            </div>
-            <div className="">
-              <div className="w-3/4 mx-auto">
-                <span className="text-black font-semibold text-2xl">Project media</span>
-                <div className="mt-5 flex space-x-4">
-                  <div onClick={()=>{
-                      setUpload(true)
-                      setEmbededLink(false)
-                      setUnsplash(false)
-                  }} className={upload ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
-                      <span className={upload ?"text-lightBlue font-semibold":"text-black"}>Upload</span>
-                      {upload &&<div className="w-[30px] h-1 bg-lightBlue"></div>}
-                  </div>
-                  <div onClick={()=>{
-                      setUpload(false)
-                      setEmbededLink(true)
-                      setUnsplash(false)
-                  }} className={embededLink ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
-                      <span className={embededLink ?"text-lightBlue font-semibold":"text-black"}>Embeded Link</span>
-                      {embededLink && <div className="w-[30px] h-1 bg-lightBlue"></div>}
-                  </div>
-                  <div onClick={()=>{
-                      setUpload(false)
-                      setEmbededLink(false)
-                      setUnsplash(true)
-                    }} className={unsplash ? "flex flex-col cursor-not-allowed" :"flex cursor-pointer flex-col"}>
-                        <span className={unsplash ?"text-lightBlue font-semibold":"text-black"}>Unplash</span>
-                        {unsplash && <div className="w-[30px] h-1 bg-lightBlue"></div>}
+
+              {/* ════ RIGHT COLUMN — Media & Attachments ════ */}
+              <div className="space-y-6">
+
+                {/* Card: Project Media */}
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                      <ImageIcon className="w-4 h-4 text-purple-600" />
                     </div>
-                </div>
-                
-                {
-                  embededLink && (
-                    <div className="flex flex-col space-y-2 mt-5">
-                      <label className="font-semibold">Media links</label>
-                      <Input 
-                        placeholder="Media Link"
-                        className="h-10"
+                    <h2 className="text-base font-semibold text-gray-900">Project Media</h2>
+                  </div>
+
+                  {/* Tab Bar */}
+                  <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl mb-5">
+                    {mediaTabItems.map(({ key, label, icon: Icon }) => {
+                      const active = (key === 'upload' && upload) || (key === 'link' && embededLink) || (key === 'unsplash' && unsplash);
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => {
+                            setUpload(key === 'upload');
+                            setEmbededLink(key === 'link');
+                            setUnsplash(key === 'unsplash');
+                          }}
+                          className={cn(
+                            "flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium rounded-lg transition-all",
+                            active
+                              ? "bg-white text-gray-900 shadow-sm"
+                              : "text-gray-500 hover:text-gray-700"
+                          )}
+                        >
+                          <Icon className="w-3.5 h-3.5" />
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Tab Content */}
+                  {upload && (
+                    <MediaUpload accept="image/*" isDisabled={next} onFilesChange={handleMediasChange} />
+                  )}
+                  {embededLink && (
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-700">Media URL</label>
+                      <Input
+                        placeholder="https://youtube.com/…"
+                        className="h-10 rounded-xl border-gray-200 text-sm"
+                        disabled={next}
                       />
                     </div>
-                  )
-                }
-                {
-                  unsplash && (
-                    <div className="flex flex-col space-y-2 mt-5">
-                      <div className="mt-5 bg-gray-200 rounded-[100px] flex items-center justify-between p-1">
-                        <Input 
-                          placeholder="Search"
-                          className="h-10 outline-none border-0 w-[80%] bg-white text-black rounded-[100px] m-1 indent-2"
+                  )}
+                  {unsplash && (
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Search Unsplash…"
+                          className="h-10 rounded-xl border-gray-200 text-sm flex-1"
+                          disabled={next}
                         />
                         <Button
-                          className="max-w-fit px-10 h-10 bg-lightBlue rounded-[100px]"
+                          type="button"
+                          disabled={next}
+                          className="h-10 px-4 bg-[rgb(3,10,61)] text-white rounded-xl text-sm"
                         >
-                          search
+                          Search
                         </Button>
                       </div>
-                      <div className="grid grid-cols-3 gap-4">
-                        <img 
-                          src={PopularImage1}
-                          alt="image-1"
-                          className="w-full h-full object-cover"
-                        />
-                        <img 
-                          src={PopularImage4}
-                          alt="image-2"
-                          className="w-full h-full object-cover"
-                        />
-                        <img 
-                          src={PopularImage3}
-                          alt="image-3"
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="grid grid-cols-3 gap-2">
+                        {[1, 2, 3].map(i => (
+                          <div key={i} className="aspect-square bg-gray-100 rounded-xl animate-pulse" />
+                        ))}
                       </div>
-                      
                     </div>
-                    
-                  )
-                }
-                {upload && <div className="mt-8">
-                    <MediaUpload accept="image/*" isDisabled={next} onFilesChange={handleMediasChange} />
-                </div>}
-              </div>
-              <div className="w-3/4 mx-auto mt-5">
-                <span className="text-black font-semibold text-2xl">Project Attachments</span>
-                
-                <div className="mt-8">
-                    <MediaUpload accept="application/pdf" isDisabled={next} onFilesChange={handleAttachmentsChange} />
-                </div>
-              </div>
+                  )}
 
-              {
-                !next && 
-                <Button
-                  onClick={handleSubmit(onsubmit)}
-                  className="h-12 w-[50%] ml-[15%] mt-5 text-white bg-darkBlue rounded-[100px]"
-                >
-                  Show Preview
-                </Button>
-              }
+                  {next && (
+                    <div className="mt-4 flex items-center gap-2 text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      Complete project info and click <strong className="mx-0.5">Continue</strong> to enable media uploads.
+                    </div>
+                  )}
+                </div>
+
+                {/* Card: Attachments */}
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                  <div className="flex items-center gap-3 mb-1.5">
+                    <div className="w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center">
+                      <Paperclip className="w-4 h-4 text-orange-500" />
+                    </div>
+                    <h2 className="text-base font-semibold text-gray-900">Attachments</h2>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-5 pl-11">
+                    Attach supporting PDFs to strengthen your project's credibility with funders.
+                  </p>
+
+                  {/* ── Smart Documents ── */}
+                  {hasSmartDocs && (
+                    <div className="mb-5">
+                      <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                        Your Existing Documents
+                      </p>
+                      <div className="space-y-2.5">
+
+                        {/* BMC Canvases */}
+                        {bmcCanvases && bmcCanvases.slice(0, 2).map(canvas => (
+                          <div
+                            key={canvas._id}
+                            className="group flex items-center gap-3 p-3.5 rounded-xl border border-blue-100 bg-gradient-to-r from-blue-50/60 to-indigo-50/40 hover:border-blue-200 transition-all"
+                          >
+                            <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                              <LayoutGrid className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-800 truncate">
+                                {canvas.title || 'Business Model Canvas'}
+                              </p>
+                              <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1.5">
+                                <span className="inline-flex items-center gap-1">
+                                  {canvas.status === 'completed'
+                                    ? <><CheckCircle2 className="w-3 h-3 text-green-500" /> Completed</>
+                                    : <>In progress</>
+                                  }
+                                </span>
+                                <span>·</span>
+                                <span>BMC</span>
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => navigate('/bmc')}
+                              className="text-blue-500 hover:text-blue-700 transition-colors opacity-0 group-hover:opacity-100"
+                              title="Open in BMC section"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+
+                        {/* Business Plans */}
+                        {!bpError && businessPlans.slice(0, 2).map((plan: any) => (
+                          <div
+                            key={plan._id}
+                            className="group flex items-center gap-3 p-3.5 rounded-xl border border-green-100 bg-gradient-to-r from-green-50/60 to-emerald-50/40 hover:border-green-200 transition-all"
+                          >
+                            <div className="w-9 h-9 rounded-lg bg-green-100 flex items-center justify-center shrink-0">
+                              <FileText className="w-4 h-4 text-green-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-800 truncate">
+                                {plan.metadata?.title || plan.title || 'Business Plan'}
+                              </p>
+                              <p className="text-xs text-gray-400 mt-0.5 capitalize">
+                                Business Plan · {plan.metadata?.status || plan.status || 'draft'}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => navigate('/business-plan')}
+                              className="text-green-500 hover:text-green-700 transition-colors opacity-0 group-hover:opacity-100"
+                              title="Open in Business Plan section"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      <p className="mt-3 text-xs text-gray-400 leading-relaxed">
+                        Export these as PDF from their sections, then upload them below.
+                      </p>
+
+                      {/* Divider */}
+                      <div className="flex items-center gap-3 mt-4">
+                        <div className="flex-1 h-px bg-gray-100" />
+                        <span className="text-xs text-gray-300 shrink-0">or upload PDF directly</span>
+                        <div className="flex-1 h-px bg-gray-100" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Manual Upload */}
+                  <MediaUpload
+                    accept="application/pdf"
+                    isDisabled={next}
+                    onFilesChange={handleAttachmentsChange}
+                  />
+
+                  {next && (
+                    <div className="mt-4 flex items-center gap-2 text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      Complete project info and click <strong className="mx-0.5">Continue</strong> to enable uploads.
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile: Preview Button */}
+                {!next && (
+                  <Button
+                    type="button"
+                    onClick={handleSubmit(onsubmit)}
+                    className="lg:hidden w-full h-12 bg-[rgb(3,10,61)] hover:bg-blue-900 text-white font-semibold rounded-xl"
+                  >
+                    Preview Project
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                )}
+              </div>
             </div>
-        </form>
-        }
-      </>
-    )
+          </form>
+        </div>
+      )}
+    </>
+  );
 }
 
-export default CreateProject
+export default CreateProject;
