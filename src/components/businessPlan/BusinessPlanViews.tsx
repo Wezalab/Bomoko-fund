@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '@/lib/TranslationContext';
 import { useGetBusinessPlanQuery, useUpdateSubsectionContentMutation } from '@/redux/services/businessPlanServices';
+import { useGetUserCanvasesQuery } from '@/redux/services/bmcServices';
+import { generateBusinessPlanContent } from '@/lib/groqService';
 import RichTextEditor from './RichTextEditor';
 
 interface BusinessPlanSection {
@@ -80,6 +82,10 @@ const BusinessPlanViews: React.FC<BusinessPlanViewsProps> = ({
   const [activeSection, setActiveSection] = useState<string>('');
   const [activeSubsection, setActiveSubsection] = useState<string>('');
   const [expandedChapters, setExpandedChapters] = useState<Record<number, boolean>>({});
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+
+  // Fetch BMC Data
+  const { data: bmcDataList } = useGetUserCanvasesQuery();
 
   // API hooks
   const { data: businessPlanData, isLoading: isLoadingPlan, error: planError } = useGetBusinessPlanQuery(
@@ -635,6 +641,39 @@ const BusinessPlanViews: React.FC<BusinessPlanViewsProps> = ({
     }
   };
 
+  const handleGenerateContent = async () => {
+    const currentSection = getCurrentSection();
+    const currentSubsection = getCurrentSubsection();
+    if (!currentSection || !currentSubsection) return;
+    
+    setIsGenerating(true);
+    try {
+      const wizardDataStr = localStorage.getItem('businessPlanWizardData');
+      const wizardData = wizardDataStr ? JSON.parse(wizardDataStr) : undefined;
+      const bmcData = bmcDataList && bmcDataList.length > 0 ? bmcDataList[0] : undefined;
+      
+      const companyName = wizardData?.question_2 || 'Company';
+      const industry = wizardData?.question_3 || 'Industry';
+      
+      const prompt = `Write the section "${currentSubsection.title}" for the chapter "${currentSection.title}". Description: ${currentSubsection.description || ''}`;
+      
+      const generatedContent = await generateBusinessPlanContent(
+        prompt, 
+        companyName, 
+        industry, 
+        wizardData, 
+        bmcData
+      );
+      
+      // Update local and remote DB
+      await handleContentUpdate(generatedContent);
+    } catch (error) {
+      console.error('Error generating content:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   // Structural View Component
   const StructuralView = () => (
     <div className="space-y-6">
@@ -844,9 +883,11 @@ const BusinessPlanViews: React.FC<BusinessPlanViewsProps> = ({
         {/* Content Editor */}
         <div>
           <RichTextEditor
-            value={currentSubsection.content}
+            content={currentSubsection.content}
             onChange={handleContentUpdate}
             placeholder={`Enter content for ${currentSubsection.title}...`}
+            onGenerateContent={handleGenerateContent}
+            isGenerating={isGenerating}
           />
         </div>
 
