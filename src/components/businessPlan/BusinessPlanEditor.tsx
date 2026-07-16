@@ -33,6 +33,7 @@ import AIEnhancementDialog from './AIEnhancementDialog';
 import PDFExport from './PDFExport';
 import { generateBusinessPlanContent, enhanceContent } from '../../lib/groqService';
 import { useGetUserCanvasesQuery } from '@/redux/services/bmcServices';
+import { useGetFinanceSheetQuery } from '@/redux/services/financeServices';
 
 interface BusinessPlanSection {
   id: string;
@@ -63,8 +64,13 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
   const [wizardData, setWizardData] = useState<any>(null);
   const [showEnhancementDialog, setShowEnhancementDialog] = useState(false);
 
+  const ventureId = localStorage.getItem('selectedVentureId') || '';
+
   // Fetch BMC data
   const { data: bmcDataList, isLoading: isBmcLoading } = useGetUserCanvasesQuery();
+
+  // Fetch Finance Data
+  const { data: financeSheet, isLoading: isFinanceLoading } = useGetFinanceSheetQuery(ventureId, { skip: !ventureId });
 
   const [sections, setSections] = useState<BusinessPlanSection[]>([
     {
@@ -189,7 +195,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
 
   // Charger les données de l'assistant et auto-générer le contenu
   useEffect(() => {
-    if (isBmcLoading) return; // Wait for BMC data to load
+    if (isBmcLoading || isFinanceLoading) return; // Wait for BMC and Finance data to load
 
     const loadWizardData = () => {
       const savedData = localStorage.getItem('businessPlanWizardData');
@@ -214,7 +220,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
           const bmcData = bmcDataList && bmcDataList.length > 0 ? bmcDataList[0] : undefined;
           
           // Auto-générer le contenu pour toutes les sections
-          autoGenerateAllSections(companyInfo, bmcData);
+          autoGenerateAllSections(companyInfo, bmcData, financeSheet);
         } catch (error) {
           console.error('Erreur lors de l\'analyse des données de l\'assistant:', error);
         }
@@ -224,9 +230,9 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
     };
 
     loadWizardData();
-  }, [isBmcLoading, bmcDataList]);
+  }, [isBmcLoading, isFinanceLoading, bmcDataList, financeSheet]);
 
-  const autoGenerateAllSections = async (companyInfo: any, bmcData?: any) => {
+  const autoGenerateAllSections = async (companyInfo: any, bmcData?: any, financeData?: any) => {
     console.log('BusinessPlanEditor - Starting auto-generation for:', companyInfo);
     setIsGenerating(true);
     
@@ -265,7 +271,8 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
               companyInfo.name, 
               companyInfo.industry,
               wizardData,
-              bmcData
+              bmcData,
+              financeData
             );
             
             console.log(`BusinessPlanEditor - Generated content for ${sectionId}:`, generatedContent);
@@ -312,7 +319,7 @@ const BusinessPlanEditor: React.FC<BusinessPlanEditorProps> = ({
     try {
       const sectionName = currentSection.title;
       const bmcData = bmcDataList && bmcDataList.length > 0 ? bmcDataList[0] : undefined;
-      const generatedContent = await generateBusinessPlanContent(sectionName, companyName, industry, wizardData, bmcData);
+      const generatedContent = await generateBusinessPlanContent(sectionName, companyName, industry, wizardData, bmcData, financeSheet);
       
       // Convertir le texte brut en HTML avec un formatage approprié
       const htmlContent = generatedContent
