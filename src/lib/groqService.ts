@@ -1,6 +1,7 @@
 import Groq from 'groq-sdk';
 import OpenAI from 'openai';
 import { groqApiKey, llmProvider, chatgptApiKey, chatgptModel } from './env';
+import { computeSummary } from '@/types/finance';
 
 // Lazy-init: constructing Groq/OpenAI at import time throws if that provider's key is
 // missing, even when the other provider is selected (e.g. ChatGPT-only on Netlify).
@@ -106,7 +107,8 @@ export const generateBusinessPlanContent = async (
   companyName: string = "REST-DRC", 
   industry: string = "Restaurant",
   wizardData?: any,
-  bmcData?: any
+  bmcData?: any,
+  financialsData?: any
 ) => {
   const businessInfo = wizardData ? {
     companyName: wizardData.question_2 || companyName,
@@ -132,6 +134,29 @@ Voici les données du Business Model Canvas de l'entreprise pour enrichir le pla
 Assurez-vous d'intégrer de manière fluide ces informations dans la section générée.
 ` : '';
 
+  let financialsContext = '';
+  if (financialsData) {
+    try {
+      const summary = computeSummary(financialsData);
+      financialsContext = `
+Voici les données financières de l'entreprise (Devise : ${financialsData.currency}) :
+- Coûts Fixes (Amortissement annuel / total) : ${summary.totalFixedCosts}
+- Coûts Variables (Intrants + Main d'œuvre) : ${summary.totalVariableCosts}
+- Total des Coûts : ${summary.totalCosts}
+- Revenus Bruts : ${summary.grossRevenue}
+- Marge Brute : ${summary.grossMargin}
+- Marge Nette : ${summary.netMargin}
+
+Détail des revenus projetés : ${financialsData.revenueItems?.map((r: any) => \`\${r.name} (\${r.quantity} \${r.unit} à \${r.unitPrice})\`).join(', ') || 'N/A'}
+Détail des coûts fixes : ${financialsData.fixedCosts?.map((c: any) => \`\${c.name} (\${c.quantity} \${c.unit} à \${c.unitPrice})\`).join(', ') || 'N/A'}
+
+Assurez-vous d'utiliser ces calculs précis de coûts, de revenus et d'analyse de marge (calculs de coûts, revenus et analyse) dans les projections financières et les sections appropriées.
+`;
+    } catch (e) {
+      console.error('Error computing finance summary:', e);
+    }
+  }
+
   const prompts = {
     "Résumé exécutif": `Rédigez un résumé exécutif professionnel pour ${businessInfo.companyName}, une entreprise dans le secteur ${businessInfo.industry}. Incluez un aperçu de l'entreprise, la mission, les facteurs clés de succès et l'opportunité de marché. ${bmcContext}Écrivez dans un ton professionnel de plan d'affaires, 2-3 paragraphes. Le contenu doit être entièrement en français et adapté au contexte africain francophone.`,
     
@@ -147,24 +172,24 @@ Assurez-vous d'intégrer de manière fluide ces informations dans la section gé
     
     "Opérations": `Décrivez le plan opérationnel pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez la strategy de localisation, les processus opérationnels, la chaîne d'approvisionnement, le personnel et les opérations quotidiennes. ${bmcContext}Ton professionnel de plan d'affaires, 2-3 paragraphes. Le contenu doit être entièrement en français et adapté au contexte opérationnel africain.`,
     
-    "Plan financier": `Rédigez un aperçu financier pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez le modèle de revenus, la structure des coûts, les besoins de financement et le résumé des projections financières. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext}Utilisez un langage professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français et adapté au contexte financier africain.`,
+    "Plan financier": `Rédigez un aperçu financier pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez le modèle de revenus, la structure des coûts, les besoins de financement et le résumé des projections financières. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext} ${financialsContext} Utilisez un langage professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français et adapté au contexte financier africain.`,
     
-    "Compte de résultat": `Présentez une analyse du compte de résultat pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez les principales sources de revenus, les coûts opérationnels, les marges prévues et la rentabilité. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext}Ton professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
+    "Compte de résultat": `Présentez une analyse du compte de résultat pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez les principales sources de revenus, les coûts opérationnels, les marges prévues et la rentabilité. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext} ${financialsContext} Ton professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
     
-    "Bilan": `Décrivez les projections du bilan pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez les actifs prévus, les passifs, les capitaux propres et la structure financière. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext}Langage professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
+    "Bilan": `Décrivez les projections du bilan pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez les actifs prévus, les passifs, les capitaux propres et la structure financière. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext} ${financialsContext} Langage professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
     
-    "État des flux de trésorerie": `Analysez les flux de trésorerie pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez les flux de trésorerie opérationnels, d'investissement et de financement. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext}Style professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
+    "État des flux de trésorerie": `Analysez les flux de trésorerie pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez les flux de trésorerie opérationnels, d'investissement et de financement. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext} ${financialsContext} Style professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
     
-    "Compte de résultat (mensuel)": `Présentez l'analyse mensuelle du compte de résultat pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez les variations saisonnières, les tendances mensuelles et les facteurs d'influence. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext}Ton professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
+    "Compte de résultat (mensuel)": `Présentez l'analyse mensuelle du compte de résultat pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez les variations saisonnières, les tendances mensuelles et les facteurs d'influence. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext} ${financialsContext} Ton professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
     
-    "Bilan (mensuel)": `Décrivez les projections mensuelles du bilan pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez l'évolution mensuelle des actifs, passifs et capitaux propres. La devise de référence est ${businessInfo.currency || 'Dollar américian'}. ${bmcContext}Langage professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
+    "Bilan (mensuel)": `Décrivez les projections mensuelles du bilan pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez l'évolution mensuelle des actifs, passifs et capitaux propres. La devise de référence est ${businessInfo.currency || 'Dollar américian'}. ${bmcContext} ${financialsContext} Langage professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
     
-    "Flux de trésorerie (mensuel)": `Analysez les flux de trésorerie mensuels pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez les variations mensuelles, les besoins de financement et la gestion de trésorerie. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext}Style professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
+    "Flux de trésorerie (mensuel)": `Analysez les flux de trésorerie mensuels pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez les variations mensuelles, les besoins de financement et la gestion de trésorerie. La devise de référence est ${businessInfo.currency || 'Dollar américain'}. ${bmcContext} ${financialsContext} Style professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français.`,
     
     "Équipe": `Décrivez l'équipe de direction et la structure organisationnelle pour ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. Incluez le personnel clé, les rôles et responsabilités, le conseil consultatif et la stratégie des ressources humaines. ${bmcContext}Ton plan d'affaires, 2-3 paragraphes. Le contenu doit être entièrement en français et adapté au contexte professionnel africain.`
   };
 
-  const prompt = prompts[section as keyof typeof prompts] || `Rédigez un contenu professionnel de plan d'affaires pour la section ${section} de ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. ${bmcContext}Utilisez un langage professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français et adapté au contexte entrepreneurial africain.`;
+  const prompt = prompts[section as keyof typeof prompts] || `Rédigez un contenu professionnel de plan d'affaires pour la section ${section} de ${businessInfo.companyName}, une entreprise ${businessInfo.industry}. ${bmcContext} ${['Plan financier', 'Compte de résultat', 'Bilan', 'État des flux de trésorerie', 'Compte de résultat (mensuel)', 'Bilan (mensuel)', 'Flux de trésorerie (mensuel)'].includes(section) ? financialsContext : ''} Utilisez un langage professionnel, 2-3 paragraphes. Le contenu doit être entièrement en français et adapté au contexte entrepreneurial africain.`;
   
   try {
     const response = await getChatCompletion(prompt);
