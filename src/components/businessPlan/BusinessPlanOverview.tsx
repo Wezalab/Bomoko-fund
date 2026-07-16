@@ -23,9 +23,11 @@ import {
   Linkedin,
   Instagram,
   Edit,
-  Eye
+  Eye,
+  Bot
 } from 'lucide-react';
 import profileImage from '../../assets/profileImage.png';
+import AIAgentGeneratorDialog from './AIAgentGeneratorDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -85,6 +87,9 @@ const BusinessPlanOverview: React.FC = () => {
 
   // Mock state for business plan progress - in real app this would come from API/Redux
   const [initialSetupCompleted] = useState(false);
+  const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
+  const [generatedAIPlan, setGeneratedAIPlan] = useState<any>(null);
+
   const [sections] = useState<BusinessPlanSection[]>([
     {
       id: 'business-description',
@@ -420,6 +425,17 @@ const BusinessPlanOverview: React.FC = () => {
                   <br />
                   <span className="text-xs opacity-90">{t('businessPlanAug25') || 'Business Plan Aug 25'}</span>
                 </button>
+
+                <button 
+                  onClick={() => setIsAgentModalOpen(true)}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex flex-col items-center justify-center border border-indigo-500 shadow-md"
+                >
+                  <div className="flex items-center space-x-1">
+                    <Bot className="w-4 h-4" />
+                    <span>Generate with AI Agents</span>
+                  </div>
+                  <span className="text-[10px] opacity-90 font-light mt-1 text-indigo-100">Powerful Multi-Agent Plan</span>
+                </button>
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex items-center space-x-2 cursor-pointer">
@@ -504,6 +520,36 @@ const BusinessPlanOverview: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {generatedAIPlan && (
+            <div className="mb-8 p-6 bg-white rounded-xl shadow-sm border-2 border-indigo-100">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                  <Bot className="w-6 h-6" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800">Your AI-Generated Business Plan</h2>
+              </div>
+              <div className="prose max-w-none prose-indigo">
+                {/* Simple Markdown to HTML rendering for the generated plan */}
+                {generatedAIPlan.fullPlan.split('\n').map((paragraph: string, i: number) => {
+                  if (paragraph.startsWith('# ')) {
+                    return <h1 key={i} className="text-2xl font-bold text-gray-900 mt-6 mb-4">{paragraph.substring(2)}</h1>;
+                  }
+                  if (paragraph.startsWith('## ')) {
+                    return <h2 key={i} className="text-xl font-bold text-gray-800 mt-5 mb-3">{paragraph.substring(3)}</h2>;
+                  }
+                  if (paragraph.startsWith('### ')) {
+                    return <h3 key={i} className="text-lg font-bold text-gray-800 mt-4 mb-2">{paragraph.substring(4)}</h3>;
+                  }
+                  if (paragraph.startsWith('- ') || paragraph.startsWith('* ')) {
+                    return <li key={i} className="ml-4 list-disc text-gray-700">{paragraph.substring(2)}</li>;
+                  }
+                  if (paragraph.trim() === '') return <br key={i} />;
+                  return <p key={i} className="text-gray-700 leading-relaxed mb-2">{paragraph}</p>;
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Business Plan Sections */}
           <div className="space-y-8">
@@ -677,6 +723,12 @@ const BusinessPlanOverview: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      <AIAgentGeneratorDialog 
+        isOpen={isAgentModalOpen} 
+        onClose={() => setIsAgentModalOpen(false)} 
+        onPlanGenerated={(plan) => setGeneratedAIPlan(plan)}
+      />
     </div>
   );
 };

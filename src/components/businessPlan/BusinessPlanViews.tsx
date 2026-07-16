@@ -19,6 +19,7 @@ import {
 import { useTranslation } from '@/lib/TranslationContext';
 import { useGetBusinessPlanQuery, useUpdateSubsectionContentMutation } from '@/redux/services/businessPlanServices';
 import { useGetUserCanvasesQuery } from '@/redux/services/bmcServices';
+import { useGetFinanceSheetQuery } from '@/redux/services/financeServices';
 import { generateBusinessPlanContent } from '@/lib/groqService';
 import RichTextEditor from './RichTextEditor';
 
@@ -84,8 +85,10 @@ const BusinessPlanViews: React.FC<BusinessPlanViewsProps> = ({
   const [expandedChapters, setExpandedChapters] = useState<Record<number, boolean>>({});
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  // Fetch BMC Data
+  // Fetch BMC and Finance Data
   const { data: bmcDataList } = useGetUserCanvasesQuery();
+  const ventureId = localStorage.getItem('selectedVentureId') || '';
+  const { data: financeSheet } = useGetFinanceSheetQuery(ventureId, { skip: !ventureId });
 
   // API hooks
   const { data: businessPlanData, isLoading: isLoadingPlan, error: planError } = useGetBusinessPlanQuery(
@@ -662,7 +665,8 @@ const BusinessPlanViews: React.FC<BusinessPlanViewsProps> = ({
         companyName, 
         industry, 
         wizardData, 
-        bmcData
+        bmcData,
+        financeSheet
       );
       
       // Update local and remote DB
