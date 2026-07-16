@@ -8,6 +8,7 @@ const groqApiKey = import.meta.env.VITE_GROQ_API_KEY;
 const llmProvider = import.meta.env.VITE_LLM_PROVIDER || 'chatgpt';
 const chatgptApiKey = import.meta.env.VITE_CHATGPT_API_KEY;
 const chatgptModel = import.meta.env.VITE_CHATGPT_MODEL || 'gpt-4o';
+const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 // Google OAuth Configuration — only the public client_id belongs in the frontend
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -20,4 +21,5 @@ export {
     chatgptApiKey,
     chatgptModel,
     googleClientId,
+    geminiApiKey,
 }
