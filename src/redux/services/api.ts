@@ -1,6 +1,8 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../store";
 import { apiUrl } from "@/lib/env";
+import { setUser, setToken, initialState } from "../slices/userSlice";
+import toast from "react-hot-toast";
 
 // Add this utility function at the top of the file
 const debugAPIResponse = (label: string, data: any) => {
@@ -97,9 +99,25 @@ const baseQuery=fetchBaseQuery({
     fetchFn: customFetch
 })
 
+const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
+  args,
+  api,
+  extraOptions
+) => {
+  let result = await baseQuery(args, api, extraOptions);
+
+  if (result.error && result.error.status === 401) {
+    api.dispatch(setUser(initialState.user));
+    api.dispatch(setToken(initialState.token));
+    toast.error('Session expired. Please log in again.');
+  }
+
+  return result;
+};
+
 const splitApi=createApi({
     reducerPath: 'splitApi',
-    baseQuery: baseQuery,
+    baseQuery: baseQueryWithReauth,
     tagTypes:['Entreprise', 'BMC'],
     endpoints:()=>({})
 })
